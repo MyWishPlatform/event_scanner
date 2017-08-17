@@ -12,7 +12,9 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.http.HttpService;
+import sun.tools.java.Environment;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -20,6 +22,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Component
@@ -32,6 +35,26 @@ public class Exporter implements ApplicationRunner {
 
     @Autowired
     private CloseableHttpClient closeableHttpClient;
+
+    private final AtomicBoolean terminated = new AtomicBoolean(false);
+    private final Object waitExit = new Object();
+
+    @PostConstruct
+    protected void init() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("Termination caught, wait till batch will be saved.");
+            terminated.set(true);
+            try {
+                synchronized (waitExit) {
+                    waitExit.wait();
+                }
+            }
+            catch (InterruptedException e) {
+                log.error("Wait was terminated! It might lead to loose transactions.", e);
+            }
+        }));
+        log.info("Shutdown hook deployed.");
+    }
 
     private static BigDecimal toEther(BigInteger amount) {
         if (amount == null) {
@@ -64,7 +87,7 @@ public class Exporter implements ApplicationRunner {
                 .longValue();
         log.debug("Latest block is {}", currentBlockNumber);
 
-        ResultSet resultSet = connection.prepareStatement("SELECT max(block_number) FROM transaction")
+        ResultSet resultSet = connection.prepareStatement("SELECT max(id) FROM block")
                 .executeQuery();
         long minBlockNumber = 0;
         if (resultSet.next()) {
@@ -138,18 +161,41 @@ public class Exporter implements ApplicationRunner {
             }
 
             if (transactionIndex % 100 == 0 && transactionIndex != 0) {
-                insertTransaction.executeBatch();
-                insertBlock.executeBatch();
+                try {
+                    insertTransaction.executeBatch();
+                }
+                catch (Exception e) {
+                    log.error("Error on saving transaction batch.", e);
+                }
                 log.debug("Block {}, transaction {}.", blockNumber, transactionIndex);
                 if (transactionIndex % 10000 == 0 && !log.isDebugEnabled()) {
                     log.info("Block {}, transaction {}.", blockNumber, transactionIndex);
                 }
+            }
+
+            if (blockNumber % 100 == 0 && blockNumber != 0) {
+                try {
+                    insertBlock.executeBatch();
+                }
+                catch (Exception e) {
+                    log.error("Error on saving block batch.", e);
+                }
+                log.debug("Block {}, transaction {}.", blockNumber, transactionIndex);
+            }
+
+            if (terminated.get()) {
+                log.info("Terminated cycle.");
+                break;
             }
         }
 
         insertTransaction.executeBatch();
         insertBlock.executeBatch();
         log.info("Block {}, transaction {}.", blockNumber, transactionIndex);
+
+        synchronized (waitExit) {
+            waitExit.notifyAll();
+        }
     }
 
 //    public static byte[] addressToBinary(String address) {

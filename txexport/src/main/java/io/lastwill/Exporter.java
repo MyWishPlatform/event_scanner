@@ -1,10 +1,13 @@
 package io.lastwill;
 
-import jdk.nashorn.internal.scripts.JD;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.methods.response.EthBlock;
@@ -19,22 +22,29 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 @Slf4j
-public class Main {
-    private final static String JDBC_URL = "jdbc:postgresql://localhost/ether";
-    private final static String WEB3_URL = HttpService.DEFAULT_URL;
+@Component
+public class Exporter implements ApplicationRunner {
 
-    public static void main(String[] args) throws Exception {
-        log.info("Export started.");
-        @Cleanup
-        CloseableHttpClient httpClient = HttpClientBuilder.create()
-                .setMaxConnPerRoute(10)
-                .setMaxConnTotal(10)
-                .setConnectionManagerShared(true)
-                .build();
+    @Value("${io.lastwill.jdbc-url}")
+    private String JDBC_URL;
+    @Value("${io.lastwill.web3-url}")
+    private String WEB3_URL;
 
+    @Autowired
+    private CloseableHttpClient closeableHttpClient;
+
+    private static BigDecimal toEther(BigInteger amount) {
+        if (amount == null) {
+            return new BigDecimal(0L);
+        }
+        return new BigDecimal(amount)
+                .divide(BigDecimal.valueOf(1000000000000000000L), 18, RoundingMode.CEILING);
+    }
+
+    @Override
+    public void run(ApplicationArguments applicationArguments) throws Exception {
         @Cleanup
         Connection connection = DriverManager.getConnection(
-//                "jdbc:postgresql://192.168.56.102/ether",
                 JDBC_URL,
                 "ether",
                 "ether"
@@ -42,9 +52,8 @@ public class Main {
         log.info("Connected to database {}.", JDBC_URL);
 
         Web3j web3j = Web3j.build(new HttpService(
-//                "http://192.168.56.102:8545/",
                 WEB3_URL,
-                httpClient
+                closeableHttpClient
         ));
         log.info("Connected to web3 {}.", WEB3_URL);
 
@@ -141,15 +150,6 @@ public class Main {
         insertTransaction.executeBatch();
         insertBlock.executeBatch();
         log.info("Block {}, transaction {}.", blockNumber, transactionIndex);
-
-    }
-
-    public static BigDecimal toEther(BigInteger amount) {
-        if (amount == null) {
-            return new BigDecimal(0L);
-        }
-        return new BigDecimal(amount)
-                .divide(BigDecimal.valueOf(1000000000000000000L), 18, RoundingMode.CEILING);
     }
 
 //    public static byte[] addressToBinary(String address) {

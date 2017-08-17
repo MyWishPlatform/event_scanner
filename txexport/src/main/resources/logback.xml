@@ -8,6 +8,7 @@
     </appender>
 
     <!--<logger name="io.lastwill" level="debug" />-->
+    <!--<logger name="org.apache.http.wire" level="DEBUG" />-->
 
     <root level="info">
         <appender-ref ref="STDOUT" />

@@ -4,20 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>etherexport</groupId>
+    <parent>
+        <artifactId>etherexport</artifactId>
+        <groupId>etherexport</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
     <artifactId>txexport</artifactId>
     <version>1.0-SNAPSHOT</version>
-
-    <properties>
-        <!-- maven-compiler-plugin -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <java.version>1.8</java.version>
-
-        <web3j.version>2.3.0</web3j.version>
-        <httpclient.version>4.5.2</httpclient.version>
-        <postgresql.version>42.1.4</postgresql.version>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -60,13 +54,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

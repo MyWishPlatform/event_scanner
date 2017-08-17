@@ -99,7 +99,6 @@ public class Exporter implements ApplicationRunner {
             return;
         }
 
-        long transactionIndex = 0;
         long blockNumber = minBlockNumber;
         for (; blockNumber <= currentBlockNumber; blockNumber++) {
 
@@ -141,6 +140,8 @@ public class Exporter implements ApplicationRunner {
         persister.flushBlock();
         persister.flushTransaction();
         persister.close();
+
+        log.info("Last saved block is {}.", blockNumber);
 
         synchronized (waitExit) {
             waitExit.notifyAll();

@@ -49,8 +49,8 @@ public class Persister {
         );
         log.info("Connected to database {}.", JDBC_URL);
 
-        insertTransaction = connection.prepareStatement("INSERT INTO transaction (id, block_number, value, from_address, to_address, nonce, gas, gas_price) VALUES (decode(?, 'hex'), ?, ?, decode(?, 'hex'), decode(?, 'hex'), ?, ?, ?)");
-        insertBlock = connection.prepareStatement("INSERT INTO block (id, timestamp, miner_address, difficulty) VALUES (?, ?, decode(?, 'hex'), ?)");
+        insertTransaction = connection.prepareStatement("INSERT INTO transaction (id, block_number, value, from_address, to_address, nonce, gas, gas_price) VALUES (decode(?, 'hex'), ?, ?, decode(?, 'hex'), decode(?, 'hex'), ?, ?, ?) ON CONFLICT DO NOTHING ");
+        insertBlock = connection.prepareStatement("INSERT INTO block (id, timestamp, miner_address, difficulty) VALUES (?, ?, decode(?, 'hex'), ?) ON CONFLICT DO NOTHING ");
     }
 
     public void persist(long blockNumber, EthBlock.Block block) {

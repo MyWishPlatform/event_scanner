@@ -110,6 +110,7 @@ public class Exporter implements ApplicationRunner {
         final int GAS_ORDINAL = 7;
         final int GAS_PRICE_ORDINAL = 8;
 
+        @Cleanup
         PreparedStatement insertBlock = connection.prepareStatement("INSERT INTO block (id, timestamp, miner_address, difficulty) VALUES (?, ?, decode(?, 'hex'), ?)");
         final int TIMESTAMP_ORDINAL = 2;
         final int MINER_ORDINAL = 3;
@@ -166,9 +167,9 @@ public class Exporter implements ApplicationRunner {
                 catch (Exception e) {
                     log.error("Error on saving transaction batch.", e);
                 }
-                log.debug("Block {}, transaction {}.", blockNumber, transactionIndex);
+                log.debug("Saved block {}, transaction {}.", blockNumber, transactionIndex);
                 if (transactionIndex % 10000 == 0 && !log.isDebugEnabled()) {
-                    log.info("Block {}, transaction {}.", blockNumber, transactionIndex);
+                    log.info("Saved block {}, transaction {}.", blockNumber, transactionIndex);
                 }
             }
 
@@ -179,7 +180,10 @@ public class Exporter implements ApplicationRunner {
                 catch (Exception e) {
                     log.error("Error on saving block batch.", e);
                 }
-                log.debug("Block {}, transaction {}.", blockNumber, transactionIndex);
+                log.debug("Saved block {}, transaction {}.", blockNumber, transactionIndex);
+                if (blockNumber % 1000 == 0 && !log.isDebugEnabled()) {
+                    log.info("Saved block {}, transaction {}.", blockNumber, transactionIndex);
+                }
             }
 
             if (terminated.get()) {
@@ -190,7 +194,7 @@ public class Exporter implements ApplicationRunner {
 
         insertTransaction.executeBatch();
         insertBlock.executeBatch();
-        log.info("Block {}, transaction {}.", blockNumber, transactionIndex);
+        log.info("Saved block {}, transaction {}.", blockNumber, transactionIndex);
 
         synchronized (waitExit) {
             waitExit.notifyAll();

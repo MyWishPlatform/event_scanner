@@ -63,7 +63,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>io.lastwill.Exporter</mainClass>
+                    <mainClass>io.lastwill.Application</mainClass>
                 </configuration>
                 <executions>
                     <execution>

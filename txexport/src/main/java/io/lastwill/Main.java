@@ -1,5 +1,6 @@
 package io.lastwill;
 
+import jdk.nashorn.internal.scripts.JD;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -19,7 +20,11 @@ import java.sql.ResultSet;
 
 @Slf4j
 public class Main {
+    private final static String JDBC_URL = "jdbc:postgresql://localhost/ether";
+    private final static String WEB3_URL = HttpService.DEFAULT_URL;
+
     public static void main(String[] args) throws Exception {
+        log.info("Export started.");
         @Cleanup
         CloseableHttpClient httpClient = HttpClientBuilder.create()
                 .setMaxConnPerRoute(10)
@@ -30,16 +35,18 @@ public class Main {
         @Cleanup
         Connection connection = DriverManager.getConnection(
 //                "jdbc:postgresql://192.168.56.102/ether",
-                "jdbc:postgresql://localhost/ether",
+                JDBC_URL,
                 "ether",
                 "ether"
         );
+        log.info("Connected to database {}.", JDBC_URL);
 
         Web3j web3j = Web3j.build(new HttpService(
 //                "http://192.168.56.102:8545/",
-                HttpService.DEFAULT_URL,
+                WEB3_URL,
                 httpClient
         ));
+        log.info("Connected to web3 {}.", WEB3_URL);
 
         long currentBlockNumber = web3j
                 .ethBlockNumber()

@@ -124,6 +124,7 @@ public class Exporter implements ApplicationRunner {
                     break;
                 }
                 log.info("Terminated cycle, do not request more data. Wait till {} requests will be finished and {} block will be persisted.", restRequest, resultQueue.size());
+                Thread.sleep(500);
             }
 
             while (!resultQueue.isEmpty()) {

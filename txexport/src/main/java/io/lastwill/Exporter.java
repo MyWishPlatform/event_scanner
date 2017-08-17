@@ -12,7 +12,6 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.http.HttpService;
-import sun.tools.java.Environment;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;

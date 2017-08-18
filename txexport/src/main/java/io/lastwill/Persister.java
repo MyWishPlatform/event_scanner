@@ -57,7 +57,7 @@ public class Persister {
         try {
             innerPersist(blockNumber, block);
         }
-        catch (SQLException e) {
+        catch (Exception e) {
             log.error("Error on adding to batch block {}, skip it.", blockNumber, e);
         }
 

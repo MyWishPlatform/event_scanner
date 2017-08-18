@@ -34,6 +34,9 @@ public class Exporter implements ApplicationRunner {
     @Value("${io.lastwill.exporter.pool-size:10}")
     private int poolSize;
 
+    @Value("${io.lastwill.exporter.start-block:#{null}}")
+    private Long startBlock;
+
     @Autowired
     private CloseableHttpClient closeableHttpClient;
 
@@ -86,15 +89,21 @@ public class Exporter implements ApplicationRunner {
                 .longValue();
         log.debug("Latest block is {}", currentBlockNumber);
 
-        ResultSet resultSet = connection.prepareStatement("SELECT max(id) FROM block")
-                .executeQuery();
         long minBlockNumber = 0;
-        if (resultSet.next()) {
-            minBlockNumber = resultSet.getLong(1);
+        //noinspection ConstantConditions, startBlock is @Value
+        if (startBlock == null) {
+            ResultSet resultSet = connection.prepareStatement("SELECT max(id) FROM block")
+                    .executeQuery();
+            if (resultSet.next()) {
+                minBlockNumber = resultSet.getLong(1);
+            }
+        }
+        else {
+            minBlockNumber = startBlock;
         }
         log.debug("Min block number is {}", minBlockNumber);
 
-        if (minBlockNumber == currentBlockNumber) {
+        if (minBlockNumber >= currentBlockNumber) {
             log.info("No new blocks.");
             return;
         }
@@ -108,8 +117,8 @@ public class Exporter implements ApplicationRunner {
                 web3j.ethGetBlockByNumber(new DefaultBlockParameterNumber(blockNumber), true)
                         .sendAsync()
                         .thenAccept(block -> {
-                            if (block == null) {
-                                log.error("Empty block returned");
+                            if (block == null || block.getBlock() == null) {
+                                log.error("Empty block returned for {}.", fBlockNumber);
                                 semaphore.release();
                                 return;
                             }

@@ -31,16 +31,20 @@ public class ContractsMonitor {
     public void onNewBlock(NewBlockEvent newBlockEvent) {
         Set<String> addresses = newBlockEvent.getTransactionsByAddress().keySet();
         List<Contract> contracts = contractRepository.findByAddressesList(addresses);
-        for (Contract contract: contracts) {
+        for (Contract contract : contracts) {
+            boolean wasPublished = false;
             if (addresses.contains(contract.getAddress())) {
                 final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getAddress());
                 publishContractBalance(contract, transactions);
+                wasPublished |= true;
             }
-            else if (addresses.contains(contract.getOwnerAddress())) {
+            if (addresses.contains(contract.getOwnerAddress())) {
                 final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getOwnerAddress());
                 publishOwnerBalance(contract, transactions);
+                wasPublished |= true;
             }
-            else {
+
+            if (!wasPublished) {
                 log.warn("Contract {} was mentioned in block because of unknown reason.", contract.getId());
             }
         }

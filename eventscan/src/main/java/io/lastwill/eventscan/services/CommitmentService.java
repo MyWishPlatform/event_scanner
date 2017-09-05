@@ -1,6 +1,7 @@
 package io.lastwill.eventscan.services;
 
 import io.lastwill.eventscan.events.NewBlockEvent;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,8 @@ import org.web3j.protocol.core.methods.response.EthBlock.Block;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -48,6 +51,13 @@ public class CommitmentService {
     public interface Handler<T> {
         void committed(long blockNumber, T payload, int chainLength);
         void rejected(long blockNumber, T payload, int chainLength);
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public class Result<T> {
+        private final T payload;
+        private final boolean committed;
     }
 
     @EventListener
@@ -100,6 +110,23 @@ public class CommitmentService {
         }
         while (!lowWaiterNo.compareAndSet(low, blockNumber));
     }
+
+    public <T> CompletionStage<Boolean> register(String blockHash, long blockNumber) {
+        final CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
+        register(blockHash, blockNumber, null, new Handler<T>() {
+            @Override
+            public void committed(long blockNumber, T payload, int chainLength) {
+                completableFuture.complete(true);
+            }
+
+            @Override
+            public void rejected(long blockNumber, T payload, int chainLength) {
+                completableFuture.complete(false);
+            }
+        });
+        return completableFuture;
+    }
+
 
     private void validateChain(Block childBlock, long initialBlockNo) {
         var block = blockChain.get(childBlock.getParentHash());

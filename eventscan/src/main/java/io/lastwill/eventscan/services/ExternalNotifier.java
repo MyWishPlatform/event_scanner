@@ -2,6 +2,7 @@ package io.lastwill.eventscan.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.lastwill.eventscan.model.Contract;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
@@ -19,6 +20,12 @@ import java.math.BigInteger;
 @Slf4j
 @Component
 public class ExternalNotifier {
+    public enum PaymentStatus {
+        CREATED,
+        COMMITTED,
+        REJECTED
+    }
+
     @Autowired
     private HttpAsyncClient httpClient;
 
@@ -28,11 +35,11 @@ public class ExternalNotifier {
     @Value("${io.lastwill.eventscan.backend-url}")
     private String baseUri;
 
-    public void sendNotify(String address, BigInteger amount, int blockCommitted) {
+    public void sendNotify(Contract contract, BigInteger balance, PaymentStatus status) {
         HttpPost post = new HttpPost(baseUri);
         byte[] buf;
         try {
-            buf = objectMapper.writeValueAsBytes(new NotifyContract(address, amount, blockCommitted));
+            buf = objectMapper.writeValueAsBytes(new NotifyContract(contract.getId(), balance, status));
         }
         catch (JsonProcessingException e) {
             log.error("Sending notify failed during serialization process.", e);
@@ -63,8 +70,8 @@ public class ExternalNotifier {
 
     @RequiredArgsConstructor
     public static class NotifyContract {
-        private final String address;
-        private final BigInteger amount;
-        private final int blockCommitted;
+        private final int contractId;
+        private final BigInteger balance;
+        private final PaymentStatus state;
     }
 }

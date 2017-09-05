@@ -12,10 +12,11 @@
     <artifactId>eventscan</artifactId>
 
     <properties>
-        <db-host>localhost</db-host>
+        <db-url>jdbc:postgresql://localhost/lastwill_new</db-url>
+        <db-user>lastwill_new</db-user>
+        <db-password>lastwill_new</db-password>
         <web3-base-url>http://localhost:8545/</web3-base-url>
-        <db-password>lastwill</db-password>
-        <backend-base-url>http://localhost</backend-base-url>
+        <backend-base-url>http://localhost/api/v1/payment_notify</backend-base-url>
     </properties>
 
     <dependencies>

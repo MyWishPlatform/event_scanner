@@ -35,12 +35,12 @@ public class ContractsMonitor {
             boolean wasPublished = false;
             if (addresses.contains(contract.getAddress())) {
                 final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getAddress());
-                publishContractBalance(contract, transactions);
+                publishContractBalance(contract, transactions, newBlockEvent.getBlock().getHash());
                 wasPublished |= true;
             }
             if (addresses.contains(contract.getOwnerAddress())) {
                 final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getOwnerAddress());
-                publishOwnerBalance(contract, transactions);
+                publishOwnerBalance(contract, transactions, newBlockEvent.getBlock().getHash());
                 wasPublished |= true;
             }
 
@@ -50,24 +50,25 @@ public class ContractsMonitor {
         }
     }
 
-    private void publishContractBalance(final Contract contract, final List<Transaction> transactions) {
+    private void publishContractBalance(final Contract contract, final List<Transaction> transactions, final String blockHash) {
         final BigInteger value = getValueFor(contract.getAddress(), transactions);
         balanceProvider.getBalanceAsync(contract.getAddress())
                 .thenAccept(balance -> {
                     eventPublisher.publish(new ContractBalanceChangedEvent(
-                            contract.getAddress(),
+                            contract,
                             value,
-                            balance
+                            balance,
+                            blockHash
                     ));
                 });
     }
 
-    private void publishOwnerBalance(final Contract contract, final List<Transaction> transactions) {
+    private void publishOwnerBalance(final Contract contract, final List<Transaction> transactions, final String blockHash) {
         final BigInteger value = getValueFor(contract.getOwnerAddress(), transactions);
         balanceProvider.getBalanceAsync(contract.getOwnerAddress())
                 .thenAccept(balance -> {
                     eventPublisher.publish(new OwnerBalanceChangedEvent(
-                            contract.getOwnerAddress(),
+                            blockHash, contract,
                             value,
                             balance
                     ));

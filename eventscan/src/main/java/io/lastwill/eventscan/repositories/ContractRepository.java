@@ -11,6 +11,6 @@ import java.util.List;
 public interface ContractRepository extends CrudRepository<Contract, Integer> {
     List<Contract> findByAddressOrOwnerAddress(String address, String ownerAddress);
 
-    @Query("select c from Contract c where c.address in (:addresses) or c.ownerAddress in (:addresses)")
+    @Query("select c from Contract c where lower(c.address) in :addresses or lower(c.ownerAddress) in :addresses")
     List<Contract> findByAddressesList(@Param("addresses") Collection<String> addresses);
 }

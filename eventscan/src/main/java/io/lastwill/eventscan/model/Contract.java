@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "contracts_contract")
@@ -17,8 +18,9 @@ public class Contract {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ContractState state;
-    @Column(name = "activeTo", nullable = false)
-    private LocalDateTime activeUntil;
+    // TODO: att covertors
+//    @Column(name = "activeTo", nullable = false)
+//    private OffsetDateTime activeUntil;
     @Column(nullable = false)
     private int checkInterval;
 }

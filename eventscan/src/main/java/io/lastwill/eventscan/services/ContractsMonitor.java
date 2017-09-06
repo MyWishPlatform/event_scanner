@@ -9,9 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 
+import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -30,17 +34,25 @@ public class ContractsMonitor {
     @EventListener
     public void onNewBlock(NewBlockEvent newBlockEvent) {
         Set<String> addresses = newBlockEvent.getTransactionsByAddress().keySet();
+        if (addresses.isEmpty()) {
+            return;
+        }
+        if (log.isTraceEnabled()) {
+            log.trace("List of address ({}):", addresses.size());
+            addresses.forEach(log::trace);
+        }
+
         List<Contract> contracts = contractRepository.findByAddressesList(addresses);
         for (Contract contract : contracts) {
             boolean wasPublished = false;
-            if (addresses.contains(contract.getAddress())) {
-                final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getAddress());
-                publishContractBalance(contract, transactions, newBlockEvent.getBlock().getHash());
+            if (addresses.contains(contract.getAddress().toLowerCase())) {
+                final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getAddress().toLowerCase());
+                publishContractBalance(contract, transactions, newBlockEvent.getBlock());
                 wasPublished |= true;
             }
-            if (addresses.contains(contract.getOwnerAddress())) {
-                final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getOwnerAddress());
-                publishOwnerBalance(contract, transactions, newBlockEvent.getBlock().getHash());
+            if (addresses.contains(contract.getOwnerAddress().toLowerCase())) {
+                final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getOwnerAddress().toLowerCase());
+                publishOwnerBalance(contract, transactions, newBlockEvent.getBlock());
                 wasPublished |= true;
             }
 
@@ -50,38 +62,53 @@ public class ContractsMonitor {
         }
     }
 
-    private void publishContractBalance(final Contract contract, final List<Transaction> transactions, final String blockHash) {
+    private void publishContractBalance(final Contract contract, final List<Transaction> transactions, final EthBlock.Block block) {
         final BigInteger value = getValueFor(contract.getAddress(), transactions);
         balanceProvider.getBalanceAsync(contract.getAddress())
                 .thenAccept(balance -> {
                     eventPublisher.publish(new ContractBalanceChangedEvent(
+                            block,
                             contract,
-                            value,
-                            balance,
-                            blockHash
-                    ));
-                });
-    }
-
-    private void publishOwnerBalance(final Contract contract, final List<Transaction> transactions, final String blockHash) {
-        final BigInteger value = getValueFor(contract.getOwnerAddress(), transactions);
-        balanceProvider.getBalanceAsync(contract.getOwnerAddress())
-                .thenAccept(balance -> {
-                    eventPublisher.publish(new OwnerBalanceChangedEvent(
-                            blockHash, contract,
                             value,
                             balance
                     ));
                 });
     }
 
+    private void publishOwnerBalance(final Contract contract, final List<Transaction> transactions, final EthBlock.Block block) {
+        final BigInteger value = getValueFor(contract.getOwnerAddress(), transactions);
+        BigInteger balance = null;
+        try {
+            balance = balanceProvider.getBalance(contract.getOwnerAddress());
+        }
+        catch (IOException e) {
+            log.error("er", e);
+        }
+        eventPublisher.publish(new OwnerBalanceChangedEvent(
+                block,
+                contract,
+                value,
+                balance
+        ));
+
+//        balanceProvider.getBalanceAsync(contract.getOwnerAddress())
+//                .thenAccept(balance -> {
+//                    eventPublisher.publish(new OwnerBalanceChangedEvent(
+//                            block,
+//                            contract,
+//                            value,
+//                            balance
+//                    ));
+//                });
+    }
+
     private BigInteger getValueFor(String address, List<Transaction> transactions) {
         BigInteger result = BigInteger.ZERO;
         for (Transaction transaction: transactions) {
-            if (address.equals(transaction.getFrom())) {
+            if (address.compareToIgnoreCase(transaction.getFrom()) == 0) {
                 result = result.subtract(transaction.getValue());
             }
-            else if (address.equals(transaction.getTo())) {
+            else if (address.compareToIgnoreCase(transaction.getTo()) == 0) {
                 result = result.add(transaction.getValue());
             }
             else {

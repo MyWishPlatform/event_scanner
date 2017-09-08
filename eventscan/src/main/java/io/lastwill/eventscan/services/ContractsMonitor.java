@@ -64,7 +64,7 @@ public class ContractsMonitor {
         List<Contract> contracts = contractRepository.findByAddressesList(addresses);
         for (Contract contract : contracts) {
             boolean wasPublished = false;
-            if (addresses.contains(contract.getAddress().toLowerCase())) {
+            if (contract.getAddress() != null && addresses.contains(contract.getAddress().toLowerCase())) {
                 final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getAddress().toLowerCase());
                 grabContractEvents(contract, transactions, newBlockEvent.getBlock());
                 wasPublished |= true;

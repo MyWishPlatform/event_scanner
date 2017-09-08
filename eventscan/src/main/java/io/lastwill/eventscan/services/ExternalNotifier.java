@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.entity.ByteArrayEntity;
@@ -18,9 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Component
@@ -40,45 +36,64 @@ public class ExternalNotifier {
     @Value("${io.lastwill.eventscan.backend-url}")
     private String baseUri;
 
-    public void sendNotify(Contract contract, BigInteger balance, PaymentStatus status) {
-        HttpPost post = new HttpPost(baseUri);
+    public void sendPaymentNotify(Contract contract, BigInteger balance, PaymentStatus status) {
+        doPost(baseUri, new PaymentNotify(contract.getId(), balance, status));
+    }
+
+    public void sendCheckRepeatNotify(Contract contract) {
+        doPost(baseUri, new NotifyContract(contract.getId()));
+    }
+
+    private void doPost(final String uri, final Object object) {
+        HttpPost post = new HttpPost(uri);
         byte[] buf;
         try {
-            buf = objectMapper.writeValueAsBytes(new NotifyContract(contract.getId(), balance, status));
+            buf = objectMapper.writeValueAsBytes(object);
         }
         catch (JsonProcessingException e) {
-            log.error("Sending notify failed during serialization process.", e);
+            log.error("Serializing class {} ({}) failed.", object.getClass(), object, e);
             return;
         }
         post.setEntity(new ByteArrayEntity(buf, ContentType.APPLICATION_JSON));
-        log.debug("Sending notification to backend, {} bytes.", buf.length);
+        log.debug("Sending notification to {}, {} bytes.", uri, buf.length);
         httpClient.execute(post, new FutureCallback<HttpResponse>() {
-                @Override
-                public void completed(HttpResponse result) {
-                    if (result.getStatusLine().getStatusCode() != 200) {
-                        log.warn("Sending notification result code {} != 200.", result.getStatusLine().getStatusCode());
-                        return;
-                    }
-                    log.debug("Sending notification completed with code 200.");
+            @Override
+            public void completed(HttpResponse result) {
+                if (result.getStatusLine().getStatusCode() != 200) {
+                    log.warn("Sending notification to {} result code {} != 200.", uri, result.getStatusLine().getStatusCode());
+                    return;
                 }
+                log.debug("Sending notification to {} completed with code 200.", uri);
+            }
 
-                @Override
-                public void failed(Exception ex) {
-                    log.error("Sending notification failed.", ex);
-                }
+            @Override
+            public void failed(Exception ex) {
+                log.error("Sending notification to {} failed.", uri, ex);
+            }
 
-                @Override
-                public void cancelled() {
-                    log.error("Sending notification canceled.");
-                }
-            });
+            @Override
+            public void cancelled() {
+                log.error("Sending notification to {} canceled.", uri);
+            }
+        });
+
     }
 
     @Getter
     @RequiredArgsConstructor
     public static class NotifyContract {
         private final int contractId;
+    }
+
+    @Getter
+    public static class PaymentNotify extends NotifyContract {
         private final BigInteger balance;
         private final PaymentStatus state;
+
+        public PaymentNotify(int contractId, BigInteger balance, PaymentStatus state) {
+            super(contractId);
+            this.balance = balance;
+            this.state = state;
+        }
     }
 }

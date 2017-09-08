@@ -7,9 +7,9 @@ import org.web3j.protocol.core.methods.response.EthBlock;
 import java.math.BigInteger;
 
 @Getter
-public class ContractBalanceChangedEvent extends BalanceChangedEvent {
+public class NewContractBlockEvent extends BalanceChangedEvent {
     private final Contract contract;
-    public ContractBalanceChangedEvent(EthBlock.Block block, Contract contract, BigInteger amount, BigInteger balance) {
+    public NewContractBlockEvent(EthBlock.Block block, Contract contract, BigInteger amount, BigInteger balance) {
         super(block, contract.getAddress(), amount, balance);
         this.contract = contract;
     }

@@ -93,7 +93,7 @@ public class CommitmentService {
         }
     }
 
-    public <T> void register(String blockHash, long blockNumber, T payload, Handler<T> handler) {
+    public <T> void waitCommitment(String blockHash, long blockNumber, T payload, Handler<T> handler) {
         register.putIfAbsent(blockNumber, new ArrayList<>());
 
         register.computeIfPresent(blockNumber, (aLong, holders) -> {
@@ -111,9 +111,9 @@ public class CommitmentService {
         while (!lowWaiterNo.compareAndSet(low, blockNumber));
     }
 
-    public <T> CompletionStage<Boolean> register(String blockHash, long blockNumber) {
+    public <T> CompletionStage<Boolean> waitCommitment(String blockHash, long blockNumber) {
         final CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
-        register(blockHash, blockNumber, null, new Handler<T>() {
+        waitCommitment(blockHash, blockNumber, null, new Handler<T>() {
             @Override
             public void committed(long blockNumber, T payload, int chainLength) {
                 completableFuture.complete(true);

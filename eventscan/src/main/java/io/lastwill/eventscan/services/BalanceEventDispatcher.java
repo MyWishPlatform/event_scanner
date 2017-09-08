@@ -18,11 +18,11 @@ public class BalanceEventDispatcher {
     @EventListener
     public void ownerBalanceChangedHandler(final OwnerBalanceChangedEvent event) {
         try {
-            externalNotifier.sendNotify(event.getContract(), event.getBalance(), ExternalNotifier.PaymentStatus.CREATED);
+            externalNotifier.sendPaymentNotify(event.getContract(), event.getBalance(), ExternalNotifier.PaymentStatus.CREATED);
 
-            commitmentService.register(event.getBlock().getHash(), event.getBlock().getNumber().longValue())
+            commitmentService.waitCommitment(event.getBlock().getHash(), event.getBlock().getNumber().longValue())
                     .thenApply(committed -> committed ? ExternalNotifier.PaymentStatus.COMMITTED : ExternalNotifier.PaymentStatus.REJECTED)
-                    .thenAccept(status -> externalNotifier.sendNotify(event.getContract(), event.getBalance(), status))
+                    .thenAccept(status -> externalNotifier.sendPaymentNotify(event.getContract(), event.getBalance(), status))
                     .exceptionally(th -> {
                         log.error("Waiting commitment failed.", th);
                         return null;

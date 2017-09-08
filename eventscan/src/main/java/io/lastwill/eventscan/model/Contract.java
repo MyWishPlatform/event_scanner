@@ -3,6 +3,7 @@ package io.lastwill.eventscan.model;
 import lombok.Getter;
 
 import javax.persistence.*;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
@@ -18,9 +19,12 @@ public class Contract {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ContractState state;
-    // TODO: att covertors
+    // TODO: add convertors
 //    @Column(name = "activeTo", nullable = false)
 //    private OffsetDateTime activeUntil;
     @Column(nullable = false)
     private int checkInterval;
+    private BigInteger balance;
+    @Column(nullable = false)
+    private BigInteger cost;
 }

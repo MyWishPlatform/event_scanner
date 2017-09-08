@@ -41,15 +41,15 @@ public class CommitmentServiceTest {
 
     @Before
     public void init() {
-        target.register("0x1", 1, 1, handler);
-        target.register("0x2", 1, 2, handler);
-        target.register("0x3", 2, 3, handler);
-        target.register("0x4", 2, 4, handler);
+        target.waitCommitment("0x1", 1, 1, handler);
+        target.waitCommitment("0x2", 1, 2, handler);
+        target.waitCommitment("0x3", 2, 3, handler);
+        target.waitCommitment("0x4", 2, 4, handler);
     }
 
     @Test
     public void commonLogicTest() {
-        target.register("0x1", 1, 7, handler);
+        target.waitCommitment("0x1", 1, 7, handler);
         target.newBlockHandler(new NewBlockEvent(new BlockStub("0x1", "0x1", "0x0"), new LinkedMultiValueMap<>()));
         Assert.assertEquals("no committed",0, committedBlockNo.get());
         Assert.assertEquals("no rejected",0, rejectedBlockNo.get());
@@ -72,7 +72,7 @@ public class CommitmentServiceTest {
 
     @Test
     public void forkTest() {
-        target.register("0x10", 1, 7, handler);
+        target.waitCommitment("0x10", 1, 7, handler);
         target.newBlockHandler(new NewBlockEvent(new BlockStub("0x1", "0x1", "0x0"), new LinkedMultiValueMap<>()));
         target.newBlockHandler(new NewBlockEvent(new BlockStub("0x2", "0x2", "0x1"), new LinkedMultiValueMap<>()));
         // parallel

@@ -132,6 +132,5 @@ public class EtherScanner {
                 });
 
         eventPublisher.publish(new NewBlockEvent(block, addressTransactions));
-        return;
     }
 }

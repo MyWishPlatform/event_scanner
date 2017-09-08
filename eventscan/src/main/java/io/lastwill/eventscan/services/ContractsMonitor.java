@@ -8,12 +8,17 @@ import io.lastwill.eventscan.model.EventValue;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import org.web3j.protocol.core.methods.response.EthBlock;
+import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.Transaction;
 
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -38,6 +43,9 @@ public class ContractsMonitor {
     @Autowired
     private EventParser eventParser;
 
+    @Value("${io.lastwill.eventscan.contract.proxy-address}")
+    private String proxyAddress;
+
     @EventListener
     public void onNewBlock(NewBlockEvent newBlockEvent) {
         Set<String> addresses = newBlockEvent.getTransactionsByAddress().keySet();
@@ -49,12 +57,16 @@ public class ContractsMonitor {
             addresses.forEach(log::trace);
         }
 
+        if (addresses.contains(proxyAddress)) {
+            final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(proxyAddress);
+            grabProxyEvents(transactions, newBlockEvent.getBlock());
+        }
         List<Contract> contracts = contractRepository.findByAddressesList(addresses);
         for (Contract contract : contracts) {
             boolean wasPublished = false;
             if (addresses.contains(contract.getAddress().toLowerCase())) {
                 final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getAddress().toLowerCase());
-                publishContractBlock(contract, transactions, newBlockEvent.getBlock());
+                grabContractEvents(contract, transactions, newBlockEvent.getBlock());
                 wasPublished |= true;
             }
             if (addresses.contains(contract.getOwnerAddress().toLowerCase())) {
@@ -69,7 +81,52 @@ public class ContractsMonitor {
         }
     }
 
-    private void publishContractBlock(final Contract contract, final List<Transaction> transactions, final EthBlock.Block block) {
+    private void grabProxyEvents(final List<Transaction> transactions, final EthBlock.Block block) {
+        commitmentService.waitCommitment(block.getHash(), block.getNumber().longValue())
+                .thenAccept(committed -> {
+                    if (!committed) {
+                        log.info("Block {} with contract's transactions was rejected.", block.getNumber());
+                        return;
+                    }
+
+                    for (Transaction transaction : transactions) {
+                        transactionProvider.getTransactionReceiptAsync(transaction.getHash())
+                                .thenAccept(transactionReceipt -> {
+                                    MultiValueMap<String, Log> logsByAddress = CollectionUtils.toMultiValueMap(new HashMap<>());
+                                    for (Log log: transactionReceipt.getLogs()) {
+                                        logsByAddress.add(log.getAddress(), log);
+                                    }
+
+                                    contractRepository.findByAddressesList(logsByAddress.keySet());
+                                    for (Contract contract : contractRepository.findByAddressesList(logsByAddress.keySet())) {
+                                        List<EventValue> eventValues;
+                                        try {
+                                            eventValues = eventParser.parseEvents(transactionReceipt);
+                                        }
+                                        catch (Throwable e) {
+                                            log.error("Error on parsing events.", e);
+                                            return;
+                                        }
+                                        if (eventValues.isEmpty()) {
+                                            return;
+                                        }
+                                        eventPublisher.publish(
+                                                new ContractEventsEvent(
+                                                        contract,
+                                                        eventValues,
+                                                        transaction,
+                                                        transactionReceipt,
+                                                        block
+                                                )
+                                        );
+                                    }
+
+                                });
+                    }
+                });
+    }
+
+    private void grabContractEvents(final Contract contract, final List<Transaction> transactions, final EthBlock.Block block) {
         commitmentService.waitCommitment(block.getHash(), block.getNumber().longValue())
                 .thenAccept(committed -> {
                     if (!committed) {

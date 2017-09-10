@@ -40,14 +40,13 @@ public class Application {
 
         return HttpClientBuilder
                 .create()
-                .setMaxConnPerRoute(10)
-                .setMaxConnTotal(10)
+                .setMaxConnPerRoute(50)
+                .setMaxConnTotal(200)
                 .setDefaultRequestConfig(
                         RequestConfig.custom()
                                 .setConnectTimeout(connectionTimeout)
                                 .setSocketTimeout(socketTimeout)
                                 .setConnectionRequestTimeout(getConnectionTimeout)
-                                .setExpectContinueEnabled(true)
                                 .build()
                 )
                 .setConnectionManagerShared(true)

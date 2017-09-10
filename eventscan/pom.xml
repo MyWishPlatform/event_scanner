@@ -16,7 +16,7 @@
         <db-user>lastwill_new</db-user>
         <db-password>lastwill_new</db-password>
         <web3-base-url>http://localhost:8545/</web3-base-url>
-        <backend-base-url>http://localhost/api/v1/payment_notify</backend-base-url>
+        <backend-base-url>http://demo.mywillplatform.io/api/v1/payment_notify</backend-base-url>
     </properties>
 
     <dependencies>

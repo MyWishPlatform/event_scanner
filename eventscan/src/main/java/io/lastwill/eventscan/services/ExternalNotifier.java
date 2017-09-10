@@ -16,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.math.BigInteger;
+import java.net.URL;
 
 @Slf4j
 @Component
@@ -35,13 +37,24 @@ public class ExternalNotifier {
 
     @Value("${io.lastwill.eventscan.backend-url}")
     private String baseUri;
+    private String paymentUrl;
+    private String repeatCheckUrl;
+
+    @PostConstruct
+    protected void init() {
+        if (!baseUri.endsWith("/")) {
+            baseUri = baseUri + "/";
+        }
+        paymentUrl = baseUri + "payment_notify";
+        repeatCheckUrl = baseUri + "repeat_check";
+    }
 
     public void sendPaymentNotify(Contract contract, BigInteger balance, PaymentStatus status) {
-        doPost(baseUri, new PaymentNotify(contract.getId(), balance, status));
+        doPost(paymentUrl, new PaymentNotify(contract.getId(), balance, status));
     }
 
     public void sendCheckRepeatNotify(Contract contract) {
-        doPost(baseUri, new NotifyContract(contract.getId()));
+        doPost(repeatCheckUrl, new NotifyContract(contract.getId()));
     }
 
     private void doPost(final String uri, final Object object) {

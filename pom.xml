@@ -18,6 +18,7 @@
     <modules>
         <module>txexport</module>
         <module>eventscan</module>
+        <module>ethereumrpl</module>
     </modules>
 
     <properties>
@@ -32,6 +33,7 @@
         <web3j.version>2.3.0</web3j.version>
         <httpclient.version>4.5.2</httpclient.version>
         <postgresql.version>42.1.4</postgresql.version>
+        <spongycastle.version>1.58.0.0</spongycastle.version>
     </properties>
 
     <dependencies>

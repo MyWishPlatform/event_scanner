@@ -18,7 +18,7 @@
     <modules>
         <module>txexport</module>
         <module>eventscan</module>
-        <module>ethereumrpl</module>
+        <module>ethereum-rlp</module>
     </modules>
 
     <properties>

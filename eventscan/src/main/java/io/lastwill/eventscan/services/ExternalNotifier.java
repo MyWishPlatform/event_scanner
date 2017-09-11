@@ -39,6 +39,7 @@ public class ExternalNotifier {
     private String paymentUrl;
     private String repeatCheckUrl;
     private String deployed;
+    private String killed;
 
     @PostConstruct
     protected void init() {
@@ -48,6 +49,7 @@ public class ExternalNotifier {
         paymentUrl = baseUri + "payment_notify";
         repeatCheckUrl = baseUri + "repeat_check";
         deployed = baseUri + "deployed_notify";
+        killed = baseUri + "killed_notify";
     }
 
     public void sendPaymentNotify(Contract contract, BigInteger balance, PaymentStatus status) {
@@ -60,6 +62,10 @@ public class ExternalNotifier {
 
     public void sendDeployedNotification(Contract contract, String address, String transactionHash, boolean committed) {
         doPost(deployed, new ContractDeployed(contract.getId(), committed ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED, address, transactionHash));
+    }
+
+    public void sendKilledNotification(Contract contract) {
+        doPost(killed, new NotifyContract(contract.getId(), PaymentStatus.COMMITTED));
     }
 
     private void doPost(final String uri, final Object object) {

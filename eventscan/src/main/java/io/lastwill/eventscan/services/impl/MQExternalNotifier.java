@@ -98,6 +98,7 @@ public class MQExternalNotifier implements ExternalNotifier {
                             .build(),
                     json
             );
+            log.debug("Send notification {} to queue {}.", queueName, notify);
         }
         catch (JsonProcessingException e) {
             log.error("Error on serializing message {}.", notify, e);

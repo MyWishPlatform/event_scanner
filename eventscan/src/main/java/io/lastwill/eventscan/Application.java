@@ -1,6 +1,7 @@
 package io.lastwill.eventscan;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
@@ -14,11 +15,16 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.web3j.abi.EventEncoder;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
+
+import java.net.URI;
+import java.net.URL;
 
 @SpringBootApplication
 public class Application {
@@ -63,8 +69,8 @@ public class Application {
         CloseableHttpAsyncClient asyncClient = HttpAsyncClientBuilder
                 .create()
                 .useSystemProperties()
-                .setMaxConnPerRoute(10)
-                .setMaxConnTotal(10)
+                .setMaxConnPerRoute(50)
+                .setMaxConnTotal(100)
                 .setDefaultRequestConfig(
                         RequestConfig.custom()
                                 .setConnectTimeout(connectionTimeout)
@@ -81,6 +87,12 @@ public class Application {
                 .build();
         asyncClient.start();
         return asyncClient;
+    }
+
+    @ConditionalOnProperty("io.lastwill.eventscan.backend-mq.url")
+    @Bean(name = "backendAMQ")
+    public ActiveMQConnectionFactory activeMQConnectionFactory(@Value("${io.lastwill.eventscan.backend-mq.url}") URI uri) {
+        return new ActiveMQConnectionFactory(uri);
     }
 
     @Bean

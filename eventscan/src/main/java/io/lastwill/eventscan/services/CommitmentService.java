@@ -79,9 +79,10 @@ public class CommitmentService {
         }
         while (!lowBlockNo.compareAndSet(low, blockNo));
 
-        if (lowWaiterNo.get() >= blockNo) {
-            return;
-        }
+        // do not skip
+//        if (lowWaiterNo.get() >= blockNo) {
+//            return;
+//        }
         validateChain(block, blockNo);
 
         if (blockChain.size() > cleanChainSize) {

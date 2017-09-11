@@ -50,19 +50,19 @@ public class CommitmentServiceTest {
     @Test
     public void commonLogicTest() {
         target.waitCommitment("0x1", 1, 7, handler);
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x1", "0x1", "0x0"), new LinkedMultiValueMap<>()));
+        target.addBlock(new BlockStub("0x1", "0x1", "0x0"));
         Assert.assertEquals("no committed",0, committedBlockNo.get());
         Assert.assertEquals("no rejected",0, rejectedBlockNo.get());
 
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x2", "0x2", "0x1"), new LinkedMultiValueMap<>()));
+        target.addBlock(new BlockStub("0x2", "0x2", "0x1"));
         Assert.assertEquals("no committed",0, committedBlockNo.get());
         Assert.assertEquals("no rejected",0, rejectedBlockNo.get());
 
 
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x3", "0x3", "0x2"), new LinkedMultiValueMap<>()));
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x4", "0x4", "0x3"), new LinkedMultiValueMap<>()));
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x5", "0x5", "0x4"), new LinkedMultiValueMap<>()));
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x6", "0x6", "0x5"), new LinkedMultiValueMap<>()));
+        target.addBlock(new BlockStub("0x3", "0x3", "0x2"));
+        target.addBlock(new BlockStub("0x4", "0x4", "0x3"));
+        target.addBlock(new BlockStub("0x5", "0x5", "0x4"));
+        target.addBlock(new BlockStub("0x6", "0x6", "0x5"));
 
         Assert.assertEquals("1 must be committed",1, committedBlockNo.get());
         Assert.assertEquals("1 must be rejected",1, rejectedBlockNo.get());
@@ -73,15 +73,15 @@ public class CommitmentServiceTest {
     @Test
     public void forkTest() {
         target.waitCommitment("0x10", 1, 7, handler);
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x1", "0x1", "0x0"), new LinkedMultiValueMap<>()));
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x2", "0x2", "0x1"), new LinkedMultiValueMap<>()));
+        target.addBlock(new BlockStub("0x1", "0x1", "0x0"));
+        target.addBlock(new BlockStub("0x2", "0x2", "0x1"));
         // parallel
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x10", "0x1", "0x0"), new LinkedMultiValueMap<>()));
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x20", "0x2", "0x10"), new LinkedMultiValueMap<>()));
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x3", "0x3", "0x20"), new LinkedMultiValueMap<>()));
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x4", "0x4", "0x3"), new LinkedMultiValueMap<>()));
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x5", "0x5", "0x4"), new LinkedMultiValueMap<>()));
-        target.newBlockHandler(new NewBlockEvent(new BlockStub("0x6", "0x6", "0x5"), new LinkedMultiValueMap<>()));
+        target.addBlock(new BlockStub("0x10", "0x1", "0x0"));
+        target.addBlock(new BlockStub("0x20", "0x2", "0x10"));
+        target.addBlock(new BlockStub("0x3", "0x3", "0x20"));
+        target.addBlock(new BlockStub("0x4", "0x4", "0x3"));
+        target.addBlock(new BlockStub("0x5", "0x5", "0x4"));
+        target.addBlock(new BlockStub("0x6", "0x6", "0x5"));
 
         Assert.assertEquals("1 must be rejected",1, rejectedBlockNo.get());
         Assert.assertEquals("committed count", 2, rejectedCount.get());

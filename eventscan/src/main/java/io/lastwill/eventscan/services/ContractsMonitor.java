@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.services;
 
+import io.lastwill.eventscan.events.ContractCreatedEvent;
 import io.lastwill.eventscan.events.ContractEventsEvent;
 import io.lastwill.eventscan.events.NewBlockEvent;
 import io.lastwill.eventscan.events.OwnerBalanceChangedEvent;
@@ -18,6 +19,7 @@ import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.Transaction;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -70,8 +72,29 @@ public class ContractsMonitor {
                 wasPublished |= true;
             }
             if (addresses.contains(contract.getOwnerAddress().toLowerCase())) {
-                final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getOwnerAddress().toLowerCase());
-                publishOwnerBalance(contract, transactions, newBlockEvent.getBlock());
+                final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(
+                        contract.getOwnerAddress().toLowerCase()
+                );
+
+                final List<Transaction> input = new ArrayList<>(transactions.size());
+                for (Transaction transaction: transactions) {
+                    // get input transactions
+                    if (contract.getOwnerAddress().equalsIgnoreCase(transaction.getTo())) {
+                        input.add(transaction);
+                    }
+                    // output transactions
+                    else if (contract.getOwnerAddress().equalsIgnoreCase(transaction.getFrom())) {
+                        // contract creation
+                        if (transaction.getTo() == null) {
+                            eventPublisher.publish(new ContractCreatedEvent(contract, transaction, newBlockEvent.getBlock()));
+                        }
+                    }
+                }
+                publishOwnerBalance(
+                        contract,
+                        input,
+                        newBlockEvent.getBlock()
+                );
                 wasPublished |= true;
             }
 

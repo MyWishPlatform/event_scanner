@@ -70,7 +70,6 @@ public class Application {
                                 .setConnectTimeout(connectionTimeout)
                                 .setSocketTimeout(socketTimeout)
                                 .setConnectionRequestTimeout(getConnectionTimeout)
-                                .setExpectContinueEnabled(true)
                                 .build()
                 )
                 .setDefaultIOReactorConfig(

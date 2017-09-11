@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.math.BigInteger;
-import java.net.URL;
 
 @Slf4j
 @Component
@@ -39,6 +38,7 @@ public class ExternalNotifier {
     private String baseUri;
     private String paymentUrl;
     private String repeatCheckUrl;
+    private String deployed;
 
     @PostConstruct
     protected void init() {
@@ -47,6 +47,7 @@ public class ExternalNotifier {
         }
         paymentUrl = baseUri + "payment_notify";
         repeatCheckUrl = baseUri + "repeat_check";
+        deployed = baseUri + "deployed_notify";
     }
 
     public void sendPaymentNotify(Contract contract, BigInteger balance, PaymentStatus status) {
@@ -54,7 +55,11 @@ public class ExternalNotifier {
     }
 
     public void sendCheckRepeatNotify(Contract contract) {
-        doPost(repeatCheckUrl, new NotifyContract(contract.getId()));
+        doPost(repeatCheckUrl, new NotifyContract(contract.getId(), PaymentStatus.COMMITTED));
+    }
+
+    public void sendDeployedNotification(Contract contract, String address, String transactionHash) {
+        doPost(deployed, new ContractDeployed(contract.getId(), PaymentStatus.COMMITTED, address, transactionHash));
     }
 
     private void doPost(final String uri, final Object object) {
@@ -96,17 +101,28 @@ public class ExternalNotifier {
     @RequiredArgsConstructor
     public static class NotifyContract {
         private final int contractId;
+        private final PaymentStatus state;
+    }
+
+    @Getter
+    public static class ContractDeployed extends NotifyContract {
+        private final String address;
+        private final String transactionHash;
+
+        public ContractDeployed(int contractId, PaymentStatus state, String address, String transactionHash) {
+            super(contractId, state);
+            this.address = address;
+            this.transactionHash = transactionHash;
+        }
     }
 
     @Getter
     public static class PaymentNotify extends NotifyContract {
         private final BigInteger balance;
-        private final PaymentStatus state;
 
         public PaymentNotify(int contractId, BigInteger balance, PaymentStatus state) {
-            super(contractId);
+            super(contractId, state);
             this.balance = balance;
-            this.state = state;
         }
     }
 }

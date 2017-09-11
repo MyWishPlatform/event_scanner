@@ -35,14 +35,15 @@ public class EtherScanner {
     @Value("${io.lastwill.eventscan.polling-interval-ms}")
     private long pollingInterval;
 
-    private EthFilter filter;
+    private EthFilter blockFilter;
+
     private Runnable poller = new Runnable() {
         @Override
         public void run() {
             while (true) {
                 try {
                     long start = System.currentTimeMillis();
-                    EthLog ethLog = web3j.ethGetFilterChanges(filter.getFilterId())
+                    EthLog ethLog = web3j.ethGetFilterChanges(blockFilter.getFilterId())
                             .send();
                     if (log.isDebugEnabled()) {
                         log.debug("Get filter logs: {} ms", System.currentTimeMillis() - start);
@@ -119,8 +120,8 @@ public class EtherScanner {
 //                nextBlock = lastBlockNo;
 //            }
             log.info("Web3 syncing status: {}, latest block is {}.", syncing ? "syncing" : "synced", lastBlockNo);
-            filter = web3j.ethNewBlockFilter().send();
-            log.info("Block filter was created with id {}.", filter.getFilterId());
+            blockFilter = web3j.ethNewBlockFilter().send();
+            log.info("Block filter was created with id {}.", blockFilter.getFilterId());
         }
         catch (IOException e) {
             log.error("Web3 sending failed.");

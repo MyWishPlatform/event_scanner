@@ -1,9 +1,11 @@
 package io.lastwill.eventscan.messages;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.math.BigInteger;
 
+@ToString(callSuper = true)
 @Getter
 public class PaymentNotify extends NotifyContract {
     private final BigInteger balance;

@@ -87,15 +87,18 @@ public class ContractsMonitor {
                         // contract creation
                         if (transaction.getTo() == null) {
                             eventPublisher.publish(new ContractCreatedEvent(contract, transaction, newBlockEvent.getBlock()));
+                            wasPublished |= true;
                         }
                     }
                 }
-                publishOwnerBalance(
-                        contract,
-                        input,
-                        newBlockEvent.getBlock()
-                );
-                wasPublished |= true;
+                if (!input.isEmpty()) {
+                    publishOwnerBalance(
+                            contract,
+                            input,
+                            newBlockEvent.getBlock()
+                    );
+                    wasPublished |= true;
+                }
             }
 
             if (!wasPublished) {

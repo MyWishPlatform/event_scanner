@@ -6,10 +6,7 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import io.lastwill.eventscan.messages.ContractDeployed;
-import io.lastwill.eventscan.messages.NotifyContract;
-import io.lastwill.eventscan.messages.PaymentNotify;
-import io.lastwill.eventscan.messages.PaymentStatus;
+import io.lastwill.eventscan.messages.*;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +26,7 @@ import java.util.concurrent.TimeoutException;
 @ConditionalOnProperty("io.lastwill.eventscan.backend-mq.url")
 @Component
 public class MQExternalNotifier implements ExternalNotifier {
+    private final static String contentType = "application/json";
     @Autowired
     private ConnectionFactory factory;
 
@@ -41,6 +39,9 @@ public class MQExternalNotifier implements ExternalNotifier {
     @Value("${io.lastwill.eventscan.backend-mq.ttl-ms}")
     private long messageTTL;
 
+    @Value("${io.lastwill.eventscan.backend-mq.init:false}")
+    private boolean initQueue = false;
+
     private Connection connection;
     private Channel channel;
 
@@ -48,19 +49,26 @@ public class MQExternalNotifier implements ExternalNotifier {
     protected void init() throws IOException, TimeoutException {
         connection = factory.newConnection();
         channel = connection.createChannel();
+        if (initQueue) {
+            channel.queueUnbind(queueName, queueName, queueName);
+            channel.queueDelete(queueName);
+            channel.exchangeDelete(queueName);
+        }
         channel.exchangeDeclare(queueName, "direct", true);
-        channel.queueDeclare(queueName, true, false, true,  new HashMap<>());
+        channel.queueDeclare(queueName, true, false, false,  new HashMap<>());
         channel.queueBind(queueName, queueName, queueName);
+
+        byte[] pingJson = objectMapper.writeValueAsBytes(new Ping());
 
         channel.basicPublish(
                 queueName,
                 queueName,
                 new AMQP.BasicProperties.Builder()
-                        .contentType("text/plain")
+                        .contentType(contentType)
                         .expiration("60000")
-                        .type("Ping")
+                        .type("ping")
                 .build(),
-                "Ping".getBytes()
+                pingJson
         );
     }
 
@@ -84,7 +92,7 @@ public class MQExternalNotifier implements ExternalNotifier {
         }
     }
 
-    protected void send(NotifyContract notify) {
+    protected synchronized void send(NotifyContract notify) {
         try {
             byte[] json = objectMapper.writeValueAsBytes(notify);
 
@@ -92,15 +100,13 @@ public class MQExternalNotifier implements ExternalNotifier {
                     queueName,
                     queueName,
                     new AMQP.BasicProperties.Builder()
-                            .contentType("text/plain")
-                            .expiration("60000")
                             .type(notify.getType())
-//                            .contentType("application/json")
-//                            .expiration(String.valueOf(messageTTL))
+                            .contentType(contentType)
+                            .expiration(String.valueOf(messageTTL))
                             .build(),
                     json
             );
-            log.debug("Send notification type '{}' to queue '{}'.", notify.getType(), queueName);
+            log.debug("Send notification type '{}' about contract {} to queue '{}'.", notify.getType(), notify.getContractId(), queueName);
         }
         catch (JsonProcessingException e) {
             log.error("Error on serializing message {}.", notify, e);
@@ -118,26 +124,16 @@ public class MQExternalNotifier implements ExternalNotifier {
 
     @Override
     public void sendCheckRepeatNotify(Contract contract) {
-        send(new NotifyContract(contract.getId(), PaymentStatus.COMMITTED) {
-            @Override
-            public String getType() {
-                return "repeatCheck";
-            }
-        });
+        send(new RepeatCheckNotify(contract.getId(), PaymentStatus.COMMITTED));
     }
 
     @Override
     public void sendDeployedNotification(Contract contract, String address, String transactionHash, boolean committed) {
-        send(new ContractDeployed(contract.getId(), committed ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED, address, transactionHash));
+        send(new ContractDeployedNotify(contract.getId(), committed ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED, address, transactionHash));
     }
 
     @Override
     public void sendKilledNotification(Contract contract) {
-        send(new NotifyContract(contract.getId(), PaymentStatus.COMMITTED) {
-            @Override
-            public String getType() {
-                return "killed";
-            }
-        });
+        send(new ContractKilledNotify(contract.getId(), PaymentStatus.COMMITTED));
     }
 }

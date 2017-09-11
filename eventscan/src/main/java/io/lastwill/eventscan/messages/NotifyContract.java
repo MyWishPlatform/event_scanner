@@ -9,7 +9,7 @@ import lombok.ToString;
 @RequiredArgsConstructor
 public abstract class NotifyContract {
     private final int contractId;
-    private final PaymentStatus state;
+    private final PaymentStatus status;
 
     public abstract String getType();
 }

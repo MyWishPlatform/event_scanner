@@ -6,4 +6,5 @@ public enum ContractState {
     KILLED,
     WAITING_FOR_PAYMENT,
     WAITING_FOR_DEPLOYMENT,
+    ACTIVE,
 }

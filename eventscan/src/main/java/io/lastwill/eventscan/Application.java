@@ -1,15 +1,10 @@
 package io.lastwill.eventscan;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.http.HttpResponse;
+import com.rabbitmq.client.ConnectionFactory;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
@@ -18,13 +13,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
-import org.web3j.abi.EventEncoder;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 
 import java.net.URI;
-import java.net.URL;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 @SpringBootApplication
 public class Application {
@@ -90,10 +85,14 @@ public class Application {
     }
 
     @ConditionalOnProperty("io.lastwill.eventscan.backend-mq.url")
-    @Bean(name = "backendAMQ")
-    public ActiveMQConnectionFactory activeMQConnectionFactory(@Value("${io.lastwill.eventscan.backend-mq.url}") URI uri) {
-        return new ActiveMQConnectionFactory(uri);
+    @Bean
+    public ConnectionFactory connectionFactory(@Value("${io.lastwill.eventscan.backend-mq.url}") URI uri) throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setUri(uri);
+        factory.setAutomaticRecoveryEnabled(true);
+        return factory;
     }
+
 
     @Bean
     public ObjectMapper objectMapper() {

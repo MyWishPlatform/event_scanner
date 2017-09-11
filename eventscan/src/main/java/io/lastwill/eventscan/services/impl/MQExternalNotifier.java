@@ -92,13 +92,15 @@ public class MQExternalNotifier implements ExternalNotifier {
                     queueName,
                     queueName,
                     new AMQP.BasicProperties.Builder()
-                            .contentType("application/json")
+                            .contentType("text/plain")
+                            .expiration("60000")
                             .type(notify.getType())
-                            .expiration(String.valueOf(messageTTL))
+//                            .contentType("application/json")
+//                            .expiration(String.valueOf(messageTTL))
                             .build(),
                     json
             );
-            log.debug("Send notification {} to queue {}.", queueName, notify);
+            log.debug("Send notification type '{}' to queue '{}'.", notify.getType(), queueName);
         }
         catch (JsonProcessingException e) {
             log.error("Error on serializing message {}.", notify, e);

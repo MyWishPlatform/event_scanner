@@ -58,8 +58,8 @@ public class ExternalNotifier {
         doPost(repeatCheckUrl, new NotifyContract(contract.getId(), PaymentStatus.COMMITTED));
     }
 
-    public void sendDeployedNotification(Contract contract, String address, String transactionHash) {
-        doPost(deployed, new ContractDeployed(contract.getId(), PaymentStatus.COMMITTED, address, transactionHash));
+    public void sendDeployedNotification(Contract contract, String address, String transactionHash, boolean committed) {
+        doPost(deployed, new ContractDeployed(contract.getId(), committed ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED, address, transactionHash));
     }
 
     private void doPost(final String uri, final Object object) {

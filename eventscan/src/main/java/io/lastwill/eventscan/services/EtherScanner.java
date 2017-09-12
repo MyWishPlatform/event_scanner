@@ -152,6 +152,7 @@ public class EtherScanner {
     private void processBlockHash(String blockHash) {
         try {
             long start = System.currentTimeMillis();
+            log.debug("Get block by hash {}.", blockHash);
             EthBlock result = web3j.ethGetBlockByHash(blockHash, true)
                     .send();
             if (log.isDebugEnabled()) {
@@ -168,10 +169,16 @@ public class EtherScanner {
     private void processBlockNumber(long blockNo) {
         try {
             long start = System.currentTimeMillis();
+            log.debug("Get block by number {}.", blockNo);
             EthBlock result = web3j.ethGetBlockByNumber(new DefaultBlockParameterNumber(blockNo), true)
                     .send();
             if (log.isDebugEnabled()) {
                 log.debug("Get block by number: {} ms.", System.currentTimeMillis() - start);
+            }
+
+            if (result.getBlock() == null) {
+                repeatBranch = null;
+                return;
             }
 
             processBlock(result);

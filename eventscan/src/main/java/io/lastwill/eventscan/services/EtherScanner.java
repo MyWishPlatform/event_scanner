@@ -177,6 +177,7 @@ public class EtherScanner {
             }
 
             if (result.getBlock() == null) {
+                log.warn("Result has null block when it was received by number {}.", blockNo);
                 repeatBranch = null;
                 return;
             }

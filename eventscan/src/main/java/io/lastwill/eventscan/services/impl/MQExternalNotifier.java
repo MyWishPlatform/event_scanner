@@ -128,6 +128,11 @@ public class MQExternalNotifier implements ExternalNotifier {
     }
 
     @Override
+    public void sendCheckedNotify(Contract contract, String transactionHash) {
+        send(new CheckedNotify(contract.getId(), transactionHash, PaymentStatus.COMMITTED));
+    }
+
+    @Override
     public void sendDeployedNotification(Contract contract, String address, String transactionHash, boolean committed) {
         send(new ContractDeployedNotify(contract.getId(), committed ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED, address, transactionHash));
     }

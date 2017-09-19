@@ -38,6 +38,7 @@ public class HttpExternalNotifier implements ExternalNotifier {
     private String repeatCheckUrl;
     private String deployed;
     private String killed;
+    private String checkedUrl;
 
     @PostConstruct
     protected void init() {
@@ -48,6 +49,7 @@ public class HttpExternalNotifier implements ExternalNotifier {
         repeatCheckUrl = baseUri + "repeat_check";
         deployed = baseUri + "deployed_notify";
         killed = baseUri + "killed_notify";
+        checkedUrl = baseUri + "checked_notify";
     }
 
     @Override
@@ -63,6 +65,11 @@ public class HttpExternalNotifier implements ExternalNotifier {
                 return null;
             }
         });
+    }
+
+    @Override
+    public void sendCheckedNotify(Contract contract, String transactionHash) {
+        doPost(checkedUrl, new CheckedNotify(contract.getId(), transactionHash, PaymentStatus.COMMITTED));
     }
 
     @Override

@@ -10,6 +10,8 @@ public interface ExternalNotifier {
 
     void sendCheckRepeatNotify(Contract contract);
 
+    void sendCheckedNotify(Contract contract, String transactionHash);
+
     void sendDeployedNotification(Contract contract, String address, String transactionHash, boolean committed);
 
     void sendKilledNotification(Contract contract);

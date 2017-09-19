@@ -27,7 +27,7 @@ public class ContractEventHandler {
     public void eventsHandler(final ContractEventsEvent event) {
         for (EventValue values: event.getEvents()) {
             if (eventParser.Checked == values.getEvent()) {
-                log.debug("Check found!");
+                externalNotifier.sendCheckedNotify(event.getContract(), event.getTransaction().getHash());
             }
             else if (eventParser.NeedRepeatCheck == values.getEvent()) {
                 externalNotifier.sendCheckRepeatNotify(event.getContract());

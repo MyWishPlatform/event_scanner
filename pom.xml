@@ -19,6 +19,8 @@
         <module>txexport</module>
         <module>eventscan</module>
         <module>ethereum-rlp</module>
+        <module>ethereum-crypto</module>
+        <module>key-app</module>
     </modules>
 
     <properties>

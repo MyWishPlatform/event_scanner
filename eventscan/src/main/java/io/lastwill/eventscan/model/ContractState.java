@@ -8,4 +8,5 @@ public enum ContractState {
     WAITING_FOR_DEPLOYMENT,
     ACTIVE,
     TRIGGERED,
+    EXPIRED,
 }

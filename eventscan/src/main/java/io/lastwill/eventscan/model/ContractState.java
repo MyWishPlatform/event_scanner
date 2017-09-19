@@ -7,4 +7,5 @@ public enum ContractState {
     WAITING_FOR_PAYMENT,
     WAITING_FOR_DEPLOYMENT,
     ACTIVE,
+    TRIGGERED,
 }

@@ -15,4 +15,6 @@ public interface ExternalNotifier {
     void sendDeployedNotification(Contract contract, String address, String transactionHash, boolean committed);
 
     void sendKilledNotification(Contract contract);
+
+    void sendTriggeredNotification(Contract contract);
 }

@@ -141,4 +141,9 @@ public class MQExternalNotifier implements ExternalNotifier {
     public void sendKilledNotification(Contract contract) {
         send(new ContractKilledNotify(contract.getId(), PaymentStatus.COMMITTED));
     }
+
+    @Override
+    public void sendTriggeredNotification(Contract contract) {
+        send(new ContractTriggeredNotify(contract.getId(), PaymentStatus.COMMITTED));
+    }
 }

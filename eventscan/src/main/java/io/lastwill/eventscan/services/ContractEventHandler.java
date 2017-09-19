@@ -35,6 +35,9 @@ public class ContractEventHandler {
             else if (eventParser.Killed == values.getEvent()) {
                 externalNotifier.sendKilledNotification(event.getContract());
             }
+            else if (eventParser.Triggered == values.getEvent()) {
+                externalNotifier.sendTriggeredNotification(event.getContract());
+            }
             else if (eventParser.FundsAdded == values.getEvent()) {
                 balanceProvider.getBalanceAsync(event.getContract().getAddress(), event.getBlock().getNumber().longValue())
                         .thenAccept(balance -> {

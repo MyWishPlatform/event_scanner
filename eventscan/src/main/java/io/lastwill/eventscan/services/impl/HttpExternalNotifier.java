@@ -39,6 +39,7 @@ public class HttpExternalNotifier implements ExternalNotifier {
     private String deployed;
     private String killed;
     private String checkedUrl;
+    private String triggeredUrl;
 
     @PostConstruct
     protected void init() {
@@ -50,6 +51,7 @@ public class HttpExternalNotifier implements ExternalNotifier {
         deployed = baseUri + "deployed_notify";
         killed = baseUri + "killed_notify";
         checkedUrl = baseUri + "checked_notify";
+        triggeredUrl = baseUri + "triggered_notify";
     }
 
     @Override
@@ -79,12 +81,12 @@ public class HttpExternalNotifier implements ExternalNotifier {
 
     @Override
     public void sendKilledNotification(Contract contract) {
-        doPost(killed, new NotifyContract(contract.getId(), PaymentStatus.COMMITTED) {
-            @Override
-            public String getType() {
-                return null;
-            }
-        });
+        doPost(killed, new ContractKilledNotify(contract.getId(), PaymentStatus.COMMITTED));
+    }
+
+    @Override
+    public void sendTriggeredNotification(Contract contract) {
+        doPost(triggeredUrl, new ContractTriggeredNotify(contract.getId(), PaymentStatus.COMMITTED));
     }
 
     private void doPost(final String uri, final Object object) {

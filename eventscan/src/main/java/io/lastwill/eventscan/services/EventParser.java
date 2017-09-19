@@ -44,12 +44,19 @@ public class EventParser {
             Collections.singletonList(TypeReference.create(Uint.class))
     );
 
+    public final Event Triggered = new Event(
+            "Triggered",
+            Collections.emptyList(),
+            Collections.singletonList(TypeReference.create(Uint.class))
+    );
+
     private Map<String, Event> events = new HashMap<String, Event>() {{
         put(EventEncoder.encode(Checked), Checked);
         put(EventEncoder.encode(NeedRepeatCheck), NeedRepeatCheck);
         put(EventEncoder.encode(Price), Price);
         put(EventEncoder.encode(Killed), Killed);
         put(EventEncoder.encode(FundsAdded), FundsAdded);
+        put(EventEncoder.encode(Triggered), Triggered);
     }};
 
     public List<EventValue> parseEvents(TransactionReceipt transactionReceipt) {

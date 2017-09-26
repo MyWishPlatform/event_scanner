@@ -12,19 +12,13 @@ public class CreateContractHandler {
     @Autowired
     private ExternalNotifier externalNotifier;
 
-    @Autowired
-    private CommitmentService commitmentService;
-
     @EventListener
     public void handleContractCreateTransaction(ContractCreatedEvent event) {
-        commitmentService.waitCommitment(event.getBlock().getHash(), event.getBlock().getNumber().longValue())
-                .thenAccept(committed -> {
-                    externalNotifier.sendDeployedNotification(
-                            event.getContract(),
-                            event.getTransaction().getCreates(),
-                            event.getTransaction().getHash(),
-                            committed
-                    );
-                });
+        externalNotifier.sendDeployedNotification(
+                event.getContract(),
+                event.getTransaction().getCreates(),
+                event.getTransaction().getHash(),
+                true
+        );
     }
 }

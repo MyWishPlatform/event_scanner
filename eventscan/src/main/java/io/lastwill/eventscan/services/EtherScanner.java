@@ -13,10 +13,8 @@ import org.springframework.util.MultiValueMap;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.Response;
-import org.web3j.protocol.core.methods.response.EthBlock;
-import org.web3j.protocol.core.methods.response.EthFilter;
-import org.web3j.protocol.core.methods.response.EthLog;
-import org.web3j.protocol.core.methods.response.Transaction;
+import org.web3j.protocol.core.methods.response.*;
+import org.web3j.protocol.core.methods.response.EthBlock.Block;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -25,87 +23,55 @@ import java.util.HashMap;
 @Slf4j
 @Component
 public class EtherScanner {
+    public static final long INFO_INTERVAL = 60000;
+    public static final long WARN_INTERVAL = 120000;
     @Autowired
     private Web3j web3j;
 
     @Autowired
     private EventPublisher eventPublisher;
 
-    @Autowired
-    private CommitmentService commitmentService;
-
-//    @Value("${io.lastwill.eventscan.start-block:#{null}}")
-//    private Long nextBlock;
+    @Value("${io.lastwill.eventscan.start-block:#{null}}")
+    private Long nextBlockNo;
 
     @Value("${io.lastwill.eventscan.polling-interval-ms}")
     private long pollingInterval;
 
-    private EthFilter blockFilter;
-    private Long repeatBranch;
+    @Value("${io.lastwill.eventscan.commit-chain-length}")
+    private int commitmentChainLength;
+
+    private Long lastBlockNo;
+    private long lastBlockIncrementTimestamp;
+
 
     private Runnable poller = new Runnable() {
         @Override
         public void run() {
             while (true) {
                 try {
-                    if (repeatBranch != null) {
-                        processBlockNumber(repeatBranch);
-                        if (repeatBranch != null) {
-                            repeatBranch ++;
-                            continue;
-                        }
-                    }
-
                     long start = System.currentTimeMillis();
-                    EthLog ethLog = web3j.ethGetFilterChanges(blockFilter.getFilterId())
-                            .send();
+                    lastBlockNo = web3j.ethBlockNumber().send().getBlockNumber().longValue();
                     if (log.isDebugEnabled()) {
-                        log.debug("Get filter logs: {} ms", System.currentTimeMillis() - start);
-                    }
-                    if (ethLog == null) {
-                        throw new Exception("ethGetFilterLogs returns null.");
-                    }
-                    if (ethLog.hasError()) {
-                        throw new Web3Exception(ethLog.getError());
-                    }
-                    if (ethLog.getLogs() == null) {
-                        throw new Exception("ethGetFilterLogs returns null list.");
+                        log.debug("Get actual block no: {} ms.", System.currentTimeMillis() - start);
                     }
 
-                    for (EthLog.LogResult logResult : ethLog.getLogs()) {
-                        EthLog.Hash hash = (EthLog.Hash) logResult;
-                        String blockHash = hash.get();
-                        processBlockHash(blockHash);
+                    loadNextBlock();
+
+                    if (lastBlockNo - nextBlockNo > commitmentChainLength) {
+                        log.debug("Process next block {} immediately.", lastBlockNo);
+                        continue;
                     }
 
-                    if (ethLog.getLogs().isEmpty()) {
-                        Thread.sleep(pollingInterval);
+                    long interval = System.currentTimeMillis() - lastBlockIncrementTimestamp;
+                    if (interval > WARN_INTERVAL) {
+                        log.warn("There is no block from {} ms!", interval);
+                    }
+                    else if (interval > INFO_INTERVAL) {
+                        log.info("There is no block from {} ms.", interval);
                     }
 
-
-//                    EthBlock result = web3j.ethGetBlockByNumber(
-//                            new DefaultBlockParameterNumber(nextBlock),
-//                            true
-//                    ).send();
-//
-//
-//                    if (result == null) {
-//                        throw new Exception("Result message contains null.");
-//                    }
-//
-//                    if (result.getBlock() == null) {
-//                        long lastBlockNo = web3j.ethBlockNumber().send().getBlockNumber().longValue();
-//                        if (lastBlockNo < nextBlock) {
-//                            Thread.sleep(pollingInterval);
-//                            continue;
-//                        }
-//                        else {
-//                            throw new Exception("Block message has null block!");
-//                        }
-//                    }
-//
-//                    processBlock(result);
-//                    nextBlock++;
+                    log.debug("All blocks processed, wait new one.");
+                    Thread.sleep(pollingInterval);
                 }
                 catch (InterruptedException e) {
                     log.warn("Polling cycle was interrupted.", e);
@@ -129,13 +95,14 @@ public class EtherScanner {
     protected void init() throws IOException {
         try {
             boolean syncing = web3j.ethSyncing().send().isSyncing();
-            long lastBlockNo = web3j.ethBlockNumber().send().getBlockNumber().longValue();
-//            if (nextBlock == null) {
-//                nextBlock = lastBlockNo;
-//            }
-            log.info("Web3 syncing status: {}, latest block is {}.", syncing ? "syncing" : "synced", lastBlockNo);
-            blockFilter = web3j.ethNewBlockFilter().send();
-            log.info("Block filter was created with id {}.", blockFilter.getFilterId());
+            lastBlockNo = web3j.ethBlockNumber().send().getBlockNumber().longValue();
+            lastBlockIncrementTimestamp = System.currentTimeMillis();
+            if (nextBlockNo == null) {
+                nextBlockNo = lastBlockNo - commitmentChainLength;
+            }
+            log.info("Web3 syncing status: {}, latest block is {} but next is {}.", syncing ? "syncing" : "synced", lastBlockNo, nextBlockNo);
+//            blockFilter = web3j.ethNewBlockFilter().send();
+//            log.info("Block filter was created with id {}.", blockFilter.getFilterId());
         }
         catch (IOException e) {
             log.error("Web3 sending failed.");
@@ -144,70 +111,44 @@ public class EtherScanner {
 
 
         new Thread(poller).start();
-//        web3j.blockObservable(true)
-//                .subscribe(this::processBlockSafe);
         log.info("Subscribed to web3 new block event.");
     }
 
-    private void processBlockHash(String blockHash) {
-        try {
-            long start = System.currentTimeMillis();
-            log.debug("Get block by hash {}.", blockHash);
-            EthBlock result = web3j.ethGetBlockByHash(blockHash, true)
-                    .send();
-            if (log.isDebugEnabled()) {
-                log.debug("Get block by hash: {} ms.", System.currentTimeMillis() - start);
-            }
-
-            processBlock(result);
+    private void loadNextBlock() throws Exception {
+        long delta = lastBlockNo - nextBlockNo;
+        if (delta <= commitmentChainLength) {
+            return;
         }
-        catch (Throwable e) {
-            log.error("Error on processing new block.", e);
-        }
-    }
 
-    private void processBlockNumber(long blockNo) {
-        try {
-            long start = System.currentTimeMillis();
-            log.debug("Get block by number {}.", blockNo);
-            EthBlock result = web3j.ethGetBlockByNumber(new DefaultBlockParameterNumber(blockNo), true)
-                    .send();
-            if (log.isDebugEnabled()) {
-                log.debug("Get block by number: {} ms.", System.currentTimeMillis() - start);
-            }
-
-            if (result.getBlock() == null) {
-                log.warn("Result has null block when it was received by number {}.", blockNo);
-                repeatBranch = null;
-                return;
-            }
-
-            processBlock(result);
+        long start = System.currentTimeMillis();
+        EthBlock result = web3j.ethGetBlockByNumber(new DefaultBlockParameterNumber(nextBlockNo), true)
+                .send();
+        if (log.isDebugEnabled()) {
+            log.debug("Get next block: {} ms.", System.currentTimeMillis() - start);
         }
-        catch (Throwable e) {
-            log.error("Error on processing new block.", e);
+
+        if (result.getBlock() == null) {
+            throw new Exception("Result has null block when it was received by number " + nextBlockNo);
         }
+
+        if (result.hasError()) {
+            Response.Error error = result.getError();
+            throw new Exception("Result with error: code " + error.getCode() + ", message '" + error.getMessage() + "' and data " + error.getData());
+        }
+
+        if (result.getBlock() == null) {
+            throw new Exception("Result with null block!");
+        }
+
+        lastBlockIncrementTimestamp = System.currentTimeMillis();
+        nextBlockNo ++;
+
+        processBlock(result);
     }
 
     private void processBlock(EthBlock ethBlock) throws Exception {
-        if (ethBlock.hasError()) {
-            Response.Error error = ethBlock.getError();
-            throw new Exception("Block with error with code " + error.getCode() + ", message '" + error.getMessage() + "' and data " + error.getData());
-        }
-        EthBlock.Block block = ethBlock.getBlock();
+        Block block = ethBlock.getBlock();
         log.debug("New bock received {} ({})", block.getNumber(), block.getHash());
-
-        var addingBlockStatus = commitmentService.addBlock(block);
-        switch (addingBlockStatus) {
-            case DUPLICATE:
-                log.warn("Duplicate block with hash {} ({}). Skip it.", block.getHash(), block.getNumber());
-                repeatBranch = null;
-                break;
-            case NO_PARENT:
-                log.info("Block {} without parent found.", block.getNumber());
-                repeatBranch = block.getNumber().longValue() - 1;
-                break;
-        }
 
         MultiValueMap<String, Transaction> addressTransactions = CollectionUtils.toMultiValueMap(new HashMap<>());
 

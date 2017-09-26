@@ -14,21 +14,18 @@ public class BalanceEventDispatcher {
     @Autowired
     private ExternalNotifier externalNotifier;
 
-    @Autowired
-    private CommitmentService commitmentService;
-
     @EventListener
     public void ownerBalanceChangedHandler(final OwnerBalanceChangedEvent event) {
         try {
-            externalNotifier.sendPaymentNotify(event.getContract(), event.getBalance(), PaymentStatus.CREATED);
+            externalNotifier.sendPaymentNotify(event.getContract(), event.getBalance(), PaymentStatus.COMMITTED);
 
-            commitmentService.waitCommitment(event.getBlock().getHash(), event.getBlock().getNumber().longValue())
-                    .thenApply(committed -> committed ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED)
-                    .thenAccept(status -> externalNotifier.sendPaymentNotify(event.getContract(), event.getBalance(), status))
-                    .exceptionally(th -> {
-                        log.error("Waiting commitment failed.", th);
-                        return null;
-                    });
+//            commitmentService.waitCommitment(event.getBlock().getHash(), event.getBlock().getNumber().longValue())
+//                    .thenApply(committed -> committed ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED)
+//                    .thenAccept(status -> externalNotifier.sendPaymentNotify(event.getContract(), event.getBalance(), status))
+//                    .exceptionally(th -> {
+//                        log.error("Waiting commitment failed.", th);
+//                        return null;
+//                    });
         }
         catch (Throwable e) {
             log.error("Sending notification about new balance failed.", e);

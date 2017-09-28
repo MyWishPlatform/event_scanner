@@ -17,7 +17,8 @@ import org.web3j.protocol.core.methods.response.*;
 import org.web3j.protocol.core.methods.response.EthBlock.Block;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
+import javax.annotation.PreDestroy;
+import java.io.*;
 import java.util.HashMap;
 
 @Slf4j
@@ -31,8 +32,8 @@ public class EtherScanner {
     @Autowired
     private EventPublisher eventPublisher;
 
-    @Value("${io.lastwill.eventscan.start-block:#{null}}")
-    private Long nextBlockNo;
+    @Autowired
+    private LastBlockPersister lastBlockPersister;
 
     @Value("${io.lastwill.eventscan.polling-interval-ms}")
     private long pollingInterval;
@@ -41,6 +42,7 @@ public class EtherScanner {
     private int commitmentChainLength;
 
     private Long lastBlockNo;
+    private Long nextBlockNo;
     private long lastBlockIncrementTimestamp;
 
 
@@ -58,7 +60,7 @@ public class EtherScanner {
                     loadNextBlock();
 
                     if (lastBlockNo - nextBlockNo > commitmentChainLength) {
-                        log.debug("Process next block {} immediately.", lastBlockNo);
+                        log.debug("Process next block {}/{} immediately.", nextBlockNo, lastBlockNo);
                         continue;
                     }
 
@@ -93,6 +95,7 @@ public class EtherScanner {
 
     @PostConstruct
     protected void init() throws IOException {
+        nextBlockNo = lastBlockPersister.getLastBlock();
         try {
             boolean syncing = web3j.ethSyncing().send().isSyncing();
             lastBlockNo = web3j.ethBlockNumber().send().getBlockNumber().longValue();
@@ -108,7 +111,6 @@ public class EtherScanner {
             log.error("Web3 sending failed.");
             throw e;
         }
-
 
         new Thread(poller).start();
         log.info("Subscribed to web3 new block event.");
@@ -141,6 +143,8 @@ public class EtherScanner {
         }
 
         lastBlockIncrementTimestamp = System.currentTimeMillis();
+
+        lastBlockPersister.saveLastBlock(nextBlockNo);
         nextBlockNo ++;
 
         processBlock(result);

@@ -32,7 +32,6 @@ package org.ethereum.crypto;
  * limitations under the License.
  */
 
-import com.sun.istack.internal.Nullable;
 import org.ethereum.config.Constants;
 import org.ethereum.crypto.jce.*;
 import org.ethereum.util.ByteUtil;
@@ -64,6 +63,7 @@ import org.spongycastle.util.encoders.Base64;
 import org.spongycastle.util.encoders.Hex;
 
 //import javax.annotation.Nullable;
+import javax.annotation.Nullable;
 import javax.crypto.KeyAgreement;
 import java.io.IOException;
 import java.io.Serializable;

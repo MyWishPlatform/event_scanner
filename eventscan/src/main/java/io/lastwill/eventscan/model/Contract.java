@@ -15,15 +15,15 @@ public class Contract {
     private Integer id;
     private String address;
     private String ownerAddress;
-    private String userAddress;
+//    private String userAddress;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ContractState state;
     // TODO: add convertors
 //    @Column(name = "activeTo", nullable = false)
 //    private OffsetDateTime activeUntil;
-    @Column(nullable = false)
-    private int checkInterval;
+//    @Column(nullable = false)
+//    private int checkInterval;
     private BigInteger balance;
     @Column(nullable = false)
     private BigInteger cost;

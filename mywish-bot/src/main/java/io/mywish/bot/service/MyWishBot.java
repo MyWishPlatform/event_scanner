@@ -85,7 +85,17 @@ public class MyWishBot extends TelegramLongPollingBot {
         BigInteger[] parts = hundreds.divideAndRemainder(BigInteger.valueOf(100));
         BigInteger eth = parts[0];
         int rem = parts[1].intValue();
-        final String message = "New investment: " + eth + (rem > 0 ? "." + rem : "") + " ETH";
+        String sRem;
+        if (rem == 0) {
+            sRem = "";
+        }
+        else if (rem < 10) {
+            sRem = "0" + rem;
+        }
+        else {
+            sRem = "" + rem;
+        }
+        final String message = "New investment: " + eth + sRem + " ETH";
         for (long chatId: chats.keySet()) {
             try {
                 execute(new SendMessage()

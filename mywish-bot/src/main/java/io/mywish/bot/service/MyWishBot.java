@@ -90,10 +90,10 @@ public class MyWishBot extends TelegramLongPollingBot {
             sRem = "";
         }
         else if (rem < 10) {
-            sRem = "0" + rem;
+            sRem = ".0" + rem;
         }
         else {
-            sRem = "" + rem;
+            sRem = "." + rem;
         }
         final String message = "New investment: " + eth + sRem + " ETH";
         for (long chatId: chats.keySet()) {

@@ -2,6 +2,7 @@ package io.lastwill.eventscan;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.ConnectionFactory;
+import io.mywish.bot.BotModule;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -13,6 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 
@@ -22,6 +24,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
 @SpringBootApplication
+@Import(BotModule.class)
 public class Application {
     public static void main(String[] args) {
         new SpringApplicationBuilder()

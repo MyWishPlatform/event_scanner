@@ -21,6 +21,7 @@
         <module>ethereum-rlp</module>
         <module>ethereum-crypto</module>
         <module>key-app</module>
+        <module>mywish-bot</module>
     </modules>
 
     <properties>

@@ -5,11 +5,13 @@ import io.lastwill.eventscan.model.EventValue;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@ConditionalOnBean(ExternalNotifier.class)
 public class ContractEventHandler {
     @Autowired
     private EventParser eventParser;
@@ -25,6 +27,9 @@ public class ContractEventHandler {
 
     @EventListener
     public void eventsHandler(final ContractEventsEvent event) {
+        if (externalNotifier == null) {
+            return;
+        }
         for (EventValue values: event.getEvents()) {
             if (eventParser.Checked == values.getEvent()) {
                 externalNotifier.sendCheckedNotify(event.getContract(), event.getTransaction().getHash());

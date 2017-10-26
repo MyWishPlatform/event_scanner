@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -60,17 +59,29 @@ public class MyWishBot extends TelegramLongPollingBot {
         }
         else if (update.hasMessage()) {
             chatId = update.getMessage().getChatId();
+            if (update.getMessage().getText().contains("@mywishio_bot")) {
+                log.debug("Bot mentioned in chat {}.", chatId);
+                repeatLatest(chatId);
+            }
+            else if (update.getMessage().getChat().isUserChat()) {
+                log.debug("Direct message received from {}.", update.getMessage().getFrom());
+                repeatLatest(chatId);
+            }
         }
         else {
             return;
         }
-        chats.putIfAbsent(
+        AtomicInteger previous = chats.putIfAbsent(
                 chatId,
                 new AtomicInteger()
         );
+        if (previous == null) {
+            log.info("Bot was added to the chat {}. Now he is in {} chats.", chatId, chats.size());
+        }
     }
 
     public void onInvestment(final String sender, final BigInteger weiAmount) {
+        log.info("Investment received from {}, amount {}.", sender, weiAmount);
         int last;
         synchronized (investments) {
             investments.add(weiAmount);
@@ -80,7 +91,55 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendMessage(last, weiAmount);
     }
 
+    private void repeatLatest(long chatId) {
+        BigInteger latest;
+        synchronized (investments) {
+            if (investments.size() > 0) {
+                latest = investments.get(investments.size() - 1);
+            }
+            else {
+                latest = null;
+            }
+        }
+
+        String message;
+        if (latest == null) {
+            message = "No investment detected.";
+        }
+        else {
+            String eth = toEth(latest);
+            message = "The latest investment was: " + eth + " ETH";
+        }
+
+        try {
+            execute(new SendMessage()
+                    .setChatId(chatId)
+                    .setText(message)
+            );
+        }
+        catch (TelegramApiException e) {
+            log.error("Sending message '{}' to chat '{}' was failed.", message, chatId, e);
+        }
+    }
+
     private void sendMessage(int index, BigInteger weiAmount) {
+        String eth = toEth(weiAmount);
+        final String message = "New investment: " + eth + " ETH";
+        for (long chatId: chats.keySet()) {
+            try {
+                execute(new SendMessage()
+                        .setChatId(chatId)
+                        .setText(message)
+                );
+            }
+            catch (TelegramApiException e) {
+                log.error("Sending message '{}' to chat '{}' was failed.", message, chatId, e);
+                chats.remove(chatId);
+            }
+        }
+    }
+
+    private static String toEth(BigInteger weiAmount) {
         BigInteger hundreds = weiAmount.divide(BigInteger.valueOf(10000000000000000L));
         BigInteger[] parts = hundreds.divideAndRemainder(BigInteger.valueOf(100));
         BigInteger eth = parts[0];
@@ -95,18 +154,6 @@ public class MyWishBot extends TelegramLongPollingBot {
         else {
             sRem = "." + rem;
         }
-        final String message = "New investment: " + eth + sRem + " ETH";
-        for (long chatId: chats.keySet()) {
-            try {
-                execute(new SendMessage()
-                        .setChatId(chatId)
-                        .setText(message)
-                );
-            }
-            catch (TelegramApiException e) {
-                log.error("Sending message '{}' to chat '{}' was failed.", message, chatId, e);
-                chats.remove(chatId);
-            }
-        }
+        return eth + sRem;
     }
 }

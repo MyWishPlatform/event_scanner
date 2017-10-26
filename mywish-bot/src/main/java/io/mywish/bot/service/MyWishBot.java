@@ -59,14 +59,15 @@ public class MyWishBot extends TelegramLongPollingBot {
         }
         else if (update.hasMessage()) {
             chatId = update.getMessage().getChatId();
-            if (update.getMessage().getText().contains("@mywishio_bot")) {
-                log.debug("Bot mentioned in chat {}.", chatId);
-                repeatLatest(chatId);
-            }
-            else if (update.getMessage().getChat().isUserChat()) {
+            if (update.getMessage().getChat().isUserChat()) {
                 log.debug("Direct message received from {}.", update.getMessage().getFrom());
                 repeatLatest(chatId);
             }
+            else {
+                log.debug("Bot mentioned in chat {}.", chatId);
+                repeatLatest(chatId);
+            }
+
         }
         else {
             return;

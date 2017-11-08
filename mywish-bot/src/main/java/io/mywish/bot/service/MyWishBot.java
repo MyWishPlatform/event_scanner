@@ -16,8 +16,6 @@ import javax.annotation.PostConstruct;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Component
@@ -25,7 +23,9 @@ public class MyWishBot extends TelegramLongPollingBot {
     @Autowired
     private TelegramBotsApi telegramBotsApi;
 
-    private final ConcurrentHashMap<Long, AtomicInteger> chats = new ConcurrentHashMap<>();
+    @Autowired
+    private ChatPersister chatPersister;
+
     private final List<BigInteger> investments = new ArrayList<>();
 
     @Getter
@@ -72,12 +72,8 @@ public class MyWishBot extends TelegramLongPollingBot {
         else {
             return;
         }
-        AtomicInteger previous = chats.putIfAbsent(
-                chatId,
-                new AtomicInteger()
-        );
-        if (previous == null) {
-            log.info("Bot was added to the chat {}. Now he is in {} chats.", chatId, chats.size());
+        if (chatPersister.tryAdd(chatId)) {
+            log.info("Bot was added to the chat {}. Now he is in {} chats.", chatId, chatPersister.getCount());
         }
     }
 
@@ -126,7 +122,7 @@ public class MyWishBot extends TelegramLongPollingBot {
     private void sendMessage(int index, BigInteger weiAmount) {
         String eth = toEth(weiAmount);
         final String message = "New investment: " + eth + " ETH";
-        for (long chatId: chats.keySet()) {
+        for (long chatId: chatPersister.getChats()) {
             try {
                 execute(new SendMessage()
                         .setChatId(chatId)
@@ -135,7 +131,7 @@ public class MyWishBot extends TelegramLongPollingBot {
             }
             catch (TelegramApiException e) {
                 log.error("Sending message '{}' to chat '{}' was failed.", message, chatId, e);
-                chats.remove(chatId);
+                chatPersister.remove(chatId);
             }
         }
     }

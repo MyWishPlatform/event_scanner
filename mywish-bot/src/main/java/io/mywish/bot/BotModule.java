@@ -7,7 +7,7 @@ import org.telegram.telegrambots.TelegramBotsApi;
 
 @ComponentScan
 @Configuration
-@PropertySource("module.properties")
+@PropertySource("classpath:module.properties")
 public class BotModule {
     static {
         ApiContextInitializer.init();

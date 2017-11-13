@@ -105,8 +105,7 @@ public class Application {
     @Bean
     public Web3j web3j(CloseableHttpClient httpClient, @Value("${io.lastwill.eventscan.web3-url}") String web3Url) {
         return Web3j.build(new HttpService(
-                web3Url,
-                httpClient
+                web3Url
         ));
     }
 }

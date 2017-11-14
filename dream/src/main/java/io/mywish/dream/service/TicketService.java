@@ -8,6 +8,8 @@ import io.mywish.dream.model.Player;
 import io.mywish.dream.model.contracts.TicketHolder;
 import io.mywish.dream.model.contracts.TicketSale;
 import io.mywish.dream.repositories.ContractRepository;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +34,7 @@ import java.util.concurrent.CompletionStage;
 @Component
 public class TicketService {
     private static final String EMPTY_ADDRESS = "0x0000000000000000000000000000000000000000";
+    private static final BigInteger TICKET_PRICE = new BigInteger("100000000000000000");
     @Autowired
     private Web3j web3j;
     @Autowired
@@ -128,6 +131,29 @@ public class TicketService {
                 });
     }
 
+    public CompletionStage<Void> payToLast(final String contractAddress) {
+        final TicketSale ticketSale = TicketSale.load(contractAddress, web3j, transactionManager, gasPrice, gasLimit);
+        return ticketSale.ticketHolder().sendAsync()
+                .thenCompose(ticketHolderAddress -> {
+                    final TicketHolder ticketHolder = TicketHolder.load(ticketHolderAddress, web3j, transactionManager, gasPrice, gasLimit);
+                    return ticketHolder.totalTickets().sendAsync()
+                            .thenApply(totalTickets -> new ComposedTickets(ticketHolder, totalTickets));
+                })
+                .thenCompose(composedInfo -> composedInfo.ticketHolder.getPlayersCount().sendAsync()
+                        .thenApply(playerCount -> new ComposedTickets(composedInfo.ticketHolder, composedInfo.totalTickets, playerCount)))
+                .thenCompose(composedInfo -> {
+                    final BigInteger playerIndex = composedInfo.playerCount.subtract(BigInteger.ONE);
+                    final BigInteger weiAmount = composedInfo.totalTickets.multiply(TICKET_PRICE);
+                    return unlockInvoke()
+                            .thenCompose(v -> ticketSale.payPrize(playerIndex, weiAmount).sendAsync())
+                            .thenAccept(receipt -> {
+                                if ("0".equals(receipt.getStatus())) {
+                                    throw new ContractInvocationException("Transaction (" + receipt.getTransactionHash() + ") failed: contract TicketSale(" + contractAddress + ").payPrize(" + playerIndex + ", " + weiAmount + ")");
+                                }
+                            });
+                });
+    }
+
     private CompletionStage<Void> unlockInvoke() {
         return admin.personalUnlockAccount(serverAddress, serverAccountPassword)
                 .sendAsync()
@@ -136,5 +162,25 @@ public class TicketService {
                         throw new UnlockAddressException("Impossible to unlock account " + serverAddress + ".");
                     }
                 });
+    }
+
+    @Accessors(chain = true)
+    @Setter
+    private static class ComposedTickets {
+        final TicketHolder ticketHolder;
+        final BigInteger totalTickets;
+        final BigInteger playerCount;
+
+        private ComposedTickets(TicketHolder ticketHolder, BigInteger totalTickets) {
+            this.ticketHolder = ticketHolder;
+            this.totalTickets = totalTickets;
+            this.playerCount = null;
+        }
+
+        private ComposedTickets(TicketHolder ticketHolder, BigInteger totalTickets, BigInteger playerCount) {
+            this.ticketHolder = ticketHolder;
+            this.totalTickets = totalTickets;
+            this.playerCount = playerCount;
+        }
     }
 }

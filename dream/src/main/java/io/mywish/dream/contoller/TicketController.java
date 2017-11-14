@@ -44,6 +44,13 @@ public class TicketController {
                 .thenApply(aVoid -> new Result(true, null));
     }
 
+    @RequestMapping(path = "{address}/pay", method = RequestMethod.POST)
+    public CompletionStage<Result> payFinal(@PathVariable("address") String address) {
+        return ticketService
+                .payToLast(address)
+                .thenApply(aVoid -> new Result(true, null));
+    }
+
     @RequestMapping(path = "{address}/finish", method = RequestMethod.GET)
     public CompletionStage<Result> isFinished(@PathVariable("address") String address) {
         return ticketService

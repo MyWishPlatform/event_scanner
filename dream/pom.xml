@@ -12,7 +12,7 @@
     <artifactId>dream</artifactId>
 
     <properties>
-        <db-url>jdbc:postgresql://localhost/dream</db-url>
+        <db-url>jdbc:postgresql://dev3/dream</db-url>
         <db-user>dream</db-user>
         <db-password>dream</db-password>
         <web3-base-url>http://localhost:8545/</web3-base-url>
@@ -25,6 +25,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jetty</artifactId>
         </dependency>
 
         <dependency>
@@ -74,15 +82,16 @@
             <plugin>
                 <groupId>org.web3j</groupId>
                 <artifactId>web3j-maven-plugin</artifactId>
-                <version>0.1.5</version>
+                <version>0.1.5-SNAPSHOT</version>
                 <configuration>
-                    <packageName>com.zuehlke.blockchain.model</packageName>
-                    <sourceDestination>src/main/java/generated</sourceDestination>
+                    <packageName>io.mywish.dream.model.contracts</packageName>
+                    <sourceDestination>src/main/java/io/mywish/dream/model/contracts</sourceDestination>
                     <nativeJavaType>true</nativeJavaType>
                     <soliditySourceFiles>
-                        <directory>src/main/resources</directory>
+                        <directory>../../solidity/dream/build/contracts</directory>
                         <includes>
-                            <include>**/*.sol</include>
+                            <include>TicketSale.json</include>
+                            <include>TicketHolder.json</include>
                         </includes>
                     </soliditySourceFiles>
                 </configuration>

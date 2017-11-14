@@ -71,7 +71,8 @@ public class TicketService {
     }
 
     public CompletionStage<Contract> deploy(LocalDateTime endDate) {
-        return unlockInvoke(TicketSale.deploy(web3j, transactionManager, gasPrice, gasLimit, BigInteger.valueOf(endDate.toEpochSecond(ZoneOffset.UTC))).sendAsync())
+        return unlockInvoke()
+                .thenCompose(v -> TicketSale.deploy(web3j, transactionManager, gasPrice, gasLimit, BigInteger.valueOf(endDate.toEpochSecond(ZoneOffset.UTC))).sendAsync())
                 .thenApply(ticketSale -> {
                     TransactionReceipt receipt = ticketSale.getTransactionReceipt()
                             .orElseThrow(() -> new CreationException("Contract creation finished, but there is no receipt."));
@@ -101,8 +102,9 @@ public class TicketService {
     }
 
     public CompletionStage<Void> finish(final String contractAddress) {
-        TicketSale ticketSale = TicketSale.load(contractAddress, web3j, transactionManager, gasPrice, gasLimit);
-        return unlockInvoke(ticketSale.finish().sendAsync())
+        final TicketSale ticketSale = TicketSale.load(contractAddress, web3j, transactionManager, gasPrice, gasLimit);
+        return unlockInvoke()
+                .thenCompose(v -> ticketSale.finish().sendAsync())
                 .thenAccept(receipt -> {
                     if ("0".equals(receipt.getStatus())) {
                         throw new ContractInvocationException("Transaction (" + receipt.getTransactionHash() + ") failed: contract TicketSale(" + contractAddress + ").finish().");
@@ -110,9 +112,15 @@ public class TicketService {
                 });
     }
 
+    public CompletionStage<Boolean> isFinished(final String contractAddress) {
+        final TicketSale ticketSale = TicketSale.load(contractAddress, web3j, transactionManager, gasPrice, gasLimit);
+        return ticketSale.isEnded().sendAsync();
+    }
+
     public CompletionStage<Void> setWinner(final String contractAddress, final int index) {
         TicketSale ticketSale = TicketSale.load(contractAddress, web3j, transactionManager, gasPrice, gasLimit);
-        return unlockInvoke(ticketSale.setWinner(BigInteger.valueOf(index)).sendAsync())
+        return unlockInvoke()
+                .thenCompose(v -> ticketSale.setWinner(BigInteger.valueOf(index)).sendAsync())
                 .thenAccept(receipt -> {
                     if ("0".equals(receipt.getStatus())) {
                         throw new ContractInvocationException("Transaction (" + receipt.getTransactionHash() + ") failed: contract TicketSale(" + contractAddress + ").setWinner(" + index + ").");
@@ -120,14 +128,13 @@ public class TicketService {
                 });
     }
 
-    private <T> CompletionStage<T> unlockInvoke(final CompletionStage<T> action) {
+    private CompletionStage<Void> unlockInvoke() {
         return admin.personalUnlockAccount(serverAddress, serverAccountPassword)
                 .sendAsync()
-                .thenCompose(personalUnlockAccount -> {
+                .thenAccept(personalUnlockAccount -> {
                     if (personalUnlockAccount.getResult() == null || !personalUnlockAccount.getResult()) {
                         throw new UnlockAddressException("Impossible to unlock account " + serverAddress + ".");
                     }
-                    return action;
                 });
     }
 }

@@ -44,6 +44,13 @@ public class TicketController {
                 .thenApply(aVoid -> new Result(true, null));
     }
 
+    @RequestMapping(path = "{address}/finish", method = RequestMethod.GET)
+    public CompletionStage<Result> isFinished(@PathVariable("address") String address) {
+        return ticketService
+                .isFinished(address)
+                .thenApply(value -> new Result(true, value));
+    }
+
     @RequestMapping(path = "{address}/winners/{id}", method = RequestMethod.POST)
     public CompletionStage<Result> finish(@PathVariable("address") String address, @PathVariable("id") int index) {
         return ticketService

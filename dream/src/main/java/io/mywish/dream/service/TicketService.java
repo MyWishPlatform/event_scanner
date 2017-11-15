@@ -2,6 +2,7 @@ package io.mywish.dream.service;
 
 import io.mywish.dream.exception.ContractInvocationException;
 import io.mywish.dream.exception.CreationException;
+import io.mywish.dream.exception.LogicException;
 import io.mywish.dream.exception.UnlockAddressException;
 import io.mywish.dream.model.Contract;
 import io.mywish.dream.model.Player;
@@ -142,6 +143,12 @@ public class TicketService {
                 .thenCompose(composedInfo -> composedInfo.ticketHolder.getPlayersCount().sendAsync()
                         .thenApply(playerCount -> new ComposedTickets(composedInfo.ticketHolder, composedInfo.totalTickets, playerCount)))
                 .thenCompose(composedInfo -> {
+                    if (composedInfo.playerCount.equals(BigInteger.ZERO)) {
+                        throw new LogicException("No players in lottery.");
+                    }
+                    if (composedInfo.totalTickets.equals(BigInteger.ZERO)) {
+                        throw new LogicException("No one ticket are sold.");
+                    }
                     final BigInteger playerIndex = composedInfo.playerCount.subtract(BigInteger.ONE);
                     final BigInteger weiAmount = composedInfo.totalTickets.multiply(TICKET_PRICE);
                     return unlockInvoke()

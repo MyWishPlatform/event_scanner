@@ -1,9 +1,5 @@
-package io.lastwill.eventscan.services;
+package io.mywish.scanner;
 
-import io.lastwill.eventscan.events.NewBlockEvent;
-import io.lastwill.eventscan.events.NewTransactionEvent;
-import io.lastwill.eventscan.exceptions.Web3Exception;
-import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,12 +9,14 @@ import org.springframework.util.MultiValueMap;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.Response;
-import org.web3j.protocol.core.methods.response.*;
+import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.EthBlock.Block;
+import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
+import org.web3j.protocol.core.methods.response.Transaction;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.io.*;
+import java.io.IOException;
 import java.util.HashMap;
 
 @Slf4j
@@ -35,10 +33,10 @@ public class EtherScanner {
     @Autowired
     private LastBlockPersister lastBlockPersister;
 
-    @Value("${io.lastwill.eventscan.polling-interval-ms}")
+    @Value("${etherscanner.polling-interval-ms:5000}")
     private long pollingInterval;
 
-    @Value("${io.lastwill.eventscan.commit-chain-length}")
+    @Value("${etherscanner.commit-chain-length:5}")
     private int commitmentChainLength;
 
     private Long lastBlockNo;
@@ -171,7 +169,24 @@ public class EtherScanner {
                         addressTransactions.add(transaction.getTo().toLowerCase(), transaction);
                     }
                     else {
-                        log.debug("Empty to field for transaction {}. Skip it.", transaction.getHash());
+                        if (transaction.getCreates() != null) {
+                            addressTransactions.add(transaction.getCreates().toLowerCase(), transaction);
+                        }
+                        else {
+                            try {
+                                TransactionReceipt receipt = web3j.ethGetTransactionReceipt(transaction.getHash())
+                                        .send()
+                                        .getTransactionReceipt()
+                                        .orElseThrow(() -> new Exception("Empty transaction receipt in result."));
+                                transaction.setCreates(receipt.getContractAddress());
+                                addressTransactions.add(receipt.getContractAddress().toLowerCase(), transaction);
+                            }
+                            catch (Exception e) {
+                                log.error("Error on getting transaction {} receipt.", transaction.getHash(), e);
+                                log.warn("Empty to and creates field for transaction {}. Skip it.", transaction.getHash());
+                            }
+                        }
+
                     }
                     eventPublisher.publish(new NewTransactionEvent(block, transaction));
                 });

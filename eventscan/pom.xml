@@ -25,6 +25,11 @@
             <!--<artifactId>ethereum-rpl</artifactId>-->
             <!--<version>${project.version}</version>-->
         <!--</dependency>-->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>scanner</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>

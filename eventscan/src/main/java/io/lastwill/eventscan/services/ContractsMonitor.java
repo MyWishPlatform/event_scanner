@@ -2,11 +2,11 @@ package io.lastwill.eventscan.services;
 
 import io.lastwill.eventscan.events.ContractCreatedEvent;
 import io.lastwill.eventscan.events.ContractEventsEvent;
-import io.lastwill.eventscan.events.NewBlockEvent;
 import io.lastwill.eventscan.events.OwnerBalanceChangedEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.EventValue;
 import io.lastwill.eventscan.repositories.ContractRepository;
+import io.mywish.scanner.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

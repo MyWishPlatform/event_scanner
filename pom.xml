@@ -22,7 +22,7 @@
         <module>ethereum-crypto</module>
         <module>key-app</module>
         <module>mywish-bot</module>
-        <module>dream</module>
+        <module>scanner</module>
     </modules>
 
     <properties>

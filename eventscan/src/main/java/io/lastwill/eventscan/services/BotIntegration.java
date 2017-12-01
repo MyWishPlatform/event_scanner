@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.services;
 
-import io.lastwill.eventscan.events.NewBlockEvent;
 import io.mywish.bot.service.MyWishBot;
+import io.mywish.scanner.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

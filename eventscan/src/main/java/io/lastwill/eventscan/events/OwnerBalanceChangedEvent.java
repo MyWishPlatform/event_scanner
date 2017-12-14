@@ -10,7 +10,7 @@ import java.math.BigInteger;
 public class OwnerBalanceChangedEvent extends BalanceChangedEvent {
     private final Contract contract;
     public OwnerBalanceChangedEvent(EthBlock.Block block, Contract contract, BigInteger amount, BigInteger balance) {
-        super(block, contract.getOwnerAddress(), amount, balance);
+        super(block, contract.getProduct().getOwnerAddress(), amount, balance);
         this.contract = contract;
     }
 }

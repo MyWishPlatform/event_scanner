@@ -33,4 +33,14 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <resources>
+            <resource>
+                <!-- Be careful to put binary resources! You must specify exclude rule for its. -->
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
 </project>

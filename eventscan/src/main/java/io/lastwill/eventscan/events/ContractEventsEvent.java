@@ -2,6 +2,7 @@ package io.lastwill.eventscan.events;
 
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.EventValue;
+import io.mywish.scanner.BaseEvent;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.web3j.protocol.core.methods.response.Transaction;

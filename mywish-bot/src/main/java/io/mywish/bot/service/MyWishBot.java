@@ -88,6 +88,46 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendMessage(last, weiAmount);
     }
 
+    public void onContract(Integer id, BigInteger cost, final String address) {
+        final String message = new StringBuilder()
+                .append("New contract (")
+                .append(id)
+                .append(") was created for ")
+                .append(toEth(cost))
+                .append(" ETH, see on [https://etherscan.io/address/")
+                .append(address)
+                .append("](etherscan).")
+                .toString();
+
+        sendToAllChats(new SendMessage().setParseMode("Markdown").setText(message));
+    }
+
+
+    public void onBalance(Integer id, BigInteger cost, final String address) {
+        final String message = new StringBuilder()
+                .append("Payment received for contract ")
+                .append(id)
+                .append(": ")
+                .append(toEth(cost))
+                .append(" ETH.")
+                .toString();
+
+        sendToAllChats(new SendMessage().setText(message));
+    }
+
+    private void sendToAllChats(SendMessage sendMessage) {
+        for (long chatId: chatPersister.getChats()) {
+            try {
+                // it's ok to specify chat id, because sendMessage will be serialized to JSON during the call
+                execute(sendMessage.setChatId(chatId));
+            }
+            catch (TelegramApiException e) {
+                log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
+                chatPersister.remove(chatId);
+            }
+        }
+    }
+
     private void repeatLatest(long chatId) {
         BigInteger latest;
         synchronized (investments) {
@@ -122,18 +162,7 @@ public class MyWishBot extends TelegramLongPollingBot {
     private void sendMessage(int index, BigInteger weiAmount) {
         String eth = toEth(weiAmount);
         final String message = "New investment: " + eth + " ETH";
-        for (long chatId: chatPersister.getChats()) {
-            try {
-                execute(new SendMessage()
-                        .setChatId(chatId)
-                        .setText(message)
-                );
-            }
-            catch (TelegramApiException e) {
-                log.error("Sending message '{}' to chat '{}' was failed.", message, chatId, e);
-                chatPersister.remove(chatId);
-            }
-        }
+        sendToAllChats(new SendMessage().setText(message));
     }
 
     private static String toEth(BigInteger weiAmount) {

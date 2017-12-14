@@ -6,6 +6,7 @@ import io.lastwill.eventscan.events.OwnerBalanceChangedEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.EventValue;
 import io.lastwill.eventscan.repositories.ContractRepository;
+import io.mywish.scanner.EventPublisher;
 import io.mywish.scanner.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,19 +69,19 @@ public class ContractsMonitor {
                 grabContractEvents(contract, transactions, newBlockEvent.getBlock());
                 wasPublished |= true;
             }
-            if (addresses.contains(contract.getOwnerAddress().toLowerCase())) {
+            if (addresses.contains(contract.getProduct().getOwnerAddress().toLowerCase())) {
                 final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(
-                        contract.getOwnerAddress().toLowerCase()
+                        contract.getProduct().getOwnerAddress().toLowerCase()
                 );
 
                 final List<Transaction> input = new ArrayList<>(transactions.size());
                 for (Transaction transaction: transactions) {
                     // get input transactions
-                    if (contract.getOwnerAddress().equalsIgnoreCase(transaction.getTo())) {
+                    if (contract.getProduct().getOwnerAddress().equalsIgnoreCase(transaction.getTo())) {
                         input.add(transaction);
                     }
                     // output transactions
-                    else if (contract.getOwnerAddress().equalsIgnoreCase(transaction.getFrom())) {
+                    else if (contract.getProduct().getOwnerAddress().equalsIgnoreCase(transaction.getFrom())) {
                         // contract creation
                         if (transaction.getTo() == null) {
                             eventPublisher.publish(new ContractCreatedEvent(contract, transaction, newBlockEvent.getBlock()));
@@ -170,8 +171,8 @@ public class ContractsMonitor {
     }
 
     private void publishOwnerBalance(final Contract contract, final List<Transaction> transactions, final EthBlock.Block block) {
-        final BigInteger value = getValueFor(contract.getOwnerAddress(), transactions);
-        balanceProvider.getBalanceAsync(contract.getOwnerAddress())
+        final BigInteger value = getValueFor(contract.getProduct().getOwnerAddress(), transactions);
+        balanceProvider.getBalanceAsync(contract.getProduct().getOwnerAddress())
                 .thenAccept(balance -> {
                     eventPublisher.publish(new OwnerBalanceChangedEvent(
                             block,

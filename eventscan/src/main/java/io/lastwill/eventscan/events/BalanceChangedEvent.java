@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.events;
 
+import io.mywish.scanner.BaseEvent;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.web3j.protocol.core.methods.response.EthBlock;

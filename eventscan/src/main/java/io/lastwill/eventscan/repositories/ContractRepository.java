@@ -13,6 +13,6 @@ import java.util.List;
 
 public interface ContractRepository extends CrudRepository<Contract, Integer> {
 
-    @Query("select c from Contract c where lower(c.address) in :addresses or lower(c.product.ownerAddress) in :addresses")
+    @Query("select c from Contract c where lower(c.address) in :addresses")
     List<Contract> findByAddressesList(@Param("addresses") Collection<String> addresses);
 }

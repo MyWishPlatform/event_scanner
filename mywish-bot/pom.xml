@@ -13,6 +13,7 @@
 
     <properties>
         <telegrambots.version>3.4</telegrambots.version>
+        <bot-token>384060210:AAGInfMwVwFa0j72cGaJBoIrCZZgG7ntWRM</bot-token>
     </properties>
 
     <dependencies>

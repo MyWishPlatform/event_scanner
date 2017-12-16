@@ -13,10 +13,6 @@
     <artifactId>txexport</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <properties>
-        <bot-token>384060210:AAGInfMwVwFa0j72cGaJBoIrCZZgG7ntWRM</bot-token>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -8,11 +8,13 @@ import lombok.ToString;
 public class ContractDeployedNotify extends NotifyContract {
     private final String address;
     private final String transactionHash;
+    private final boolean status;
 
-    public ContractDeployedNotify(int contractId, PaymentStatus state, String address, String transactionHash) {
+    public ContractDeployedNotify(int contractId, PaymentStatus state, String address, String transactionHash, boolean status) {
         super(contractId, state);
         this.address = address;
         this.transactionHash = transactionHash;
+        this.status = status;
     }
 
     @Override

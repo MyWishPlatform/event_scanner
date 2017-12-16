@@ -3,6 +3,7 @@ package io.lastwill.eventscan.services;
 import io.lastwill.eventscan.events.ContractCreatedEvent;
 import io.lastwill.eventscan.events.ContractEventsEvent;
 import io.lastwill.eventscan.events.OwnerBalanceChangedEvent;
+import io.lastwill.eventscan.helpers.TransactionHelper;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.EventValue;
 import io.lastwill.eventscan.model.Product;
@@ -52,7 +53,7 @@ public class ContractsMonitor {
     private String proxyAddress;
 
     @EventListener
-    public void onNewBlock(NewBlockEvent newBlockEvent) {
+    public void onNewBlock(final NewBlockEvent newBlockEvent) {
         Set<String> addresses = newBlockEvent.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;
@@ -89,14 +90,25 @@ public class ContractsMonitor {
         }
 
         List<Contract> contracts = contractRepository.findByAddressesList(addresses);
-        for (Contract contract : contracts) {
+        for (final Contract contract : contracts) {
             boolean wasPublished = false;
             if (contract.getAddress() != null && addresses.contains(contract.getAddress().toLowerCase())) {
                 final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getAddress().toLowerCase());
-                for (Transaction transaction: transactions) {
+                for (final Transaction transaction: transactions) {
                     // contract creation
                     if (transaction.getTo() == null) {
-                        eventPublisher.publish(new ContractCreatedEvent(contract, transaction, newBlockEvent.getBlock()));
+                        transactionProvider.getTransactionReceiptAsync(transaction.getHash())
+                            .thenAccept(transactionReceipt -> {
+                                if (!TransactionHelper.isSuccess(transactionReceipt)) {
+                                    log.warn("Failed contract ({}) creation in transaction {}!", contract.getAddress(), transaction.getHash());
+                                }
+                                eventPublisher.publish(new ContractCreatedEvent(
+                                        contract,
+                                        transaction,
+                                        newBlockEvent.getBlock(),
+                                        TransactionHelper.isSuccess(transactionReceipt))
+                                );
+                            });
                         wasPublished |= true;
                     }
                     // grab events

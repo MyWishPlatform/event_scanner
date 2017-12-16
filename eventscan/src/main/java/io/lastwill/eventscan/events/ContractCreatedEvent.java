@@ -13,4 +13,5 @@ public class ContractCreatedEvent extends BaseEvent {
     private final Contract contract;
     private final Transaction transaction;
     private final EthBlock.Block block;
+    private final boolean isSuccess;
 }

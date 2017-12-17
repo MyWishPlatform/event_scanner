@@ -80,15 +80,19 @@ public class LastBlockPersister {
 
     public void saveLastBlock(long blockNumber) {
         lastBlock = blockNumber;
-        FileChannel fileChannel = lastOutputStream.getChannel();
+
+        if (lastOutputStream == null) {
+            return;
+        }
         try {
+            FileChannel fileChannel = lastOutputStream.getChannel();
             fileChannel.position(0L);
             ByteBuffer buf =  ByteBuffer.wrap(Long.toString(blockNumber).getBytes());
             fileChannel.write(buf);
             fileChannel.truncate(buf.position());
         }
         catch (IOException e) {
-            log.error("Error on saving last block no.");
+            log.error("Error on saving last block no.", e);
         }
     }
 }

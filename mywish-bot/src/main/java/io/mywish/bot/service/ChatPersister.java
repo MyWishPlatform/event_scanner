@@ -44,8 +44,19 @@ public class ChatPersister {
             return;
         }
         File file = new File(chatsFilePath);
+        log.info("Persist chats to {}.", file.getAbsolutePath());
         if (file.exists() && file.canRead()) {
             readFromFile(file);
+        }
+        else if (!file.exists()) {
+            try {
+                //noinspection ResultOfMethodCallIgnored
+                file.createNewFile();
+            }
+            catch (IOException e) {
+                log.warn("Impossible to create file {}. Chats were not persisted!", file.getAbsolutePath(), e);
+                return;
+            }
         }
         if (file.canWrite()) {
             try {
@@ -58,6 +69,9 @@ public class ChatPersister {
             Thread thread = new Thread(saver);
             thread.setDaemon(true);
             thread.start();
+        }
+        else {
+            log.warn("Chats file not writable. Chats were not persisted!");
         }
     }
 

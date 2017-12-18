@@ -1,6 +1,7 @@
 package io.lastwill.eventscan.repositories;
 
 import io.lastwill.eventscan.model.Product;
+import io.lastwill.eventscan.model.ProductStatistics;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -21,4 +22,6 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
     @Query("select c from Product c where lower(c.ownerAddress) in :addresses")
     List<Product> findByAddressesList(@Param("addresses") Collection<String> addresses);
 
+    @Query(name = "Product.productStatistics")
+    List<ProductStatistics> getProductStatistics();
 }

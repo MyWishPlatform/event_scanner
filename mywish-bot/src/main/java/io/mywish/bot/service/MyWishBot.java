@@ -16,6 +16,7 @@ import javax.annotation.PostConstruct;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -25,6 +26,9 @@ public class MyWishBot extends TelegramLongPollingBot {
 
     @Autowired
     private ChatPersister chatPersister;
+
+    @Autowired(required = false)
+    private InformationProvider informationProvider;
 
     private final List<BigInteger> investments = new ArrayList<>();
 
@@ -39,6 +43,7 @@ public class MyWishBot extends TelegramLongPollingBot {
     protected void init() {
         try {
             telegramBotsApi.registerBot(this);
+            log.info("Bot was registered, token: {}.", botToken);
         }
         catch (TelegramApiRequestException e) {
             log.error("Failed during the bot registration.", e);
@@ -59,13 +64,16 @@ public class MyWishBot extends TelegramLongPollingBot {
         }
         else if (update.hasMessage()) {
             chatId = update.getMessage().getChatId();
+            String userName = update.getMessage().getFrom() != null
+                    ? update.getMessage().getFrom().getUserName()
+                    : null;
             if (update.getMessage().getChat().isUserChat()) {
                 log.debug("Direct message received from {}.", update.getMessage().getFrom());
-                repeatLatest(chatId);
+                directMessage(chatId, userName);
             }
             else {
                 log.debug("Bot mentioned in chat {}.", chatId);
-                repeatLatest(chatId);
+                directMessage(chatId, userName);
             }
 
         }
@@ -128,31 +136,23 @@ public class MyWishBot extends TelegramLongPollingBot {
         }
     }
 
-    private void repeatLatest(long chatId) {
-        BigInteger latest;
-        synchronized (investments) {
-            if (investments.size() > 0) {
-                latest = investments.get(investments.size() - 1);
+    private void directMessage(long chatId, String userName) {
+        if (informationProvider == null || !informationProvider.isAvailable(userName)) {
+            try {
+                execute(new SendMessage()
+                        .setChatId(chatId)
+                        .setText("Not information available.")
+                );
             }
-            else {
-                latest = null;
+            catch (TelegramApiException e) {
+                log.error("Sending stub message to chat '{}' was failed.", chatId, e);
             }
+            return;
         }
-
-        String message;
-        if (latest == null) {
-            message = "No investment detected.";
-        }
-        else {
-            String eth = toEth(latest);
-            message = "The latest investment was: " + eth + " ETH";
-        }
+        SendMessage message = informationProvider.getInformation(userName);
 
         try {
-            execute(new SendMessage()
-                    .setChatId(chatId)
-                    .setText(message)
-            );
+            execute(message.setChatId(chatId));
         }
         catch (TelegramApiException e) {
             log.error("Sending message '{}' to chat '{}' was failed.", message, chatId, e);

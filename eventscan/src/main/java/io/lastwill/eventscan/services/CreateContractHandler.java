@@ -20,7 +20,7 @@ public class CreateContractHandler {
             return;
         }
         externalNotifier.sendDeployedNotification(
-                event.getContract(),
+                event.getProduct(),
                 event.getTransaction().getCreates(),
                 event.getTransaction().getHash(),
                 true,

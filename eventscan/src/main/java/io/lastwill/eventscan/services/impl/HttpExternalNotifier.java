@@ -76,8 +76,8 @@ public class HttpExternalNotifier implements ExternalNotifier {
     }
 
     @Override
-    public void sendDeployedNotification(Contract contract, String address, String transactionHash, boolean committed, boolean status) {
-        doPost(deployed, new ContractDeployedNotify(contract.getId(), committed ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED, address, transactionHash, status));
+    public void sendDeployedNotification(Product product, String address, String transactionHash, boolean committed, boolean status) {
+        doPost(deployed, new ContractDeployedNotify(product.getId(), committed ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED, address, transactionHash, status));
     }
 
     @Override

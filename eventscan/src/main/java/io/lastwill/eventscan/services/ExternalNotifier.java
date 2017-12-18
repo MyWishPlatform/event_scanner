@@ -13,7 +13,7 @@ public interface ExternalNotifier {
 
     void sendCheckedNotify(Contract contract, String transactionHash);
 
-    void sendDeployedNotification(Product product, String address, String transactionHash, boolean committed, boolean status);
+    void sendDeployedNotification(Contract contract, String address, String transactionHash, boolean committed, boolean status);
 
     void sendKilledNotification(Contract contract);
 

@@ -109,12 +109,13 @@ public class ChatPersister {
             String line = reader.readLine();
             while (line != null) {
                 try {
-                    chats.add(Long.parseLong(reader.readLine()));
+                    chats.add(Long.parseLong(line));
                 }
                 catch (Exception e) {
                     log.error("Error on reading line {}.", lineNo, e);
                 }
                 lineNo ++;
+                line = reader.readLine();
             }
             if (chats.isEmpty()) {
                 log.warn("File {} has no chats.", file);

@@ -14,6 +14,7 @@ public class Contract {
     @Id
     private Integer id;
     private String address;
+    private String txHash;
     // TODO: add convertors
 //    @Column(name = "activeTo", nullable = false)
 //    private OffsetDateTime activeUntil;

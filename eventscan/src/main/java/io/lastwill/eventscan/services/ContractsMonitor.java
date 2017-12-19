@@ -79,6 +79,22 @@ public class ContractsMonitor {
                 if (product.getOwnerAddress().equalsIgnoreCase(transaction.getTo())) {
                     input.add(transaction);
                 }
+                // contract creation
+                else if (transaction.getTo() == null) {
+                    transactionProvider.getTransactionReceiptAsync(transaction.getHash())
+                            .thenAccept(transactionReceipt -> contractRepository.findByProductAndTxHash(product, transaction.getHash().toLowerCase())
+                                    .forEach(contract -> {
+                                        if (!TransactionHelper.isSuccess(transactionReceipt)) {
+                                            log.warn("Failed contract ({}) creation in transaction {}!", contract.getAddress(), transaction.getHash());
+                                        }
+                                        eventPublisher.publish(new ContractCreatedEvent(
+                                                contract,
+                                                transaction,
+                                                newBlockEvent.getBlock(),
+                                                TransactionHelper.isSuccess(transactionReceipt))
+                                        );
+                                    }));
+                }
             }
             if (!input.isEmpty()) {
                 publishOwnerBalance(
@@ -95,24 +111,8 @@ public class ContractsMonitor {
             if (contract.getAddress() != null && addresses.contains(contract.getAddress().toLowerCase())) {
                 final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getAddress().toLowerCase());
                 for (final Transaction transaction: transactions) {
-                    // contract creation
-                    if (transaction.getTo() == null) {
-                        transactionProvider.getTransactionReceiptAsync(transaction.getHash())
-                            .thenAccept(transactionReceipt -> {
-                                if (!TransactionHelper.isSuccess(transactionReceipt)) {
-                                    log.warn("Failed contract ({}) creation in transaction {}!", contract.getAddress(), transaction.getHash());
-                                }
-                                eventPublisher.publish(new ContractCreatedEvent(
-                                        contract,
-                                        transaction,
-                                        newBlockEvent.getBlock(),
-                                        TransactionHelper.isSuccess(transactionReceipt))
-                                );
-                            });
-                        wasPublished |= true;
-                    }
                     // grab events
-                    else {
+                    if (transaction.getTo() != null) {
                         grabContractEvents(contract, transaction, newBlockEvent.getBlock());
                         wasPublished |= true;
                     }

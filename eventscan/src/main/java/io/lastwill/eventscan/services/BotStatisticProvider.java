@@ -1,7 +1,9 @@
 package io.lastwill.eventscan.services;
 
 import io.lastwill.eventscan.model.ProductStatistics;
+import io.lastwill.eventscan.model.UserStatistics;
 import io.lastwill.eventscan.repositories.ProductRepository;
+import io.lastwill.eventscan.repositories.UserRepository;
 import io.mywish.bot.service.InformationProvider;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +17,31 @@ import java.util.stream.Collectors;
 public class BotStatisticProvider implements InformationProvider {
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public SendMessage getInformation(String userName) {
         StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("Users\n");
+        long totalUsers = userRepository.getUserStatistics()
+                .stream()
+                .peek(userStatistics -> {
+                    if (userStatistics.isRegistered()) {
+                        stringBuilder.append("  Registered: ");
+                    }
+                    else {
+                        stringBuilder.append("  Anonymous: ");
+                    }
+                    stringBuilder.append("*").append(userStatistics.getUserCount()).append("*\n");
+                })
+                .map(UserStatistics::getUserCount)
+                .reduce(Long::sum)
+                .orElse(0L);
+
+        stringBuilder.append("*Total: ").append(totalUsers).append("*\n");
+
         val grouped = productRepository.getProductStatistics()
                 .stream()
                 .collect(Collectors.groupingBy(
@@ -28,19 +51,19 @@ public class BotStatisticProvider implements InformationProvider {
                                 Collectors.summingInt(ProductStatistics::getContractCount)
                         )
                 ));
-        AtomicInteger overall = new AtomicInteger();
+        AtomicInteger overallContracts = new AtomicInteger();
         grouped
                 .forEach((type, states) -> {
-                    stringBuilder.append("Contact ").append(type).append(":\n");
+                    stringBuilder.append("Contact *").append(type).append("*:\n");
                     states.forEach((state, count) -> {
-                        stringBuilder.append("\t").append(state).append(": ").append(count).append("\n");
+                        stringBuilder.append("  ").append(state.replaceAll("_", "\\\\_")).append(": *").append(count).append("*\n");
                     });
                     int total = states.values().stream().reduce(Integer::sum).orElse(0);
-                    overall.addAndGet(total);
-                    stringBuilder.append("\tTotal: ").append(total).append("\n");
+                    overallContracts.addAndGet(total);
+                    stringBuilder.append("  *Total: ").append(total).append("*\n");
                 });
-        stringBuilder.append("Total contracts: ").append(overall.get());
-        return new SendMessage().setText(stringBuilder.toString());
+        stringBuilder.append("*Total contracts: ").append(overallContracts.get()).append("*\n");
+        return new SendMessage().setText(stringBuilder.toString()).enableMarkdown(true);
     }
 
     @Override

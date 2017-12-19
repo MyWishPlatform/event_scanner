@@ -13,9 +13,11 @@ import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 
@@ -26,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 
 @SpringBootApplication
 @Import({BotModule.class, ScannerModule.class})
+@EntityScan(basePackageClasses = {Application.class, Jsr310JpaConverters.class})
 public class Application {
     public static void main(String[] args) {
         new SpringApplicationBuilder()

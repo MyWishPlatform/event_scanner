@@ -111,6 +111,18 @@ public class MyWishBot extends TelegramLongPollingBot {
     }
 
 
+    public void onContractFailed(Integer id, final String txHash) {
+        final String message = new StringBuilder()
+                .append("Contract (")
+                .append(id)
+                .append(")  creation failed! See on [https://etherscan.io/tx/")
+                .append(txHash)
+                .append("](etherscan).")
+                .toString();
+
+        sendToAllChats(new SendMessage().setParseMode("Markdown").setText(message));
+    }
+
     public void onBalance(Integer id, BigInteger cost, final String address) {
         final String message = new StringBuilder()
                 .append("Payment received for contract ")

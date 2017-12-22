@@ -8,8 +8,8 @@ import lombok.ToString;
 public abstract class NotifyContract extends BaseNotify {
     private final int contractId;
 
-    public NotifyContract(int contractId, PaymentStatus status) {
-        super(status);
+    public NotifyContract(int contractId, PaymentStatus status, String txHash) {
+        super(status, txHash);
         this.contractId = contractId;
     }
 }

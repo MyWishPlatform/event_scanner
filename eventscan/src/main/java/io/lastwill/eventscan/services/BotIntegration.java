@@ -48,7 +48,7 @@ public class BotIntegration {
             bot.onContract(contract.getId(), product.getCost(), contract.getAddress());
         }
         else {
-            bot.onContractFailed(contract.getId(), contract.getTxHash());
+            bot.onContractFailed(contract.getId(), contractCreatedEvent.getTransaction().getHash());
         }
     }
 

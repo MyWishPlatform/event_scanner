@@ -125,13 +125,13 @@ public class MQExternalNotifier implements ExternalNotifier {
     }
 
     @Override
-    public void sendCheckRepeatNotify(Contract contract) {
-        send(new RepeatCheckNotify(contract.getId(), PaymentStatus.COMMITTED));
+    public void sendCheckRepeatNotify(Contract contract, String transactionHash) {
+        send(new RepeatCheckNotify(contract.getId(), transactionHash));
     }
 
     @Override
     public void sendCheckedNotify(Contract contract, String transactionHash) {
-        send(new CheckedNotify(contract.getId(), transactionHash, PaymentStatus.COMMITTED));
+        send(new CheckedNotify(contract.getId(), transactionHash));
     }
 
     @Override
@@ -140,12 +140,22 @@ public class MQExternalNotifier implements ExternalNotifier {
     }
 
     @Override
-    public void sendKilledNotification(Contract contract) {
-        send(new ContractKilledNotify(contract.getId(), PaymentStatus.COMMITTED));
+    public void sendKilledNotification(Contract contract, String transactionHash) {
+        send(new ContractKilledNotify(contract.getId(), transactionHash));
     }
 
     @Override
-    public void sendTriggeredNotification(Contract contract) {
-        send(new ContractTriggeredNotify(contract.getId(), PaymentStatus.COMMITTED));
+    public void sendTriggeredNotification(Contract contract, String transactionHash) {
+        send(new ContractTriggeredNotify(contract.getId(), transactionHash));
+    }
+
+    @Override
+    public void sendOwnershipTransferredNotification(Contract contract, String transactionHash) {
+        send(new OwnershipTransferredNotify(contract.getId(), transactionHash));
+    }
+
+    @Override
+    public void sendInitializedNotification(Contract contract, String transactionHash) {
+        send(new InitializedNotify(contract.getId(), transactionHash));
     }
 }

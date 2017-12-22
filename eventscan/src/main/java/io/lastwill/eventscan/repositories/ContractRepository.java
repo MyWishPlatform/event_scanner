@@ -19,4 +19,10 @@ public interface ContractRepository extends CrudRepository<Contract, Integer> {
 
     @Query("select c from Contract c where c.product = :product and lower(c.txHash) = :txHash")
     List<Contract> findByProductAndTxHash(@Param("product") Product product, @Param("txHash") String txHash);
+
+    @Query("select c from Contract c where lower(c.txHash) = :txHash")
+    List<Contract> findByTxHash(@Param("txHash") String txHash);
+
+    @Query("select c from Contract c where lower(c.txHash) in :hashes")
+    List<Contract> findByTxHashes(@Param("hashes") Collection<String> hashes);
 }

@@ -9,6 +9,7 @@ import lombok.ToString;
 @RequiredArgsConstructor
 public abstract class BaseNotify {
     private final PaymentStatus status;
+    private final String transactionHash;
 
     public abstract String getType();
 }

@@ -10,13 +10,17 @@ import java.math.BigInteger;
 public interface ExternalNotifier {
     void sendPaymentNotify(UserProfile userProfile, BigInteger amount, PaymentStatus status, String txHash, CryptoCurrency currency, boolean isSuccess);
 
-    void sendCheckRepeatNotify(Contract contract);
+    void sendCheckRepeatNotify(Contract contract, String transactionHash);
 
     void sendCheckedNotify(Contract contract, String transactionHash);
 
     void sendDeployedNotification(Contract contract, String address, String transactionHash, boolean committed, boolean status);
 
-    void sendKilledNotification(Contract contract);
+    void sendKilledNotification(Contract contract, String transactionHash);
 
-    void sendTriggeredNotification(Contract contract);
+    void sendTriggeredNotification(Contract contract, String transactionHash);
+
+    void sendOwnershipTransferredNotification(Contract contract, String transactionHash);
+
+    void sendInitializedNotification(Contract contract, String transactionHash);
 }

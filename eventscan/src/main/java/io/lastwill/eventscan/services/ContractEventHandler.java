@@ -35,13 +35,13 @@ public class ContractEventHandler {
                 externalNotifier.sendCheckedNotify(event.getContract(), event.getTransaction().getHash());
             }
             else if (eventParser.NeedRepeatCheck == values.getEvent()) {
-                externalNotifier.sendCheckRepeatNotify(event.getContract());
+                externalNotifier.sendCheckRepeatNotify(event.getContract(), event.getTransaction().getHash());
             }
             else if (eventParser.Killed == values.getEvent()) {
-                externalNotifier.sendKilledNotification(event.getContract());
+                externalNotifier.sendKilledNotification(event.getContract(), event.getTransaction().getHash());
             }
             else if (eventParser.Triggered == values.getEvent()) {
-                externalNotifier.sendTriggeredNotification(event.getContract());
+                externalNotifier.sendTriggeredNotification(event.getContract(), event.getTransaction().getHash());
             }
             else if (eventParser.FundsAdded == values.getEvent()) {
                 balanceProvider.getBalanceAsync(event.getContract().getAddress(), event.getBlock().getNumber().longValue())
@@ -54,6 +54,14 @@ public class ContractEventHandler {
                                 log.error("Updating balance for contract {} failed.", event.getContract().getId(), e);
                             }
                         });
+            }
+            else if (eventParser.Initialized == values.getEvent()) {
+                externalNotifier.sendInitializedNotification(event.getContract(), event.getTransaction().getHash());
+                // ignore all other
+                return;
+            }
+            else if (eventParser.OwnershipTransferred == values.getEvent()) {
+                externalNotifier.sendOwnershipTransferredNotification(event.getContract(), event.getTransaction().getHash());
             }
         }
 

@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.services;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import io.lastwill.eventscan.model.EventValue;
 import org.springframework.stereotype.Component;
 import org.web3j.abi.EventEncoder;
@@ -60,6 +61,24 @@ public class EventParser {
             Collections.singletonList(TypeReference.create(Uint.class))
     );
 
+    /**
+     *  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+     */
+    public final Event OwnershipTransferred = new Event(
+            "OwnershipTransferred",
+            Arrays.asList(TypeReference.create(Address.class), TypeReference.create(Address.class)),
+            Collections.emptyList()
+    );
+
+    /**
+     * Crowdsale initialized event.
+     */
+    public final Event Initialized = new Event(
+            "Initialized",
+            Collections.emptyList(),
+            Collections.emptyList()
+    );
+
     private Map<String, Event> events = new HashMap<String, Event>() {{
         put(EventEncoder.encode(Checked), Checked);
         put(EventEncoder.encode(NeedRepeatCheck), NeedRepeatCheck);
@@ -68,6 +87,8 @@ public class EventParser {
         put(EventEncoder.encode(FundsAdded), FundsAdded);
         put(EventEncoder.encode(Triggered), Triggered);
         put(EventEncoder.encode(TransferERC20), TransferERC20);
+        put(EventEncoder.encode(OwnershipTransferred), OwnershipTransferred);
+        put(EventEncoder.encode(Initialized), Initialized);
     }};
 
     public List<EventValue> parseEvents(TransactionReceipt transactionReceipt) {

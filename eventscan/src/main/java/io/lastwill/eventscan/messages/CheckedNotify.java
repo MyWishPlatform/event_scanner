@@ -4,11 +4,8 @@ import lombok.ToString;
 
 @ToString(callSuper = true)
 public class CheckedNotify extends NotifyContract {
-    private final String transactionHash;
-
-    public CheckedNotify(int contractId, String transactionHash, PaymentStatus status) {
-        super(contractId, status);
-        this.transactionHash = transactionHash;
+    public CheckedNotify(int contractId, String transactionHash) {
+        super(contractId, PaymentStatus.COMMITTED, transactionHash);
     }
 
     @Override

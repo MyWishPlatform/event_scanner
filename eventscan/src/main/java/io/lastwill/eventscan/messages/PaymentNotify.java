@@ -16,7 +16,7 @@ public class PaymentNotify extends BaseNotify {
     private final boolean isSuccess;
 
     public PaymentNotify(int userId, BigInteger amount, PaymentStatus status, String txHash, CryptoCurrency currency, boolean isSuccess) {
-        super(status);
+        super(status, txHash);
         this.userId = userId;
         this.amount = amount;
         this.txHash = txHash;

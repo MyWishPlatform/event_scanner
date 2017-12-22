@@ -11,7 +11,7 @@ public class ContractDeployedNotify extends NotifyContract {
     private final boolean isSuccess;
 
     public ContractDeployedNotify(int contractId, PaymentStatus status, String address, String transactionHash, boolean isSuccess) {
-        super(contractId, status);
+        super(contractId, status, transactionHash);
         this.address = address;
         this.transactionHash = transactionHash;
         this.isSuccess = isSuccess;

@@ -57,70 +57,31 @@ public class ContractsMonitor {
     }
 
     @EventListener
-    public void onNewBlock(final NewBlockEvent newBlockEvent) {
-        Set<String> addresses = newBlockEvent.getTransactionsByAddress().keySet();
+    public void onNewBlock(final NewBlockEvent event) {
+        Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;
         }
-        if (log.isTraceEnabled()) {
-            log.trace("List of address ({}):", addresses.size());
-            addresses.forEach(log::trace);
-        }
 
         if (addresses.contains(proxyAddress)) {
-            final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(proxyAddress);
-            grabProxyEvents(transactions, newBlockEvent.getBlock());
-        }
-
-        List<Product> products = productRepository.findByAddressesList(addresses);
-        for (Product product : products) {
-            final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(
-                    product.getOwnerAddress().toLowerCase()
-            );
-
-            for (Transaction transaction : transactions) {
-                if (transaction.getTo() != null) {
-                    continue;
-                }
-
-                transactionProvider.getTransactionReceiptAsync(transaction.getHash())
-                        .thenAccept(transactionReceipt -> contractRepository.findByProductAndTxHash(product, transaction.getHash().toLowerCase())
-                                .forEach(contract -> {
-                                    if (!TransactionHelper.isSuccess(transactionReceipt)) {
-                                        log.warn("Failed contract ({}) creation in transaction {}!", contract.getId(), transaction.getHash());
-                                    }
-                                    else {
-                                        contract.setAddress(transactionReceipt.getContractAddress().toLowerCase());
-                                        if (transaction.getCreates() == null) {
-                                            transaction.setCreates(transactionReceipt.getContractAddress());
-                                        }
-                                    }
-                                    eventPublisher.publish(new ContractCreatedEvent(
-                                            contract,
-                                            transaction,
-                                            newBlockEvent.getBlock(),
-                                            TransactionHelper.isSuccess(transactionReceipt))
-                                    );
-                                }));
-            }
+            final List<Transaction> transactions = event.getTransactionsByAddress().get(proxyAddress);
+            grabProxyEvents(transactions, event.getBlock());
         }
 
         List<Contract> contracts = contractRepository.findByAddressesList(addresses);
         for (final Contract contract : contracts) {
-            boolean wasPublished = false;
-            if (contract.getAddress() != null && addresses.contains(contract.getAddress().toLowerCase())) {
-                final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getAddress().toLowerCase());
-                for (final Transaction transaction : transactions) {
-                    // grab events
-                    if (transaction.getTo() != null) {
-                        grabContractEvents(contract, transaction, newBlockEvent.getBlock());
-                        wasPublished |= true;
-                    }
-                }
+            if (contract.getAddress() == null || !addresses.contains(contract.getAddress().toLowerCase())) {
+                continue;
             }
 
-            if (!wasPublished) {
-                log.warn("Contract {} was mentioned in block because of unknown reason.", contract.getId());
+            final List<Transaction> transactions = event.getTransactionsByAddress().get(contract.getAddress().toLowerCase());
+            for (final Transaction transaction : transactions) {
+                // grab events
+                if (transaction.getTo() == null) {
+                    continue;
+                }
+
+                grabContractEvents(contract, transaction, event.getBlock());
             }
         }
     }

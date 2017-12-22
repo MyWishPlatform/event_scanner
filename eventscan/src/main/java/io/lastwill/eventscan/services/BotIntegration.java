@@ -55,6 +55,11 @@ public class BotIntegration {
     @EventListener
     public void onOwnerBalanceChanged(final UserPaymentEvent event) {
         final UserProfile userProfile = event.getUserProfile();
-        bot.onBalance(userProfile.getId(), event.getAmount(), userProfile.getInternalAddress());
+        bot.onBalance(
+                userProfile.getUser().getId(),
+                event.getAmount(),
+                event.getCurrency().toString(),
+                event.getTransaction().getHash()
+        );
     }
 }

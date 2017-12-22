@@ -60,7 +60,7 @@ public class ChatPersister {
         }
         if (file.canWrite()) {
             try {
-                lastOutputStream = new FileOutputStream(file, false);
+                lastOutputStream = new FileOutputStream(file, true);
             }
             catch (FileNotFoundException e) {
                 log.error("Error on creating file {} writer.", file, e);
@@ -117,9 +117,7 @@ public class ChatPersister {
                 lineNo ++;
                 line = reader.readLine();
             }
-            if (chats.isEmpty()) {
-                log.warn("File {} has no chats.", file);
-            }
+            log.info("Loaded {} chats.", lineNo - 1);
         }
         catch (Exception e) {
             log.warn("Impossible to read file {}.", file, e);

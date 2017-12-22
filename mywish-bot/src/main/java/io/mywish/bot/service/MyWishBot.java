@@ -16,7 +16,6 @@ import javax.annotation.PostConstruct;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Component
@@ -102,12 +101,12 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(id)
                 .append(") was created for ")
                 .append(toEth(cost))
-                .append(" ETH, see on [https://etherscan.io/address/")
+                .append(" ETH, see on [etherscan](https://etherscan.io/address/")
                 .append(address)
-                .append("](etherscan).")
+                .append(").")
                 .toString();
 
-        sendToAllChats(new SendMessage().setParseMode("Markdown").setText(message));
+        sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
     }
 
 
@@ -115,24 +114,27 @@ public class MyWishBot extends TelegramLongPollingBot {
         final String message = new StringBuilder()
                 .append("Contract (")
                 .append(id)
-                .append(")  creation failed! See on [https://etherscan.io/tx/")
+                .append(") creation *failed*! See on [etherscan](https://etherscan.io/tx/")
                 .append(txHash)
-                .append("](etherscan).")
+                .append(").")
                 .toString();
 
-        sendToAllChats(new SendMessage().setParseMode("Markdown").setText(message));
+        sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
     }
 
-    public void onBalance(Integer id, BigInteger cost, final String address) {
+    public void onBalance(Integer id, BigInteger cost, final String currency, String txHash) {
         final String message = new StringBuilder()
-                .append("Payment received for contract ")
+                .append("Payment received from user ")
                 .append(id)
-                .append(": ")
+                .append(": [")
                 .append(toEth(cost))
-                .append(" ETH.")
+                .append(" ")
+                .append(currency)
+                .append("](https://etherscan.io/tx/")
+                .append(").")
                 .toString();
 
-        sendToAllChats(new SendMessage().setText(message));
+        sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
     }
 
     private void sendToAllChats(SendMessage sendMessage) {

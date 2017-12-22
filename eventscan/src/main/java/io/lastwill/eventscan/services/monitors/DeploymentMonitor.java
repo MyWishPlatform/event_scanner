@@ -54,6 +54,10 @@ public class DeploymentMonitor {
                 .filter(tr -> tr.getTo() == null)
                 .collect(Collectors.toMap(tr -> tr.getHash().toLowerCase(), Function.identity()));
 
+        if (deployHashes.isEmpty()) {
+            return;
+        }
+
         List<Contract> contracts = contractRepository.findByTxHashes(deployHashes.keySet());
         for (Contract contract: contracts) {
             final Transaction transaction = deployHashes.get(contract.getTxHash().toLowerCase());

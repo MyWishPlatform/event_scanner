@@ -1,15 +1,15 @@
 package io.lastwill.eventscan.messages;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @ToString
 @Getter
-@RequiredArgsConstructor
-public abstract class NotifyContract {
-    private final int userId;
-    private final PaymentStatus status;
+public abstract class NotifyContract extends BaseNotify {
+    private final int contractId;
 
-    public abstract String getType();
+    public NotifyContract(int contractId, PaymentStatus status) {
+        super(status);
+        this.contractId = contractId;
+    }
 }

@@ -79,21 +79,29 @@ public class ContractsMonitor {
             );
 
             for (Transaction transaction : transactions) {
-                if (transaction.getTo() == null) {
-                    transactionProvider.getTransactionReceiptAsync(transaction.getHash())
-                            .thenAccept(transactionReceipt -> contractRepository.findByProductAndTxHash(product, transaction.getHash().toLowerCase())
-                                    .forEach(contract -> {
-                                        if (!TransactionHelper.isSuccess(transactionReceipt)) {
-                                            log.warn("Failed contract ({}) creation in transaction {}!", contract.getAddress(), transaction.getHash());
-                                        }
-                                        eventPublisher.publish(new ContractCreatedEvent(
-                                                contract,
-                                                transaction,
-                                                newBlockEvent.getBlock(),
-                                                TransactionHelper.isSuccess(transactionReceipt))
-                                        );
-                                    }));
+                if (transaction.getTo() != null) {
+                    continue;
                 }
+
+                transactionProvider.getTransactionReceiptAsync(transaction.getHash())
+                        .thenAccept(transactionReceipt -> contractRepository.findByProductAndTxHash(product, transaction.getHash().toLowerCase())
+                                .forEach(contract -> {
+                                    if (!TransactionHelper.isSuccess(transactionReceipt)) {
+                                        log.warn("Failed contract ({}) creation in transaction {}!", contract.getId(), transaction.getHash());
+                                    }
+                                    else {
+                                        contract.setAddress(transactionReceipt.getContractAddress().toLowerCase());
+                                        if (transaction.getCreates() == null) {
+                                            transaction.setCreates(transactionReceipt.getContractAddress());
+                                        }
+                                    }
+                                    eventPublisher.publish(new ContractCreatedEvent(
+                                            contract,
+                                            transaction,
+                                            newBlockEvent.getBlock(),
+                                            TransactionHelper.isSuccess(transactionReceipt))
+                                    );
+                                }));
             }
         }
 

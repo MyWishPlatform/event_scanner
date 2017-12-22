@@ -1,6 +1,7 @@
 package io.lastwill.eventscan.model;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigInteger;
@@ -13,6 +14,7 @@ import java.time.OffsetDateTime;
 public class Contract {
     @Id
     private Integer id;
+    @Setter
     private String address;
     private String txHash;
     // TODO: add convertors

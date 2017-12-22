@@ -94,7 +94,7 @@ public class MQExternalNotifier implements ExternalNotifier {
         }
     }
 
-    protected synchronized void send(NotifyContract notify) {
+    protected synchronized void send(BaseNotify notify) {
         try {
             byte[] json = objectMapper.writeValueAsBytes(notify);
 
@@ -108,7 +108,7 @@ public class MQExternalNotifier implements ExternalNotifier {
                             .build(),
                     json
             );
-            log.debug("Send notification type '{}' about contract {} to queue '{}'.", notify.getType(), notify.getUserId(), queueName);
+            log.debug("Send notification type '{}' to queue '{}'.", notify.getType(), queueName);
         }
         catch (JsonProcessingException e) {
             log.error("Error on serializing message {}.", notify, e);

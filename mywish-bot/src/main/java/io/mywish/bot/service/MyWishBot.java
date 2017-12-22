@@ -131,6 +131,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(" ")
                 .append(currency)
                 .append("](https://etherscan.io/tx/")
+                .append(txHash)
                 .append(").")
                 .toString();
 

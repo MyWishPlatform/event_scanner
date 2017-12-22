@@ -30,7 +30,7 @@ import java.time.OffsetDateTime;
 public class User {
     @Id
     private int id;
-    private OffsetDateTime dateJoined;
+//    private OffsetDateTime dateJoined;
     @Column(name = "is_staff")
     private boolean staff;
     @Column(name = "is_active")

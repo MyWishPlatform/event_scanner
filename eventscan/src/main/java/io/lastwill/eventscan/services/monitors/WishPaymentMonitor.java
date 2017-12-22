@@ -65,23 +65,23 @@ public class WishPaymentMonitor {
                     .thenAccept(transactionReceipt -> eventParser.parseEvents(transactionReceipt, eventParser.TransferERC20)
                             .forEach(eventValue -> {
                                 try {
-                                    Address address = (Address) eventValue
+                                    String address = (String) eventValue
                                             .getIndexedValues()
                                             .get(1)
                                             .getValue();
 
-                                    Uint amount = (Uint) eventValue
+                                    BigInteger amount = (BigInteger) eventValue
                                             .getNonIndexedValues()
                                             .get(0)
                                             .getValue();
 
-                                    String strAddress = address.getValue().toLowerCase();
-                                    BigInteger intAmount = amount.getValue();
-
-                                    UserProfile userProfile = userProfileRepository.findByInternalAddress(strAddress);
+                                    UserProfile userProfile = userProfileRepository.findByInternalAddress(address);
+                                    if (userProfile == null) {
+                                        return;
+                                    }
                                     eventPublisher.publish(new UserPaymentEvent(
                                             transaction,
-                                            intAmount,
+                                            amount,
                                             CryptoCurrency.WISH,
                                             true,
                                             userProfile

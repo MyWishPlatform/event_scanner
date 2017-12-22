@@ -4,6 +4,7 @@ import io.lastwill.eventscan.events.ContractCreatedEvent;
 import io.lastwill.eventscan.events.UserPaymentEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.Product;
+import io.lastwill.eventscan.model.UserProfile;
 import io.mywish.bot.service.MyWishBot;
 import io.mywish.scanner.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +54,7 @@ public class BotIntegration {
 
     @EventListener
     public void onOwnerBalanceChanged(final UserPaymentEvent event) {
-        final Product product = event.getUserProfile();
-        bot.onBalance(product.getId(), event.getAmount(), product.getOwnerAddress());
+        final UserProfile userProfile = event.getUserProfile();
+        bot.onBalance(userProfile.getId(), event.getAmount(), userProfile.getInternalAddress());
     }
 }

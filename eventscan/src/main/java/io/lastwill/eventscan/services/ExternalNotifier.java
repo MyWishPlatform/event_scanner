@@ -2,12 +2,13 @@ package io.lastwill.eventscan.services;
 
 import io.lastwill.eventscan.messages.PaymentStatus;
 import io.lastwill.eventscan.model.Contract;
-import io.lastwill.eventscan.model.Product;
+import io.lastwill.eventscan.model.CryptoCurrency;
+import io.lastwill.eventscan.model.UserProfile;
 
 import java.math.BigInteger;
 
 public interface ExternalNotifier {
-    void sendPaymentNotify(Product product, BigInteger balance, PaymentStatus status);
+    void sendPaymentNotify(UserProfile userProfile, BigInteger amount, PaymentStatus status, String txHash, CryptoCurrency currency, boolean isSuccess);
 
     void sendCheckRepeatNotify(Contract contract);
 

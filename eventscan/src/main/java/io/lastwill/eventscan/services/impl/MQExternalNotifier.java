@@ -8,7 +8,8 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import io.lastwill.eventscan.messages.*;
 import io.lastwill.eventscan.model.Contract;
-import io.lastwill.eventscan.model.Product;
+import io.lastwill.eventscan.model.CryptoCurrency;
+import io.lastwill.eventscan.model.UserProfile;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,7 +108,7 @@ public class MQExternalNotifier implements ExternalNotifier {
                             .build(),
                     json
             );
-            log.debug("Send notification type '{}' about contract {} to queue '{}'.", notify.getType(), notify.getContractId(), queueName);
+            log.debug("Send notification type '{}' about contract {} to queue '{}'.", notify.getType(), notify.getUserId(), queueName);
         }
         catch (JsonProcessingException e) {
             log.error("Error on serializing message {}.", notify, e);
@@ -119,8 +120,8 @@ public class MQExternalNotifier implements ExternalNotifier {
     }
 
     @Override
-    public void sendPaymentNotify(Product product, BigInteger balance, PaymentStatus status) {
-        send(new PaymentNotify(product.getId(), balance, status));
+    public void sendPaymentNotify(UserProfile userProfile, BigInteger amount, PaymentStatus status, String txHash, CryptoCurrency currency, boolean isSuccess) {
+        send(new PaymentNotify(userProfile.getUser().getId(), amount, status, txHash, currency, isSuccess));
     }
 
     @Override

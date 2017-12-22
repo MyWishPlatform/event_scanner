@@ -4,7 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.lastwill.eventscan.messages.PaymentStatus;
 import io.lastwill.eventscan.model.Contract;
-import io.lastwill.eventscan.model.Product;
+import io.lastwill.eventscan.model.CryptoCurrency;
+import io.lastwill.eventscan.model.UserProfile;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
@@ -56,8 +57,8 @@ public class HttpExternalNotifier implements ExternalNotifier {
     }
 
     @Override
-    public void sendPaymentNotify(Product product, BigInteger balance, PaymentStatus status) {
-        doPost(paymentUrl, new PaymentNotify(product.getId(), balance, status));
+    public void sendPaymentNotify(UserProfile userProfile, BigInteger amount, PaymentStatus status, String txHash, CryptoCurrency currency, boolean isSuccess) {
+        doPost(paymentUrl, new PaymentNotify(userProfile.getUser().getId(), amount, status, txHash, currency, isSuccess));
     }
 
     @Override

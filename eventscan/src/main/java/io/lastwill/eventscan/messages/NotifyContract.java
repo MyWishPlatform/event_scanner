@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @RequiredArgsConstructor
 public abstract class NotifyContract {
-    private final int contractId;
+    private final int userId;
     private final PaymentStatus status;
 
     public abstract String getType();

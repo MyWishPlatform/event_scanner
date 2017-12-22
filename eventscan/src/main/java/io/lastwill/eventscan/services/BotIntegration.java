@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.services;
 
 import io.lastwill.eventscan.events.ContractCreatedEvent;
-import io.lastwill.eventscan.events.OwnerBalanceChangedEvent;
+import io.lastwill.eventscan.events.UserPaymentEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.Product;
 import io.mywish.bot.service.MyWishBot;
@@ -52,8 +52,8 @@ public class BotIntegration {
     }
 
     @EventListener
-    public void onOwnerBalanceChanged(final OwnerBalanceChangedEvent event) {
-        final Product product = event.getProduct();
+    public void onOwnerBalanceChanged(final UserPaymentEvent event) {
+        final Product product = event.getUserProfile();
         bot.onBalance(product.getId(), event.getAmount(), product.getOwnerAddress());
     }
 }

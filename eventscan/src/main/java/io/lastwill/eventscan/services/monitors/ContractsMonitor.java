@@ -1,14 +1,15 @@
-package io.lastwill.eventscan.services;
+package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.ContractCreatedEvent;
 import io.lastwill.eventscan.events.ContractEventsEvent;
-import io.lastwill.eventscan.events.OwnerBalanceChangedEvent;
 import io.lastwill.eventscan.helpers.TransactionHelper;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.EventValue;
 import io.lastwill.eventscan.model.Product;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.repositories.ProductRepository;
+import io.lastwill.eventscan.services.EventParser;
+import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.EventPublisher;
 import io.mywish.scanner.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +23,7 @@ import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.Transaction;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -41,9 +41,6 @@ public class ContractsMonitor {
     private EventPublisher eventPublisher;
 
     @Autowired
-    private BalanceProvider balanceProvider;
-
-    @Autowired
     private TransactionProvider transactionProvider;
 
     @Autowired
@@ -51,6 +48,13 @@ public class ContractsMonitor {
 
     @Value("${io.lastwill.eventscan.contract.proxy-address}")
     private String proxyAddress;
+
+    @PostConstruct
+    protected void init() {
+        if (proxyAddress != null) {
+            proxyAddress = proxyAddress.toLowerCase();
+        }
+    }
 
     @EventListener
     public void onNewBlock(final NewBlockEvent newBlockEvent) {
@@ -67,20 +71,15 @@ public class ContractsMonitor {
             final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(proxyAddress);
             grabProxyEvents(transactions, newBlockEvent.getBlock());
         }
+
         List<Product> products = productRepository.findByAddressesList(addresses);
-        for (Product product: products) {
+        for (Product product : products) {
             final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(
                     product.getOwnerAddress().toLowerCase()
             );
 
-            final List<Transaction> input = new ArrayList<>(transactions.size());
-            for (Transaction transaction: transactions) {
-                // get input transactions
-                if (product.getOwnerAddress().equalsIgnoreCase(transaction.getTo())) {
-                    input.add(transaction);
-                }
-                // contract creation
-                else if (transaction.getTo() == null) {
+            for (Transaction transaction : transactions) {
+                if (transaction.getTo() == null) {
                     transactionProvider.getTransactionReceiptAsync(transaction.getHash())
                             .thenAccept(transactionReceipt -> contractRepository.findByProductAndTxHash(product, transaction.getHash().toLowerCase())
                                     .forEach(contract -> {
@@ -96,13 +95,6 @@ public class ContractsMonitor {
                                     }));
                 }
             }
-            if (!input.isEmpty()) {
-                publishOwnerBalance(
-                        product,
-                        input,
-                        newBlockEvent.getBlock()
-                );
-            }
         }
 
         List<Contract> contracts = contractRepository.findByAddressesList(addresses);
@@ -110,7 +102,7 @@ public class ContractsMonitor {
             boolean wasPublished = false;
             if (contract.getAddress() != null && addresses.contains(contract.getAddress().toLowerCase())) {
                 final List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(contract.getAddress().toLowerCase());
-                for (final Transaction transaction: transactions) {
+                for (final Transaction transaction : transactions) {
                     // grab events
                     if (transaction.getTo() != null) {
                         grabContractEvents(contract, transaction, newBlockEvent.getBlock());
@@ -186,34 +178,5 @@ public class ContractsMonitor {
                             )
                     );
                 });
-    }
-
-    private void publishOwnerBalance(final Product product, final List<Transaction> transactions, final EthBlock.Block block) {
-        final BigInteger value = getValueFor(product.getOwnerAddress(), transactions);
-        balanceProvider.getBalanceAsync(product.getOwnerAddress())
-                .thenAccept(balance -> {
-                    eventPublisher.publish(new OwnerBalanceChangedEvent(
-                            block,
-                            product,
-                            value,
-                            balance
-                    ));
-                });
-    }
-
-    private BigInteger getValueFor(String address, List<Transaction> transactions) {
-        BigInteger result = BigInteger.ZERO;
-        for (Transaction transaction : transactions) {
-            if (address.compareToIgnoreCase(transaction.getFrom()) == 0) {
-                result = result.subtract(transaction.getValue());
-            }
-            else if (address.compareToIgnoreCase(transaction.getTo()) == 0) {
-                result = result.add(transaction.getValue());
-            }
-            else {
-                log.error("There is no such address {} in from or to field of transaction {}.", address, transaction.getHash(), new Exception("Wrong address or transaction."));
-            }
-        }
-        return result;
     }
 }

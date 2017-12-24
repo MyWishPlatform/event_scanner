@@ -1,30 +1,22 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.ContractCreatedEvent;
-import io.lastwill.eventscan.events.ContractEventsEvent;
 import io.lastwill.eventscan.helpers.TransactionHelper;
 import io.lastwill.eventscan.model.Contract;
-import io.lastwill.eventscan.model.EventValue;
-import io.lastwill.eventscan.model.Product;
 import io.lastwill.eventscan.repositories.ContractRepository;
-import io.lastwill.eventscan.repositories.ProductRepository;
-import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.EventPublisher;
 import io.mywish.scanner.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
-import org.web3j.protocol.core.methods.response.EthBlock;
-import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.Transaction;
 
-import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -52,14 +44,18 @@ public class DeploymentMonitor {
                 .stream()
                 .flatMap(Collection::stream)
                 .filter(tr -> tr.getTo() == null)
-                .collect(Collectors.toMap(tr -> tr.getHash().toLowerCase(), Function.identity()));
+                .collect(Collectors.toMap(
+                        tr -> tr.getHash().toLowerCase(),
+                        Function.identity(),
+                        (hash1, hash2) -> hash1
+                ));
 
         if (deployHashes.isEmpty()) {
             return;
         }
 
         List<Contract> contracts = contractRepository.findByTxHashes(deployHashes.keySet());
-        for (Contract contract: contracts) {
+        for (Contract contract : contracts) {
             final Transaction transaction = deployHashes.get(contract.getTxHash().toLowerCase());
             transactionProvider.getTransactionReceiptAsync(contract.getTxHash())
                     .thenAccept(transactionReceipt -> {

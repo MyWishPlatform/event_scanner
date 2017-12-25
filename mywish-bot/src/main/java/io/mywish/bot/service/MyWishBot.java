@@ -95,9 +95,13 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendMessage(last, weiAmount);
     }
 
-    public void onContract(Integer id, BigInteger cost, final String address) {
+    public void onContract(Integer productId, String productType, Integer id, BigInteger cost, final String address) {
         final String message = new StringBuilder()
-                .append("New contract (")
+                .append("New contract ")
+                .append(productType)
+                .append(" (")
+                .append(productId)
+                .append(", ")
                 .append(id)
                 .append(") was created for ")
                 .append(toEth(cost))
@@ -110,9 +114,13 @@ public class MyWishBot extends TelegramLongPollingBot {
     }
 
 
-    public void onContractFailed(Integer id, final String txHash) {
+    public void onContractFailed(Integer productId, String productType, Integer id, final String txHash) {
         final String message = new StringBuilder()
-                .append("Contract (")
+                .append("New contract ")
+                .append(productType)
+                .append(" (")
+                .append(productId)
+                .append(", ")
                 .append(id)
                 .append(") creation *failed*! See on [etherscan](https://etherscan.io/tx/")
                 .append(txHash)

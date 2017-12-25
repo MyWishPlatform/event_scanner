@@ -36,4 +36,5 @@ public class Product {
     private BigInteger balance;
     @Column(nullable = false)
     private BigInteger cost;
+    private Integer contractType;
 }

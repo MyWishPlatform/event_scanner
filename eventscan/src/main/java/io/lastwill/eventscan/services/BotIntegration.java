@@ -4,6 +4,7 @@ import io.lastwill.eventscan.events.ContractCreatedEvent;
 import io.lastwill.eventscan.events.UserPaymentEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.Product;
+import io.lastwill.eventscan.model.ProductStatistics;
 import io.lastwill.eventscan.model.UserProfile;
 import io.mywish.bot.service.MyWishBot;
 import io.mywish.scanner.NewBlockEvent;
@@ -44,11 +45,12 @@ public class BotIntegration {
     public void onContractCrated(final ContractCreatedEvent contractCreatedEvent) {
         final Contract contract = contractCreatedEvent.getContract();
         final Product product = contract.getProduct();
+        final String type = ProductStatistics.PRODUCT_TYPES.get(product.getContractType());
         if (contractCreatedEvent.isSuccess()) {
-            bot.onContract(contract.getId(), product.getCost(), contract.getAddress());
+            bot.onContract(product.getId(), type, contract.getId(), product.getCost(), contract.getAddress());
         }
         else {
-            bot.onContractFailed(contract.getId(), contractCreatedEvent.getTransaction().getHash());
+            bot.onContractFailed(product.getId(), type, contract.getId(), contractCreatedEvent.getTransaction().getHash());
         }
     }
 

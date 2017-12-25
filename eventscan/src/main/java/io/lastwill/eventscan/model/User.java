@@ -19,7 +19,7 @@ import java.time.OffsetDateTime;
 )
 @NamedNativeQuery(
         name = "User.userStatistics",
-        query = "SELECT count(id) user_count, email IS NOT NULL registered\n" +
+        query = "SELECT count(id) user_count, (email IS NOT NULL OR email = '') registered\n" +
                 "FROM auth_user\n" +
                 "WHERE NOT is_staff AND NOT is_superuser AND is_active\n" +
                 "GROUP BY email IS NOT NULL \n",

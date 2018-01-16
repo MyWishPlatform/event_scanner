@@ -17,6 +17,7 @@
         <db-password>lastwill_new</db-password>
         <web3-base-url>http://localhost:8545/</web3-base-url>
         <backend-base-url>http://demo.mywillplatform.io/api/v1/payment_notify</backend-base-url>
+        <token-address>0x1b22c32cd936cb97c28c5690a0695a82abf688e6</token-address>
     </properties>
 
     <dependencies>
@@ -25,6 +26,11 @@
             <!--<artifactId>ethereum-rpl</artifactId>-->
             <!--<version>${project.version}</version>-->
         <!--</dependency>-->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>scanner</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>

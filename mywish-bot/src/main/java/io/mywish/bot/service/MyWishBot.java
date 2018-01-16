@@ -26,6 +26,9 @@ public class MyWishBot extends TelegramLongPollingBot {
     @Autowired
     private ChatPersister chatPersister;
 
+    @Autowired(required = false)
+    private InformationProvider informationProvider;
+
     private final List<BigInteger> investments = new ArrayList<>();
 
     @Getter
@@ -39,6 +42,7 @@ public class MyWishBot extends TelegramLongPollingBot {
     protected void init() {
         try {
             telegramBotsApi.registerBot(this);
+            log.info("Bot was registered, token: {}.", botToken);
         }
         catch (TelegramApiRequestException e) {
             log.error("Failed during the bot registration.", e);
@@ -59,13 +63,16 @@ public class MyWishBot extends TelegramLongPollingBot {
         }
         else if (update.hasMessage()) {
             chatId = update.getMessage().getChatId();
+            String userName = update.getMessage().getFrom() != null
+                    ? update.getMessage().getFrom().getUserName()
+                    : null;
             if (update.getMessage().getChat().isUserChat()) {
                 log.debug("Direct message received from {}.", update.getMessage().getFrom());
-                repeatLatest(chatId);
+                directMessage(chatId, userName);
             }
             else {
                 log.debug("Bot mentioned in chat {}.", chatId);
-                repeatLatest(chatId);
+                directMessage(chatId, userName);
             }
 
         }
@@ -88,31 +95,87 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendMessage(last, weiAmount);
     }
 
-    private void repeatLatest(long chatId) {
-        BigInteger latest;
-        synchronized (investments) {
-            if (investments.size() > 0) {
-                latest = investments.get(investments.size() - 1);
-            }
-            else {
-                latest = null;
-            }
-        }
+    public void onContract(Integer productId, String productType, Integer id, BigInteger cost, final String address) {
+        final String message = new StringBuilder()
+                .append("New contract ")
+                .append(productType)
+                .append(" (")
+                .append(productId)
+                .append(", ")
+                .append(id)
+                .append(") was created for ")
+                .append(toEth(cost))
+                .append(" ETH, see on [etherscan](https://etherscan.io/address/")
+                .append(address)
+                .append(").")
+                .toString();
 
-        String message;
-        if (latest == null) {
-            message = "No investment detected.";
+        sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
+    }
+
+
+    public void onContractFailed(Integer productId, String productType, Integer id, final String txHash) {
+        final String message = new StringBuilder()
+                .append("New contract ")
+                .append(productType)
+                .append(" (")
+                .append(productId)
+                .append(", ")
+                .append(id)
+                .append(") creation *failed*! See on [etherscan](https://etherscan.io/tx/")
+                .append(txHash)
+                .append(").")
+                .toString();
+
+        sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
+    }
+
+    public void onBalance(Integer id, BigInteger cost, final String currency, String txHash) {
+        final String message = new StringBuilder()
+                .append("Payment received from user ")
+                .append(id)
+                .append(": [")
+                .append(toEth(cost))
+                .append(" ")
+                .append(currency)
+                .append("](https://etherscan.io/tx/")
+                .append(txHash)
+                .append(").")
+                .toString();
+
+        sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
+    }
+
+    private void sendToAllChats(SendMessage sendMessage) {
+        for (long chatId: chatPersister.getChats()) {
+            try {
+                // it's ok to specify chat id, because sendMessage will be serialized to JSON during the call
+                execute(sendMessage.setChatId(chatId));
+            }
+            catch (TelegramApiException e) {
+                log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
+                chatPersister.remove(chatId);
+            }
         }
-        else {
-            String eth = toEth(latest);
-            message = "The latest investment was: " + eth + " ETH";
+    }
+
+    private void directMessage(long chatId, String userName) {
+        if (informationProvider == null || !informationProvider.isAvailable(userName)) {
+            try {
+                execute(new SendMessage()
+                        .setChatId(chatId)
+                        .setText("Not information available.")
+                );
+            }
+            catch (TelegramApiException e) {
+                log.error("Sending stub message to chat '{}' was failed.", chatId, e);
+            }
+            return;
         }
+        SendMessage message = informationProvider.getInformation(userName);
 
         try {
-            execute(new SendMessage()
-                    .setChatId(chatId)
-                    .setText(message)
-            );
+            execute(message.setChatId(chatId));
         }
         catch (TelegramApiException e) {
             log.error("Sending message '{}' to chat '{}' was failed.", message, chatId, e);
@@ -122,18 +185,7 @@ public class MyWishBot extends TelegramLongPollingBot {
     private void sendMessage(int index, BigInteger weiAmount) {
         String eth = toEth(weiAmount);
         final String message = "New investment: " + eth + " ETH";
-        for (long chatId: chatPersister.getChats()) {
-            try {
-                execute(new SendMessage()
-                        .setChatId(chatId)
-                        .setText(message)
-                );
-            }
-            catch (TelegramApiException e) {
-                log.error("Sending message '{}' to chat '{}' was failed.", message, chatId, e);
-                chatPersister.remove(chatId);
-            }
-        }
+        sendToAllChats(new SendMessage().setText(message));
     }
 
     private static String toEth(BigInteger weiAmount) {

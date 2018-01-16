@@ -1,7 +1,13 @@
 package io.lastwill.eventscan.services;
 
-import io.lastwill.eventscan.events.NewBlockEvent;
+import io.lastwill.eventscan.events.ContractCreatedEvent;
+import io.lastwill.eventscan.events.UserPaymentEvent;
+import io.lastwill.eventscan.model.Contract;
+import io.lastwill.eventscan.model.Product;
+import io.lastwill.eventscan.model.ProductStatistics;
+import io.lastwill.eventscan.model.UserProfile;
 import io.mywish.bot.service.MyWishBot;
+import io.mywish.scanner.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +30,7 @@ public class BotIntegration {
     private String crowdsaleAddress;
 
     @EventListener
-    public void onNewBlock(NewBlockEvent newBlockEvent) {
+    public void onNewBlock(final NewBlockEvent newBlockEvent) {
         List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().getOrDefault(crowdsaleAddress, Collections.emptyList());
 
         if (!transactions.isEmpty()) {
@@ -33,5 +39,29 @@ public class BotIntegration {
         for (Transaction transaction: transactions) {
             bot.onInvestment(transaction.getFrom(), transaction.getValue());
         }
+    }
+
+    @EventListener
+    public void onContractCrated(final ContractCreatedEvent contractCreatedEvent) {
+        final Contract contract = contractCreatedEvent.getContract();
+        final Product product = contract.getProduct();
+        final String type = ProductStatistics.PRODUCT_TYPES.get(product.getContractType());
+        if (contractCreatedEvent.isSuccess()) {
+            bot.onContract(product.getId(), type, contract.getId(), product.getCost(), contract.getAddress());
+        }
+        else {
+            bot.onContractFailed(product.getId(), type, contract.getId(), contractCreatedEvent.getTransaction().getHash());
+        }
+    }
+
+    @EventListener
+    public void onOwnerBalanceChanged(final UserPaymentEvent event) {
+        final UserProfile userProfile = event.getUserProfile();
+        bot.onBalance(
+                userProfile.getUser().getId(),
+                event.getAmount(),
+                event.getCurrency().toString(),
+                event.getTransaction().getHash()
+        );
     }
 }

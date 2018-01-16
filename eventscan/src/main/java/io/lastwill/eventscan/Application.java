@@ -3,6 +3,7 @@ package io.lastwill.eventscan;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.ConnectionFactory;
 import io.mywish.bot.BotModule;
+import io.mywish.scanner.ScannerModule;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -12,9 +13,11 @@ import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 
@@ -24,7 +27,8 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
 @SpringBootApplication
-@Import(BotModule.class)
+@Import({BotModule.class, ScannerModule.class})
+@EntityScan(basePackageClasses = {Application.class, Jsr310JpaConverters.class})
 public class Application {
     public static void main(String[] args) {
         new SpringApplicationBuilder()
@@ -103,10 +107,7 @@ public class Application {
     }
 
     @Bean
-    public Web3j web3j(CloseableHttpClient httpClient, @Value("${io.lastwill.eventscan.web3-url}") String web3Url) {
-        return Web3j.build(new HttpService(
-                web3Url,
-                httpClient
-        ));
+    public Web3j web3j(@Value("${io.lastwill.eventscan.web3-url}") String web3Url) {
+        return Web3j.build(new HttpService(web3Url));
     }
 }

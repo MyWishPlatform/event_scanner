@@ -1,4 +1,4 @@
-package io.lastwill.eventscan.services;
+package io.mywish.scanner;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,10 +13,10 @@ import java.nio.channels.FileChannel;
 @Slf4j
 @Component
 public class LastBlockPersister {
-    @Value("${io.lastwill.eventscan.start-block-file}")
+    @Value("${etherscanner.start-block-file:last-block}")
     private String startBlockFilePath;
 
-    @Value("${io.lastwill.eventscan.start-block:#{null}}")
+    @Value("${etherscanner.start-block:#{null}}")
     private Long lastBlock;
 
     private FileOutputStream lastOutputStream;
@@ -80,15 +80,19 @@ public class LastBlockPersister {
 
     public void saveLastBlock(long blockNumber) {
         lastBlock = blockNumber;
-        FileChannel fileChannel = lastOutputStream.getChannel();
+
+        if (lastOutputStream == null) {
+            return;
+        }
         try {
+            FileChannel fileChannel = lastOutputStream.getChannel();
             fileChannel.position(0L);
             ByteBuffer buf =  ByteBuffer.wrap(Long.toString(blockNumber).getBytes());
             fileChannel.write(buf);
             fileChannel.truncate(buf.position());
         }
         catch (IOException e) {
-            log.error("Error on saving last block no.");
+            log.error("Error on saving last block no.", e);
         }
     }
 }

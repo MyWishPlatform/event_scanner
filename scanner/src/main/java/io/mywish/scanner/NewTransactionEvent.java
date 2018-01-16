@@ -1,4 +1,4 @@
-package io.lastwill.eventscan.events;
+package io.mywish.scanner;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

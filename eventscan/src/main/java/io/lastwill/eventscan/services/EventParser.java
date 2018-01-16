@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.services;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import io.lastwill.eventscan.model.EventValue;
 import org.springframework.stereotype.Component;
 import org.web3j.abi.EventEncoder;
@@ -10,6 +11,7 @@ import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -50,6 +52,33 @@ public class EventParser {
             Collections.singletonList(TypeReference.create(Uint.class))
     );
 
+    /**
+     * event Transfer(address indexed from, address indexed to, uint256 value);
+     */
+    public final Event TransferERC20 = new Event(
+            "Transfer",
+            Arrays.asList(TypeReference.create(Address.class), TypeReference.create(Address.class)),
+            Collections.singletonList(TypeReference.create(Uint.class))
+    );
+
+    /**
+     *  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+     */
+    public final Event OwnershipTransferred = new Event(
+            "OwnershipTransferred",
+            Arrays.asList(TypeReference.create(Address.class), TypeReference.create(Address.class)),
+            Collections.emptyList()
+    );
+
+    /**
+     * Crowdsale initialized event.
+     */
+    public final Event Initialized = new Event(
+            "Initialized",
+            Collections.emptyList(),
+            Collections.emptyList()
+    );
+
     private Map<String, Event> events = new HashMap<String, Event>() {{
         put(EventEncoder.encode(Checked), Checked);
         put(EventEncoder.encode(NeedRepeatCheck), NeedRepeatCheck);
@@ -57,14 +86,27 @@ public class EventParser {
         put(EventEncoder.encode(Killed), Killed);
         put(EventEncoder.encode(FundsAdded), FundsAdded);
         put(EventEncoder.encode(Triggered), Triggered);
+        put(EventEncoder.encode(TransferERC20), TransferERC20);
+        put(EventEncoder.encode(OwnershipTransferred), OwnershipTransferred);
+        put(EventEncoder.encode(Initialized), Initialized);
     }};
 
     public List<EventValue> parseEvents(TransactionReceipt transactionReceipt) {
         return transactionReceipt
                 .getLogs()
                 .stream()
-                .map(this::parseEvent)
+                .map(Try(this::parseEvent))
                 .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    public List<EventValue> parseEvents(final TransactionReceipt transactionReceipt, final Event event) {
+        return transactionReceipt
+                .getLogs()
+                .stream()
+                .map(Try(this::parseEvent))
+                .filter(Objects::nonNull)
+                .filter(eventValue -> event.equals(eventValue.getEvent()))
                 .collect(Collectors.toList());
     }
 
@@ -93,6 +135,18 @@ public class EventParser {
             indexedValues.add(value);
         }
 
+
         return new EventValue(event, indexedValues, nonIndexedValues);
+    }
+
+    public <T, R> Function<T, R> Try(Function<T, R> func) {
+        return (a) -> {
+            try {
+                return func.apply(a);
+            }
+            catch (Exception ignored) {
+                return null;
+            }
+        };
     }
 }

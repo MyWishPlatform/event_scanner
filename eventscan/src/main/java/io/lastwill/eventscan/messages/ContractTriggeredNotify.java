@@ -4,8 +4,8 @@ import lombok.ToString;
 
 @ToString(callSuper = true)
 public class ContractTriggeredNotify extends NotifyContract {
-    public ContractTriggeredNotify(int contractId, PaymentStatus status) {
-        super(contractId, status);
+    public ContractTriggeredNotify(int contractId, String txHash) {
+        super(contractId, PaymentStatus.COMMITTED, txHash);
     }
 
     @Override

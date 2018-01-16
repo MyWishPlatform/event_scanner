@@ -1,6 +1,7 @@
 package io.lastwill.eventscan.repositories;
 
 import io.lastwill.eventscan.model.Contract;
+import io.lastwill.eventscan.model.Product;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -12,13 +13,16 @@ import java.util.Collection;
 import java.util.List;
 
 public interface ContractRepository extends CrudRepository<Contract, Integer> {
-    List<Contract> findByAddressOrOwnerAddress(String address, String ownerAddress);
 
-    @Query("select c from Contract c where lower(c.address) in :addresses or lower(c.ownerAddress) in :addresses")
+    @Query("select c from Contract c where lower(c.address) in :addresses")
     List<Contract> findByAddressesList(@Param("addresses") Collection<String> addresses);
 
-    @Transactional
-    @Modifying
-    @Query("update Contract set balance = :balanceWei where id = :id")
-    void updateBalance(@Param("id") int id, @Param("balanceWei") BigInteger balanceWei);
+    @Query("select c from Contract c where c.product = :product and lower(c.txHash) = :txHash")
+    List<Contract> findByProductAndTxHash(@Param("product") Product product, @Param("txHash") String txHash);
+
+    @Query("select c from Contract c where lower(c.txHash) = :txHash")
+    List<Contract> findByTxHash(@Param("txHash") String txHash);
+
+    @Query("select c from Contract c where lower(c.txHash) in :hashes")
+    List<Contract> findByTxHashes(@Param("hashes") Collection<String> hashes);
 }

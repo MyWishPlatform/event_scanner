@@ -1,8 +1,7 @@
 package io.lastwill.eventscan.services;
 
-import io.lastwill.eventscan.events.OwnerBalanceChangedEvent;
+import io.lastwill.eventscan.events.UserPaymentEvent;
 import io.lastwill.eventscan.messages.PaymentStatus;
-import io.lastwill.eventscan.services.impl.HttpExternalNotifier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -17,20 +16,13 @@ public class BalanceEventDispatcher {
     private ExternalNotifier externalNotifier;
 
     @EventListener
-    public void ownerBalanceChangedHandler(final OwnerBalanceChangedEvent event) {
+    public void ownerBalanceChangedHandler(final UserPaymentEvent event) {
         if (externalNotifier == null) {
             return;
         }
         try {
-            externalNotifier.sendPaymentNotify(event.getContract(), event.getBalance(), PaymentStatus.COMMITTED);
+            externalNotifier.sendPaymentNotify(event.getUserProfile(), event.getAmount(), PaymentStatus.COMMITTED, event.getTransaction().getHash(), event.getCurrency(), event.isSuccess());
 
-//            commitmentService.waitCommitment(event.getBlock().getHash(), event.getBlock().getNumber().longValue())
-//                    .thenApply(committed -> committed ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED)
-//                    .thenAccept(status -> externalNotifier.sendPaymentNotify(event.getContract(), event.getBalance(), status))
-//                    .exceptionally(th -> {
-//                        log.error("Waiting commitment failed.", th);
-//                        return null;
-//                    });
         }
         catch (Throwable e) {
             log.error("Sending notification about new balance failed.", e);

@@ -8,6 +8,8 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import io.lastwill.eventscan.messages.*;
 import io.lastwill.eventscan.model.Contract;
+import io.lastwill.eventscan.model.CryptoCurrency;
+import io.lastwill.eventscan.model.UserProfile;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +94,7 @@ public class MQExternalNotifier implements ExternalNotifier {
         }
     }
 
-    protected synchronized void send(NotifyContract notify) {
+    protected synchronized void send(BaseNotify notify) {
         try {
             byte[] json = objectMapper.writeValueAsBytes(notify);
 
@@ -106,7 +108,7 @@ public class MQExternalNotifier implements ExternalNotifier {
                             .build(),
                     json
             );
-            log.debug("Send notification type '{}' about contract {} to queue '{}'.", notify.getType(), notify.getContractId(), queueName);
+            log.debug("Send notification type '{}' to queue '{}'.", notify.getType(), queueName);
         }
         catch (JsonProcessingException e) {
             log.error("Error on serializing message {}.", notify, e);
@@ -118,32 +120,42 @@ public class MQExternalNotifier implements ExternalNotifier {
     }
 
     @Override
-    public void sendPaymentNotify(Contract contract, BigInteger balance, PaymentStatus status) {
-        send(new PaymentNotify(contract.getId(), balance, status));
+    public void sendPaymentNotify(UserProfile userProfile, BigInteger amount, PaymentStatus status, String txHash, CryptoCurrency currency, boolean isSuccess) {
+        send(new PaymentNotify(userProfile.getUser().getId(), amount, status, txHash, currency, isSuccess));
     }
 
     @Override
-    public void sendCheckRepeatNotify(Contract contract) {
-        send(new RepeatCheckNotify(contract.getId(), PaymentStatus.COMMITTED));
+    public void sendCheckRepeatNotify(Contract contract, String transactionHash) {
+        send(new RepeatCheckNotify(contract.getId(), transactionHash));
     }
 
     @Override
     public void sendCheckedNotify(Contract contract, String transactionHash) {
-        send(new CheckedNotify(contract.getId(), transactionHash, PaymentStatus.COMMITTED));
+        send(new CheckedNotify(contract.getId(), transactionHash));
     }
 
     @Override
-    public void sendDeployedNotification(Contract contract, String address, String transactionHash, boolean committed) {
-        send(new ContractDeployedNotify(contract.getId(), committed ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED, address, transactionHash));
+    public void sendDeployedNotification(Contract contract, String address, String transactionHash, boolean committed, boolean status) {
+        send(new ContractDeployedNotify(contract.getId(), committed ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED, address, transactionHash, status));
     }
 
     @Override
-    public void sendKilledNotification(Contract contract) {
-        send(new ContractKilledNotify(contract.getId(), PaymentStatus.COMMITTED));
+    public void sendKilledNotification(Contract contract, String transactionHash) {
+        send(new ContractKilledNotify(contract.getId(), transactionHash));
     }
 
     @Override
-    public void sendTriggeredNotification(Contract contract) {
-        send(new ContractTriggeredNotify(contract.getId(), PaymentStatus.COMMITTED));
+    public void sendTriggeredNotification(Contract contract, String transactionHash) {
+        send(new ContractTriggeredNotify(contract.getId(), transactionHash));
+    }
+
+    @Override
+    public void sendOwnershipTransferredNotification(Contract contract, String transactionHash) {
+        send(new OwnershipTransferredNotify(contract.getId(), transactionHash));
+    }
+
+    @Override
+    public void sendInitializedNotification(Contract contract, String transactionHash) {
+        send(new InitializedNotify(contract.getId(), transactionHash));
     }
 }

@@ -23,7 +23,8 @@ public class CreateContractHandler {
                 event.getContract(),
                 event.getTransaction().getCreates(),
                 event.getTransaction().getHash(),
-                true
+                true,
+                event.isSuccess()
         );
     }
 }

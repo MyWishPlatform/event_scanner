@@ -2,6 +2,7 @@ package io.mywish.joule.model;
 
 import io.lastwill.eventscan.model.Contract;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "joule_registration")
 @ToString
+@NoArgsConstructor
 public class JouleRegistration {
     @Id
     @GeneratedValue
@@ -24,4 +26,10 @@ public class JouleRegistration {
     private JouleRegistrationState state;
     private LocalDateTime publishedAt;
     private String txHash;
+
+    public JouleRegistration(Contract contract, LocalDateTime invocationAt) {
+        this.contract = contract;
+        this.invocationAt = invocationAt;
+        this.state = JouleRegistrationState.CREATED;
+    }
 }

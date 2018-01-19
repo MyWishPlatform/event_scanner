@@ -31,9 +31,9 @@ public class LockService {
         }
 
         Request request = waiter.peek();
-        if (LocalDateTime.now(ZoneOffset.UTC).isBefore(request.expiredAt)) {
+        if (LocalDateTime.now(ZoneOffset.UTC).isAfter(request.expiredAt)) {
             log.warn("Waiting for acquire lock was timed out at {} for address {}.", request.expiredAt, request.address);
-            waiter.poll().future.complete(false);
+            waiter.remove().future.complete(false);
         }
 
         int affected = lockRepository.updateLockedBy(request.address, lockedBy);
@@ -45,6 +45,7 @@ public class LockService {
             return;
         }
 
+        waiter.remove();
         try {
             request.future.complete(true);
         }
@@ -56,7 +57,7 @@ public class LockService {
         }
     }
 
-    public CompletionStage<Boolean> acquireLock(final String address) {
+    public CompletableFuture<Boolean> acquireLock(final String address) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         waiter.add(new Request(future, address, LocalDateTime.now(ZoneOffset.UTC).plusSeconds(lockAcquireTimeoutSec)));
         return future;

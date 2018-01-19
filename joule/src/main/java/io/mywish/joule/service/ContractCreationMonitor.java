@@ -18,8 +18,6 @@ import java.time.ZoneOffset;
 public class ContractCreationMonitor {
     @Autowired
     private JouleRegistrationRepository jouleRegistrationRepository;
-//    @Autowired
-//    private ProductRepository repository;
 
     @EventListener
     public void onContractCreated(ContractCreatedEvent event) {

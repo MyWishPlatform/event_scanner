@@ -1,12 +1,10 @@
 package io.mywish.joule.dto;
 
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 public class SignedTransaction {
-    private final String result;
-
-    public SignedTransaction(String result) {
-        this.result = result;
-    }
+    private String result;
 }

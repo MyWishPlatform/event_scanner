@@ -1,19 +1,11 @@
 package io.lastwill.eventscan.model;
 
-import lombok.Getter;
+public interface ProductCheckable {
+    Integer getCheckInterval();
 
-import javax.persistence.*;
-import java.time.ZonedDateTime;
+    java.time.ZonedDateTime getActiveTo();
 
-@Getter
-@MappedSuperclass
-public abstract class ProductCheckable extends Product {
-    @Column(name = "check_interval")
-    private Integer checkInterval;
-    @Column(name = "active_to")
-    private ZonedDateTime activeTo;
-    @Column(name = "last_check")
-    private ZonedDateTime lastCheck;
-    @Column(name = "next_check")
-    private ZonedDateTime nextCheck;
+    java.time.ZonedDateTime getLastCheck();
+
+    java.time.ZonedDateTime getNextCheck();
 }

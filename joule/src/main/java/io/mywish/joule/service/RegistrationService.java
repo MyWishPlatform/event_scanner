@@ -48,12 +48,12 @@ public class RegistrationService {
         Product product = jouleRegistration.getContract().getProduct();
         TransactionReceipt receipt;
         try {
-            BigInteger price = jouleAPI.getPrice(product.getCheckGasLimit(), registrationGasPrice).send();
+            BigInteger price = jouleAPI.getPrice(product.getCheckGasLimit(), invocationGasPrice).send();
             receipt = jouleAPI.register(
                     jouleRegistration.getContract().getAddress(),
                     BigInteger.valueOf(jouleRegistration.getInvocationAt().toEpochSecond(ZoneOffset.UTC)),
-                    registrationGasLimit,
-                    registrationGasPrice,
+                    product.getCheckGasLimit(),
+                    invocationGasPrice,
                     price
             ).send();
         }

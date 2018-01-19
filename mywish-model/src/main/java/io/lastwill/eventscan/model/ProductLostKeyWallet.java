@@ -11,7 +11,16 @@ import java.time.ZonedDateTime;
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("1")
 @Table(name = "contracts_contractdetailslostkey")
-public class ProductWallet extends ProductCheckable {
+public class ProductLostKeyWallet extends Product implements ProductCheckable {
+    @Column(name = "check_interval")
+    private Integer checkInterval;
+    @Column(name = "active_to")
+    private ZonedDateTime activeTo;
+    @Column(name = "last_check")
+    private ZonedDateTime lastCheck;
+    @Column(name = "next_check")
+    private ZonedDateTime nextCheck;
+
     @Override
     public int getContractType() {
         return 1;

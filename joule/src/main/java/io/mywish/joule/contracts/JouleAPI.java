@@ -56,14 +56,14 @@ public final class JouleAPI extends Contract {
         super(BINARY, contractAddress, web3j, transactionManager, gasPrice, gasLimit);
     }
 
-    public List<CheckedEventResponse> getCheckedEvents(TransactionReceipt transactionReceipt) {
-        final Event event = new Event("Checked", 
+    public List<InvokedEventResponse> getInvokedEvents(TransactionReceipt transactionReceipt) {
+        final Event event = new Event("Invoked", 
                 Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}),
                 Arrays.<TypeReference<?>>asList(new TypeReference<Bool>() {}, new TypeReference<Uint256>() {}));
         List<EventValues> valueList = extractEventParameters(event, transactionReceipt);
-        ArrayList<CheckedEventResponse> responses = new ArrayList<CheckedEventResponse>(valueList.size());
+        ArrayList<InvokedEventResponse> responses = new ArrayList<InvokedEventResponse>(valueList.size());
         for (EventValues eventValues : valueList) {
-            CheckedEventResponse typedResponse = new CheckedEventResponse();
+            InvokedEventResponse typedResponse = new InvokedEventResponse();
             typedResponse._address = (String) eventValues.getIndexedValues().get(0).getValue();
             typedResponse._status = (Boolean) eventValues.getNonIndexedValues().get(0).getValue();
             typedResponse._usedGas = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
@@ -72,20 +72,57 @@ public final class JouleAPI extends Contract {
         return responses;
     }
 
-    public Observable<CheckedEventResponse> checkedEventObservable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
-        final Event event = new Event("Checked", 
+    public Observable<InvokedEventResponse> invokedEventObservable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+        final Event event = new Event("Invoked", 
                 Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}),
                 Arrays.<TypeReference<?>>asList(new TypeReference<Bool>() {}, new TypeReference<Uint256>() {}));
         EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
         filter.addSingleTopic(EventEncoder.encode(event));
-        return web3j.ethLogObservable(filter).map(new Func1<Log, CheckedEventResponse>() {
+        return web3j.ethLogObservable(filter).map(new Func1<Log, InvokedEventResponse>() {
             @Override
-            public CheckedEventResponse call(Log log) {
+            public InvokedEventResponse call(Log log) {
                 EventValues eventValues = extractEventParameters(event, log);
-                CheckedEventResponse typedResponse = new CheckedEventResponse();
+                InvokedEventResponse typedResponse = new InvokedEventResponse();
                 typedResponse._address = (String) eventValues.getIndexedValues().get(0).getValue();
                 typedResponse._status = (Boolean) eventValues.getNonIndexedValues().get(0).getValue();
                 typedResponse._usedGas = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
+                return typedResponse;
+            }
+        });
+    }
+
+    public List<RegisteredEventResponse> getRegisteredEvents(TransactionReceipt transactionReceipt) {
+        final Event event = new Event("Registered", 
+                Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}),
+                Arrays.<TypeReference<?>>asList(new TypeReference<Uint256>() {}, new TypeReference<Uint256>() {}, new TypeReference<Uint256>() {}));
+        List<EventValues> valueList = extractEventParameters(event, transactionReceipt);
+        ArrayList<RegisteredEventResponse> responses = new ArrayList<RegisteredEventResponse>(valueList.size());
+        for (EventValues eventValues : valueList) {
+            RegisteredEventResponse typedResponse = new RegisteredEventResponse();
+            typedResponse._address = (String) eventValues.getIndexedValues().get(0).getValue();
+            typedResponse._timestamp = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+            typedResponse._gasLimit = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
+            typedResponse._gasPrice = (BigInteger) eventValues.getNonIndexedValues().get(2).getValue();
+            responses.add(typedResponse);
+        }
+        return responses;
+    }
+
+    public Observable<RegisteredEventResponse> registeredEventObservable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+        final Event event = new Event("Registered", 
+                Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}),
+                Arrays.<TypeReference<?>>asList(new TypeReference<Uint256>() {}, new TypeReference<Uint256>() {}, new TypeReference<Uint256>() {}));
+        EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
+        filter.addSingleTopic(EventEncoder.encode(event));
+        return web3j.ethLogObservable(filter).map(new Func1<Log, RegisteredEventResponse>() {
+            @Override
+            public RegisteredEventResponse call(Log log) {
+                EventValues eventValues = extractEventParameters(event, log);
+                RegisteredEventResponse typedResponse = new RegisteredEventResponse();
+                typedResponse._address = (String) eventValues.getIndexedValues().get(0).getValue();
+                typedResponse._timestamp = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+                typedResponse._gasLimit = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
+                typedResponse._gasPrice = (BigInteger) eventValues.getNonIndexedValues().get(2).getValue();
                 return typedResponse;
             }
         });
@@ -182,11 +219,21 @@ public final class JouleAPI extends Contract {
         return _addresses.get(networkId);
     }
 
-    public static class CheckedEventResponse {
+    public static class InvokedEventResponse {
         public String _address;
 
         public Boolean _status;
 
         public BigInteger _usedGas;
+    }
+
+    public static class RegisteredEventResponse {
+        public String _address;
+
+        public BigInteger _timestamp;
+
+        public BigInteger _gasLimit;
+
+        public BigInteger _gasPrice;
     }
 }

@@ -35,7 +35,11 @@ public class RemoteTransactionManager extends TransactionManager {
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public RemoteTransactionManager(LockService lockService, Web3j web3j, @Value("${io.mywish.joule.tx.from-address}") String fromAddress, @Value("${io.mywish.joule.tx.sign.url}") URL url) {
+    public RemoteTransactionManager(
+            LockService lockService,
+            Web3j web3j,
+            @Value("${io.mywish.joule.tx.from-address}") String fromAddress,
+            @Value("${io.mywish.joule.tx.sign.url}") URL url) {
         super(web3j);
         this.lockService = lockService;
         this.web3j = web3j;
@@ -63,7 +67,6 @@ public class RemoteTransactionManager extends TransactionManager {
             BigInteger value
     ) throws IOException {
         return lockService.acquireLock(fromAddress)
-                .toCompletableFuture()
                 .thenApply(acquired -> {
                     if (!acquired) {
                         throw new RuntimeException("Waiting for address locking was timed out.");
@@ -76,7 +79,7 @@ public class RemoteTransactionManager extends TransactionManager {
                                 to,
                                 value,
                                 gasLimit,
-                                data,
+                                data.substring(2),
                                 nonce
                         );
 
@@ -100,13 +103,14 @@ public class RemoteTransactionManager extends TransactionManager {
                         SignedTransaction signedTransaction = objectMapper.readValue(responseBody, SignedTransaction.class);
 
                         return web3j
-                                .ethSendRawTransaction(signedTransaction.getResult())
+                                .ethSendRawTransaction("0x" + signedTransaction.getResult())
                                 .send();
                     }
                     catch (Exception e) {
                         throw new RuntimeException("Error on signing transaction.", e);
                     }
                 })
+
                 .exceptionally(e -> {
                     log.error("Error on singing transaction.", e);
                     return null;

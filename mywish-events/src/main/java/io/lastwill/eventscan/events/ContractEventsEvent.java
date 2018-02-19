@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.events;
 
+import io.lastwill.eventscan.events.contract.ContractEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.EventValue;
 import io.mywish.scanner.BaseEvent;
@@ -15,7 +16,7 @@ import java.util.List;
 @Getter
 public class ContractEventsEvent extends BaseEvent {
     private final Contract contract;
-    private final List<EventValue> events;
+    private final List<ContractEvent> events;
     private final Transaction transaction;
     private final TransactionReceipt transactionReceipt;
     private final EthBlock.Block block;

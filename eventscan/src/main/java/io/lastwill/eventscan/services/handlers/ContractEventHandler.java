@@ -1,8 +1,13 @@
-package io.lastwill.eventscan.services;
+package io.lastwill.eventscan.services.handlers;
 
 import io.lastwill.eventscan.events.ContractEventsEvent;
+import io.lastwill.eventscan.events.contract.*;
 import io.lastwill.eventscan.model.EventValue;
 import io.lastwill.eventscan.repositories.ProductRepository;
+import io.lastwill.eventscan.services.BalanceProvider;
+import io.lastwill.eventscan.services.EventParser;
+import io.lastwill.eventscan.services.ExternalNotifier;
+import io.lastwill.eventscan.services.handlers.events.TransferOwnershipHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -25,25 +30,28 @@ public class ContractEventHandler {
     @Autowired
     private BalanceProvider balanceProvider;
 
+    @Autowired
+    private TransferOwnershipHandler transferOwnershipHandler;
+
     @EventListener
     public void eventsHandler(final ContractEventsEvent event) {
         if (externalNotifier == null) {
             return;
         }
-        for (EventValue values: event.getEvents()) {
-            if (eventParser.Checked == values.getEvent()) {
+        for (ContractEvent contractEvent: event.getEvents()) {
+            if (contractEvent instanceof CheckedEvent) {
                 externalNotifier.sendCheckedNotify(event.getContract(), event.getTransaction().getHash());
             }
-            else if (eventParser.NeedRepeatCheck == values.getEvent()) {
+            else if (contractEvent instanceof NeedRepeatCheckEvent) {
                 externalNotifier.sendCheckRepeatNotify(event.getContract(), event.getTransaction().getHash());
             }
-            else if (eventParser.Killed == values.getEvent()) {
+            else if (contractEvent instanceof KilledEvent) {
                 externalNotifier.sendKilledNotification(event.getContract(), event.getTransaction().getHash());
             }
-            else if (eventParser.Triggered == values.getEvent()) {
+            else if (contractEvent instanceof TriggeredEvent) {
                 externalNotifier.sendTriggeredNotification(event.getContract(), event.getTransaction().getHash());
             }
-            else if (eventParser.FundsAdded == values.getEvent()) {
+            else if (contractEvent instanceof FundsAddedEvent) {
                 balanceProvider.getBalanceAsync(event.getContract().getAddress(), event.getBlock().getNumber().longValue())
                         .thenAccept(balance -> {
                             log.debug("Update balance in db for contract {} to {}.", event.getContract().getId(), balance);
@@ -55,13 +63,14 @@ public class ContractEventHandler {
                             }
                         });
             }
-            else if (eventParser.Initialized == values.getEvent()) {
+            else if (contractEvent instanceof InitializedEvent) {
                 externalNotifier.sendInitializedNotification(event.getContract(), event.getTransaction().getHash());
-                // ignore all other
-                return;
             }
-            else if (eventParser.OwnershipTransferred == values.getEvent()) {
-                externalNotifier.sendOwnershipTransferredNotification(event.getContract(), event.getTransaction().getHash());
+            else if (contractEvent instanceof OwnershipTransferredEvent) {
+                transferOwnershipHandler.handle((OwnershipTransferredEvent) contractEvent);
+            }
+            else if (contractEvent instanceof FinalizedEvent) {
+                externalNotifier.sendFinalizedNotification(event.getContract(), event.getTransaction().getHash());
             }
         }
 

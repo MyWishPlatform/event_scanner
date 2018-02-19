@@ -23,6 +23,9 @@
         <module>key-app</module>
         <module>mywish-bot</module>
         <module>scanner</module>
+        <module>joule</module>
+        <module>mywish-model</module>
+        <module>mywish-events</module>
     </modules>
 
     <properties>

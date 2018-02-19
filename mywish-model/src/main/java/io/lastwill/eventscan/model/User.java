@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "auth_user")
@@ -30,7 +31,7 @@ import java.time.OffsetDateTime;
 public class User {
     @Id
     private int id;
-//    private OffsetDateTime dateJoined;
+    private ZonedDateTime dateJoined;
     @Column(name = "is_staff")
     private boolean staff;
     @Column(name = "is_active")

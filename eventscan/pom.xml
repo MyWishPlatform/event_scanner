@@ -39,12 +39,34 @@
         </dependency>
 
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>mywish-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>mywish-events</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>${project.groupId}</groupId>-->
+            <!--<artifactId>joule</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<scope>runtime</scope>-->
+        <!--</dependency>-->
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-java8</artifactId>
         </dependency>
 
         <dependency>

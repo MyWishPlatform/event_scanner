@@ -2,6 +2,7 @@ package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.ContractCreatedEvent;
 import io.lastwill.eventscan.events.ContractEventsEvent;
+import io.lastwill.eventscan.events.contract.ContractEvent;
 import io.lastwill.eventscan.helpers.TransactionHelper;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.EventValue;
@@ -97,7 +98,7 @@ public class ContractsMonitor {
 
                         contractRepository.findByAddressesList(logsByAddress.keySet());
                         for (Contract contract : contractRepository.findByAddressesList(logsByAddress.keySet())) {
-                            List<EventValue> eventValues;
+                            List<ContractEvent> eventValues;
                             try {
                                 eventValues = eventParser.parseEvents(transactionReceipt);
                             }
@@ -126,7 +127,7 @@ public class ContractsMonitor {
     private void grabContractEvents(final Contract contract, final Transaction transaction, final EthBlock.Block block) {
         transactionProvider.getTransactionReceiptAsync(transaction.getHash())
                 .thenAccept(transactionReceipt -> {
-                    List<EventValue> eventValues;
+                    List<ContractEvent> eventValues;
                     try {
                         eventValues = eventParser.parseEvents(transactionReceipt);
                     }

@@ -158,4 +158,9 @@ public class MQExternalNotifier implements ExternalNotifier {
     public void sendInitializedNotification(Contract contract, String transactionHash) {
         send(new InitializedNotify(contract.getId(), transactionHash));
     }
+
+    @Override
+    public void sendFinalizedNotification(Contract contract, String transactionHash) {
+        send(new FinalizedNotify(contract.getId(), transactionHash));
+    }
 }

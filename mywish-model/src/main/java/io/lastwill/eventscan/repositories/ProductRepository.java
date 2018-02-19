@@ -1,6 +1,7 @@
 package io.lastwill.eventscan.repositories;
 
 import io.lastwill.eventscan.model.Product;
+import io.lastwill.eventscan.model.ProductCrowdsale;
 import io.lastwill.eventscan.model.ProductStatistics;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +14,6 @@ import java.util.Collection;
 import java.util.List;
 
 public interface ProductRepository extends CrudRepository<Product, Integer> {
-
     @Transactional
     @Modifying
     @Query("update Product set balance = :balanceWei where id = :id")
@@ -24,4 +24,7 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
 
     @Query(name = "Product.productStatistics")
     List<ProductStatistics> getProductStatistics();
+
+    @Query("select c from ProductCrowdsale c where c.crowdsaleContract.address = :address and c.tokenContract.address = :tokenAddress")
+    List<ProductCrowdsale> findCrowdsaleByAddressAndTokenAddress(@Param("address") String contractAdress, @Param("tokenAddress") String tokenAddress);
 }

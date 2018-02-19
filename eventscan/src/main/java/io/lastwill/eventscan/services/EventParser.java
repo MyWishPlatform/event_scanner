@@ -1,132 +1,76 @@
 package io.lastwill.eventscan.services;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
-import io.lastwill.eventscan.model.EventValue;
+import io.lastwill.eventscan.events.contract.ContractEvent;
+import io.lastwill.eventscan.services.builders.ContractEventBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.web3j.abi.EventEncoder;
 import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.*;
 import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class EventParser {
-    public final Event Checked = new Event(
-            "Checked",
-            Collections.emptyList(),
-            Collections.singletonList(TypeReference.create(Bool.class))
-    );
+    @Autowired
+    private List<ContractEventBuilder<?>> builders = new ArrayList<>();
 
-    public final Event NeedRepeatCheck = new Event(
-            "NeedRepeatCheck",
-            Collections.emptyList(),
-            Collections.singletonList(TypeReference.create(Bool.class))
-    );
+    @PostConstruct
+    protected void init() throws Exception {
+        for (ContractEventBuilder<?> eventBuilder: builders) {
+            if (events.containsKey(eventBuilder.getEventSignature())) {
+                throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with signature " + eventBuilder.getEventSignature());
+            }
+            events.put(eventBuilder.getEventSignature(), eventBuilder);
+        }
+    }
 
-    public final Event Price = new Event(
-            "Price",
-            Collections.emptyList(),
-            Collections.singletonList(TypeReference.create(Uint.class))
-    );
+    private final Map<String, ContractEventBuilder<?>> events = new HashMap<>();
 
-    public final Event Killed = new Event(
-            "Killed",
-            Collections.emptyList(),
-            Collections.singletonList(TypeReference.create(Bool.class))
-    );
-
-    public final Event FundsAdded = new Event(
-            "FundsAdded",
-            Collections.singletonList(TypeReference.create(Address.class)),
-            Collections.singletonList(TypeReference.create(Uint.class))
-    );
-
-    public final Event Triggered = new Event(
-            "Triggered",
-            Collections.emptyList(),
-            Collections.singletonList(TypeReference.create(Uint.class))
-    );
-
-    /**
-     * event Transfer(address indexed from, address indexed to, uint256 value);
-     */
-    public final Event TransferERC20 = new Event(
-            "Transfer",
-            Arrays.asList(TypeReference.create(Address.class), TypeReference.create(Address.class)),
-            Collections.singletonList(TypeReference.create(Uint.class))
-    );
-
-    /**
-     *  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-     */
-    public final Event OwnershipTransferred = new Event(
-            "OwnershipTransferred",
-            Arrays.asList(TypeReference.create(Address.class), TypeReference.create(Address.class)),
-            Collections.emptyList()
-    );
-
-    /**
-     * Crowdsale initialized event.
-     */
-    public final Event Initialized = new Event(
-            "Initialized",
-            Collections.emptyList(),
-            Collections.emptyList()
-    );
-
-    private Map<String, Event> events = new HashMap<String, Event>() {{
-        put(EventEncoder.encode(Checked), Checked);
-        put(EventEncoder.encode(NeedRepeatCheck), NeedRepeatCheck);
-        put(EventEncoder.encode(Price), Price);
-        put(EventEncoder.encode(Killed), Killed);
-        put(EventEncoder.encode(FundsAdded), FundsAdded);
-        put(EventEncoder.encode(Triggered), Triggered);
-        put(EventEncoder.encode(TransferERC20), TransferERC20);
-        put(EventEncoder.encode(OwnershipTransferred), OwnershipTransferred);
-        put(EventEncoder.encode(Initialized), Initialized);
-    }};
-
-    public List<EventValue> parseEvents(TransactionReceipt transactionReceipt) {
+    public List<ContractEvent> parseEvents(TransactionReceipt transactionReceipt) {
         return transactionReceipt
                 .getLogs()
                 .stream()
-                .map(Try(this::parseEvent))
+                .map(Try(log -> parseEvent(transactionReceipt, log)))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
-    public List<EventValue> parseEvents(final TransactionReceipt transactionReceipt, final Event event) {
+    public List<ContractEvent> parseEvents(final TransactionReceipt transactionReceipt, final String eventSignature) {
         return transactionReceipt
                 .getLogs()
                 .stream()
-                .map(Try(this::parseEvent))
+                .filter(log -> log.getTopics().size() < 1)
+                .filter(log -> eventSignature.equalsIgnoreCase(log.getTopics().get(0)))
+                .map(Try(log -> parseEvent(transactionReceipt, log)))
                 .filter(Objects::nonNull)
-                .filter(eventValue -> event.equals(eventValue.getEvent()))
                 .collect(Collectors.toList());
     }
 
-    public EventValue parseEvent(Log log) {
+    public ContractEvent parseEvent(final TransactionReceipt transactionReceipt, final Log log) {
         List<String> topics = log.getTopics();
         if (topics.size() < 1) {
             throw new IllegalArgumentException("Log.topics must be at least 1");
         }
-        Event event = events.get(log.getTopics().get(0));
-        if (event == null) {
+        ContractEventBuilder<?> builder = events.get(log.getTopics().get(0));
+        if (builder == null) {
             return null;
         }
 
         List<Type> indexedValues = new ArrayList<>();
         List<Type> nonIndexedValues = FunctionReturnDecoder.decode(
                 log.getData(),
-                event.getNonIndexedParameters()
+                builder.getNonIndexedParameters()
         );
 
-        List<TypeReference<Type>> indexedParameters = event.getIndexedParameters();
+        List<TypeReference<Type>> indexedParameters = builder.getIndexedParameters();
         for (int i = 0; i < indexedParameters.size(); i++) {
             Type value = FunctionReturnDecoder.decodeIndexedValue(
                     topics.get(i + 1),
@@ -136,7 +80,7 @@ public class EventParser {
         }
 
 
-        return new EventValue(event, indexedValues, nonIndexedValues);
+        return builder.build(transactionReceipt, log.getAddress(), indexedValues, nonIndexedValues);
     }
 
     public <T, R> Function<T, R> Try(Function<T, R> func) {
@@ -144,7 +88,8 @@ public class EventParser {
             try {
                 return func.apply(a);
             }
-            catch (Exception ignored) {
+            catch (Exception e) {
+                log.warn("Parsing event failed.", e);
                 return null;
             }
         };

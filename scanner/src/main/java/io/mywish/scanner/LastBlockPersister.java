@@ -67,6 +67,7 @@ public class LastBlockPersister {
         if (lastOutputStream != null) {
             try {
                 lastOutputStream.close();
+                lastOutputStream = null;
             }
             catch (IOException e) {
                 log.error("Error on closing stream.", e);

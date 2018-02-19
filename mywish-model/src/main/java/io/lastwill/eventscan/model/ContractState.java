@@ -9,5 +9,6 @@ public enum ContractState {
     ACTIVE,
     TRIGGERED,
     EXPIRED,
-    POSTPONED
+    POSTPONED,
+    ENDED
 }

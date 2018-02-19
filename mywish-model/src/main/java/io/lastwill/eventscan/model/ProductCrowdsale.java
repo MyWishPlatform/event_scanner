@@ -1,5 +1,7 @@
 package io.lastwill.eventscan.model;
 
+import lombok.Getter;
+
 import javax.persistence.*;
 import java.math.BigInteger;
 import java.time.Instant;
@@ -9,9 +11,16 @@ import java.time.ZonedDateTime;
 @Table(name = "contracts_contractdetailsico")
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("4")
+@Getter
 public class ProductCrowdsale extends Product implements ProductSingleCheck {
     @Column(name = "stop_date")
     private int finishTimestamp;
+    @ManyToOne
+    @JoinColumn(name = "eth_contract_crowdsale_id")
+    private Contract crowdsaleContract;
+    @ManyToOne
+    @JoinColumn(name = "eth_contract_token_id")
+    private Contract tokenContract;
 
     @Override
     public int getContractType() {

@@ -23,4 +23,6 @@ public interface ExternalNotifier {
     void sendOwnershipTransferredNotification(Contract contract, String transactionHash);
 
     void sendInitializedNotification(Contract contract, String transactionHash);
+
+    void sendFinalizedNotification(Contract contract, String transactionHash);
 }

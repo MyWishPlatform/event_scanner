@@ -10,5 +10,6 @@ public enum ContractState {
     TRIGGERED,
     EXPIRED,
     POSTPONED,
-    ENDED
+    ENDED,
+    WAITING_ACTIVATION,
 }

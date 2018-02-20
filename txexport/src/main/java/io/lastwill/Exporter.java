@@ -76,10 +76,7 @@ public class Exporter implements ApplicationRunner {
         );
         log.info("Connected to database {}.", JDBC_URL);
 
-        Web3j web3j = Web3j.build(new HttpService(
-                WEB3_URL,
-                closeableHttpClient
-        ));
+        Web3j web3j = Web3j.build(new HttpService(WEB3_URL));
         log.info("Connected to web3 {}.", WEB3_URL);
 
         long currentBlockNumber = web3j

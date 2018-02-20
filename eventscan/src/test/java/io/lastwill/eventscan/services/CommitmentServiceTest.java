@@ -1,10 +1,8 @@
 package io.lastwill.eventscan.services;
 
-import io.lastwill.eventscan.events.NewBlockEvent;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.util.LinkedMultiValueMap;
 import org.web3j.protocol.core.methods.response.EthBlock;
 
 import java.util.concurrent.atomic.AtomicInteger;

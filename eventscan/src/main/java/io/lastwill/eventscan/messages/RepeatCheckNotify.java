@@ -4,8 +4,8 @@ import lombok.ToString;
 
 @ToString(callSuper = true)
 public class RepeatCheckNotify extends NotifyContract {
-    public RepeatCheckNotify(int contractId, PaymentStatus status) {
-        super(contractId, status);
+    public RepeatCheckNotify(int contractId, String txHash) {
+        super(contractId, PaymentStatus.COMMITTED, txHash);
     }
 
     @Override

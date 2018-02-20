@@ -10,6 +10,7 @@
     <logger name="io.lastwill" level="debug" />
     <!--<logger name="org.apache.http.wire" level="DEBUG" />-->
     <!--<logger name="org.apache.http" level="DEBUG" />-->
+    <!--<logger name="org.hibernate.type" level="TRACE" />-->
 
     <root level="info">
         <appender-ref ref="STDOUT" />

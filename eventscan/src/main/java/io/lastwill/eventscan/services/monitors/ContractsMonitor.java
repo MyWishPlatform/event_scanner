@@ -36,9 +36,6 @@ public class ContractsMonitor {
     private ContractRepository contractRepository;
 
     @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
     private EventPublisher eventPublisher;
 
     @Autowired

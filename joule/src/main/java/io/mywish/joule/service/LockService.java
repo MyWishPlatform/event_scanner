@@ -1,6 +1,6 @@
 package io.mywish.joule.service;
 
-import io.mywish.joule.repositories.AddressLockRepository;
+import io.lastwill.eventscan.repositories.AddressLockRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Slf4j

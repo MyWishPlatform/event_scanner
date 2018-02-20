@@ -19,7 +19,7 @@ public class TransferOwnershipHandler {
 
         productRepository.findCrowdsaleByAddressAndTokenAddress(transferTo, tokenAddress)
                 .forEach(productCrowdsale -> {
-                    externalNotifier.sendOwnershipTransferredNotification(productCrowdsale.getTokenContract(), event.getTransactionReceipt().getTransactionHash());
+                    externalNotifier.sendOwnershipTransferredNotification(productCrowdsale.getTokenContract(), productCrowdsale.getCrowdsaleContract(), event.getTransactionReceipt().getTransactionHash());
                 });
     }
 }

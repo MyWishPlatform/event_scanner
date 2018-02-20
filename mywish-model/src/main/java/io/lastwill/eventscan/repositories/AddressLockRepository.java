@@ -1,11 +1,14 @@
-package io.mywish.joule.repositories;
+package io.lastwill.eventscan.repositories;
 
-import io.mywish.joule.model.AddressLock;
+import io.lastwill.eventscan.model.AddressLock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
+import java.util.List;
 
 public interface AddressLockRepository extends CrudRepository<AddressLock, Integer> {
     @Transactional
@@ -17,4 +20,7 @@ public interface AddressLockRepository extends CrudRepository<AddressLock, Integ
     @Query("update AddressLock set lockedBy = null where address = :address and lockedBy = :lockedBy")
     @Modifying
     int updateLockedByToNull(@Param("address") String address, @Param("lockedBy") int lockedBy);
+
+    @Query("select c from AddressLock c where lower(c.address) in :addresses")
+    List<AddressLock> findByAddressesList(@Param("addresses") Collection<String> addresses);
 }

@@ -7,6 +7,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import io.lastwill.eventscan.messages.*;
+import io.lastwill.eventscan.model.AddressLock;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.UserProfile;
@@ -150,8 +151,8 @@ public class MQExternalNotifier implements ExternalNotifier {
     }
 
     @Override
-    public void sendOwnershipTransferredNotification(Contract contract, String transactionHash) {
-        send(new OwnershipTransferredNotify(contract.getId(), transactionHash));
+    public void sendOwnershipTransferredNotification(Contract contract, Contract crowdsaleContract, String transactionHash) {
+        send(new OwnershipTransferredNotify(contract.getId(), transactionHash, crowdsaleContract.getId()));
     }
 
     @Override
@@ -162,5 +163,10 @@ public class MQExternalNotifier implements ExternalNotifier {
     @Override
     public void sendFinalizedNotification(Contract contract, String transactionHash) {
         send(new FinalizedNotify(contract.getId(), transactionHash));
+    }
+
+    @Override
+    public void sendTransactionCompletedNotification(String transactionHash, boolean transactionStatus, AddressLock addressLock) {
+        send(new TransactionCompletedNotify(transactionHash, addressLock.getId(), addressLock.getAddress(), addressLock.getLockedBy(), transactionStatus));
     }
 }

@@ -1,4 +1,4 @@
-package io.mywish.joule.model;
+package io.lastwill.eventscan.model;
 
 import lombok.Getter;
 

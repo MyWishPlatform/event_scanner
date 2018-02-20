@@ -1,6 +1,7 @@
 package io.lastwill.eventscan.services;
 
 import io.lastwill.eventscan.messages.PaymentStatus;
+import io.lastwill.eventscan.model.AddressLock;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.UserProfile;
@@ -20,9 +21,11 @@ public interface ExternalNotifier {
 
     void sendTriggeredNotification(Contract contract, String transactionHash);
 
-    void sendOwnershipTransferredNotification(Contract contract, String transactionHash);
+    void sendOwnershipTransferredNotification(Contract contract, Contract crowdsaleContract, String transactionHash);
 
     void sendInitializedNotification(Contract contract, String transactionHash);
 
     void sendFinalizedNotification(Contract contract, String transactionHash);
+
+    void sendTransactionCompletedNotification(String transactionHash, boolean transactionStatus, AddressLock addressLock);
 }

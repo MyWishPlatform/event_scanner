@@ -1,6 +1,7 @@
-package io.lastwill.eventscan.services;
+package io.lastwill.eventscan.services.handlers;
 
 import io.lastwill.eventscan.events.ContractCreatedEvent;
+import io.lastwill.eventscan.services.ExternalNotifier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;

@@ -12,4 +12,5 @@ public enum ContractState {
     POSTPONED,
     ENDED,
     WAITING_ACTIVATION,
+    UNDER_CROWDSALE,
 }

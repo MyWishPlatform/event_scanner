@@ -13,6 +13,7 @@ public class ProductStatistics {
         put(2, "MyWish Delayed Payment");
         put(3, "Pizza");
         put(4, "MyWish ICO");
+        put(5, "MyWish Token");
     }};
 
     private final Integer contractType;

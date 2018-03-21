@@ -2,7 +2,6 @@ package io.lastwill.eventscan.services.handlers;
 
 import io.lastwill.eventscan.events.ContractEventsEvent;
 import io.lastwill.eventscan.events.contract.*;
-import io.lastwill.eventscan.model.EventValue;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.BalanceProvider;
 import io.lastwill.eventscan.services.EventParser;
@@ -69,7 +68,7 @@ public class ContractEventHandler {
             else if (contractEvent instanceof OwnershipTransferredEvent) {
                 transferOwnershipHandler.handle((OwnershipTransferredEvent) contractEvent);
             }
-            else if (contractEvent instanceof FinalizedEvent) {
+            else if (contractEvent instanceof FinalizedEvent || contractEvent instanceof MintFinishedEvent) {
                 externalNotifier.sendFinalizedNotification(event.getContract(), event.getTransaction().getHash());
             }
         }

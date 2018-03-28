@@ -77,13 +77,12 @@ public class WishPaymentMonitor {
                                     if (userProfile == null) {
                                         return;
                                     }
-                                    eventPublisher.publish(new UserPaymentEvent(
+                                    eventPublisher.publish(new UserPaymentEvent(,
                                             transaction,
                                             amount,
                                             CryptoCurrency.WISH,
                                             true,
-                                            userProfile
-                                    ));
+                                            userProfile));
                                 }
                                 catch (Exception e) {
                                     log.warn("Error on parsing ERC20 Transfer event.", e);

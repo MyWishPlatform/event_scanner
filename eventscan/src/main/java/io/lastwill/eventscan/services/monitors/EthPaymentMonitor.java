@@ -50,13 +50,12 @@ public class EthPaymentMonitor {
                 }
                 transactionProvider.getTransactionReceiptAsync(transaction.getHash())
                         .thenAccept(receipt -> {
-                            eventPublisher.publish(new UserPaymentEvent(
+                            eventPublisher.publish(new UserPaymentEvent(,
                                     transaction,
                                     getAmountFor(userProfile.getInternalAddress(), transaction),
                                     CryptoCurrency.ETH,
                                     TransactionHelper.isSuccess(receipt),
-                                    userProfile
-                            ));
+                                    userProfile));
                         });
             });
         }

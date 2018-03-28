@@ -3,7 +3,7 @@ package io.mywish.joule.service;
 import io.mywish.joule.contracts.JouleAPI;
 import io.mywish.joule.model.JouleRegistrationState;
 import io.mywish.joule.repositories.JouleRegistrationRepository;
-import io.mywish.scanner.NewBlockEvent;
+import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

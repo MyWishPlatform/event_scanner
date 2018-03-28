@@ -7,7 +7,7 @@ import io.lastwill.eventscan.model.Product;
 import io.lastwill.eventscan.model.ProductStatistics;
 import io.lastwill.eventscan.model.UserProfile;
 import io.mywish.bot.service.MyWishBot;
-import io.mywish.scanner.NewBlockEvent;
+import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

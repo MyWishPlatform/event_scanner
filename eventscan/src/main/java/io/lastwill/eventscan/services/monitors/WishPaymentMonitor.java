@@ -8,15 +8,13 @@ import io.lastwill.eventscan.repositories.UserProfileRepository;
 import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.lastwill.eventscan.services.builders.erc20.TransferEventBuilder;
-import io.mywish.scanner.EventPublisher;
-import io.mywish.scanner.NewBlockEvent;
+import io.mywish.scanner.services.EventPublisher;
+import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.web3j.abi.datatypes.Address;
-import org.web3j.abi.datatypes.Uint;
 import org.web3j.protocol.core.methods.response.Transaction;
 
 import javax.annotation.PostConstruct;

@@ -32,6 +32,9 @@ import java.time.ZonedDateTime;
 public abstract class Product {
     @Id
     private Integer id;
+    @ManyToOne
+    @JoinColumn(name = "network_id")
+    private Network network;
     private String ownerAddress;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

@@ -42,7 +42,7 @@ public class LockMonitor {
             return;
         }
 
-        addressLockRepository.findByAddressesList(addresses)
+        addressLockRepository.findByAddressesList(event.getNetworkType(), addresses)
                 .forEach(addressLock -> {
                     event.getTransactionsByAddress()
                             .get(addressLock.getAddress().toLowerCase())
@@ -58,7 +58,7 @@ public class LockMonitor {
                                     return;
                                 }
 
-                                eventPublisher.publish(new TransactionUnlockedEvent(addressLock, tx, receipt));
+                                eventPublisher.publish(new TransactionUnlockedEvent(event.getNetworkType(), addressLock, tx, receipt));
                             });
                 });
     }

@@ -8,6 +8,7 @@ import io.lastwill.eventscan.repositories.UserProfileRepository;
 import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.lastwill.eventscan.services.builders.erc20.TransferEventBuilder;
+import io.mywish.scanner.model.NetworkType;
 import io.mywish.scanner.services.EventPublisher;
 import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +50,10 @@ public class WishPaymentMonitor {
 
     @EventListener
     public void onNewBlock(final NewBlockEvent newBlockEvent) {
+        // wish only in mainnet works
+        if (newBlockEvent.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {
+            return;
+        }
         Set<String> addresses = newBlockEvent.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;
@@ -77,7 +82,8 @@ public class WishPaymentMonitor {
                                     if (userProfile == null) {
                                         return;
                                     }
-                                    eventPublisher.publish(new UserPaymentEvent(,
+                                    eventPublisher.publish(new UserPaymentEvent(
+                                            newBlockEvent.getNetworkType(),
                                             transaction,
                                             amount,
                                             CryptoCurrency.WISH,

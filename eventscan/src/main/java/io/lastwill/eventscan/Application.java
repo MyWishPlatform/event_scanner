@@ -5,6 +5,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import io.mywish.bot.BotModule;
 import io.mywish.scanner.ScannerModule;
 import io.mywish.scanner.model.NetworkType;
+import okhttp3.*;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -22,6 +23,7 @@ import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;

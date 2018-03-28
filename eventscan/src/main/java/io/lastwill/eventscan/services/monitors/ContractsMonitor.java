@@ -6,8 +6,9 @@ import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
-import io.mywish.scanner.services.EventPublisher;
+import io.mywish.scanner.model.NetworkType;
 import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,18 +40,26 @@ public class ContractsMonitor {
     @Autowired
     private EventParser eventParser;
 
-    @Value("${io.lastwill.eventscan.contract.proxy-address}")
-    private String proxyAddress;
+    @Value("${io.lastwill.eventscan.contract.proxy-address.ethereum}")
+    private String proxyAddressEthereum;
+    @Value("${io.lastwill.eventscan.contract.proxy-address.ropsten}")
+    private String proxyAddressRopsten;
+
+    private final HashMap<NetworkType, String> proxyByNetwork = new HashMap<>();
 
     @PostConstruct
     protected void init() {
-        if (proxyAddress != null) {
-            proxyAddress = proxyAddress.toLowerCase();
-        }
+        proxyByNetwork.put(NetworkType.ETHEREUM_MAINNET, proxyAddressEthereum.toLowerCase());
+        proxyByNetwork.put(NetworkType.ETHEREUM_ROPSTEN, proxyAddressRopsten.toLowerCase());
     }
 
     @EventListener
     public void onNewBlock(final NewBlockEvent event) {
+        if (!proxyByNetwork.containsKey(event.getNetworkType())) {
+            return;
+        }
+
+        final String proxyAddress = proxyByNetwork.get(event.getNetworkType());
         Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;
@@ -58,7 +67,7 @@ public class ContractsMonitor {
 
         if (addresses.contains(proxyAddress)) {
             final List<Transaction> transactions = event.getTransactionsByAddress().get(proxyAddress);
-            grabProxyEvents(transactions, event.getBlock());
+            grabProxyEvents(event.getNetworkType(), transactions, event.getBlock());
         }
 
         List<Contract> contracts = contractRepository.findByAddressesList(addresses);
@@ -74,12 +83,12 @@ public class ContractsMonitor {
                     continue;
                 }
 
-                grabContractEvents(contract, transaction, event.getBlock());
+                grabContractEvents(event.getNetworkType(), contract, transaction, event.getBlock());
             }
         }
     }
 
-    private void grabProxyEvents(final List<Transaction> transactions, final EthBlock.Block block) {
+    private void grabProxyEvents(final NetworkType networkType, final List<Transaction> transactions, final EthBlock.Block block) {
         for (Transaction transaction : transactions) {
             transactionProvider.getTransactionReceiptAsync(transaction.getHash())
                     .thenAccept(transactionReceipt -> {
@@ -103,12 +112,12 @@ public class ContractsMonitor {
                             }
                             eventPublisher.publish(
                                     new ContractEventsEvent(
+                                            networkType,
                                             contract,
                                             eventValues,
                                             transaction,
                                             transactionReceipt,
-                                            block
-                                    )
+                                            block)
                             );
                         }
 
@@ -116,7 +125,7 @@ public class ContractsMonitor {
         }
     }
 
-    private void grabContractEvents(final Contract contract, final Transaction transaction, final EthBlock.Block block) {
+    private void grabContractEvents(final NetworkType networkType, final Contract contract, final Transaction transaction, final EthBlock.Block block) {
         transactionProvider.getTransactionReceiptAsync(transaction.getHash())
                 .thenAccept(transactionReceipt -> {
                     List<ContractEvent> eventValues;
@@ -132,12 +141,12 @@ public class ContractsMonitor {
                     }
                     eventPublisher.publish(
                             new ContractEventsEvent(
+                                    networkType,
                                     contract,
                                     eventValues,
                                     transaction,
                                     transactionReceipt,
-                                    block
-                            )
+                                    block)
                     );
                 });
     }

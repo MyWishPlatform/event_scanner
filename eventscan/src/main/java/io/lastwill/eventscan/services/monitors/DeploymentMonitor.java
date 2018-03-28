@@ -69,10 +69,10 @@ public class DeploymentMonitor {
                             }
                         }
                         eventPublisher.publish(new ContractCreatedEvent(
+                                event.getNetworkType(),
                                 contract,
                                 transaction,
-                                event.getBlock(),
-                                TransactionHelper.isSuccess(transactionReceipt))
+                                event.getBlock(), TransactionHelper.isSuccess(transactionReceipt))
                         );
                     });
         }

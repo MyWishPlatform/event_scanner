@@ -6,6 +6,7 @@ import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.UserProfile;
 import io.lastwill.eventscan.repositories.UserProfileRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
+import io.mywish.scanner.model.NetworkType;
 import io.mywish.scanner.services.EventPublisher;
 import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,11 @@ public class EthPaymentMonitor {
 
     @EventListener
     public void onNewBlockEvent(NewBlockEvent event) {
+        // payments only in mainnet works
+        if (event.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {
+            return;
+        }
+
         Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;
@@ -50,7 +56,8 @@ public class EthPaymentMonitor {
                 }
                 transactionProvider.getTransactionReceiptAsync(transaction.getHash())
                         .thenAccept(receipt -> {
-                            eventPublisher.publish(new UserPaymentEvent(,
+                            eventPublisher.publish(new UserPaymentEvent(
+                                    event.getNetworkType(),
                                     transaction,
                                     getAmountFor(userProfile.getInternalAddress(), transaction),
                                     CryptoCurrency.ETH,

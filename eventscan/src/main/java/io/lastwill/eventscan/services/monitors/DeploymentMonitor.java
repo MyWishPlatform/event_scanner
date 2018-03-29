@@ -57,7 +57,7 @@ public class DeploymentMonitor {
         List<Contract> contracts = contractRepository.findByTxHashes(deployHashes.keySet());
         for (Contract contract : contracts) {
             final Transaction transaction = deployHashes.get(contract.getTxHash().toLowerCase());
-            transactionProvider.getTransactionReceiptAsync(contract.getTxHash())
+            transactionProvider.getTransactionReceiptAsync(event.getNetworkType(), contract.getTxHash())
                     .thenAccept(transactionReceipt -> {
                         if (!TransactionHelper.isSuccess(transactionReceipt)) {
                             log.warn("Failed contract ({}) creation in transaction {}!", contract.getId(), transaction.getHash());

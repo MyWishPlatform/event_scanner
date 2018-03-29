@@ -98,6 +98,7 @@ public class Web3Scanner {
     }
 
     public void open() throws IOException {
+        lastBlockPersister.open();
         nextBlockNo = lastBlockPersister.getLastBlock();
         try {
             boolean syncing = web3j.ethSyncing().send().isSyncing();
@@ -120,14 +121,21 @@ public class Web3Scanner {
     }
 
     public void close() {
+        try {
+            lastBlockPersister.close();
+        }
+        catch (Exception e) {
+            log.warn("Persister closing failed.", e);
+        }
         isTerminated.set(true);
         try {
-            Thread.sleep(100);
+            log.info("Wait {} ms till cycle is completed.", pollingInterval + 1);
+            Thread.sleep(pollingInterval + 1);
+            pollerThread.interrupt();
         }
         catch (InterruptedException e) {
             log.warn("Waiting till thread is finished was terminated.", e);
         }
-        pollerThread.interrupt();
     }
 
     private void loadNextBlock() throws Exception {

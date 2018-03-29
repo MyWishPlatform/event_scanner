@@ -54,7 +54,7 @@ public class EthPaymentMonitor {
                     log.debug("Found transaction out from internal address. Skip it.");
                     return;
                 }
-                transactionProvider.getTransactionReceiptAsync(transaction.getHash())
+                transactionProvider.getTransactionReceiptAsync(event.getNetworkType(), transaction.getHash())
                         .thenAccept(receipt -> {
                             eventPublisher.publish(new UserPaymentEvent(
                                     event.getNetworkType(),

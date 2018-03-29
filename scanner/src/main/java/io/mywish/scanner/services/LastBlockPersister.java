@@ -25,10 +25,9 @@ public class LastBlockPersister {
         this.lastBlock = lastBlock;
     }
 
-    @PostConstruct
-    protected void init() {
+    public void open() {
         if (startBlockFileDir == null) {
-            log.warn("Start block file was not specified. Only im memory mode available.");
+            log.warn("Start block dir was not specified. Only im memory mode available.");
             return;
         }
         File file = Paths.get(startBlockFileDir, networkType.name()).toFile();
@@ -39,6 +38,18 @@ public class LastBlockPersister {
             }
             catch (Throwable e) {
                 log.warn("Impossible to read last block from {}.", file, e);
+            }
+        }
+
+        File dir = new File(startBlockFileDir);
+        if (!dir.exists()) {
+            try {
+                if (!dir.mkdirs()) {
+                    throw new Exception("Dir was not created.");
+                }
+            }
+            catch (Exception e) {
+                log.error("Impossible to create dir {} to store last block.", dir, e);
             }
         }
 
@@ -66,7 +77,6 @@ public class LastBlockPersister {
         }
     }
 
-    @PreDestroy
     public void close() {
         if (lastOutputStream != null) {
             try {

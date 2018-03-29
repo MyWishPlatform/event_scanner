@@ -51,7 +51,7 @@ public class LockMonitor {
                             .forEach(tx -> {
                                 TransactionReceipt receipt;
                                 try {
-                                    receipt = transactionProvider.getTransactionReceipt(tx.getHash());
+                                    receipt = transactionProvider.getTransactionReceipt(event.getNetworkType(), tx.getHash());
                                 }
                                 catch (IOException e) {
                                     log.warn("Getting transaction receipt failed.", e);

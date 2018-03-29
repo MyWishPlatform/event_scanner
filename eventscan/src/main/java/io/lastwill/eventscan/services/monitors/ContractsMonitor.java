@@ -90,7 +90,7 @@ public class ContractsMonitor {
 
     private void grabProxyEvents(final NetworkType networkType, final List<Transaction> transactions, final EthBlock.Block block) {
         for (Transaction transaction : transactions) {
-            transactionProvider.getTransactionReceiptAsync(transaction.getHash())
+            transactionProvider.getTransactionReceiptAsync(networkType, transaction.getHash())
                     .thenAccept(transactionReceipt -> {
                         MultiValueMap<String, Log> logsByAddress = CollectionUtils.toMultiValueMap(new HashMap<>());
                         for (Log log : transactionReceipt.getLogs()) {
@@ -126,7 +126,7 @@ public class ContractsMonitor {
     }
 
     private void grabContractEvents(final NetworkType networkType, final Contract contract, final Transaction transaction, final EthBlock.Block block) {
-        transactionProvider.getTransactionReceiptAsync(transaction.getHash())
+        transactionProvider.getTransactionReceiptAsync(networkType, transaction.getHash())
                 .thenAccept(transactionReceipt -> {
                     List<ContractEvent> eventValues;
                     try {

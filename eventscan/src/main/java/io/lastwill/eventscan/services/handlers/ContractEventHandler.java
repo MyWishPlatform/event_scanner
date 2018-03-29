@@ -37,19 +37,27 @@ public class ContractEventHandler {
     public void eventsHandler(final ContractEventsEvent event) {
         for (ContractEvent contractEvent: event.getEvents()) {
             if (contractEvent instanceof CheckedEvent) {
-                externalNotifier.send(event.getNetworkType(), new CheckedNotify(event.getContract().getId(), event.getTransaction().getHash()));
+                externalNotifier.send(event.getNetworkType(),
+                        new CheckedNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
             else if (contractEvent instanceof NeedRepeatCheckEvent) {
-                externalNotifier.send(event.getNetworkType(), new RepeatCheckNotify(event.getContract().getId(), event.getTransaction().getHash()));
+                externalNotifier.send(event.getNetworkType(),
+                        new RepeatCheckNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
             else if (contractEvent instanceof KilledEvent) {
-                externalNotifier.send(event.getNetworkType(), new ContractKilledNotify(event.getContract().getId(), event.getTransaction().getHash()));
+                externalNotifier.send(event.getNetworkType(),
+                        new ContractKilledNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
             else if (contractEvent instanceof TriggeredEvent) {
-                externalNotifier.send(event.getNetworkType(), new ContractTriggeredNotify(event.getContract().getId(), event.getTransaction().getHash()));
+                externalNotifier.send(event.getNetworkType(),
+                        new ContractTriggeredNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
             else if (contractEvent instanceof FundsAddedEvent) {
-                balanceProvider.getBalanceAsync(event.getContract().getAddress(), event.getBlock().getNumber().longValue())
+                balanceProvider.getBalanceAsync(
+                        event.getNetworkType(),
+                        event.getContract().getAddress(),
+                        event.getBlock().getNumber().longValue()
+                )
                         .thenAccept(balance -> {
                             log.debug("Update balance in db for contract {} to {}.", event.getContract().getId(), balance);
                             try {
@@ -61,13 +69,15 @@ public class ContractEventHandler {
                         });
             }
             else if (contractEvent instanceof InitializedEvent) {
-                externalNotifier.send(event.getNetworkType(), new InitializedNotify(event.getContract().getId(), event.getTransaction().getHash()));
+                externalNotifier.send(event.getNetworkType(),
+                        new InitializedNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
             else if (contractEvent instanceof OwnershipTransferredEvent) {
                 transferOwnershipHandler.handle(event.getNetworkType(), (OwnershipTransferredEvent) contractEvent);
             }
             else if (contractEvent instanceof FinalizedEvent || contractEvent instanceof MintFinishedEvent) {
-                externalNotifier.send(event.getNetworkType(), new FinalizedNotify(event.getContract().getId(), event.getTransaction().getHash()));
+                externalNotifier.send(event.getNetworkType(),
+                        new FinalizedNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
         }
 

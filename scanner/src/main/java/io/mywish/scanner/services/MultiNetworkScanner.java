@@ -24,7 +24,7 @@ public class MultiNetworkScanner {
     @Value("${etherscanner.commit-chain-length:5}")
     private int commitmentChainLength;
 
-    @Value("${etherscanner.start-block-dir:last-block}")
+    @Value("${etherscanner.start-block-dir:last-blocks}")
     private String startBlockFileDir;
 
     @Autowired

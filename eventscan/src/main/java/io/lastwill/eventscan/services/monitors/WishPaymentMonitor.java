@@ -68,7 +68,7 @@ public class WishPaymentMonitor {
             if (!tokenAddress.equalsIgnoreCase(transaction.getTo())) {
                 continue;
             }
-            transactionProvider.getTransactionReceiptAsync(transaction.getHash())
+            transactionProvider.getTransactionReceiptAsync(newBlockEvent.getNetworkType(), transaction.getHash())
                     .thenAccept(transactionReceipt -> eventParser.parseEvents(transactionReceipt, transferEventBuilder.getEventSignature())
                             .stream()
                             .filter(event -> event instanceof TransferEvent)

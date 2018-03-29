@@ -1,6 +1,7 @@
 package io.lastwill.eventscan.services;
 
 import io.lastwill.eventscan.events.UserPaymentEvent;
+import io.lastwill.eventscan.messages.PaymentNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +18,18 @@ public class BalanceEventDispatcher {
 
     @EventListener
     public void ownerBalanceChangedHandler(final UserPaymentEvent event) {
-        if (externalNotifier == null) {
-            return;
-        }
         try {
-            externalNotifier.sendPaymentNotify(event.getUserProfile(), event.getAmount(), PaymentStatus.COMMITTED, event.getTransaction().getHash(), event.getCurrency(), event.isSuccess());
-
+            externalNotifier.send(
+                    event.getNetworkType(),
+                    new PaymentNotify(
+                            event.getUserProfile().getUser().getId(),
+                            event.getAmount(),
+                            PaymentStatus.COMMITTED,
+                            event.getTransaction().getHash(),
+                            event.getCurrency(),
+                            event.isSuccess()
+                    )
+            );
         }
         catch (Throwable e) {
             log.error("Sending notification about new balance failed.", e);

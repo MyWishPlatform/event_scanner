@@ -2,6 +2,7 @@ package io.lastwill.eventscan.services.handlers;
 
 import io.lastwill.eventscan.events.ContractEventsEvent;
 import io.lastwill.eventscan.events.contract.*;
+import io.lastwill.eventscan.messages.*;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.BalanceProvider;
 import io.lastwill.eventscan.services.EventParser;
@@ -34,21 +35,18 @@ public class ContractEventHandler {
 
     @EventListener
     public void eventsHandler(final ContractEventsEvent event) {
-        if (externalNotifier == null) {
-            return;
-        }
         for (ContractEvent contractEvent: event.getEvents()) {
             if (contractEvent instanceof CheckedEvent) {
-                externalNotifier.sendCheckedNotify(event.getContract(), event.getTransaction().getHash());
+                externalNotifier.send(event.getNetworkType(), new CheckedNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
             else if (contractEvent instanceof NeedRepeatCheckEvent) {
-                externalNotifier.sendCheckRepeatNotify(event.getContract(), event.getTransaction().getHash());
+                externalNotifier.send(event.getNetworkType(), new RepeatCheckNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
             else if (contractEvent instanceof KilledEvent) {
-                externalNotifier.sendKilledNotification(event.getContract(), event.getTransaction().getHash());
+                externalNotifier.send(event.getNetworkType(), new ContractKilledNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
             else if (contractEvent instanceof TriggeredEvent) {
-                externalNotifier.sendTriggeredNotification(event.getContract(), event.getTransaction().getHash());
+                externalNotifier.send(event.getNetworkType(), new ContractTriggeredNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
             else if (contractEvent instanceof FundsAddedEvent) {
                 balanceProvider.getBalanceAsync(event.getContract().getAddress(), event.getBlock().getNumber().longValue())
@@ -63,13 +61,13 @@ public class ContractEventHandler {
                         });
             }
             else if (contractEvent instanceof InitializedEvent) {
-                externalNotifier.sendInitializedNotification(event.getContract(), event.getTransaction().getHash());
+                externalNotifier.send(event.getNetworkType(), new InitializedNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
             else if (contractEvent instanceof OwnershipTransferredEvent) {
-                transferOwnershipHandler.handle((OwnershipTransferredEvent) contractEvent);
+                transferOwnershipHandler.handle(event.getNetworkType(), (OwnershipTransferredEvent) contractEvent);
             }
             else if (contractEvent instanceof FinalizedEvent || contractEvent instanceof MintFinishedEvent) {
-                externalNotifier.sendFinalizedNotification(event.getContract(), event.getTransaction().getHash());
+                externalNotifier.send(event.getNetworkType(), new FinalizedNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
         }
 

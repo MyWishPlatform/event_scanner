@@ -2,6 +2,7 @@ package io.lastwill.eventscan.services.handlers;
 
 import io.lastwill.eventscan.events.TransactionUnlockedEvent;
 import io.lastwill.eventscan.helpers.TransactionHelper;
+import io.lastwill.eventscan.messages.TransactionCompletedNotify;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,14 @@ public class UnlockedTransactionHandler {
 
     @EventListener
     public void handleTransactionUnlockedEvent(TransactionUnlockedEvent event) {
-        externalNotifier.sendTransactionCompletedNotification(
-                event.getTransaction().getHash(),
-                TransactionHelper.isSuccess(event.getTransactionReceipt()),
-                event.getAddressLock()
+        externalNotifier.send(event.getNetworkType(),
+                new TransactionCompletedNotify(
+                        event.getTransaction().getHash(),
+                        event.getAddressLock().getId(),
+                        event.getAddressLock().getAddress(),
+                        event.getAddressLock().getLockedBy(),
+                        TransactionHelper.isSuccess(event.getTransactionReceipt())
+                )
         );
     }
 }

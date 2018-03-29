@@ -12,6 +12,7 @@ import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.UserProfile;
 import io.lastwill.eventscan.services.ExternalNotifier;
+import io.mywish.scanner.model.NetworkType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,10 +24,10 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 @Slf4j
-@ConditionalOnProperty("io.lastwill.eventscan.backend-mq.url")
 @Component
 public class MQExternalNotifier implements ExternalNotifier {
     private final static String contentType = "application/json";
@@ -36,8 +37,12 @@ public class MQExternalNotifier implements ExternalNotifier {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Value("${io.lastwill.eventscan.backend-mq.queue}")
-    private String queueName;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.ethereum}")
+    private String queueNameEthereum;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.ropsten}")
+    private String queueNameRopsten;
+
+    private Map<NetworkType, String> queueByNetwork = new HashMap<>();
 
     @Value("${io.lastwill.eventscan.backend-mq.ttl-ms}")
     private long messageTTL;
@@ -50,29 +55,36 @@ public class MQExternalNotifier implements ExternalNotifier {
 
     @PostConstruct
     protected void init() throws IOException, TimeoutException {
+        queueByNetwork.put(NetworkType.ETHEREUM_MAINNET, queueNameEthereum);
+        queueByNetwork.put(NetworkType.ETHEREUM_ROPSTEN, queueNameRopsten);
+
         connection = factory.newConnection();
         channel = connection.createChannel();
-        if (initQueue) {
-            channel.queueUnbind(queueName, queueName, queueName);
-            channel.queueDelete(queueName);
-            channel.exchangeDelete(queueName);
+
+        for (String queueName: queueByNetwork.values()) {
+            if (initQueue) {
+                channel.queueUnbind(queueName, queueName, queueName);
+                channel.queueDelete(queueName);
+                channel.exchangeDelete(queueName);
+            }
+
+            channel.exchangeDeclare(queueName, "direct", true);
+            channel.queueDeclare(queueName, true, false, false,  new HashMap<>());
+            channel.queueBind(queueName, queueName, queueName);
+
+            byte[] pingJson = objectMapper.writeValueAsBytes(new Ping());
+
+            channel.basicPublish(
+                    queueName,
+                    queueName,
+                    new AMQP.BasicProperties.Builder()
+                            .contentType(contentType)
+                            .expiration("60000")
+                            .type("ping")
+                            .build(),
+                    pingJson
+            );
         }
-        channel.exchangeDeclare(queueName, "direct", true);
-        channel.queueDeclare(queueName, true, false, false,  new HashMap<>());
-        channel.queueBind(queueName, queueName, queueName);
-
-        byte[] pingJson = objectMapper.writeValueAsBytes(new Ping());
-
-        channel.basicPublish(
-                queueName,
-                queueName,
-                new AMQP.BasicProperties.Builder()
-                        .contentType(contentType)
-                        .expiration("60000")
-                        .type("ping")
-                .build(),
-                pingJson
-        );
     }
 
     @PreDestroy
@@ -95,7 +107,15 @@ public class MQExternalNotifier implements ExternalNotifier {
         }
     }
 
-    protected synchronized void send(BaseNotify notify) {
+    public void send(final NetworkType networkType, final BaseNotify notify) {
+        final String queueName = queueByNetwork.get(networkType);
+        if (queueName == null) {
+            throw new UnsupportedOperationException("Notifier does not support network " + networkType);
+        }
+        send(queueName, notify);
+    }
+
+    protected synchronized void send(String queueName, BaseNotify notify) {
         try {
             byte[] json = objectMapper.writeValueAsBytes(notify);
 
@@ -118,55 +138,5 @@ public class MQExternalNotifier implements ExternalNotifier {
             log.error("Error on sending message {}.", notify, e);
         }
 
-    }
-
-    @Override
-    public void sendPaymentNotify(UserProfile userProfile, BigInteger amount, PaymentStatus status, String txHash, CryptoCurrency currency, boolean isSuccess) {
-        send(new PaymentNotify(userProfile.getUser().getId(), amount, status, txHash, currency, isSuccess));
-    }
-
-    @Override
-    public void sendCheckRepeatNotify(Contract contract, String transactionHash) {
-        send(new RepeatCheckNotify(contract.getId(), transactionHash));
-    }
-
-    @Override
-    public void sendCheckedNotify(Contract contract, String transactionHash) {
-        send(new CheckedNotify(contract.getId(), transactionHash));
-    }
-
-    @Override
-    public void sendDeployedNotification(Contract contract, String address, String transactionHash, boolean committed, boolean status) {
-        send(new ContractDeployedNotify(contract.getId(), committed ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED, address, transactionHash, status));
-    }
-
-    @Override
-    public void sendKilledNotification(Contract contract, String transactionHash) {
-        send(new ContractKilledNotify(contract.getId(), transactionHash));
-    }
-
-    @Override
-    public void sendTriggeredNotification(Contract contract, String transactionHash) {
-        send(new ContractTriggeredNotify(contract.getId(), transactionHash));
-    }
-
-    @Override
-    public void sendOwnershipTransferredNotification(Contract contract, Contract crowdsaleContract, String transactionHash) {
-        send(new OwnershipTransferredNotify(contract.getId(), transactionHash, crowdsaleContract.getId()));
-    }
-
-    @Override
-    public void sendInitializedNotification(Contract contract, String transactionHash) {
-        send(new InitializedNotify(contract.getId(), transactionHash));
-    }
-
-    @Override
-    public void sendFinalizedNotification(Contract contract, String transactionHash) {
-        send(new FinalizedNotify(contract.getId(), transactionHash));
-    }
-
-    @Override
-    public void sendTransactionCompletedNotification(String transactionHash, boolean transactionStatus, AddressLock addressLock) {
-        send(new TransactionCompletedNotify(transactionHash, addressLock.getId(), addressLock.getAddress(), addressLock.getLockedBy(), transactionStatus));
     }
 }

@@ -19,16 +19,14 @@ public class TransferOwnershipHandler {
         String tokenAddress = event.getAddress();
         String transferTo = event.getNewOwner();
 
-        productRepository.findCrowdsaleByAddressAndTokenAddress(transferTo, tokenAddress)
-                .forEach(productCrowdsale -> {
-                    externalNotifier.send(
-                            networkType,
-                            new OwnershipTransferredNotify(
-                                    productCrowdsale.getTokenContract().getId(),
-                                    event.getTransactionReceipt().getTransactionHash(),
-                                    productCrowdsale.getCrowdsaleContract().getId()
-                            )
-                    );
-                });
+        productRepository.findCrowdsaleByAddressAndTokenAddress(transferTo, tokenAddress, networkType)
+                .forEach(productCrowdsale -> externalNotifier.send(
+                        networkType,
+                        new OwnershipTransferredNotify(
+                                productCrowdsale.getTokenContract().getId(),
+                                event.getTransactionReceipt().getTransactionHash(),
+                                productCrowdsale.getCrowdsaleContract().getId()
+                        )
+                ));
     }
 }

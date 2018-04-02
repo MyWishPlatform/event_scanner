@@ -26,6 +26,14 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
     @Query(name = "Product.productStatistics")
     List<ProductStatistics> getProductStatistics(int networkId);
 
-    @Query("select c from ProductCrowdsale c where c.crowdsaleContract.address = :address and c.tokenContract.address = :tokenAddress")
-    List<ProductCrowdsale> findCrowdsaleByAddressAndTokenAddress(@Param("address") String contractAdress, @Param("tokenAddress") String tokenAddress);
+    @Query("select c " +
+            "from ProductCrowdsale c " +
+            "where c.crowdsaleContract.address = :address " +
+            "   and c.tokenContract.address = :tokenAddress" +
+            "   and c.network.type = :networkType")
+    List<ProductCrowdsale> findCrowdsaleByAddressAndTokenAddress(
+            @Param("address") String contractAddress,
+            @Param("tokenAddress") String tokenAddress,
+            @Param("network") NetworkType networkType
+    );
 }

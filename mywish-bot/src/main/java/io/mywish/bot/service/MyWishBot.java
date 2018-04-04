@@ -95,9 +95,10 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendMessage(last, weiAmount);
     }
 
-    public void onContract(Integer productId, String productType, Integer id, BigInteger cost, final String address) {
+    public void onContract(String network, Integer productId, String productType, Integer id, BigInteger cost, final String address, String etherscanHost) {
         final String message = new StringBuilder()
-                .append("New contract ")
+                .append(network)
+                .append(": new contract ")
                 .append(productType)
                 .append(" (")
                 .append(productId)
@@ -105,7 +106,9 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(id)
                 .append(") was created for ")
                 .append(toEth(cost))
-                .append(" ETH, see on [etherscan](https://etherscan.io/address/")
+                .append(" ETH, see on [etherscan](https://")
+                .append(etherscanHost)
+                .append("/address/")
                 .append(address)
                 .append(").")
                 .toString();
@@ -114,15 +117,18 @@ public class MyWishBot extends TelegramLongPollingBot {
     }
 
 
-    public void onContractFailed(Integer productId, String productType, Integer id, final String txHash) {
+    public void onContractFailed(String network, Integer productId, String productType, Integer id, final String txHash, String etherscanHost) {
         final String message = new StringBuilder()
-                .append("New contract ")
+                .append(network)
+                .append(": *failed* contract creation ")
                 .append(productType)
                 .append(" (")
                 .append(productId)
                 .append(", ")
                 .append(id)
-                .append(") creation *failed*! See on [etherscan](https://etherscan.io/tx/")
+                .append(")! See on [etherscan](https://")
+                .append(etherscanHost)
+                .append("/tx/")
                 .append(txHash)
                 .append(").")
                 .toString();
@@ -130,15 +136,18 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
     }
 
-    public void onBalance(Integer id, BigInteger cost, final String currency, String txHash) {
+    public void onBalance(String network, Integer id, BigInteger cost, final String currency, String txHash, String etherscanHost) {
         final String message = new StringBuilder()
-                .append("Payment received from user ")
+                .append(network)
+                .append(": payment received from user ")
                 .append(id)
                 .append(": [")
                 .append(toEth(cost))
                 .append(" ")
                 .append(currency)
-                .append("](https://etherscan.io/tx/")
+                .append("](https://")
+                .append(etherscanHost)
+                .append("/tx/")
                 .append(txHash)
                 .append(").")
                 .toString();

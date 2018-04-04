@@ -5,8 +5,8 @@ import io.lastwill.eventscan.helpers.TransactionHelper;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
-import io.mywish.scanner.EventPublisher;
-import io.mywish.scanner.NewBlockEvent;
+import io.mywish.scanner.services.EventPublisher;
+import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -57,7 +57,7 @@ public class DeploymentMonitor {
         List<Contract> contracts = contractRepository.findByTxHashes(deployHashes.keySet());
         for (Contract contract : contracts) {
             final Transaction transaction = deployHashes.get(contract.getTxHash().toLowerCase());
-            transactionProvider.getTransactionReceiptAsync(contract.getTxHash())
+            transactionProvider.getTransactionReceiptAsync(event.getNetworkType(), contract.getTxHash())
                     .thenAccept(transactionReceipt -> {
                         if (!TransactionHelper.isSuccess(transactionReceipt)) {
                             log.warn("Failed contract ({}) creation in transaction {}!", contract.getId(), transaction.getHash());
@@ -69,10 +69,10 @@ public class DeploymentMonitor {
                             }
                         }
                         eventPublisher.publish(new ContractCreatedEvent(
+                                event.getNetworkType(),
                                 contract,
                                 transaction,
-                                event.getBlock(),
-                                TransactionHelper.isSuccess(transactionReceipt))
+                                event.getBlock(), TransactionHelper.isSuccess(transactionReceipt))
                         );
                     });
         }

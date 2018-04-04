@@ -2,9 +2,7 @@ package io.lastwill.eventscan.model;
 
 import lombok.Getter;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Getter
@@ -12,6 +10,9 @@ import javax.persistence.Table;
 public class AddressLock {
     @Id
     private Integer id;
+    @ManyToOne
+    @JoinColumn(name = "network_id")
+    private Network network;
     private String address;
     private Integer lockedBy;
 }

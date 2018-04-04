@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.ConnectionFactory;
 import io.mywish.bot.BotModule;
 import io.mywish.scanner.ScannerModule;
+import io.mywish.scanner.model.NetworkType;
+import okhttp3.*;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -21,6 +23,7 @@ import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -61,36 +64,6 @@ public class Application {
                 .build();
     }
 
-    @Bean(destroyMethod = "close")
-    public CloseableHttpAsyncClient closeableHttpAsyncClient(
-            @Value("${io.lastwill.eventscan.backend.get-connection-timeout}") int getConnectionTimeout,
-            @Value("${io.lastwill.eventscan.backend.connection-timeout}") int connectionTimeout,
-            @Value("${io.lastwill.eventscan.backend.socket-timeout}") int socketTimeout) {
-
-        System.setProperty("http.conn-manager.timeout", "1000");
-        CloseableHttpAsyncClient asyncClient = HttpAsyncClientBuilder
-                .create()
-                .useSystemProperties()
-                .setMaxConnPerRoute(50)
-                .setMaxConnTotal(100)
-                .setDefaultRequestConfig(
-                        RequestConfig.custom()
-                                .setConnectTimeout(connectionTimeout)
-                                .setSocketTimeout(socketTimeout)
-                                .setConnectionRequestTimeout(getConnectionTimeout)
-                                .build()
-                )
-                .setDefaultIOReactorConfig(
-                        IOReactorConfig.custom()
-                                .setConnectTimeout(connectionTimeout)
-                                .setSoTimeout(socketTimeout)
-                                .build()
-                )
-                .build();
-        asyncClient.start();
-        return asyncClient;
-    }
-
     @ConditionalOnProperty("io.lastwill.eventscan.backend-mq.url")
     @Bean
     public ConnectionFactory connectionFactory(@Value("${io.lastwill.eventscan.backend-mq.url}") URI uri) throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException {
@@ -106,8 +79,15 @@ public class Application {
         return new ObjectMapper();
     }
 
-    @Bean
-    public Web3j web3j(@Value("${io.lastwill.eventscan.web3-url}") String web3Url) {
+    @Bean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
+    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ethereum")
+    public Web3j web3jEthereum(@Value("${io.lastwill.eventscan.web3-url.ethereum}") String web3Url) {
+        return Web3j.build(new HttpService(web3Url));
+    }
+
+    @Bean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
+    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ropsten")
+    public Web3j web3jRopsten(@Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url) {
         return Web3j.build(new HttpService(web3Url));
     }
 }

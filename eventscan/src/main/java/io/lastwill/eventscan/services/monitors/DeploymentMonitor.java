@@ -54,7 +54,7 @@ public class DeploymentMonitor {
             return;
         }
 
-        List<Contract> contracts = contractRepository.findByTxHashes(deployHashes.keySet());
+        List<Contract> contracts = contractRepository.findByTxHashes(deployHashes.keySet(), event.getNetworkType());
         for (Contract contract : contracts) {
             final Transaction transaction = deployHashes.get(contract.getTxHash().toLowerCase());
             transactionProvider.getTransactionReceiptAsync(event.getNetworkType(), contract.getTxHash())

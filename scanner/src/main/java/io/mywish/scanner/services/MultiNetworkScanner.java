@@ -66,7 +66,7 @@ public class MultiNetworkScanner {
 
     @PreDestroy
     private void close() {
-        scanners.forEach(scanner -> {
+        scanners.parallelStream().forEach(scanner -> {
             try {
                 scanner.close();
             }

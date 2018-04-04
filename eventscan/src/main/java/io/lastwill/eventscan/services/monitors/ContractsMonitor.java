@@ -55,19 +55,18 @@ public class ContractsMonitor {
 
     @EventListener
     public void onNewBlock(final NewBlockEvent event) {
-        if (!proxyByNetwork.containsKey(event.getNetworkType())) {
-            return;
-        }
-
-        final String proxyAddress = proxyByNetwork.get(event.getNetworkType());
         Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;
         }
 
-        if (addresses.contains(proxyAddress)) {
-            final List<Transaction> transactions = event.getTransactionsByAddress().get(proxyAddress);
-            grabProxyEvents(event.getNetworkType(), transactions, event.getBlock());
+        if (proxyByNetwork.containsKey(event.getNetworkType())) {
+            final String proxyAddress = proxyByNetwork.get(event.getNetworkType());
+
+            if (addresses.contains(proxyAddress)) {
+                final List<Transaction> transactions = event.getTransactionsByAddress().get(proxyAddress);
+                grabProxyEvents(event.getNetworkType(), transactions, event.getBlock());
+            }
         }
 
         List<Contract> contracts = contractRepository.findByAddressesList(addresses, event.getNetworkType());

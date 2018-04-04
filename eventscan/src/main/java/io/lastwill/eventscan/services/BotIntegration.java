@@ -35,6 +35,8 @@ public class BotIntegration {
     private final Map<NetworkType, String> networkName = new HashMap<NetworkType, String>() {{
         put(NetworkType.ETHEREUM_MAINNET, "Eth");
         put(NetworkType.ETHEREUM_ROPSTEN, "tEth");
+        put(NetworkType.RSK_MAINNET, "RSK");
+        put(NetworkType.RSK_TESTNET, "tRSK");
     }};
 
     private final String defaultNetwork = "unknown";
@@ -42,6 +44,8 @@ public class BotIntegration {
     private final Map<NetworkType, String> etherscanHosts = new HashMap<NetworkType, String>() {{
         put(NetworkType.ETHEREUM_MAINNET, "etherscan.io");
         put(NetworkType.ETHEREUM_ROPSTEN, "ropsten.etherscan.io");
+        put(NetworkType.RSK_MAINNET, "explorer.rsk.co");
+        put(NetworkType.RSK_TESTNET, "explorer.testnet.rsk.co");
     }};
 
     private final String defaultEtherscan = "etherscan.io";

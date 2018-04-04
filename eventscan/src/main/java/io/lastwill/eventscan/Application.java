@@ -90,4 +90,16 @@ public class Application {
     public Web3j web3jRopsten(@Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url) {
         return Web3j.build(new HttpService(web3Url));
     }
+
+    @Bean(name = NetworkType.RSK_MAINNET_VALUE)
+    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-mainnet")
+    public Web3j web3jRsk(@Value("${io.lastwill.eventscan.web3-url.rsk-mainnet}") String web3Url) {
+        return Web3j.build(new HttpService(web3Url));
+    }
+
+    @Bean(name = NetworkType.RSK_TESTNET_VALUE)
+    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-testnet")
+    public Web3j web3jRskTest(@Value("${io.lastwill.eventscan.web3-url.rsk-testnet}") String web3Url) {
+        return Web3j.build(new HttpService(web3Url));
+    }
 }

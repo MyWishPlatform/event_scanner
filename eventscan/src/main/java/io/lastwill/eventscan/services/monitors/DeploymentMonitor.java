@@ -74,6 +74,10 @@ public class DeploymentMonitor {
                                 transaction,
                                 event.getBlock(), TransactionHelper.isSuccess(transactionReceipt))
                         );
+                    })
+                    .exceptionally(throwable -> {
+                        log.warn("ContractCreatedEvent handling failed.", throwable);
+                        return null;
                     });
         }
     }

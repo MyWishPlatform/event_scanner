@@ -30,7 +30,7 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
             "from ProductCrowdsale c " +
             "where c.crowdsaleContract.address = :address " +
             "   and c.tokenContract.address = :tokenAddress" +
-            "   and c.network.type = :networkType")
+            "   and c.network.type = :network")
     List<ProductCrowdsale> findCrowdsaleByAddressAndTokenAddress(
             @Param("address") String contractAddress,
             @Param("tokenAddress") String tokenAddress,

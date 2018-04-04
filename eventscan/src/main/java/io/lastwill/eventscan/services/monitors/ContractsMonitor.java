@@ -120,6 +120,10 @@ public class ContractsMonitor {
                             );
                         }
 
+                    })
+                    .exceptionally(throwable -> {
+                        log.error("ContractEventsEvent handling cause exception.", throwable);
+                        return null;
                     });
         }
     }
@@ -147,6 +151,10 @@ public class ContractsMonitor {
                                     transactionReceipt,
                                     block)
                     );
+                })
+                .exceptionally(throwable -> {
+                    log.error("ContractEventsEvent handling cause exception.", throwable);
+                    return null;
                 });
     }
 }

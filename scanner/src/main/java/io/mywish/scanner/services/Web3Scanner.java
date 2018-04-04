@@ -59,26 +59,26 @@ public class Web3Scanner {
 
                     long interval = System.currentTimeMillis() - lastBlockIncrementTimestamp;
                     if (interval > WARN_INTERVAL) {
-                        log.warn("There is no block from {} ms!", interval);
+                        log.warn("{}: there is no block from {} ms!", networkType, interval);
                     }
                     else if (interval > INFO_INTERVAL) {
-                        log.info("There is no block from {} ms.", interval);
+                        log.info("{}: there is no block from {} ms.", networkType, interval);
                     }
 
                     log.debug("All blocks processed, wait new one.");
                     Thread.sleep(pollingInterval);
                 }
                 catch (InterruptedException e) {
-                    log.warn("Polling cycle was interrupted.", e);
+                    log.warn("{}: polling cycle was interrupted.", networkType, e);
                     break;
                 }
                 catch (Throwable e) {
-                    log.error("Exception handled in polling cycle. Continue.", e);
+                    log.error("{}: exception handled in polling cycle. Continue.", networkType, e);
                     try {
                         Thread.sleep(pollingInterval);
                     }
                     catch (InterruptedException e1) {
-                        log.warn("Polling cycle was interrupted after error.", e1);
+                        log.warn("{}: polling cycle was interrupted after error.", networkType, e1);
                         break;
                     }
                 }
@@ -107,17 +107,17 @@ public class Web3Scanner {
             if (nextBlockNo == null) {
                 nextBlockNo = lastBlockNo - commitmentChainLength;
             }
-            log.info("Web3 syncing status: {}, latest block is {} but next is {}.", syncing ? "syncing" : "synced", lastBlockNo, nextBlockNo);
+            log.info("Web3 {} syncing status: {}, latest block is {} but next is {}.", networkType, syncing ? "syncing" : "synced", lastBlockNo, nextBlockNo);
 //            blockFilter = web3j.ethNewBlockFilter().send();
 //            log.info("Block filter was created with id {}.", blockFilter.getFilterId());
         }
         catch (IOException e) {
-            log.error("Web3 sending failed.");
+            log.error("Web3 {} sending failed.", networkType);
             throw e;
         }
 
         pollerThread.start();
-        log.info("Subscribed to web3 new block event.");
+        log.info("Subscribed to web3 {} new block event.", networkType);
     }
 
     public void close() {
@@ -125,11 +125,11 @@ public class Web3Scanner {
             lastBlockPersister.close();
         }
         catch (Exception e) {
-            log.warn("Persister closing failed.", e);
+            log.warn("Persister for {} closing failed.", networkType, e);
         }
         isTerminated.set(true);
         try {
-            log.info("Wait {} ms till cycle is completed.", pollingInterval + 1);
+            log.info("Wait {} ms till cycle is completed for {}.", pollingInterval + 1, networkType);
             Thread.sleep(pollingInterval + 1);
             pollerThread.interrupt();
         }

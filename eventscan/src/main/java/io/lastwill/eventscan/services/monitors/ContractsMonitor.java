@@ -70,7 +70,7 @@ public class ContractsMonitor {
             grabProxyEvents(event.getNetworkType(), transactions, event.getBlock());
         }
 
-        List<Contract> contracts = contractRepository.findByAddressesList(addresses);
+        List<Contract> contracts = contractRepository.findByAddressesList(addresses, event.getNetworkType());
         for (final Contract contract : contracts) {
             if (contract.getAddress() == null || !addresses.contains(contract.getAddress().toLowerCase())) {
                 continue;
@@ -97,8 +97,7 @@ public class ContractsMonitor {
                             logsByAddress.add(log.getAddress(), log);
                         }
 
-                        contractRepository.findByAddressesList(logsByAddress.keySet());
-                        for (Contract contract : contractRepository.findByAddressesList(logsByAddress.keySet())) {
+                        for (Contract contract : contractRepository.findByAddressesList(logsByAddress.keySet(), networkType)) {
                             List<ContractEvent> eventValues;
                             try {
                                 eventValues = eventParser.parseEvents(transactionReceipt);

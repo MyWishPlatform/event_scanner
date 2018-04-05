@@ -130,7 +130,7 @@ public class ChatPersister {
             fileChannel.position(0L);
             int length = 0;
             for (long chatId: chats) {
-                ByteBuffer buf =  ByteBuffer.wrap(Long.toString(chatId).getBytes());
+                ByteBuffer buf =  ByteBuffer.wrap((Long.toString(chatId) + "\n").getBytes());
                 fileChannel.write(buf);
                 length += buf.position();
             }

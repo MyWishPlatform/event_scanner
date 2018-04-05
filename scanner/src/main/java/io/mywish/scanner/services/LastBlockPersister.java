@@ -1,33 +1,36 @@
-package io.mywish.scanner;
+package io.mywish.scanner.services;
 
+import io.mywish.scanner.model.NetworkType;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Paths;
 
 @Slf4j
-@Component
 public class LastBlockPersister {
-    @Value("${etherscanner.start-block-file:last-block}")
-    private String startBlockFilePath;
-
-    @Value("${etherscanner.start-block:#{null}}")
+    private final NetworkType networkType;
+    private final String startBlockFileDir;
     private Long lastBlock;
 
     private FileOutputStream lastOutputStream;
 
-    @PostConstruct
-    protected void init() {
-        if (startBlockFilePath == null) {
-            log.warn("Start block file was not specified. Only im memory mode available.");
+    public LastBlockPersister(@NonNull NetworkType networkType, @NonNull String startBlockFileDir, Long lastBlock) {
+        this.networkType = networkType;
+        this.startBlockFileDir = startBlockFileDir;
+        this.lastBlock = lastBlock;
+    }
+
+    public void open() {
+        if (startBlockFileDir == null) {
+            log.warn("Start block dir was not specified. Only im memory mode available.");
             return;
         }
-        File file = new File(startBlockFilePath);
+        File file = Paths.get(startBlockFileDir, networkType.name()).toFile();
         if (lastBlock == null && file.exists() && file.canRead()) {
             try (FileReader fileReader = new FileReader(file)) {
                 BufferedReader reader = new BufferedReader(fileReader);
@@ -35,6 +38,18 @@ public class LastBlockPersister {
             }
             catch (Throwable e) {
                 log.warn("Impossible to read last block from {}.", file, e);
+            }
+        }
+
+        File dir = new File(startBlockFileDir);
+        if (!dir.exists()) {
+            try {
+                if (!dir.mkdirs()) {
+                    throw new Exception("Dir was not created.");
+                }
+            }
+            catch (Exception e) {
+                log.error("Impossible to create dir {} to store last block.", dir, e);
             }
         }
 
@@ -62,7 +77,6 @@ public class LastBlockPersister {
         }
     }
 
-    @PreDestroy
     public void close() {
         if (lastOutputStream != null) {
             try {

@@ -1,6 +1,7 @@
 package io.lastwill.eventscan.repositories;
 
 import io.lastwill.eventscan.model.AddressLock;
+import io.mywish.scanner.model.NetworkType;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -21,6 +22,6 @@ public interface AddressLockRepository extends CrudRepository<AddressLock, Integ
     @Modifying
     int updateLockedByToNull(@Param("address") String address, @Param("lockedBy") int lockedBy);
 
-    @Query("select c from AddressLock c where lower(c.address) in :addresses")
-    List<AddressLock> findByAddressesList(@Param("addresses") Collection<String> addresses);
+    @Query("select c from AddressLock c where c.network.type = :networkType and lower(c.address) in :addresses")
+    List<AddressLock> findByAddressesList(@Param("networkType") NetworkType networkType, @Param("addresses") Collection<String> addresses);
 }

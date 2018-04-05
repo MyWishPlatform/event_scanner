@@ -1,9 +1,10 @@
-package io.mywish.scanner;
+package io.mywish.scanner.services;
 
+import io.mywish.scanner.model.NetworkType;
+import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.model.NewTransactionEvent;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.web3j.protocol.Web3j;
@@ -11,43 +12,37 @@ import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.Response;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.EthBlock.Block;
-import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-@Component
-public class EtherScanner {
+public class Web3Scanner {
     public static final long INFO_INTERVAL = 60000;
     public static final long WARN_INTERVAL = 120000;
-    @Autowired
-    private Web3j web3j;
 
-    @Autowired
-    private EventPublisher eventPublisher;
+    @Getter
+    private final NetworkType networkType;
+    private final Web3j web3j;
+    private final EventPublisher eventPublisher;
+    private final LastBlockPersister lastBlockPersister;
 
-    @Autowired
-    private LastBlockPersister lastBlockPersister;
+    private final long pollingInterval;
+    private final int commitmentChainLength;
 
-    @Value("${etherscanner.polling-interval-ms:5000}")
-    private long pollingInterval;
-
-    @Value("${etherscanner.commit-chain-length:5}")
-    private int commitmentChainLength;
+    private final AtomicBoolean isTerminated = new AtomicBoolean(false);
 
     private Long lastBlockNo;
     private Long nextBlockNo;
     private long lastBlockIncrementTimestamp;
 
-
-    private Runnable poller = new Runnable() {
+    private final Runnable poller = new Runnable() {
         @Override
         public void run() {
-            while (true) {
+            while (!isTerminated.get()) {
                 try {
                     long start = System.currentTimeMillis();
                     lastBlockNo = web3j.ethBlockNumber().send().getBlockNumber().longValue();
@@ -64,26 +59,26 @@ public class EtherScanner {
 
                     long interval = System.currentTimeMillis() - lastBlockIncrementTimestamp;
                     if (interval > WARN_INTERVAL) {
-                        log.warn("There is no block from {} ms!", interval);
+                        log.warn("{}: there is no block from {} ms!", networkType, interval);
                     }
                     else if (interval > INFO_INTERVAL) {
-                        log.info("There is no block from {} ms.", interval);
+                        log.info("{}: there is no block from {} ms.", networkType, interval);
                     }
 
                     log.debug("All blocks processed, wait new one.");
                     Thread.sleep(pollingInterval);
                 }
                 catch (InterruptedException e) {
-                    log.warn("Polling cycle was interrupted.", e);
+                    log.warn("{}: polling cycle was interrupted.", networkType, e);
                     break;
                 }
                 catch (Throwable e) {
-                    log.error("Exception handled in polling cycle. Continue.", e);
+                    log.error("{}: exception handled in polling cycle. Continue.", networkType, e);
                     try {
                         Thread.sleep(pollingInterval);
                     }
                     catch (InterruptedException e1) {
-                        log.warn("Polling cycle was interrupted after error.", e1);
+                        log.warn("{}: polling cycle was interrupted after error.", networkType, e1);
                         break;
                     }
                 }
@@ -91,8 +86,19 @@ public class EtherScanner {
         }
     };
 
-    @PostConstruct
-    protected void init() throws IOException {
+    private final Thread pollerThread = new Thread(poller);
+
+    public Web3Scanner(NetworkType networkType, Web3j web3j, EventPublisher eventPublisher, LastBlockPersister lastBlockPersister, long pollingInterval, int commitmentChainLength) {
+        this.networkType = networkType;
+        this.web3j = web3j;
+        this.eventPublisher = eventPublisher;
+        this.lastBlockPersister = lastBlockPersister;
+        this.pollingInterval = pollingInterval;
+        this.commitmentChainLength = commitmentChainLength;
+    }
+
+    public void open() throws IOException {
+        lastBlockPersister.open();
         nextBlockNo = lastBlockPersister.getLastBlock();
         try {
             boolean syncing = web3j.ethSyncing().send().isSyncing();
@@ -101,17 +107,35 @@ public class EtherScanner {
             if (nextBlockNo == null) {
                 nextBlockNo = lastBlockNo - commitmentChainLength;
             }
-            log.info("Web3 syncing status: {}, latest block is {} but next is {}.", syncing ? "syncing" : "synced", lastBlockNo, nextBlockNo);
+            log.info("Web3 {} syncing status: {}, latest block is {} but next is {}.", networkType, syncing ? "syncing" : "synced", lastBlockNo, nextBlockNo);
 //            blockFilter = web3j.ethNewBlockFilter().send();
 //            log.info("Block filter was created with id {}.", blockFilter.getFilterId());
         }
         catch (IOException e) {
-            log.error("Web3 sending failed.");
+            log.error("Web3 {} sending failed.", networkType);
             throw e;
         }
 
-        new Thread(poller).start();
-        log.info("Subscribed to web3 new block event.");
+        pollerThread.start();
+        log.info("Subscribed to web3 {} new block event.", networkType);
+    }
+
+    public void close() {
+        try {
+            lastBlockPersister.close();
+        }
+        catch (Exception e) {
+            log.warn("Persister for {} closing failed.", networkType, e);
+        }
+        isTerminated.set(true);
+        try {
+            log.info("Wait {} ms till cycle is completed for {}.", pollingInterval + 1, networkType);
+            Thread.sleep(pollingInterval + 1);
+            pollerThread.interrupt();
+        }
+        catch (InterruptedException e) {
+            log.warn("Waiting till thread is finished was terminated.", e);
+        }
     }
 
     private void loadNextBlock() throws Exception {
@@ -148,7 +172,7 @@ public class EtherScanner {
         processBlock(result);
     }
 
-    private void processBlock(EthBlock ethBlock) throws Exception {
+    private void processBlock(EthBlock ethBlock) {
         Block block = ethBlock.getBlock();
         log.debug("New bock received {} ({})", block.getNumber(), block.getHash());
 
@@ -188,9 +212,9 @@ public class EtherScanner {
                         }
 
                     }
-                    eventPublisher.publish(new NewTransactionEvent(block, transaction));
+                    eventPublisher.publish(new NewTransactionEvent(networkType, block, transaction));
                 });
 
-        eventPublisher.publish(new NewBlockEvent(block, addressTransactions));
+        eventPublisher.publish(new NewBlockEvent(networkType, block, addressTransactions));
     }
 }

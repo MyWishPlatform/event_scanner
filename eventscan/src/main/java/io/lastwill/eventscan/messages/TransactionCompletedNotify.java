@@ -4,12 +4,12 @@ import lombok.Getter;
 
 @Getter
 public class TransactionCompletedNotify extends BaseNotify {
-    private final int addressId;
+    private final Integer addressId;
     private final String address;
-    private final int lockedBy;
+    private final Integer lockedBy;
     private final boolean transactionStatus;
 
-    public TransactionCompletedNotify(String transactionHash, int addressId, String address, int lockedBy, boolean transactionStatus) {
+    public TransactionCompletedNotify(String transactionHash, Integer addressId, String address, Integer lockedBy, boolean transactionStatus) {
         super(PaymentStatus.COMMITTED, transactionHash);
         this.addressId = addressId;
         this.address = address;

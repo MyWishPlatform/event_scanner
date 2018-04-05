@@ -3,6 +3,7 @@ package io.lastwill.eventscan.repositories;
 import io.lastwill.eventscan.model.Product;
 import io.lastwill.eventscan.model.ProductCrowdsale;
 import io.lastwill.eventscan.model.ProductStatistics;
+import io.mywish.scanner.model.NetworkType;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -23,8 +24,16 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
     List<Product> findByAddressesList(@Param("addresses") Collection<String> addresses);
 
     @Query(name = "Product.productStatistics")
-    List<ProductStatistics> getProductStatistics();
+    List<ProductStatistics> getProductStatistics(int networkId);
 
-    @Query("select c from ProductCrowdsale c where c.crowdsaleContract.address = :address and c.tokenContract.address = :tokenAddress")
-    List<ProductCrowdsale> findCrowdsaleByAddressAndTokenAddress(@Param("address") String contractAdress, @Param("tokenAddress") String tokenAddress);
+    @Query("select c " +
+            "from ProductCrowdsale c " +
+            "where c.crowdsaleContract.address = :address " +
+            "   and c.tokenContract.address = :tokenAddress" +
+            "   and c.network.type = :network")
+    List<ProductCrowdsale> findCrowdsaleByAddressAndTokenAddress(
+            @Param("address") String contractAddress,
+            @Param("tokenAddress") String tokenAddress,
+            @Param("network") NetworkType networkType
+    );
 }

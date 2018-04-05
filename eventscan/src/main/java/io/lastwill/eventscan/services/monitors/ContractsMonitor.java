@@ -1,18 +1,14 @@
 package io.lastwill.eventscan.services.monitors;
 
-import io.lastwill.eventscan.events.ContractCreatedEvent;
 import io.lastwill.eventscan.events.ContractEventsEvent;
 import io.lastwill.eventscan.events.contract.ContractEvent;
-import io.lastwill.eventscan.helpers.TransactionHelper;
 import io.lastwill.eventscan.model.Contract;
-import io.lastwill.eventscan.model.EventValue;
-import io.lastwill.eventscan.model.Product;
 import io.lastwill.eventscan.repositories.ContractRepository;
-import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
-import io.mywish.scanner.EventPublisher;
-import io.mywish.scanner.NewBlockEvent;
+import io.mywish.scanner.model.NetworkType;
+import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,18 +40,26 @@ public class ContractsMonitor {
     @Autowired
     private EventParser eventParser;
 
-    @Value("${io.lastwill.eventscan.contract.proxy-address}")
-    private String proxyAddress;
+    @Value("${io.lastwill.eventscan.contract.proxy-address.ethereum}")
+    private String proxyAddressEthereum;
+    @Value("${io.lastwill.eventscan.contract.proxy-address.ropsten}")
+    private String proxyAddressRopsten;
+
+    private final HashMap<NetworkType, String> proxyByNetwork = new HashMap<>();
 
     @PostConstruct
     protected void init() {
-        if (proxyAddress != null) {
-            proxyAddress = proxyAddress.toLowerCase();
-        }
+        proxyByNetwork.put(NetworkType.ETHEREUM_MAINNET, proxyAddressEthereum.toLowerCase());
+        proxyByNetwork.put(NetworkType.ETHEREUM_ROPSTEN, proxyAddressRopsten.toLowerCase());
     }
 
     @EventListener
     public void onNewBlock(final NewBlockEvent event) {
+        if (!proxyByNetwork.containsKey(event.getNetworkType())) {
+            return;
+        }
+
+        final String proxyAddress = proxyByNetwork.get(event.getNetworkType());
         Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;
@@ -63,10 +67,10 @@ public class ContractsMonitor {
 
         if (addresses.contains(proxyAddress)) {
             final List<Transaction> transactions = event.getTransactionsByAddress().get(proxyAddress);
-            grabProxyEvents(transactions, event.getBlock());
+            grabProxyEvents(event.getNetworkType(), transactions, event.getBlock());
         }
 
-        List<Contract> contracts = contractRepository.findByAddressesList(addresses);
+        List<Contract> contracts = contractRepository.findByAddressesList(addresses, event.getNetworkType());
         for (final Contract contract : contracts) {
             if (contract.getAddress() == null || !addresses.contains(contract.getAddress().toLowerCase())) {
                 continue;
@@ -79,22 +83,21 @@ public class ContractsMonitor {
                     continue;
                 }
 
-                grabContractEvents(contract, transaction, event.getBlock());
+                grabContractEvents(event.getNetworkType(), contract, transaction, event.getBlock());
             }
         }
     }
 
-    private void grabProxyEvents(final List<Transaction> transactions, final EthBlock.Block block) {
+    private void grabProxyEvents(final NetworkType networkType, final List<Transaction> transactions, final EthBlock.Block block) {
         for (Transaction transaction : transactions) {
-            transactionProvider.getTransactionReceiptAsync(transaction.getHash())
+            transactionProvider.getTransactionReceiptAsync(networkType, transaction.getHash())
                     .thenAccept(transactionReceipt -> {
                         MultiValueMap<String, Log> logsByAddress = CollectionUtils.toMultiValueMap(new HashMap<>());
                         for (Log log : transactionReceipt.getLogs()) {
                             logsByAddress.add(log.getAddress(), log);
                         }
 
-                        contractRepository.findByAddressesList(logsByAddress.keySet());
-                        for (Contract contract : contractRepository.findByAddressesList(logsByAddress.keySet())) {
+                        for (Contract contract : contractRepository.findByAddressesList(logsByAddress.keySet(), networkType)) {
                             List<ContractEvent> eventValues;
                             try {
                                 eventValues = eventParser.parseEvents(transactionReceipt);
@@ -108,21 +111,25 @@ public class ContractsMonitor {
                             }
                             eventPublisher.publish(
                                     new ContractEventsEvent(
+                                            networkType,
                                             contract,
                                             eventValues,
                                             transaction,
                                             transactionReceipt,
-                                            block
-                                    )
+                                            block)
                             );
                         }
 
+                    })
+                    .exceptionally(throwable -> {
+                        log.error("ContractEventsEvent handling cause exception.", throwable);
+                        return null;
                     });
         }
     }
 
-    private void grabContractEvents(final Contract contract, final Transaction transaction, final EthBlock.Block block) {
-        transactionProvider.getTransactionReceiptAsync(transaction.getHash())
+    private void grabContractEvents(final NetworkType networkType, final Contract contract, final Transaction transaction, final EthBlock.Block block) {
+        transactionProvider.getTransactionReceiptAsync(networkType, transaction.getHash())
                 .thenAccept(transactionReceipt -> {
                     List<ContractEvent> eventValues;
                     try {
@@ -137,13 +144,17 @@ public class ContractsMonitor {
                     }
                     eventPublisher.publish(
                             new ContractEventsEvent(
+                                    networkType,
                                     contract,
                                     eventValues,
                                     transaction,
                                     transactionReceipt,
-                                    block
-                            )
+                                    block)
                     );
+                })
+                .exceptionally(throwable -> {
+                    log.error("ContractEventsEvent handling cause exception.", throwable);
+                    return null;
                 });
     }
 }

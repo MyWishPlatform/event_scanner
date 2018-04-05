@@ -1,11 +1,10 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.TransactionUnlockedEvent;
-import io.lastwill.eventscan.helpers.TransactionHelper;
 import io.lastwill.eventscan.repositories.AddressLockRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
-import io.mywish.scanner.EventPublisher;
-import io.mywish.scanner.NewBlockEvent;
+import io.mywish.scanner.services.EventPublisher;
+import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -43,7 +42,7 @@ public class LockMonitor {
             return;
         }
 
-        addressLockRepository.findByAddressesList(addresses)
+        addressLockRepository.findByAddressesList(event.getNetworkType(), addresses)
                 .forEach(addressLock -> {
                     event.getTransactionsByAddress()
                             .get(addressLock.getAddress().toLowerCase())
@@ -52,14 +51,14 @@ public class LockMonitor {
                             .forEach(tx -> {
                                 TransactionReceipt receipt;
                                 try {
-                                    receipt = transactionProvider.getTransactionReceipt(tx.getHash());
+                                    receipt = transactionProvider.getTransactionReceipt(event.getNetworkType(), tx.getHash());
                                 }
                                 catch (IOException e) {
                                     log.warn("Getting transaction receipt failed.", e);
                                     return;
                                 }
 
-                                eventPublisher.publish(new TransactionUnlockedEvent(addressLock, tx, receipt));
+                                eventPublisher.publish(new TransactionUnlockedEvent(event.getNetworkType(), addressLock, tx, receipt));
                             });
                 });
     }

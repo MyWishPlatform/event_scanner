@@ -43,7 +43,7 @@ public class DeploymentMonitor {
                 .values()
                 .stream()
                 .flatMap(Collection::stream)
-                .filter(tr -> tr.getTo() == null)
+                .filter(TransactionHelper::isContractCreation)
                 .collect(Collectors.toMap(
                         tr -> tr.getHash().toLowerCase(),
                         Function.identity(),

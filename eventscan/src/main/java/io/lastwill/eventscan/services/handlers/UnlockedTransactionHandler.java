@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -17,6 +19,8 @@ public class UnlockedTransactionHandler {
     @Autowired
     private ExternalNotifier externalNotifier;
 
+    // TransactionCompletedNotify must be the first
+    @Order(Ordered.LOWEST_PRECEDENCE - 1)
     @EventListener
     public void handleTransactionUnlockedEvent(TransactionUnlockedEvent event) {
         externalNotifier.send(event.getNetworkType(),

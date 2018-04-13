@@ -4,6 +4,7 @@ import io.lastwill.eventscan.messages.ContractPaymentNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;
+import io.mywish.scanner.model.NetworkType;
 import io.mywish.scanner.model.NewBtcBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,9 @@ public class BtcPaymentEventHandler {
 
     @EventListener
     public void handleBtcBlock(NewBtcBlockEvent event) {
+        NetworkType targetNetwork = correctNetwork(event.getNetworkType());
         Set<String> addresses = event.getAddressTransactionOutputs().keySet();
-        productRepository.findLastWillByBtcAddresses(addresses, event.getNetworkType())
+        productRepository.findLastWillByBtcAddresses(addresses, targetNetwork)
                 .forEach(productLastWill -> {
                     event.getAddressTransactionOutputs().get(productLastWill.getBtcKey().getAddress())
                             .forEach(output -> {
@@ -32,7 +34,7 @@ public class BtcPaymentEventHandler {
                                     log.warn("Skip it. Output {} has not parent transaction.", output);
                                     return;
                                 }
-                                externalNotifier.send(event.getNetworkType(), new ContractPaymentNotify(
+                                externalNotifier.send(targetNetwork, new ContractPaymentNotify(
                                         BigInteger.valueOf(output.getValue().value),
                                         PaymentStatus.COMMITTED,
                                         output.getParentTransactionHash().toString(),
@@ -41,5 +43,16 @@ public class BtcPaymentEventHandler {
                             });
 
                 });
+    }
+
+    private NetworkType correctNetwork(NetworkType sourceNetwork) {
+        switch (sourceNetwork) {
+            case BTC_MAINNET:
+                return NetworkType.RSK_MAINNET;
+            case BTC_TESTNET_3:
+                return NetworkType.RSK_TESTNET;
+            default:
+                throw new UnsupportedOperationException("Support only BTC netowrks, " + sourceNetwork + " doesn't supported.");
+        }
     }
 }

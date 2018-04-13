@@ -4,7 +4,10 @@ import com.neemre.btcdcli4j.core.client.BtcdClient;
 import io.mywish.scanner.model.NetworkType;
 import io.mywish.scanner.model.NewBtcBlockEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.bitcoinj.core.*;
+import org.bitcoinj.core.Block;
+import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.ScriptException;
+import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.script.Script;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +16,6 @@ import org.springframework.util.MultiValueMap;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.xml.bind.DatatypeConverter;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,23 +25,21 @@ public class BtcScanner {
     public static final long INFO_INTERVAL = 600000;
     public static final long WARN_INTERVAL = 1200000;
 
+    private final NetworkType networkType;
+    private final LastBlockPersister lastBlockPersister;
+    private final NetworkParameters networkParameters;
+    private final AtomicBoolean isTerminated = new AtomicBoolean(false);
+
     @Autowired
     private BtcdClient client;
     @Autowired
     private EventPublisher eventPublisher;
     @Autowired
     private BtcBlockParser btcBlockParser;
-
-    private final NetworkType networkType;
-    private final LastBlockPersister lastBlockPersister;
-    private final NetworkParameters networkParameters;
-
     @Value("${etherscanner.bitcoin.polling-interval-ms}")
     private long pollingInterval;
     @Value("${etherscanner.bitcoin.commit-chain-length}")
     private int commitmentChainLength;
-
-    private final AtomicBoolean isTerminated = new AtomicBoolean(false);
 
     private Integer lastBlockNo;
     private Integer nextBlockNo;
@@ -166,7 +166,7 @@ public class BtcScanner {
 
         lastBlockPersister.saveLastBlock(nextBlockNo);
         long blockNo = nextBlockNo;
-        nextBlockNo ++;
+        nextBlockNo++;
 
         processBlock(block, blockNo);
     }
@@ -195,11 +195,9 @@ public class BtcScanner {
                             log.debug("Skip output with not appropriate script {}.", script);
                             return;
                         }
-                        String address = DatatypeConverter.printHexBinary(
-                                script
-                                        .getToAddress(networkParameters, true)
-                                        .getHash160()
-                        );
+                        String address = script
+                                .getToAddress(networkParameters, true)
+                                .toBase58();
                         addressTransactions.add(address, output);
                     });
 //                    eventPublisher.publish(new NewTransactionEvent(networkType, block, output));

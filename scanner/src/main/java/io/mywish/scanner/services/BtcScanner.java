@@ -4,10 +4,7 @@ import com.neemre.btcdcli4j.core.client.BtcdClient;
 import io.mywish.scanner.model.NetworkType;
 import io.mywish.scanner.model.NewBtcBlockEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.bitcoinj.core.Block;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.ScriptException;
-import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.*;
 import org.bitcoinj.script.Script;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,8 +20,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class BtcScanner {
-    public static final long INFO_INTERVAL = 60000;
-    public static final long WARN_INTERVAL = 120000;
+    public static final long INFO_INTERVAL = 600000;
+    public static final long WARN_INTERVAL = 1200000;
 
     @Autowired
     private BtcdClient client;
@@ -177,7 +174,7 @@ public class BtcScanner {
     private void processBlock(Block block, long blockNo) {
         log.debug("New bock received {} ({})", blockNo, block.getHash());
 
-        MultiValueMap<String, Transaction> addressTransactions = CollectionUtils.toMultiValueMap(new HashMap<>());
+        MultiValueMap<String, TransactionOutput> addressTransactions = CollectionUtils.toMultiValueMap(new HashMap<>());
 
         if (block.getTransactions() == null) {
             log.warn("{}: block {} has not transactions.", networkType, blockNo);
@@ -203,7 +200,7 @@ public class BtcScanner {
                                         .getToAddress(networkParameters, true)
                                         .getHash160()
                         );
-                        addressTransactions.add(address, transaction);
+                        addressTransactions.add(address, output);
                     });
 //                    eventPublisher.publish(new NewTransactionEvent(networkType, block, output));
                 });

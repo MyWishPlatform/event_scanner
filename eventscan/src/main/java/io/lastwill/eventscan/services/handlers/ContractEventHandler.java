@@ -19,9 +19,6 @@ import org.springframework.stereotype.Component;
 @ConditionalOnBean(ExternalNotifier.class)
 public class ContractEventHandler {
     @Autowired
-    private EventParser eventParser;
-
-    @Autowired
     private ExternalNotifier externalNotifier;
 
     @Autowired
@@ -53,12 +50,25 @@ public class ContractEventHandler {
                         new ContractTriggeredNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
             else if (contractEvent instanceof FundsAddedEvent) {
+                FundsAddedEvent fundsAddedEvent = (FundsAddedEvent) contractEvent;
                 balanceProvider.getBalanceAsync(
                         event.getNetworkType(),
                         event.getContract().getAddress(),
                         event.getBlock().getNumber().longValue()
                 )
                         .thenAccept(balance -> {
+                            try {
+                                externalNotifier.send(event.getNetworkType(), new FundsAddedNotify(
+                                        event.getContract().getId(),
+                                        event.getTransaction().getHash(),
+                                        fundsAddedEvent.getAmount(),
+                                        balance
+                                ));
+                            }
+                            catch (Exception e) {
+                                log.error("Sending notification failed.", e);
+                            }
+
                             log.debug("Update balance in db for contract {} to {}.", event.getContract().getId(), balance);
                             try {
                                 productRepository.updateBalance(event.getContract().getProduct().getId(), balance);
@@ -78,6 +88,10 @@ public class ContractEventHandler {
             else if (contractEvent instanceof FinalizedEvent || contractEvent instanceof MintFinishedEvent) {
                 externalNotifier.send(event.getNetworkType(),
                         new FinalizedNotify(event.getContract().getId(), event.getTransaction().getHash()));
+            }
+            else if (contractEvent instanceof NotifiedEvent) {
+                externalNotifier.send(event.getNetworkType(),
+                        new NotifiedNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
         }
 

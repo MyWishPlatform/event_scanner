@@ -15,6 +15,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 
@@ -26,6 +27,7 @@ import java.security.NoSuchAlgorithmException;
 @SpringBootApplication
 @Import({ScannerModule.class})
 @EntityScan(basePackageClasses = {Application.class, Jsr310JpaConverters.class})
+@EnableScheduling
 public class Application {
     public static void main(String[] args) {
         new SpringApplicationBuilder()

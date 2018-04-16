@@ -174,6 +174,10 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
     }
 
+    public void sendToAll(String message, boolean markdown) {
+        sendToAllChats(new SendMessage().setText(message).enableMarkdown(markdown));
+    }
+
     private void sendToAllChats(SendMessage sendMessage) {
         for (long chatId: chatPersister.getChats()) {
             try {

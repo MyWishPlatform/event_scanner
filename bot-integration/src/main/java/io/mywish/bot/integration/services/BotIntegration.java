@@ -4,6 +4,7 @@ import io.lastwill.eventscan.events.ContractCreatedEvent;
 import io.lastwill.eventscan.events.FGWBalanceChangedEvent;
 import io.lastwill.eventscan.events.ProductPaymentEvent;
 import io.lastwill.eventscan.events.UserPaymentEvent;
+import io.lastwill.eventscan.events.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.model.*;
 import io.mywish.bot.service.MyWishBot;
 import io.mywish.scanner.model.NetworkType;
@@ -15,6 +16,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,6 +108,18 @@ public class BotIntegration {
                 product.getId(),
                 toCurrency(event.getCurrency(), event.getAmount()),
                 txLink
+        );
+    }
+
+    @EventListener
+    public void onNetworkStuck(final NetworkStuckEvent event) {
+        final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        ZonedDateTime lastBlock = event.getLastTimestamp().atZone(ZoneId.of("Europe/Moscow"));
+        final String blockLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToBlock(event.getLastBlockNo());
+        bot.sendToAll(
+                "Network " + network + " *stuck!* Last block was at " + lastBlock + " [" + event.getLastBlockNo() + "](" + blockLink + ").",
+                true
         );
     }
 

@@ -155,6 +155,48 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
     }
 
+    public void onFGWBalanceChanged(String network, BigInteger delta, BigInteger balance, final String currency, String link, long blockNo, String blockLink) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": federation GW balance changed on ")
+                .append(toEth(delta))
+                .append(" ")
+                .append(currency)
+                .append(", now it is [")
+                .append(toEth(balance))
+                .append(" ")
+                .append(currency)
+                .append("](")
+                .append(link)
+                .append(") at block [")
+                .append(blockNo)
+                .append("](")
+                .append(blockLink)
+                .append(").")
+                .toString();
+
+        sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
+    }
+
+    public void onBtcPayment(String network, String productType, long productId, BigInteger value, final String currency, String link) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": funds arrived for contract ")
+                .append(productType)
+                .append(" (")
+                .append(productId)
+                .append("): [")
+                .append(toEth(value))
+                .append(" ")
+                .append(currency)
+                .append("](")
+                .append(link)
+                .append(").")
+                .toString();
+
+        sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
+    }
+
     private void sendToAllChats(SendMessage sendMessage) {
         for (long chatId: chatPersister.getChats()) {
             try {

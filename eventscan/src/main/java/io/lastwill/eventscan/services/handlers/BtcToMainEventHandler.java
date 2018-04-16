@@ -28,9 +28,9 @@ public class BtcToMainEventHandler {
     @Autowired
     private Btc2RskNetworkConverter btc2RskNetworkConverter;
 
-    @Value("${io.lastwill.eventscan.rsk.btc-main-testnet-address}")
+    @Value("${io.lastwill.eventscan.rsk.btc-federation-gatewat-testnet-address}")
     private String btcMainTestnetAddress;
-    @Value("${io.lastwill.eventscan.rsk.btc-main-mainnet-address}")
+    @Value("${io.lastwill.eventscan.rsk.btc-federation-gatewat-mainnet-address}")
     private String btcMainMainnetAddress;
 
     private final Map<NetworkType, String> mainAddresses = new HashMap<>();

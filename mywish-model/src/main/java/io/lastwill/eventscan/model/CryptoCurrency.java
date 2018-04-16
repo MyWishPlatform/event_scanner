@@ -4,4 +4,5 @@ public enum  CryptoCurrency {
     ETH,
     WISH,
     BTC,
+    RSK,
 }

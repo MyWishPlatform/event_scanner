@@ -9,19 +9,17 @@ import java.math.BigInteger;
 
 @ToString(callSuper = true)
 @Getter
-public class ContractPaymentNotify extends PaymentNotify {
-    private final int contractId;
+public class MainPaymentNotify extends PaymentNotify {
     private final int outputIndex;
 
-    public ContractPaymentNotify(BigInteger amount, PaymentStatus status, String txHash, int outputIndex, Product product) {
-        super(product.getUserId(), amount, status, txHash, CryptoCurrency.BTC, true);
+    public MainPaymentNotify(BigInteger amount, PaymentStatus status, String txHash, int outputIndex) {
+        super(0, amount, status, txHash, CryptoCurrency.BTC, true);
         this.outputIndex = outputIndex;
-        this.contractId = product.getId();
     }
 
     @Override
     public String getType() {
-        return "contractPayment";
+        return "mainPayment";
     }
 
 }

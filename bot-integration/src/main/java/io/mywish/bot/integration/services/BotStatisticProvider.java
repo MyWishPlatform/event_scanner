@@ -1,4 +1,4 @@
-package io.lastwill.eventscan.services;
+package io.mywish.bot.integration.services;
 
 import io.lastwill.eventscan.model.ProductStatistics;
 import io.lastwill.eventscan.model.UserStatistics;

@@ -26,6 +26,7 @@
         <module>joule</module>
         <module>mywish-model</module>
         <module>mywish-events</module>
+        <module>bot-integration</module>
     </modules>
 
     <properties>

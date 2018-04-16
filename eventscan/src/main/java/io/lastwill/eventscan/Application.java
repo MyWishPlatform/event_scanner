@@ -2,16 +2,11 @@ package io.lastwill.eventscan;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.ConnectionFactory;
-import io.mywish.bot.BotModule;
 import io.mywish.scanner.ScannerModule;
 import io.mywish.scanner.model.NetworkType;
-import okhttp3.*;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -23,14 +18,13 @@ import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
 @SpringBootApplication
-@Import({BotModule.class, ScannerModule.class})
+@Import({ScannerModule.class})
 @EntityScan(basePackageClasses = {Application.class, Jsr310JpaConverters.class})
 public class Application {
     public static void main(String[] args) {

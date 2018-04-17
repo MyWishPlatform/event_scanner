@@ -31,13 +31,6 @@
             <artifactId>scanner</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>mywish-bot</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>mywish-model</artifactId>
@@ -47,6 +40,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>mywish-events</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bot-integration</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <!--<dependency>-->

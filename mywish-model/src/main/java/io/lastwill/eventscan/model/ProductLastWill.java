@@ -20,6 +20,9 @@ public class ProductLastWill extends Product implements ProductCheckable {
     private ZonedDateTime lastCheck;
     @Column(name = "next_check")
     private ZonedDateTime nextCheck;
+    @ManyToOne
+    @JoinColumn(name = "btc_key_id")
+    private BtcKey btcKey;
 
     @Override
     public int getContractType() {

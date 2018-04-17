@@ -84,32 +84,21 @@ public class MyWishBot extends TelegramLongPollingBot {
         }
     }
 
-    public void onInvestment(final String sender, final BigInteger weiAmount) {
-        log.info("Investment received from {}, amount {}.", sender, weiAmount);
-        int last;
-        synchronized (investments) {
-            investments.add(weiAmount);
-            last = investments.size();
-        }
-
-        sendMessage(last, weiAmount);
-    }
-
-    public void onContract(String network, Integer productId, String productType, Integer id, BigInteger cost, final String address, String etherscanHost) {
+    public void onContract(String network, Integer productId, String productType, Integer id, String cost, final String address, String addressLink) {
         final String message = new StringBuilder()
                 .append(network)
-                .append(": new contract ")
+                .append(": new ")
                 .append(productType)
                 .append(" (")
                 .append(productId)
                 .append(", ")
                 .append(id)
                 .append(") was created for ")
-                .append(toEth(cost))
-                .append(" ETH, see on [etherscan](https://")
-                .append(etherscanHost)
-                .append("/address/")
+                .append(cost)
+                .append(", see on [")
                 .append(address)
+                .append("](")
+                .append(addressLink)
                 .append(").")
                 .toString();
 
@@ -117,42 +106,76 @@ public class MyWishBot extends TelegramLongPollingBot {
     }
 
 
-    public void onContractFailed(String network, Integer productId, String productType, Integer id, final String txHash, String etherscanHost) {
+    public void onContractFailed(String network, Integer productId, String productType, Integer id, final String txLink) {
         final String message = new StringBuilder()
                 .append(network)
-                .append(": *failed* contract creation ")
+                .append(": *failed* [contract creation ")
                 .append(productType)
                 .append(" (")
                 .append(productId)
                 .append(", ")
                 .append(id)
-                .append(")! See on [etherscan](https://")
-                .append(etherscanHost)
-                .append("/tx/")
-                .append(txHash)
+                .append(")!](")
+                .append(txLink)
                 .append(").")
                 .toString();
 
         sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
     }
 
-    public void onBalance(String network, Integer id, BigInteger cost, final String currency, String txHash, String etherscanHost) {
+    public void onBalance(String network, Integer id, String cost, final String txLink) {
         final String message = new StringBuilder()
                 .append(network)
                 .append(": payment received from user ")
                 .append(id)
-                .append(": [")
-                .append(toEth(cost))
-                .append(" ")
-                .append(currency)
+                .append(", [")
+                .append(cost)
                 .append("](https://")
-                .append(etherscanHost)
-                .append("/tx/")
-                .append(txHash)
+                .append(txLink)
                 .append(").")
                 .toString();
 
         sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
+    }
+
+    public void onFGWBalanceChanged(String network, String delta, String balance, String link, long blockNo, String blockLink) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": federation GW balance changed on ")
+                .append(delta)
+                .append(", now it is [")
+                .append(balance)
+                .append("](")
+                .append(link)
+                .append(") at block [")
+                .append(blockNo)
+                .append("](")
+                .append(blockLink)
+                .append(").")
+                .toString();
+
+        sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
+    }
+
+    public void onBtcPayment(String network, String productType, long productId, String value, final String link) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": funds arrived for contract ")
+                .append(productType)
+                .append(" (")
+                .append(productId)
+                .append("): [")
+                .append(value)
+                .append("](")
+                .append(link)
+                .append(").")
+                .toString();
+
+        sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
+    }
+
+    public void sendToAll(String message, boolean markdown) {
+        sendToAllChats(new SendMessage().setText(message).enableMarkdown(markdown));
     }
 
     private void sendToAllChats(SendMessage sendMessage) {
@@ -189,29 +212,5 @@ public class MyWishBot extends TelegramLongPollingBot {
         catch (TelegramApiException e) {
             log.error("Sending message '{}' to chat '{}' was failed.", message, chatId, e);
         }
-    }
-
-    private void sendMessage(int index, BigInteger weiAmount) {
-        String eth = toEth(weiAmount);
-        final String message = "New investment: " + eth + " ETH";
-        sendToAllChats(new SendMessage().setText(message));
-    }
-
-    private static String toEth(BigInteger weiAmount) {
-        BigInteger hundreds = weiAmount.divide(BigInteger.valueOf(10000000000000000L));
-        BigInteger[] parts = hundreds.divideAndRemainder(BigInteger.valueOf(100));
-        BigInteger eth = parts[0];
-        int rem = parts[1].intValue();
-        String sRem;
-        if (rem == 0) {
-            sRem = "";
-        }
-        else if (rem < 10) {
-            sRem = ".0" + rem;
-        }
-        else {
-            sRem = "." + rem;
-        }
-        return eth + sRem;
     }
 }

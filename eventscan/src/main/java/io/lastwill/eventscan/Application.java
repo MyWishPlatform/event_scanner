@@ -2,16 +2,11 @@ package io.lastwill.eventscan;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.ConnectionFactory;
-import io.mywish.bot.BotModule;
 import io.mywish.scanner.ScannerModule;
 import io.mywish.scanner.model.NetworkType;
-import okhttp3.*;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -20,18 +15,19 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
 @SpringBootApplication
-@Import({BotModule.class, ScannerModule.class})
+@Import({ScannerModule.class})
 @EntityScan(basePackageClasses = {Application.class, Jsr310JpaConverters.class})
+@EnableScheduling
 public class Application {
     public static void main(String[] args) {
         new SpringApplicationBuilder()
@@ -88,6 +84,18 @@ public class Application {
     @Bean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ropsten")
     public Web3j web3jRopsten(@Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url) {
+        return Web3j.build(new HttpService(web3Url));
+    }
+
+    @Bean(name = NetworkType.RSK_MAINNET_VALUE)
+    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-mainnet")
+    public Web3j web3jRsk(@Value("${io.lastwill.eventscan.web3-url.rsk-mainnet}") String web3Url) {
+        return Web3j.build(new HttpService(web3Url));
+    }
+
+    @Bean(name = NetworkType.RSK_TESTNET_VALUE)
+    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-testnet")
+    public Web3j web3jRskTest(@Value("${io.lastwill.eventscan.web3-url.rsk-testnet}") String web3Url) {
         return Web3j.build(new HttpService(web3Url));
     }
 }

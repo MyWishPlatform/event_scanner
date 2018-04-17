@@ -8,12 +8,12 @@ import java.util.Map;
 @Getter
 public class ProductStatistics {
     public final static Map<Integer, String> PRODUCT_TYPES = new HashMap<Integer, String>() {{
-        put(0, "MyWish Original");
-        put(1, "MyWish Wallet");
-        put(2, "MyWish Delayed Payment");
+        put(0, "LastWill");
+        put(1, "Wallet");
+        put(2, "Delayed Payment");
         put(3, "Pizza");
-        put(4, "MyWish ICO");
-        put(5, "MyWish Token");
+        put(4, "ICO");
+        put(5, "Token");
     }};
 
     private final Integer contractType;

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@ConditionalOnBean(ExternalNotifier.class)
 public class CreateContractHandler {
     @Autowired
     private ExternalNotifier externalNotifier;

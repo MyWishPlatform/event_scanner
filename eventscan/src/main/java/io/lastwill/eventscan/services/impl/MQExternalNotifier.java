@@ -6,23 +6,18 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import io.lastwill.eventscan.messages.*;
-import io.lastwill.eventscan.model.AddressLock;
-import io.lastwill.eventscan.model.Contract;
-import io.lastwill.eventscan.model.CryptoCurrency;
-import io.lastwill.eventscan.model.UserProfile;
+import io.lastwill.eventscan.messages.BaseNotify;
+import io.lastwill.eventscan.messages.Ping;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.mywish.scanner.model.NetworkType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -41,6 +36,14 @@ public class MQExternalNotifier implements ExternalNotifier {
     private String queueNameEthereum;
     @Value("${io.lastwill.eventscan.backend-mq.queue.ropsten}")
     private String queueNameRopsten;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.rsk}")
+    private String queueNameRsk;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.rsk-testnet}")
+    private String queueNameRskTest;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.federation-gateway.rsk}")
+    private String queueNameRskFgw;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.federation-gateway.rsk-testnet}")
+    private String queueNameRskTestFgw;
 
     private Map<NetworkType, String> queueByNetwork = new HashMap<>();
 
@@ -57,6 +60,12 @@ public class MQExternalNotifier implements ExternalNotifier {
     protected void init() throws IOException, TimeoutException {
         queueByNetwork.put(NetworkType.ETHEREUM_MAINNET, queueNameEthereum);
         queueByNetwork.put(NetworkType.ETHEREUM_ROPSTEN, queueNameRopsten);
+
+        queueByNetwork.put(NetworkType.RSK_MAINNET, queueNameRsk);
+        queueByNetwork.put(NetworkType.RSK_TESTNET, queueNameRskTest);
+
+        queueByNetwork.put(NetworkType.RSK_FEDERATION_MAINNET, queueNameRskFgw);
+        queueByNetwork.put(NetworkType.RSK_FEDERATION_TESTNET, queueNameRskTestFgw);
 
         connection = factory.newConnection();
         channel = connection.createChannel();

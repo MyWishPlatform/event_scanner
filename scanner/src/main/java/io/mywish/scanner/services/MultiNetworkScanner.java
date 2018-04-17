@@ -65,7 +65,8 @@ public class MultiNetworkScanner {
     }
 
     @PreDestroy
-    private void close() {
+    public void close() {
+        log.info("Close web3 scanners.");
         scanners.parallelStream().forEach(scanner -> {
             try {
                 scanner.close();

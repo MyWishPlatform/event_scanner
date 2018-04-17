@@ -1,6 +1,7 @@
 package io.lastwill.eventscan.services;
 
 import io.mywish.scanner.model.NetworkType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.web3j.protocol.Web3j;
@@ -10,10 +11,9 @@ import org.web3j.protocol.core.methods.response.EthGetBalance;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Component
 public class BalanceProvider {
     @Autowired
@@ -21,11 +21,15 @@ public class BalanceProvider {
 
     public CompletableFuture<BigInteger> getBalanceAsync(NetworkType networkType, String address, long blockNo) {
         Web3j web3j = web3Provider.get(networkType);
-        if (web3j == null) {
-            throw new UnsupportedOperationException(networkType + " network is not supported for getting balance.");
-        }
         return web3j.ethGetBalance(address, new DefaultBlockParameterNumber(blockNo))
                 .sendAsync()
                 .thenApply(EthGetBalance::getBalance);
+    }
+
+    public BigInteger getBalance(NetworkType networkType, String address, long blockNo) throws IOException {
+        return web3Provider.get(networkType)
+                .ethGetBalance(address, new DefaultBlockParameterNumber(blockNo))
+                .send()
+                .getBalance();
     }
 }

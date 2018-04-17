@@ -1,6 +1,7 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.FGWBalanceChangedEvent;
+import io.lastwill.eventscan.helpers.TransactionHelper;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.services.BalanceProvider;
 import io.lastwill.eventscan.services.Web3Provider;
@@ -96,10 +97,18 @@ public class RskPaymentMonitor {
         balanceProvider.getBalanceAsync(event.getNetworkType(), lookingAddress, event.getBlock().getNumber().longValue())
                 .thenAccept(newBalance -> {
                     final BigInteger delta = balance.subtract(newBalance);
-                    if (delta.equals(BigInteger.ZERO)) {
+                    if (delta.compareTo(BigInteger.ZERO) == 0) {
                         return;
                     }
-                    eventPublisher.publish(new FGWBalanceChangedEvent(event.getNetworkType(), lookingAddress, newBalance, delta, CryptoCurrency.RSK, event.getBlock().getNumber().longValue()));
+                    eventPublisher.publish(new FGWBalanceChangedEvent(
+                            event.getNetworkType(),
+                            lookingAddress,
+                            newBalance,
+                            delta,
+                            CryptoCurrency.RSK,
+                            event.getBlock().getNumber().longValue(),
+                            true
+                    ));
                 })
                 .exceptionally(throwable -> {
                     log.warn("Error on getting balance for FGW address {} in {}.", lookingAddress, event.getNetworkType(), throwable);

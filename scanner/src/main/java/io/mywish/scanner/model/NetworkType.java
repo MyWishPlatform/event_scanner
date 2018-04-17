@@ -5,6 +5,8 @@ public enum NetworkType {
     ETHEREUM_ROPSTEN,
     RSK_MAINNET,
     RSK_TESTNET,
+    RSK_FEDERATION_MAINNET,
+    RSK_FEDERATION_TESTNET,
     BTC_MAINNET,
     BTC_TESTNET_3,
     ;

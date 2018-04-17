@@ -17,13 +17,15 @@ public class FGWBalanceChangedEvent extends BaseEvent {
     private final BigInteger delta;
     private final CryptoCurrency currency;
     private final long blockNo;
+    private final boolean isSuccess;
 
-    public FGWBalanceChangedEvent(NetworkType networkType, String address, BigInteger actualBalance, BigInteger delta, CryptoCurrency currency, long blockNo) {
+    public FGWBalanceChangedEvent(NetworkType networkType, String address, BigInteger actualBalance, BigInteger delta, CryptoCurrency currency, long blockNo, boolean isSuccess) {
         super(networkType);
         this.address = address;
         this.actualBalance = actualBalance;
         this.delta = delta;
         this.currency = currency;
         this.blockNo = blockNo;
+        this.isSuccess = isSuccess;
     }
 }

@@ -40,6 +40,10 @@ public class MQExternalNotifier implements ExternalNotifier {
     private String queueNameRsk;
     @Value("${io.lastwill.eventscan.backend-mq.queue.rsk-testnet}")
     private String queueNameRskTest;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.federation-gateway.rsk}")
+    private String queueNameRskFgw;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.federation-gateway.rsk-testnet}")
+    private String queueNameRskTestFgw;
 
     private Map<NetworkType, String> queueByNetwork = new HashMap<>();
 
@@ -56,8 +60,12 @@ public class MQExternalNotifier implements ExternalNotifier {
     protected void init() throws IOException, TimeoutException {
         queueByNetwork.put(NetworkType.ETHEREUM_MAINNET, queueNameEthereum);
         queueByNetwork.put(NetworkType.ETHEREUM_ROPSTEN, queueNameRopsten);
+
         queueByNetwork.put(NetworkType.RSK_MAINNET, queueNameRsk);
         queueByNetwork.put(NetworkType.RSK_TESTNET, queueNameRskTest);
+
+        queueByNetwork.put(NetworkType.RSK_FEDERATION_MAINNET, queueNameRskFgw);
+        queueByNetwork.put(NetworkType.RSK_FEDERATION_TESTNET, queueNameRskTestFgw);
 
         connection = factory.newConnection();
         channel = connection.createChannel();

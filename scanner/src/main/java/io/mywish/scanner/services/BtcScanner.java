@@ -172,7 +172,7 @@ public class BtcScanner {
     }
 
     private void processBlock(Block block, long blockNo) {
-        log.debug("New bock received {} ({})", blockNo, block.getHash());
+        log.info("{}: new bock received {} ({})", networkType, blockNo, block.getHash());
 
         MultiValueMap<String, TransactionOutput> addressTransactions = CollectionUtils.toMultiValueMap(new HashMap<>());
 

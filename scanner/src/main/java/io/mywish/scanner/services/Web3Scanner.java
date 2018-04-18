@@ -174,7 +174,7 @@ public class Web3Scanner {
 
     private void processBlock(EthBlock ethBlock) {
         Block block = ethBlock.getBlock();
-        log.debug("New bock received {} ({})", block.getNumber(), block.getHash());
+        log.info("{}: new bock received {} ({})", networkType, block.getNumber(), block.getHash());
 
         MultiValueMap<String, Transaction> addressTransactions = CollectionUtils.toMultiValueMap(new HashMap<>());
 

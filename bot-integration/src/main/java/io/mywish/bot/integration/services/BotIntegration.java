@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@Component
-@ConditionalOnBean(MyWishBot.class)
 public class BotIntegration {
     @Autowired
     private MyWishBot bot;

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Slf4j
 @Component
+@ConditionalOnBean(TelegramBotsApi.class)
 public class MyWishBot extends TelegramLongPollingBot {
     @Autowired
     private TelegramBotsApi telegramBotsApi;

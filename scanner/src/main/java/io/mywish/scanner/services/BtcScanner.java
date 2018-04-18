@@ -30,8 +30,7 @@ public class BtcScanner {
     private final NetworkParameters networkParameters;
     private final AtomicBoolean isTerminated = new AtomicBoolean(false);
 
-    @Autowired
-    private BtcdClient client;
+    private final BtcdClient client;
     @Autowired
     private EventPublisher eventPublisher;
     @Autowired
@@ -44,6 +43,8 @@ public class BtcScanner {
     private Integer lastBlockNo;
     private Integer nextBlockNo;
     private long lastBlockIncrementTimestamp;
+
+    private final Object sync = new Object();
 
     private final Runnable poller = new Runnable() {
         @Override
@@ -72,7 +73,9 @@ public class BtcScanner {
                     }
 
                     log.debug("All blocks processed, wait new one.");
-                    Thread.sleep(pollingInterval);
+                    synchronized (sync) {
+                        sync.wait(pollingInterval);
+                    }
                 }
                 catch (InterruptedException e) {
                     log.warn("{}: polling cycle was interrupted.", networkType, e);
@@ -94,7 +97,8 @@ public class BtcScanner {
 
     private final Thread pollerThread = new Thread(poller);
 
-    public BtcScanner(NetworkType networkType, LastBlockPersister lastBlockPersister, NetworkParameters networkParameters) {
+    public BtcScanner(BtcdClient client, NetworkType networkType, LastBlockPersister lastBlockPersister, NetworkParameters networkParameters) {
+        this.client = client;
         this.networkType = networkType;
         this.lastBlockPersister = lastBlockPersister;
         this.networkParameters = networkParameters;
@@ -133,13 +137,9 @@ public class BtcScanner {
             log.warn("Persister for {} closing failed.", networkType, e);
         }
         isTerminated.set(true);
-        try {
-            log.info("Wait {} ms till cycle is completed for {}.", pollingInterval + 1, networkType);
-            Thread.sleep(pollingInterval + 1);
-            pollerThread.interrupt();
-        }
-        catch (InterruptedException e) {
-            log.warn("Waiting till thread is finished was terminated.", e);
+        log.info("Wait {} ms till cycle is completed for {}.", pollingInterval + 1, networkType);
+        synchronized (sync) {
+            sync.notifyAll();
         }
     }
 
@@ -172,7 +172,7 @@ public class BtcScanner {
     }
 
     private void processBlock(Block block, long blockNo) {
-        log.debug("New bock received {} ({})", blockNo, block.getHash());
+        log.info("{}: new bock received {} ({})", networkType, blockNo, block.getHash());
 
         MultiValueMap<String, TransactionOutput> addressTransactions = CollectionUtils.toMultiValueMap(new HashMap<>());
 

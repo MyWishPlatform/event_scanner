@@ -30,8 +30,7 @@ public class BtcScanner {
     private final NetworkParameters networkParameters;
     private final AtomicBoolean isTerminated = new AtomicBoolean(false);
 
-    @Autowired
-    private BtcdClient client;
+    private final BtcdClient client;
     @Autowired
     private EventPublisher eventPublisher;
     @Autowired
@@ -94,7 +93,8 @@ public class BtcScanner {
 
     private final Thread pollerThread = new Thread(poller);
 
-    public BtcScanner(NetworkType networkType, LastBlockPersister lastBlockPersister, NetworkParameters networkParameters) {
+    public BtcScanner(BtcdClient client, NetworkType networkType, LastBlockPersister lastBlockPersister, NetworkParameters networkParameters) {
+        this.client = client;
         this.networkType = networkType;
         this.lastBlockPersister = lastBlockPersister;
         this.networkParameters = networkParameters;

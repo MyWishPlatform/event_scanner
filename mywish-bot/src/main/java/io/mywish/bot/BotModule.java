@@ -1,6 +1,7 @@
 package io.mywish.bot;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.*;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
@@ -13,6 +14,7 @@ public class BotModule {
         ApiContextInitializer.init();
     }
 
+    @ConditionalOnProperty(name = "io.mywish.is-ros-com-nadzor", havingValue = "false", matchIfMissing = true)
     @Bean
     public TelegramBotsApi telegramBotsApi() {
         return new TelegramBotsApi();

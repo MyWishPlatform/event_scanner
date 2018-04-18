@@ -8,11 +8,12 @@ import io.mywish.scanner.model.NetworkType;
 import io.mywish.scanner.services.BtcScanner;
 import io.mywish.scanner.services.LastBlockPersister;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.bitcoinj.core.Context;
+import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.TestNet3Params;
-import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 @Configuration
 @ComponentScan
@@ -31,12 +31,36 @@ public class ScannerModule {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
+    @ConditionalOnProperty("etherscanner.bitcoin.rpc-url.mainnet")
     @Bean
     public BtcdClient btcdClient(
             final CloseableHttpClient closeableHttpClient,
-            final @Value("${etherscanner.bitcoin.rpc-url}") URI rpc
-    ) throws BitcoindException, CommunicationException, URISyntaxException {
-//        URI rpc = new URI("http://bitcoin:btcpwd@127.0.0.1:18332");
+            final @Value("${etherscanner.bitcoin.rpc-url.mainnet}") URI rpc
+    ) throws BitcoindException, CommunicationException {
+        String user = null, password = null;
+        if (rpc.getUserInfo() != null) {
+            String[] credentials = rpc.getUserInfo().split(":");
+            if (credentials.length > 1) {
+                user = credentials[0];
+                password = credentials[1];
+            }
+        }
+        return new BtcdClientImpl(
+                closeableHttpClient,
+                rpc.getScheme(),
+                rpc.getHost(),
+                rpc.getPort(),
+                user,
+                password
+        );
+    }
+
+    @ConditionalOnProperty("etherscanner.bitcoin.rpc-url.testnet")
+    @Bean
+    public BtcdClient btcdClientTestnet(
+            final CloseableHttpClient closeableHttpClient,
+            final @Value("${etherscanner.bitcoin.rpc-url.testnet}") URI rpc
+    ) throws BitcoindException, CommunicationException {
         String user = null, password = null;
         if (rpc.getUserInfo() != null) {
             String[] credentials = rpc.getUserInfo().split(":");
@@ -56,32 +80,46 @@ public class ScannerModule {
     }
 
     @Bean
-    public TestNet3Params networkParameters() {
+    public TestNet3Params testNet3Params() {
         return new TestNet3Params();
     }
 
     @Bean
-    public LastBlockPersister btcLastBlockPersisterTestnet(@Value("${etherscanner.start-block-dir}") String dir, @Value("${etherscanner.bitcoin.last-block:#{null}}") Long lastBlock) {
+    public MainNetParams mainNetParams() {
+        return new MainNetParams();
+    }
+
+    @Bean
+    public LastBlockPersister btcLastBlockPersisterTestnet(
+            @Value("${etherscanner.start-block-dir}") String dir,
+            @Value("${etherscanner.bitcoin.last-block.testnet:#{null}}") Long lastBlock) {
         return new LastBlockPersister(NetworkType.BTC_TESTNET_3, dir, lastBlock);
     }
 
     @Bean
-    public BtcScanner btcScanner(
-            @Qualifier("btcLastBlockPersisterTestnet") LastBlockPersister lastBlockPersister,
-            TestNet3Params testNet3Params
-    ) {
-        // not explicit dependant
-        Context.getOrCreate(testNet3Params);
-        return new BtcScanner(NetworkType.BTC_TESTNET_3, lastBlockPersister, testNet3Params);
+    public LastBlockPersister btcLastBlockPersister(
+            @Value("${etherscanner.start-block-dir}") String dir,
+            @Value("${etherscanner.bitcoin.last-block.mainnet:#{null}}") Long lastBlock) {
+        return new LastBlockPersister(NetworkType.BTC_MAINNET, dir, lastBlock);
     }
 
-//    @Bean
-//    public BlockChain blockChain(NetworkParameters networkParameters) throws BlockStoreException {
-//        return new BlockChain(networkParameters, new MemoryFullPrunedBlockStore(networkParameters, 100));
-//    }
-//
-//    @Bean
-//    public PeerGroup peerGroup(NetworkParameters networkParameters, BlockChain blockChain) {
-//        return new PeerGroup(networkParameters, blockChain);
-//    }
+    @ConditionalOnBean(name = "btcdClientTestnet")
+    @Bean
+    public BtcScanner btcScannerTestnet(
+            @Qualifier("btcdClientTestnet") BtcdClient btcdClient,
+            @Qualifier("btcLastBlockPersisterTestnet") LastBlockPersister lastBlockPersister,
+            TestNet3Params params
+    ) {
+        return new BtcScanner(btcdClient, NetworkType.BTC_TESTNET_3, lastBlockPersister, params);
+    }
+
+    @ConditionalOnBean(name = "btcdClient")
+    @Bean
+    public BtcScanner btcScanner(
+            @Qualifier("btcdClient") BtcdClient btcdClient,
+            @Qualifier("btcLastBlockPersister") LastBlockPersister lastBlockPersister,
+            MainNetParams params
+    ) {
+        return new BtcScanner(btcdClient, NetworkType.BTC_MAINNET, lastBlockPersister, params);
+    }
 }

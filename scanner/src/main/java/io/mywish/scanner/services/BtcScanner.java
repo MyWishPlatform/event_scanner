@@ -44,6 +44,8 @@ public class BtcScanner {
     private Integer nextBlockNo;
     private long lastBlockIncrementTimestamp;
 
+    private final Object sync = new Object();
+
     private final Runnable poller = new Runnable() {
         @Override
         public void run() {
@@ -71,7 +73,9 @@ public class BtcScanner {
                     }
 
                     log.debug("All blocks processed, wait new one.");
-                    Thread.sleep(pollingInterval);
+                    synchronized (sync) {
+                        sync.wait(pollingInterval);
+                    }
                 }
                 catch (InterruptedException e) {
                     log.warn("{}: polling cycle was interrupted.", networkType, e);
@@ -133,13 +137,9 @@ public class BtcScanner {
             log.warn("Persister for {} closing failed.", networkType, e);
         }
         isTerminated.set(true);
-        try {
-            log.info("Wait {} ms till cycle is completed for {}.", pollingInterval + 1, networkType);
-            Thread.sleep(pollingInterval + 1);
-            pollerThread.interrupt();
-        }
-        catch (InterruptedException e) {
-            log.warn("Waiting till thread is finished was terminated.", e);
+        log.info("Wait {} ms till cycle is completed for {}.", pollingInterval + 1, networkType);
+        synchronized (sync) {
+            sync.notifyAll();
         }
     }
 

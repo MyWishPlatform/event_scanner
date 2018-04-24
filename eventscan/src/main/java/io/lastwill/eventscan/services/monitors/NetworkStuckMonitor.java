@@ -58,7 +58,7 @@ public class NetworkStuckMonitor {
                 .forEach(networkType -> {
                     LastEvent lastEvent = lastEvents.get(networkType);
                     // last block + interval is in future
-                    if (lastEvent.timestamp.plusSeconds(ethInterval).isAfter(now)) {
+                    if (lastEvent.timestamp.plusSeconds(ethInterval / 1000).isAfter(now)) {
                         return;
                     }
 
@@ -75,7 +75,7 @@ public class NetworkStuckMonitor {
                 .forEach(networkType -> {
                     LastEvent lastEvent = lastEvents.get(networkType);
                     // last block + interval is in future
-                    if (lastEvent.timestamp.plusSeconds(btcInterval).isAfter(now)) {
+                    if (lastEvent.timestamp.plusSeconds(btcInterval / 1000).isAfter(now)) {
                         return;
                     }
 

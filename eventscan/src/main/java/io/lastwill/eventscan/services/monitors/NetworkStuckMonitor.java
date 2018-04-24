@@ -13,6 +13,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -31,6 +33,7 @@ public class NetworkStuckMonitor {
         lastEvents.put(
                 event.getNetworkType(),
                 new LastEvent(
+                        LocalDateTime.now(ZoneOffset.UTC),
                         Instant.ofEpochSecond(event.getBlock().getTimestamp().longValue()),
                         event.getBlock().getNumber().longValue()
                 )
@@ -43,6 +46,7 @@ public class NetworkStuckMonitor {
         lastEvents.put(
                 event.getNetworkType(),
                 new LastEvent(
+                        LocalDateTime.now(ZoneOffset.UTC),
                         Instant.ofEpochSecond(event.getBlock().getTimeSeconds()),
                         event.getBlockNumber()
                 )
@@ -51,44 +55,46 @@ public class NetworkStuckMonitor {
 
     @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}")
     protected void checkEth() {
-        final Instant now = Instant.now();
+        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         lastEvents.keySet()
                 .stream()
                 .filter(networkType -> networkType != NetworkType.BTC_MAINNET && networkType != NetworkType.BTC_TESTNET_3)
                 .forEach(networkType -> {
                     LastEvent lastEvent = lastEvents.get(networkType);
                     // last block + interval is in future
-                    if (lastEvent.timestamp.plusSeconds(ethInterval / 1000).isAfter(now)) {
+                    if (lastEvent.receivedTime.plusSeconds(ethInterval / 1000).isAfter(now)) {
                         return;
                     }
 
-                    eventPublisher.publish(new NetworkStuckEvent(networkType, lastEvent.timestamp, lastEvent.blockNo));
+                    eventPublisher.publish(new NetworkStuckEvent(networkType, lastEvent.receivedTime, lastEvent.timestamp, lastEvent.blockNo));
                 });
     }
 
     @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.btc}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.btc}")
     protected void checkBtc() {
-        final Instant now = Instant.now();
+        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         lastEvents.keySet()
                 .stream()
                 .filter(networkType -> networkType == NetworkType.BTC_MAINNET || networkType == NetworkType.BTC_TESTNET_3)
                 .forEach(networkType -> {
                     LastEvent lastEvent = lastEvents.get(networkType);
                     // last block + interval is in future
-                    if (lastEvent.timestamp.plusSeconds(btcInterval / 1000).isAfter(now)) {
+                    if (lastEvent.receivedTime.plusSeconds(btcInterval / 1000).isAfter(now)) {
                         return;
                     }
 
-                    eventPublisher.publish(new NetworkStuckEvent(networkType, lastEvent.timestamp, lastEvent.blockNo));
+                    eventPublisher.publish(new NetworkStuckEvent(networkType, lastEvent.receivedTime, lastEvent.timestamp, lastEvent.blockNo));
                 });
     }
 
     @Getter
     private static class LastEvent {
+        private final LocalDateTime receivedTime;
         private final Instant timestamp;
         private final long blockNo;
 
-        private LastEvent(Instant timestamp, long blockNo) {
+        private LastEvent(LocalDateTime receivedTime, Instant timestamp, long blockNo) {
+            this.receivedTime = receivedTime;
             this.timestamp = timestamp;
             this.blockNo = blockNo;
         }

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigInteger;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -112,8 +113,9 @@ public class BotIntegration {
     @EventListener
     public void onNetworkStuck(final NetworkStuckEvent event) {
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
-        ZonedDateTime lastBlock = event.getLastTimestamp().atZone(ZoneId.of("Europe/Moscow"));
-        final String blockLink = explorerProvider.getOrStub(event.getNetworkType())
+        String lastBlock = event.getReceivedTime().atZone(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ISO_DATE_TIME);
+        final String blockLink = explorerProvider
+                .getOrStub(event.getNetworkType())
                 .buildToBlock(event.getLastBlockNo());
         bot.sendToAll(
                 "Network " + network + " *stuck!* Last block was at " + lastBlock + " [" + event.getLastBlockNo() + "](" + blockLink + ").",

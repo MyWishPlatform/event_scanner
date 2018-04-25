@@ -1,6 +1,5 @@
 package io.mywish.bot.service;
 
-import jdk.nashorn.internal.objects.annotations.Setter;
 import lombok.Getter;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.bots.AbsSender;

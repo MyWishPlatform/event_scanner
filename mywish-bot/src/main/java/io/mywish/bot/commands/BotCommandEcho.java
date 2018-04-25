@@ -2,9 +2,6 @@ package io.mywish.bot.commands;
 
 import io.mywish.bot.service.ChatContext;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.bots.AbsSender;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
 import java.util.List;
 
 @Component

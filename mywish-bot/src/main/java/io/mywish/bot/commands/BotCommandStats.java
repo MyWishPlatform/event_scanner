@@ -4,8 +4,6 @@ import io.mywish.bot.service.ChatContext;
 import io.mywish.bot.service.InformationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.AbsSender;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
 import java.util.List;
 
 @Component

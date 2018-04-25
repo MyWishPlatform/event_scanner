@@ -73,11 +73,10 @@ public class MyWishBot extends TelegramLongPollingBot {
             String userName = update.getMessage().getFrom() != null
                     ? update.getMessage().getFrom().getUserName()
                     : null;
-            ChatContext chatContext = new ChatContext(this, chatId, userName);
             List<String> args = new ArrayList<>(Arrays.asList(update.getMessage().getText().split(" ")));
             String cmdName = args.remove(0);
             try {
-                commands.stream().filter(cmd -> cmd.getName().equals(cmdName)).findFirst().get().execute(chatContext, args);
+                commands.stream().filter(cmd -> cmd.getName().equals(cmdName)).findFirst().get().execute(new ChatContext(this, chatId, userName), args);
             } catch (Exception eCommand) {
                 log.info("Unknown command {} from user {} in chat {}", cmdName, userName, chatId);
                 try {

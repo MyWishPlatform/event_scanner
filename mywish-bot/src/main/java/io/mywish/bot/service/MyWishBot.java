@@ -1,25 +1,24 @@
 package io.mywish.bot.service;
 
+import io.mywish.bot.commands.BotCommand;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
 import javax.annotation.PostConstruct;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
-@Component
 @ConditionalOnBean(TelegramBotsApi.class)
 public class MyWishBot extends TelegramLongPollingBot {
     @Autowired
@@ -33,12 +32,19 @@ public class MyWishBot extends TelegramLongPollingBot {
 
     private final List<BigInteger> investments = new ArrayList<>();
 
+    @Autowired
+    private List<BotCommand> commands;
+
     @Getter
     @Value("${io.mywish.bot.token}")
     private String botToken;
     @Getter
     @Value("${io.mywish.bot.name}")
     private String botUsername;
+
+    public MyWishBot(DefaultBotOptions botOptions) {
+        super(botOptions);
+    }
 
     @PostConstruct
     protected void init() {
@@ -63,19 +69,32 @@ public class MyWishBot extends TelegramLongPollingBot {
         else if (update.hasEditedMessage()) {
             chatId = update.getEditedMessage().getChatId();
         }
-        else if (update.hasMessage()) {
+        else if (update.hasMessage() && update.getMessage().hasText()) {
             chatId = update.getMessage().getChatId();
             String userName = update.getMessage().getFrom() != null
                     ? update.getMessage().getFrom().getUserName()
                     : null;
-            if (update.getMessage().getChat().isUserChat()) {
+            List<String> args = new ArrayList<>(Arrays.asList(update.getMessage().getText().split(" ")));
+            String command = args.remove(0);
+            try {
+                commands.stream().filter(cmd -> cmd.getName().equals(command.split("/")[1])).findFirst().get().execute(args, chatId, userName, this);
+            } catch (Exception eCommand) {
+                log.info("Unknown command {} from user {} in chat {}", command, userName, chatId);
+                try {
+                    execute(new SendMessage().setChatId(chatId).setText("Unknown command '" + args.get(0) + "'"));
+                } catch(TelegramApiException eTApi) {
+                    eTApi.printStackTrace();
+                }
+            }
+
+            /*if (update.getMessage().getChat().isUserChat()) {
                 log.debug("Direct message received from {}.", update.getMessage().getFrom());
                 directMessage(chatId, userName);
             }
             else {
                 log.debug("Bot mentioned in chat {}.", chatId);
                 directMessage(chatId, userName);
-            }
+            }*/
 
         }
         else {

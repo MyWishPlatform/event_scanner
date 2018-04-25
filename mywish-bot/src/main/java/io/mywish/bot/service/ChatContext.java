@@ -6,7 +6,7 @@ import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 public class ChatContext {
-    private AbsSender sender;
+    private final AbsSender sender;
 
     @Getter
     private final Long chatId;

@@ -1,4 +1,4 @@
-package io.mywish.bot.commands;
+package io.mywish.bot.service;
 
 import io.mywish.bot.service.ChatContext;
 

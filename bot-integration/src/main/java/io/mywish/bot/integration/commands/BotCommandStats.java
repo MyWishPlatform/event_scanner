@@ -1,5 +1,6 @@
-package io.mywish.bot.commands;
+package io.mywish.bot.integration.commands;
 
+import io.mywish.bot.service.BotCommand;
 import io.mywish.bot.service.ChatContext;
 import io.mywish.bot.service.InformationProvider;
 import org.springframework.beans.factory.annotation.Autowired;

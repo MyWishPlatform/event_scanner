@@ -1,6 +1,5 @@
 package io.mywish.bot.service;
 
-import io.mywish.bot.commands.BotCommand;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,10 +1,12 @@
 package io.mywish.bot.service;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+@Slf4j
 public class ChatContext {
     private final AbsSender sender;
 
@@ -24,7 +26,7 @@ public class ChatContext {
         try {
             sender.execute(message.setChatId(chatId));
         } catch(TelegramApiException e) {
-            e.printStackTrace();
+            log.error("Error on sending message in chat {} with message '{}'", chatId, e.getLocalizedMessage(), e);
         }
     }
 

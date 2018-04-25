@@ -19,7 +19,7 @@ public class BotModule {
     }
 
     @Value("${io.mywish.bot.http-proxy:#{null}}")
-    String proxy;
+    private String proxy;
 
     @Bean
     public TelegramBotsApi telegramBotsApi() {

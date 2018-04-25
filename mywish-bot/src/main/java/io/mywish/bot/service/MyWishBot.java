@@ -42,6 +42,8 @@ public class MyWishBot extends TelegramLongPollingBot {
     @Value("${io.mywish.bot.name}")
     private String botUsername;
 
+    private ChatContext chatContext;
+
     public MyWishBot(DefaultBotOptions botOptions) {
         super(botOptions);
     }
@@ -49,6 +51,7 @@ public class MyWishBot extends TelegramLongPollingBot {
     @PostConstruct
     protected void init() {
         try {
+            chatContext = new ChatContext(this);
             telegramBotsApi.registerBot(this);
             log.info("Bot was registered, token: {}.", botToken);
         }
@@ -74,15 +77,16 @@ public class MyWishBot extends TelegramLongPollingBot {
             String userName = update.getMessage().getFrom() != null
                     ? update.getMessage().getFrom().getUserName()
                     : null;
+            chatContext.setChatId(chatId);
+            chatContext.setUserName(userName);
             List<String> args = new ArrayList<>(Arrays.asList(update.getMessage().getText().split(" ")));
-            String command = args.remove(0);
+            String cmdName = args.remove(0);
             try {
-                String cmdName = command.split("/")[1];
-                commands.stream().filter(cmd -> cmd.getName().equals(cmdName)).findFirst().get().execute(args, chatId, userName, this);
+                commands.stream().filter(cmd -> cmd.getName().equals(cmdName)).findFirst().get().execute(chatContext, args);
             } catch (Exception eCommand) {
-                log.info("Unknown command {} from user {} in chat {}", command, userName, chatId);
+                log.info("Unknown command {} from user {} in chat {}", cmdName, userName, chatId);
                 try {
-                    execute(new SendMessage().setChatId(chatId).setText("Unknown command '" + args.get(0) + "'"));
+                    execute(new SendMessage().setChatId(chatId).setText("Unknown command '" + cmdName + "'"));
                 } catch(TelegramApiException eTApi) {
                     eTApi.printStackTrace();
                 }

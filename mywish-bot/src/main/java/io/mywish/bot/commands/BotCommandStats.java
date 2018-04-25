@@ -1,5 +1,6 @@
 package io.mywish.bot.commands;
 
+import io.mywish.bot.service.ChatContext;
 import io.mywish.bot.service.InformationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,16 +14,12 @@ public class BotCommandStats implements BotCommand {
     private InformationProvider informationProvider;
 
     @Override
-    public void execute(List<String> args, Long chatId, String userName, AbsSender sender) {
-        try {
-            sender.execute(informationProvider.getInformation(userName).setChatId(chatId));
-        } catch(TelegramApiException e) {
-            e.printStackTrace();
-        }
+    public void execute(ChatContext context, List<String> args) {
+        context.sendMessage(informationProvider.getInformation(context.getUserName()));
     }
 
     @Override
     public String getName() {
-        return "stats";
+        return "/stats";
     }
 }

@@ -41,8 +41,6 @@ public class MyWishBot extends TelegramLongPollingBot {
     @Value("${io.mywish.bot.name}")
     private String botUsername;
 
-    private ChatContext chatContext;
-
     public MyWishBot(DefaultBotOptions botOptions) {
         super(botOptions);
     }
@@ -50,7 +48,6 @@ public class MyWishBot extends TelegramLongPollingBot {
     @PostConstruct
     protected void init() {
         try {
-            chatContext = new ChatContext(this);
             telegramBotsApi.registerBot(this);
             log.info("Bot was registered, token: {}.", botToken);
         }
@@ -76,8 +73,7 @@ public class MyWishBot extends TelegramLongPollingBot {
             String userName = update.getMessage().getFrom() != null
                     ? update.getMessage().getFrom().getUserName()
                     : null;
-            chatContext.setChatId(chatId);
-            chatContext.setUserName(userName);
+            ChatContext chatContext = new ChatContext(this, chatId, userName);
             List<String> args = new ArrayList<>(Arrays.asList(update.getMessage().getText().split(" ")));
             String cmdName = args.remove(0);
             try {

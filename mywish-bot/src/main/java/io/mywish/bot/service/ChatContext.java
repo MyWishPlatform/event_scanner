@@ -9,13 +9,15 @@ public class ChatContext {
     private AbsSender sender;
 
     @Getter
-    private Long chatId;
+    private final Long chatId;
 
     @Getter
-    private String userName;
+    private final String userName;
 
-    public ChatContext(AbsSender sender) {
+    public ChatContext(AbsSender sender, Long chatId, String userName) {
         this.sender = sender;
+        this.chatId = chatId;
+        this.userName = userName;
     }
 
     public void sendMessage(SendMessage message) {
@@ -28,13 +30,5 @@ public class ChatContext {
 
     public void sendMessage(String message) {
         sendMessage(new SendMessage().setText(message));
-    }
-
-    public void setChatId(Long chatId) {
-        this.chatId = chatId;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 }

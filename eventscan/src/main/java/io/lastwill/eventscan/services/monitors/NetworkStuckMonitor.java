@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class NetworkStuckMonitor {
+    @Getter
     private final ConcurrentHashMap<NetworkType, LastEvent> lastEvents = new ConcurrentHashMap<>();
     @Value("${io.lastwill.eventscan.network-stuck.interval.btc}")
     private long btcInterval;
@@ -88,9 +89,12 @@ public class NetworkStuckMonitor {
     }
 
     @Getter
-    private static class LastEvent {
+    public static class LastEvent {
+        @Getter
         private final LocalDateTime receivedTime;
+        @Getter
         private final Instant timestamp;
+        @Getter
         private final long blockNo;
 
         private LastEvent(LocalDateTime receivedTime, Instant timestamp, long blockNo) {

@@ -16,14 +16,14 @@ import java.util.*;
 @Component
 public class BotCommandNetworks implements BotCommand {
     @Autowired
-    NetworkStuckMonitor networkStuckMonitor;
+    private NetworkStuckMonitor networkStuckMonitor;
+
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private final ZoneId zone = ZoneId.of("Europe/Moscow");
 
     @Override
     public void execute(ChatContext context, List<String> args) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        ZoneId zone = ZoneId.of("Europe/Moscow");
         List<String> messages = new ArrayList<>();
-
         for (NetworkType network : NetworkType.values()) {
             NetworkStuckMonitor.LastEvent lastEvent = networkStuckMonitor.getLastEvents().get(network);
             if (lastEvent != null) {

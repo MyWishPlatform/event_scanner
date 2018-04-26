@@ -15,7 +15,7 @@ public class BotCommandHelp implements BotCommand {
 
     @Override
     public void execute(ChatContext context, List<String> args) {
-        context.sendMessage(String.join("\n", commands.stream().map(cmd -> cmd.getName() + " " + cmd.getUsage() + "\n\t" + cmd.getDescription()).collect(Collectors.toList())));
+        context.sendMessage(String.join("\n\n", commands.stream().map(cmd -> cmd.getName() + " " + cmd.getUsage() + "\n\t" + cmd.getDescription()).collect(Collectors.toList())));
     }
 
     @Override

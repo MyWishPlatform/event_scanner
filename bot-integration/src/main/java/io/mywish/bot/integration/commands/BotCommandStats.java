@@ -29,6 +29,6 @@ public class BotCommandStats implements BotCommand {
 
     @Override
     public String getDescription() {
-        return "Print statistics";
+        return "Information about MyWish contracts";
     }
 }

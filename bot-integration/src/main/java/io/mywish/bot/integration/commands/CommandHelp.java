@@ -10,7 +10,6 @@ import java.util.List;
 public class CommandHelp implements BotCommand {
     @Override
     public void execute(ChatContext context, List<String> args) {
-        context.sendMessage(String.join(" ", args));
     }
 
     @Override
@@ -20,11 +19,11 @@ public class CommandHelp implements BotCommand {
 
     @Override
     public String getUsage() {
-        return "";
+        return "command";
     }
 
     @Override
     public String getDescription() {
-        return "Command list with their short descriptions";
+        return "Get description of the command";
     }
 }

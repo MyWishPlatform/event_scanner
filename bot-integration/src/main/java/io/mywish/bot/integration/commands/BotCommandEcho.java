@@ -19,11 +19,11 @@ public class BotCommandEcho implements BotCommand {
 
     @Override
     public String getUsage() {
-        return "";
+        return "arg1, arg2, ...";
     }
 
     @Override
     public String getDescription() {
-        return "Command list with their short descriptions";
+        return "Print a line";
     }
 }

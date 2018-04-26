@@ -50,6 +50,6 @@ public class BotCommandNetworks implements BotCommand {
 
     @Override
     public String getDescription() {
-        return "Command list with their short descriptions";
+        return "Information about latest blocks in each network";
     }
 }

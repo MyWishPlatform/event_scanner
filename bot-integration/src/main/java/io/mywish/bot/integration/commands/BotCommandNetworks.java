@@ -24,8 +24,9 @@ public class BotCommandNetworks implements BotCommand {
     @Override
     public void execute(ChatContext context, List<String> args) {
         List<String> messages = new ArrayList<>();
+        Map<NetworkType, NetworkStuckMonitor.LastEvent> lastEvents = networkStuckMonitor.getLastEvents();
         for (NetworkType network : NetworkType.values()) {
-            NetworkStuckMonitor.LastEvent lastEvent = networkStuckMonitor.getLastEvents().get(network);
+            NetworkStuckMonitor.LastEvent lastEvent = lastEvents.get(network);
             if (lastEvent != null) {
                 messages.add(network.name() +
                         "\n\tLast block: " + lastEvent.getBlockNo() +

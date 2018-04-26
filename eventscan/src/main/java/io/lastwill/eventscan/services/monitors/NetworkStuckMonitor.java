@@ -15,11 +15,12 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class NetworkStuckMonitor {
-    @Getter
     private final ConcurrentHashMap<NetworkType, LastEvent> lastEvents = new ConcurrentHashMap<>();
     @Value("${io.lastwill.eventscan.network-stuck.interval.btc}")
     private long btcInterval;
@@ -52,6 +53,10 @@ public class NetworkStuckMonitor {
                         event.getBlockNumber()
                 )
         );
+    }
+
+    public Map<NetworkType, LastEvent> getLastEvents() {
+        return Collections.unmodifiableMap(this.lastEvents);
     }
 
     @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}")

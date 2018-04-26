@@ -4,6 +4,7 @@ import io.lastwill.eventscan.services.monitors.NetworkStuckMonitor;
 import io.mywish.bot.service.BotCommand;
 import io.mywish.bot.service.ChatContext;
 import io.mywish.scanner.model.NetworkType;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,13 @@ import java.util.*;
 
 @Component
 public class BotCommandNetworks implements BotCommand {
+    @Getter
+    private final String name = "/networks";
+    @Getter
+    private final String usage = "";
+    @Getter
+    private final String description = "Information about latest blocks in each network";
+
     @Autowired
     private NetworkStuckMonitor networkStuckMonitor;
 
@@ -36,20 +44,5 @@ public class BotCommandNetworks implements BotCommand {
             }
         }
         context.sendMessage(String.join("\n\n", messages));
-    }
-
-    @Override
-    public String getName() {
-        return "/networks";
-    }
-
-    @Override
-    public String getUsage() {
-        return "";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Information about latest blocks in each network";
     }
 }

@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -53,6 +55,10 @@ public class NetworkStuckMonitor {
         );
     }
 
+    public Map<NetworkType, LastEvent> getLastEvents() {
+        return Collections.unmodifiableMap(this.lastEvents);
+    }
+
     @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}")
     protected void checkEth() {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
@@ -88,7 +94,7 @@ public class NetworkStuckMonitor {
     }
 
     @Getter
-    private static class LastEvent {
+    public static class LastEvent {
         private final LocalDateTime receivedTime;
         private final Instant timestamp;
         private final long blockNo;

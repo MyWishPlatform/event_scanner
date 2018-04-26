@@ -16,4 +16,14 @@ public class BotCommandHello implements BotCommand {
     public String getName() {
         return "/hello";
     }
+
+    @Override
+    public String getUsage() {
+        return "";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Command list with their short descriptions";
+    }
 }

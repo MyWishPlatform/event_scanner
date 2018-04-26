@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class BotCommandUsage implements BotCommand {
+public class BotCommandCommands implements BotCommand {
     @Autowired
     private List<BotCommand> commands;
 
@@ -20,6 +20,16 @@ public class BotCommandUsage implements BotCommand {
 
     @Override
     public String getName() {
-        return "/usage";
+        return "/commands";
+    }
+
+    @Override
+    public String getUsage() {
+        return "";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Command list with their short descriptions";
     }
 }

@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Component
-public class BotCommandNetworkStatus implements BotCommand {
+public class BotCommandNetworks implements BotCommand {
     @Autowired
     NetworkStuckMonitor networkStuckMonitor;
 
@@ -25,15 +25,14 @@ public class BotCommandNetworkStatus implements BotCommand {
         List<String> messages = new ArrayList<>();
 
         for (NetworkType network : NetworkType.values()) {
-            String message = network.name();
             NetworkStuckMonitor.LastEvent lastEvent = networkStuckMonitor.getLastEvents().get(network);
             if (lastEvent != null) {
-                message = message +
+                messages.add(network.name() +
                         "\n\tLast block: " + lastEvent.getBlockNo() +
                         "\n\tReceived time: " + ZonedDateTime.ofInstant(lastEvent.getReceivedTime().toInstant(ZoneOffset.UTC), zone).format(dateFormatter) +
-                        "\n\tBlock timestamp: " + lastEvent.getTimestamp().getEpochSecond();
+                        "\n\tBlock timestamp: " + lastEvent.getTimestamp().getEpochSecond()
+                );
             }
-            messages.add(message);
         }
         context.sendMessage(String.join("\n\n", messages));
     }

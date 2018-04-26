@@ -90,11 +90,8 @@ public class NetworkStuckMonitor {
 
     @Getter
     public static class LastEvent {
-        @Getter
         private final LocalDateTime receivedTime;
-        @Getter
         private final Instant timestamp;
-        @Getter
         private final long blockNo;
 
         private LastEvent(LocalDateTime receivedTime, Instant timestamp, long blockNo) {

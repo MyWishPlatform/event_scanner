@@ -84,16 +84,6 @@ public class MyWishBot extends TelegramLongPollingBot {
                 log.warn("Unknown command {} from user {} in chat {}", cmdName, userName, chatId);
                 chatContext.sendMessage("Unknown command '" + cmdName + "'");
             }
-
-            /*if (update.getMessage().getChat().isUserChat()) {
-                log.debug("Direct message received from {}.", update.getMessage().getFrom());
-                directMessage(chatId, userName);
-            }
-            else {
-                log.debug("Bot mentioned in chat {}.", chatId);
-                directMessage(chatId, userName);
-            }*/
-
         }
         else {
             return;

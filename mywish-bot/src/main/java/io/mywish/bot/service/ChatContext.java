@@ -26,7 +26,7 @@ public class ChatContext {
         try {
             sender.execute(message.setChatId(chatId));
         } catch(TelegramApiException e) {
-            log.error("Error on sending message in chat {} with message '{}'", chatId, e.getLocalizedMessage(), e);
+            log.error("Error on sending message in chat {}", chatId, e);
         }
     }
 

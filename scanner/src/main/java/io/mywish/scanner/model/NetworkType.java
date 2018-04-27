@@ -9,6 +9,7 @@ public enum NetworkType {
     RSK_FEDERATION_TESTNET,
     BTC_MAINNET,
     BTC_TESTNET_3,
+    NEO_MAINNET
     ;
     public final static String ETHEREUM_MAINNET_VALUE = "ETHEREUM_MAINNET";
     public final static String ETHEREUM_ROPSTEN_VALUE = "ETHEREUM_ROPSTEN";
@@ -16,4 +17,5 @@ public enum NetworkType {
     public final static String RSK_TESTNET_VALUE = "RSK_TESTNET";
     public final static String BTC_MAINNET_VALUE = "BTC_MAINNET";
     public final static String BTC_TESTNET_3_VALUE = "BTC_TESTNET_3";
+    public final static String NEO_MAINNET_VALUE = "NEO_MAINNET";
 }

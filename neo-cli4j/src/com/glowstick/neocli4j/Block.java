@@ -8,10 +8,12 @@ import java.util.List;
 
 public class Block {
     private final String hash;
+    private final Long timestamp;
     private final List<Transaction> transactions;
 
     public static Block parse(JsonParser parser) {
         String blockHash = null;
+        Long blockTimestamp = null;
         List<Transaction> blockTransactions = new ArrayList<>();
 
         try {
@@ -27,6 +29,10 @@ public class Block {
                         if ("hash".equals(name)) {
                             parser.nextToken();
                             blockHash = parser.getText();
+                        }
+                        if ("time".equals(name)) {
+                            parser.nextToken();
+                            blockTimestamp = Long.valueOf(parser.getText());
                         }
                         if ("tx".equals(name)) {
                             while (parser.nextToken() != JsonToken.END_ARRAY) {
@@ -61,16 +67,21 @@ public class Block {
         catch (Exception e) {
             e.printStackTrace();
         }
-        return new Block(blockHash, blockTransactions);
+        return new Block(blockHash, blockTimestamp, blockTransactions);
     }
 
-    public Block(String hash, List<Transaction> transactions) {
+    public Block(String hash, Long timestamp, List<Transaction> transactions) {
         this.hash = hash;
+        this.timestamp = timestamp;
         this.transactions = transactions;
     }
 
     public String getHash() {
         return this.hash;
+    }
+
+    public Long getTimeSeconds() {
+        return this.timestamp;
     }
 
     public List<Transaction> getTransactions() {

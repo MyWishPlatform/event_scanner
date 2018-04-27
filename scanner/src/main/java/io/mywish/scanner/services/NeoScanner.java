@@ -2,6 +2,8 @@ package io.mywish.scanner.services;
 
 import com.glowstick.neocli4j.*;
 import io.mywish.scanner.model.NetworkType;
+import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.model.NewBtcBlockEvent;
 import io.mywish.scanner.model.NewNeoBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -187,7 +189,6 @@ public class NeoScanner {
                     });
 //                    eventPublisher.publish(new NewTransactionEvent(networkType, block, output));
                 });
-
         eventPublisher.publish(new NewNeoBlockEvent(networkType, block, blockNo, addressTransactions));
     }
 }

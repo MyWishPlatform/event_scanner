@@ -26,7 +26,7 @@ public class BotCommandNetworks implements BotCommand {
     @Autowired
     private NetworkStuckMonitor networkStuckMonitor;
 
-    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final ZoneId zone = ZoneId.of("Europe/Moscow");
 
     @Override

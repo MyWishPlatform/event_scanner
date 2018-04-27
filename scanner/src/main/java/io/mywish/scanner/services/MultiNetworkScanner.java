@@ -51,7 +51,7 @@ public class MultiNetworkScanner {
                     try {
                         scanner.open();
                     }
-                    catch (IOException e) {
+                    catch (Exception e) {
                         log.warn("Opening scanner {} for network {} was failed. Skip it.", scanner, scanner.getNetworkType(), e);
                         return false;
                     }

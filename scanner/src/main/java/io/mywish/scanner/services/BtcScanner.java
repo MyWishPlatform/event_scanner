@@ -13,144 +13,42 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.HashMap;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-public class BtcScanner {
-    public static final long INFO_INTERVAL = 600000;
-    public static final long WARN_INTERVAL = 1200000;
-
-    private final NetworkType networkType;
-    private final LastBlockPersister lastBlockPersister;
+public class BtcScanner extends Scanner {
     private final NetworkParameters networkParameters;
-    private final AtomicBoolean isTerminated = new AtomicBoolean(false);
-
     private final BtcdClient client;
-    @Autowired
-    private EventPublisher eventPublisher;
+
     @Autowired
     private BtcBlockParser btcBlockParser;
     @Value("${etherscanner.bitcoin.polling-interval-ms}")
-    private long pollingInterval;
+    long pollingInterval;
     @Value("${etherscanner.bitcoin.commit-chain-length}")
-    private int commitmentChainLength;
-
-    private Integer lastBlockNo;
-    private Integer nextBlockNo;
-    private long lastBlockIncrementTimestamp;
-
-    private final Object sync = new Object();
-
-    private final Runnable poller = new Runnable() {
-        @Override
-        public void run() {
-            while (!isTerminated.get()) {
-                try {
-                    long start = System.currentTimeMillis();
-                    lastBlockNo = client.getBlockCount();
-                    if (log.isDebugEnabled()) {
-                        log.debug("Get actual block no: {} ms.", System.currentTimeMillis() - start);
-                    }
-
-                    loadNextBlock();
-
-                    if (lastBlockNo - nextBlockNo > commitmentChainLength) {
-                        log.debug("Process next block {}/{} immediately.", nextBlockNo, lastBlockNo);
-                        continue;
-                    }
-
-                    long interval = System.currentTimeMillis() - lastBlockIncrementTimestamp;
-                    if (interval > WARN_INTERVAL) {
-                        log.warn("{}: there is no block from {} ms!", networkType, interval);
-                    }
-                    else if (interval > INFO_INTERVAL) {
-                        log.info("{}: there is no block from {} ms.", networkType, interval);
-                    }
-
-                    log.debug("All blocks processed, wait new one.");
-                    synchronized (sync) {
-                        sync.wait(pollingInterval);
-                    }
-                }
-                catch (InterruptedException e) {
-                    log.warn("{}: polling cycle was interrupted.", networkType, e);
-                    break;
-                }
-                catch (Throwable e) {
-                    log.error("{}: exception handled in polling cycle. Continue.", networkType, e);
-                    try {
-                        Thread.sleep(pollingInterval);
-                    }
-                    catch (InterruptedException e1) {
-                        log.warn("{}: polling cycle was interrupted after error.", networkType, e1);
-                        break;
-                    }
-                }
-            }
-        }
-    };
-
-    private final Thread pollerThread = new Thread(poller);
+    int commitmentChainLength;
 
     public BtcScanner(BtcdClient client, NetworkType networkType, LastBlockPersister lastBlockPersister, NetworkParameters networkParameters) {
+        super(networkType, lastBlockPersister);
         this.client = client;
-        this.networkType = networkType;
-        this.lastBlockPersister = lastBlockPersister;
         this.networkParameters = networkParameters;
+        setPollingInterval(pollingInterval);
+        setCommitmentChainLength(commitmentChainLength);
     }
 
-    @PostConstruct
-    public void open() throws Exception {
-        lastBlockPersister.open();
-        nextBlockNo = Optional
-                .ofNullable(lastBlockPersister.getLastBlock())
-                .map(Long::intValue)
-                .orElse(null);
-        try {
-            lastBlockNo = client.getBlockCount();
-            lastBlockIncrementTimestamp = System.currentTimeMillis();
-            if (nextBlockNo == null) {
-                nextBlockNo = lastBlockNo - commitmentChainLength;
-            }
-            log.info("{} RPC: latest block is {} but next is {}.", networkType, lastBlockNo, nextBlockNo);
-        }
-        catch (Exception e) {
-            log.error("{} sending failed.", networkType);
-            throw e;
-        }
-
-        pollerThread.start();
-        log.info("Subscribed to {} new block event.", networkType);
+    @Override
+    protected Long getLastBlock() throws Exception {
+        return client.getBlockCount().longValue();
     }
 
-    @PreDestroy
-    public void close() {
-        try {
-            lastBlockPersister.close();
-        }
-        catch (Exception e) {
-            log.warn("Persister for {} closing failed.", networkType, e);
-        }
-        isTerminated.set(true);
-        log.info("Wait {} ms till cycle is completed for {}.", pollingInterval + 1, networkType);
-        synchronized (sync) {
-            sync.notifyAll();
-        }
-    }
-
-    private void loadNextBlock() throws Exception {
+    @Override
+    protected void loadNextBlock() throws Exception {
         long delta = lastBlockNo - nextBlockNo;
         if (delta <= commitmentChainLength) {
             return;
         }
 
         long start = System.currentTimeMillis();
-        String nextBlockHash = client.getBlockHash(nextBlockNo);
+        String nextBlockHash = client.getBlockHash(nextBlockNo.intValue());
         String rowBlock = (String) client.getBlock(nextBlockHash, false);
         if (log.isDebugEnabled()) {
             log.debug("Get next block: {} ms.", System.currentTimeMillis() - start);

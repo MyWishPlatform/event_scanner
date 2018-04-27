@@ -106,11 +106,6 @@ public class ScannerModule {
     }
 
     @Bean
-    public NetworkParameters neoParams() {
-        return new NetworkParameters();
-    }
-
-    @Bean
     public LastBlockPersister btcLastBlockPersisterTestnet(
             @Value("${etherscanner.start-block-dir}") String dir,
             @Value("${etherscanner.bitcoin.last-block.testnet:#{null}}") Long lastBlock) {
@@ -155,9 +150,8 @@ public class ScannerModule {
     @Bean
     public NeoScanner neoScanner(
             @Qualifier("neoClient") NeoClient neoClient,
-            @Qualifier("neoLastBlockPersister") LastBlockPersister lastBlockPersister,
-            NetworkParameters params
+            @Qualifier("neoLastBlockPersister") LastBlockPersister lastBlockPersister
     ) {
-        return new NeoScanner(neoClient, NetworkType.NEO_MAINNET, lastBlockPersister, params);
+        return new NeoScanner(neoClient, NetworkType.NEO_MAINNET, lastBlockPersister);
     }
 }

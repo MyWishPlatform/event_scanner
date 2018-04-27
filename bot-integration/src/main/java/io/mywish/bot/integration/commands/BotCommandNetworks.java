@@ -39,7 +39,7 @@ public class BotCommandNetworks implements BotCommand {
                 messages.add(network.name() +
                         "\n\tLast block: " + lastEvent.getBlockNo() +
                         "\n\tReceived time: " + ZonedDateTime.ofInstant(lastEvent.getReceivedTime().toInstant(ZoneOffset.UTC), zone).format(dateFormatter) +
-                        "\n\tBlock timestamp: " + lastEvent.getTimestamp().getEpochSecond()
+                        "\n\tBlock time: " + ZonedDateTime.ofInstant(lastEvent.getTimestamp(), zone).format(dateFormatter)
                 );
             }
         }

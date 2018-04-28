@@ -32,7 +32,11 @@
             <artifactId>bitcoinj-core</artifactId>
             <version>${bitcoinj.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>neo-cli4j</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <repositories>

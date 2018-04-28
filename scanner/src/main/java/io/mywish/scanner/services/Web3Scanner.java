@@ -18,12 +18,10 @@ import java.util.HashMap;
 @Slf4j
 public class Web3Scanner extends Scanner {
     private final Web3j web3j;
-    private final EventPublisher eventPublisher;
 
-    public Web3Scanner(NetworkType networkType, Web3j web3j, EventPublisher eventPublisher, LastBlockPersister lastBlockPersister, long pollingInterval, int commitmentChainLength) {
+    public Web3Scanner(NetworkType networkType, Web3j web3j, LastBlockPersister lastBlockPersister, long pollingInterval, int commitmentChainLength) {
         super(networkType, lastBlockPersister);
         this.web3j = web3j;
-        this.eventPublisher = eventPublisher;
         setPollingInterval(pollingInterval);
         setCommitmentChainLength(commitmentChainLength);
     }

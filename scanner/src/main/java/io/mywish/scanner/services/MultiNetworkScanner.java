@@ -30,9 +30,6 @@ public class MultiNetworkScanner {
     @Autowired
     private Map<String, Web3j> web3jByName = new HashMap<>();
 
-    @Autowired
-    private EventPublisher eventPublisher;
-
     private List<Web3Scanner> scanners;
 
     @PostConstruct
@@ -42,7 +39,6 @@ public class MultiNetworkScanner {
                 .map(entry -> new Web3Scanner(
                         NetworkType.valueOf(entry.getKey()),
                         entry.getValue(),
-                        eventPublisher,
                         new LastBlockPersister(NetworkType.valueOf(entry.getKey()), startBlockFileDir, null),
                         pollingInterval,
                         commitmentChainLength)

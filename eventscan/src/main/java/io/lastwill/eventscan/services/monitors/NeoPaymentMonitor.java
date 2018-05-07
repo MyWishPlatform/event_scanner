@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
+import com.glowstick.neocli4j.Transaction;
 import io.mywish.scanner.model.NewNeoBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,9 @@ public class NeoPaymentMonitor {
     public void handleNeoBlock(NewNeoBlockEvent event) {
         event.getBlock().getTransactions().forEach(tx -> {
             tx.getOutputs().forEach(output -> {
-                System.out.println(tx.getHash() + ": " + output.getAddress());
+                if (tx.getType() == Transaction.Type.Contract) {
+                    System.out.println(tx.getHash() + ": " + output.getAddress());
+                }
             });
         });
     }

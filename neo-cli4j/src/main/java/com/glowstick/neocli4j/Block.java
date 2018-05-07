@@ -39,6 +39,7 @@ public class Block {
                                 String txHash = null;
                                 Transaction.Type txType = null;
                                 List<TransactionOutput> txOutputs = new ArrayList<>();
+                                String txScript = null;
                                 while (parser.nextToken() != JsonToken.END_OBJECT) {
                                     name = parser.getCurrentName();
                                     if ("attributes".equals(name) || "vin".equals(name) || "scripts".equals(name) || "claims".equals(name)) {
@@ -65,8 +66,12 @@ public class Block {
                                             }
                                         }
                                     }
+                                    if ("script".equals(name)) {
+                                        parser.nextToken();
+                                        txScript = parser.getText();
+                                    }
                                 }
-                                blockTransactions.add(new Transaction(txType, txHash, txOutputs));
+                                blockTransactions.add(new Transaction(txType, txHash, txOutputs, txScript));
                             }
                         }
                     }

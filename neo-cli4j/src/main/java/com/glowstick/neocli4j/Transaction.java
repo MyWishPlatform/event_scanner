@@ -15,14 +15,20 @@ public class Transaction {
         Invocation
     }
 
-    private Type type;
+    private final Type type;
     private final String hash;
     private final List<TransactionOutput> outputs;
+    private final String script;
 
-    public Transaction(Type type, String hash, List<TransactionOutput> outputs) {
+    public Transaction(Type type, String hash, List<TransactionOutput> outputs, String script) {
         this.type = type;
         this.hash = hash;
         this.outputs = outputs;
+        this.script = script;
+    }
+
+    public Type getType() {
+        return this.type;
     }
 
     public String getHash() {
@@ -33,7 +39,7 @@ public class Transaction {
         return this.outputs;
     }
 
-    public Type getType() {
-        return this.type;
+    public String getScript() {
+        return this.script;
     }
 }

@@ -17,11 +17,9 @@ public class NeoPaymentMonitor {
     @EventListener
     public void handleNeoBlock(NewNeoBlockEvent event) {
         event.getBlock().getTransactions().forEach(tx -> {
-            tx.getOutputs().forEach(output -> {
-                if (tx.getType() == Transaction.Type.Contract) {
-                    System.out.println(tx.getHash() + ": " + output.getAddress());
-                }
-            });
+            if (tx.getType() == Transaction.Type.Invocation) {
+                System.out.println(tx.getHash() + ": " + tx.getScript().length());
+            }
         });
     }
 }

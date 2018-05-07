@@ -4,7 +4,7 @@ import io.lastwill.eventscan.events.TransactionUnlockedEvent;
 import io.lastwill.eventscan.repositories.AddressLockRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.services.EventPublisher;
-import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.model.NewWeb3BlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -29,7 +29,7 @@ public class LockMonitor {
     private EventPublisher eventPublisher;
 
     @EventListener
-    public void onNewBlock(final NewBlockEvent event) {
+    public void onNewBlock(final NewWeb3BlockEvent event) {
         Set<String> addresses = event.getTransactionsByAddress()
                 .entrySet()
                 .stream()

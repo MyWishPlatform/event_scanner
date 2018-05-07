@@ -1,7 +1,7 @@
 package io.mywish.scanner.services.scanners;
 
 import io.mywish.scanner.model.NetworkType;
-import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.model.NewWeb3BlockEvent;
 import io.mywish.scanner.model.NewTransactionEvent;
 import io.mywish.scanner.services.LastBlockPersister;
 import io.mywish.scanner.services.Scanner;
@@ -109,6 +109,6 @@ public class Web3Scanner extends Scanner {
                     eventPublisher.publish(new NewTransactionEvent(networkType, block, transaction));
                 });
 
-        eventPublisher.publish(new NewBlockEvent(networkType, block, addressTransactions));
+        eventPublisher.publish(new NewWeb3BlockEvent(networkType, block, addressTransactions));
     }
 }

@@ -2,7 +2,7 @@ package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.utility.NetworkStuckEvent;
 import io.mywish.scanner.model.NetworkType;
-import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.model.NewWeb3BlockEvent;
 import io.mywish.scanner.model.NewBtcBlockEvent;
 import io.mywish.scanner.model.NewNeoBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
@@ -32,7 +32,7 @@ public class NetworkStuckMonitor {
     private EventPublisher eventPublisher;
 
     @EventListener
-    public void newBlockEvent(NewBlockEvent event) {
+    public void newBlockEvent(NewWeb3BlockEvent event) {
         lastEvents.put(
                 event.getNetworkType(),
                 new LastEvent(

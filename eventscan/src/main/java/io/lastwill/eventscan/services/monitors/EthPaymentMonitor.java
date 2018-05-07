@@ -7,7 +7,7 @@ import io.lastwill.eventscan.model.UserProfile;
 import io.lastwill.eventscan.repositories.UserProfileRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.model.NetworkType;
-import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.model.NewWeb3BlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class EthPaymentMonitor {
     private TransactionProvider transactionProvider;
 
     @EventListener
-    public void onNewBlockEvent(NewBlockEvent event) {
+    public void onNewBlockEvent(NewWeb3BlockEvent event) {
         // payments only in mainnet works
         if (event.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {
             return;

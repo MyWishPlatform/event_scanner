@@ -7,7 +7,7 @@ import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.model.NetworkType;
-import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.model.NewWeb3BlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class ContractsMonitor {
     }
 
     @EventListener
-    public void onNewBlock(final NewBlockEvent event) {
+    public void onNewBlock(final NewWeb3BlockEvent event) {
         Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;

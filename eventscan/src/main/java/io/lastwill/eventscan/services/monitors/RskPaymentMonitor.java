@@ -1,12 +1,11 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.FGWBalanceChangedEvent;
-import io.lastwill.eventscan.helpers.TransactionHelper;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.services.BalanceProvider;
 import io.lastwill.eventscan.services.Web3Provider;
 import io.mywish.scanner.model.NetworkType;
-import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.model.NewWeb3BlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +66,7 @@ public class RskPaymentMonitor {
     }
 
     @EventListener
-    public void newBlockHandler(final NewBlockEvent event) {
+    public void newBlockHandler(final NewWeb3BlockEvent event) {
         if (!addressByNet.containsKey(event.getNetworkType())) {
             return;
         }

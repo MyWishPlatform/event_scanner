@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Component
+//@Component
 @Slf4j
 public class MultiNetworkScanner {
     @Value("${etherscanner.polling-interval-ms:5000}")

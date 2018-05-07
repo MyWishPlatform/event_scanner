@@ -61,7 +61,7 @@ public class Web3Scanner extends Scanner {
         lastBlockIncrementTimestamp = System.currentTimeMillis();
 
         lastBlockPersister.saveLastBlock(nextBlockNo);
-        nextBlockNo ++;
+        nextBlockNo++;
 
         processBlock(result);
     }

@@ -74,28 +74,4 @@ public class Application {
     public ObjectMapper objectMapper() {
         return new ObjectMapper();
     }
-
-    @Bean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
-    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ethereum")
-    public Web3j web3jEthereum(@Value("${io.lastwill.eventscan.web3-url.ethereum}") String web3Url) {
-        return Web3j.build(new HttpService(web3Url));
-    }
-
-    @Bean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
-    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ropsten")
-    public Web3j web3jRopsten(@Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url) {
-        return Web3j.build(new HttpService(web3Url));
-    }
-
-    @Bean(name = NetworkType.RSK_MAINNET_VALUE)
-    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-mainnet")
-    public Web3j web3jRsk(@Value("${io.lastwill.eventscan.web3-url.rsk-mainnet}") String web3Url) {
-        return Web3j.build(new HttpService(web3Url));
-    }
-
-    @Bean(name = NetworkType.RSK_TESTNET_VALUE)
-    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-testnet")
-    public Web3j web3jRskTest(@Value("${io.lastwill.eventscan.web3-url.rsk-testnet}") String web3Url) {
-        return Web3j.build(new HttpService(web3Url));
-    }
 }

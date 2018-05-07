@@ -19,6 +19,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.http.HttpService;
+
 import java.net.URI;
 
 @Configuration
@@ -28,6 +30,30 @@ public class ScannerModule {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyConfig() {
         return new PropertySourcesPlaceholderConfigurer();
+    }
+
+    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ethereum")
+    @Bean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
+    public Web3j web3jEthereum(@Value("${io.lastwill.eventscan.web3-url.ethereum}") String web3Url) {
+        return Web3j.build(new HttpService(web3Url));
+    }
+
+    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ropsten")
+    @Bean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
+    public Web3j web3jRopsten(@Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url) {
+        return Web3j.build(new HttpService(web3Url));
+    }
+
+    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-mainnet")
+    @Bean(name = NetworkType.RSK_MAINNET_VALUE)
+    public Web3j web3jRsk(@Value("${io.lastwill.eventscan.web3-url.rsk-mainnet}") String web3Url) {
+        return Web3j.build(new HttpService(web3Url));
+    }
+
+    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-testnet")
+    @Bean(name = NetworkType.RSK_TESTNET_VALUE)
+    public Web3j web3jRskTest(@Value("${io.lastwill.eventscan.web3-url.rsk-testnet}") String web3Url) {
+        return Web3j.build(new HttpService(web3Url));
     }
 
     @ConditionalOnProperty("etherscanner.bitcoin.rpc-url.mainnet")

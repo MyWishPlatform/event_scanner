@@ -1,8 +1,10 @@
-package io.mywish.scanner.services;
+package io.mywish.scanner.services.scanners;
 
 import com.glowstick.neocli4j.*;
 import io.mywish.scanner.model.NetworkType;
 import io.mywish.scanner.model.NewNeoBlockEvent;
+import io.mywish.scanner.services.LastBlockPersister;
+import io.mywish.scanner.services.Scanner;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;

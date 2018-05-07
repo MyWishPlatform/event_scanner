@@ -1,8 +1,11 @@
-package io.mywish.scanner.services;
+package io.mywish.scanner.services.scanners;
 
 import com.neemre.btcdcli4j.core.client.BtcdClient;
 import io.mywish.scanner.model.NetworkType;
 import io.mywish.scanner.model.NewBtcBlockEvent;
+import io.mywish.scanner.services.BtcBlockParser;
+import io.mywish.scanner.services.LastBlockPersister;
+import io.mywish.scanner.services.Scanner;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.Block;
 import org.bitcoinj.core.NetworkParameters;

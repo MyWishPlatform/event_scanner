@@ -52,13 +52,8 @@ public class Block {
                                         parser.nextToken();
                                         String type = parser.getText();
                                         if ("MinerTransaction".equals(type)) txType = Transaction.Type.Miner;
-                                        else if ("IssueTransaction".equals(type)) txType = Transaction.Type.Issue;
                                         else if ("ClaimTransaction".equals(type)) txType = Transaction.Type.Claim;
-                                        else if ("EnrollmentTransaction".equals(type)) txType = Transaction.Type.Enrollment;
-                                        else if ("RegisterTransaction".equals(type)) txType = Transaction.Type.Register;
                                         else if ("ContractTransaction".equals(type)) txType = Transaction.Type.Contract;
-                                        else if ("AgencyTransaction".equals(type)) txType = Transaction.Type.Agency;
-                                        else if ("PublishTransaction".equals(type)) txType = Transaction.Type.Publish;
                                         else if ("InvocationTransaction".equals(type)) txType = Transaction.Type.Invocation;
                                     }
                                     if ("vout".equals(name)) {

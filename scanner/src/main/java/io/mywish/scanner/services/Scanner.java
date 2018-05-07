@@ -18,9 +18,9 @@ public abstract class Scanner {
     protected final LastBlockPersister lastBlockPersister;
 
     @Getter
-    private long pollingInterval = 10000;
+    private long pollingInterval;
     @Getter
-    private int commitmentChainLength = 5;
+    private int commitmentChainLength;
 
     private final AtomicBoolean isTerminated = new AtomicBoolean(false);
 
@@ -87,17 +87,11 @@ public abstract class Scanner {
     abstract protected Long getLastBlock() throws Exception;
     abstract protected void loadNextBlock() throws Exception;
 
-    public Scanner(NetworkType networkType, LastBlockPersister lastBlockPersister) {
+    public Scanner(NetworkType networkType, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength) {
         this.networkType = networkType;
         this.lastBlockPersister = lastBlockPersister;
-    }
-
-    public void setPollingInterval(long pollingInterval) {
-        if (pollingInterval > 0) this.pollingInterval = pollingInterval;
-    }
-
-    public void setCommitmentChainLength(int commitmentChainLength) {
-        if (commitmentChainLength > 0) this.commitmentChainLength = commitmentChainLength;
+        this.pollingInterval = pollingInterval;
+        this.commitmentChainLength = commitmentChainLength;
     }
 
     @PostConstruct

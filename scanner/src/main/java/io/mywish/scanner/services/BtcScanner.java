@@ -10,7 +10,6 @@ import org.bitcoinj.core.ScriptException;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.script.Script;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import java.util.HashMap;
@@ -22,17 +21,11 @@ public class BtcScanner extends Scanner {
 
     @Autowired
     private BtcBlockParser btcBlockParser;
-    @Value("${etherscanner.bitcoin.polling-interval-ms}")
-    long pollingInterval;
-    @Value("${etherscanner.bitcoin.commit-chain-length}")
-    int commitmentChainLength;
 
-    public BtcScanner(BtcdClient client, NetworkType networkType, LastBlockPersister lastBlockPersister, NetworkParameters networkParameters) {
-        super(networkType, lastBlockPersister);
+    public BtcScanner(BtcdClient client, NetworkType networkType, LastBlockPersister lastBlockPersister, NetworkParameters networkParameters, Long pollingInterval, Integer commitmentChainLength) {
+        super(networkType, lastBlockPersister, pollingInterval, commitmentChainLength);
         this.client = client;
         this.networkParameters = networkParameters;
-        setPollingInterval(pollingInterval);
-        setCommitmentChainLength(commitmentChainLength);
     }
 
     @Override
@@ -43,7 +36,7 @@ public class BtcScanner extends Scanner {
     @Override
     protected void loadNextBlock() throws Exception {
         long delta = lastBlockNo - nextBlockNo;
-        if (delta <= commitmentChainLength) {
+        if (delta <= this.getCommitmentChainLength()) {
             return;
         }
 

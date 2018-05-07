@@ -13,16 +13,9 @@ import java.util.HashMap;
 public class NeoScanner extends Scanner {
     private final NeoClient client;
 
-    @Value("${etherscanner.neo.polling-interval-ms}")
-    long pollingInterval;
-    @Value("${etherscanner.neo.commit-chain-length}")
-    int commitmentChainLength;
-
-    public NeoScanner(NeoClient client, NetworkType networkType, LastBlockPersister lastBlockPersister) {
-        super(networkType, lastBlockPersister);
+    public NeoScanner(NeoClient client, NetworkType networkType, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength) {
+        super(networkType, lastBlockPersister, pollingInterval, commitmentChainLength);
         this.client = client;
-        setPollingInterval(pollingInterval);
-        setCommitmentChainLength(commitmentChainLength);
     }
 
     @Override
@@ -33,7 +26,7 @@ public class NeoScanner extends Scanner {
     @Override
     protected void loadNextBlock() throws Exception {
         long delta = lastBlockNo - nextBlockNo;
-        if (delta <= commitmentChainLength) {
+        if (delta <= getCommitmentChainLength()) {
             return;
         }
 

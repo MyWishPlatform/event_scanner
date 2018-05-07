@@ -59,9 +59,11 @@ public class ScannerModule {
     @Bean
     public BtcScanner btcScanner(
             final CloseableHttpClient closeableHttpClient,
-            final @Value("${etherscanner.bitcoin.rpc-url.mainnet}") URI rpc,
             final @Value("${etherscanner.start-block-dir}") String dir,
-            final @Value("${etherscanner.bitcoin.last-block.mainnet:#{null}}") Long lastBlock
+            final @Value("${etherscanner.bitcoin.rpc-url.mainnet}") URI rpc,
+            final @Value("${etherscanner.bitcoin.last-block.mainnet:#{null}}") Long lastBlock,
+            final @Value("${etherscanner.bitcoin.polling-interval-ms}") Long pollingInterval,
+            final @Value("${etherscanner.bitcoin.commit-chain-length}") Integer commitmentChainLength
     ) throws Exception {
         String user = null, password = null;
         if (rpc.getUserInfo() != null) {
@@ -80,16 +82,18 @@ public class ScannerModule {
                 password
         );
         LastBlockPersister lastBlockPersister = new LastBlockPersister(NetworkType.BTC_MAINNET, dir, lastBlock);
-        return new BtcScanner(client, NetworkType.BTC_MAINNET, lastBlockPersister, new MainNetParams());
+        return new BtcScanner(client, NetworkType.BTC_MAINNET, lastBlockPersister, new MainNetParams(), pollingInterval, commitmentChainLength);
     }
 
     @ConditionalOnProperty("etherscanner.bitcoin.rpc-url.testnet")
     @Bean
     public BtcScanner btcScannerTestnet(
             final CloseableHttpClient closeableHttpClient,
-            final @Value("${etherscanner.bitcoin.rpc-url.testnet}") URI rpc,
             final @Value("${etherscanner.start-block-dir}") String dir,
-            final @Value("${etherscanner.bitcoin.last-block.testnet:#{null}}") Long lastBlock
+            final @Value("${etherscanner.bitcoin.rpc-url.testnet}") URI rpc,
+            final @Value("${etherscanner.bitcoin.last-block.testnet:#{null}}") Long lastBlock,
+            final @Value("${etherscanner.bitcoin.polling-interval-ms}") Long pollingInterval,
+            final @Value("${etherscanner.bitcoin.commit-chain-length}") Integer commitmentChainLength
     ) throws Exception {
         String user = null, password = null;
         if (rpc.getUserInfo() != null) {
@@ -108,23 +112,43 @@ public class ScannerModule {
                 password
         );
         LastBlockPersister lastBlockPersister = new LastBlockPersister(NetworkType.BTC_TESTNET_3, dir, lastBlock);
-        return new BtcScanner(client, NetworkType.BTC_TESTNET_3, lastBlockPersister, new TestNet3Params());
+        return new BtcScanner(client, NetworkType.BTC_TESTNET_3, lastBlockPersister, new TestNet3Params(), pollingInterval, commitmentChainLength);
     }
 
     @ConditionalOnProperty("etherscanner.neo.rpc-url.mainnet")
     @Bean
     public NeoScanner neoScanner(
             final CloseableHttpClient closeableHttpClient,
-            final @Value("${etherscanner.neo.rpc-url.mainnet}") URI rpc,
             final @Value("${etherscanner.start-block-dir}") String dir,
-            final @Value("${etherscanner.neo.last-block.mainnet:#{null}}") Long lastBlock
+            final @Value("${etherscanner.neo.rpc-url.mainnet}") URI rpc,
+            final @Value("${etherscanner.neo.last-block.mainnet:#{null}}") Long lastBlock,
+            final @Value("${etherscanner.neo.polling-interval-ms}") Long pollingInterval,
+            final @Value("${etherscanner.neo.commit-chain-length}") Integer commitmentChainLength
     ) {
         NeoClient client = new NeoClientImpl(
                 closeableHttpClient,
                 rpc
         );
         LastBlockPersister lastBlockPersister = new LastBlockPersister(NetworkType.NEO_MAINNET, dir, lastBlock);
-        return new NeoScanner(client, NetworkType.NEO_MAINNET, lastBlockPersister);
+        return new NeoScanner(client, NetworkType.NEO_MAINNET, lastBlockPersister, pollingInterval, commitmentChainLength);
+    }
+
+    @ConditionalOnProperty("etherscanner.neo.rpc-url.testnet")
+    @Bean
+    public NeoScanner neoScannerTestnet(
+            final CloseableHttpClient closeableHttpClient,
+            final @Value("${etherscanner.start-block-dir}") String dir,
+            final @Value("${etherscanner.neo.rpc-url.testnet}") URI rpc,
+            final @Value("${etherscanner.neo.last-block.testnet:#{null}}") Long lastBlock,
+            final @Value("${etherscanner.neo.polling-interval-ms}") Long pollingInterval,
+            final @Value("${etherscanner.neo.commit-chain-length}") Integer commitmentChainLength
+    ) {
+        NeoClient client = new NeoClientImpl(
+                closeableHttpClient,
+                rpc
+        );
+        LastBlockPersister lastBlockPersister = new LastBlockPersister(NetworkType.NEO_TESTNET, dir, lastBlock);
+        return new NeoScanner(client, NetworkType.NEO_TESTNET, lastBlockPersister, pollingInterval, commitmentChainLength);
     }
 
     @ConditionalOnBean(name = NetworkType.ETHEREUM_MAINNET_VALUE)

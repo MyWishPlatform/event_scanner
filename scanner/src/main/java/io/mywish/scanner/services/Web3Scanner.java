@@ -20,10 +20,8 @@ public class Web3Scanner extends Scanner {
     private final Web3j web3j;
 
     public Web3Scanner(NetworkType networkType, Web3j web3j, LastBlockPersister lastBlockPersister, long pollingInterval, int commitmentChainLength) {
-        super(networkType, lastBlockPersister);
+        super(networkType, lastBlockPersister, pollingInterval, commitmentChainLength);
         this.web3j = web3j;
-        setPollingInterval(pollingInterval);
-        setCommitmentChainLength(commitmentChainLength);
     }
 
     @Override

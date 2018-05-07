@@ -20,7 +20,6 @@ import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
-
 import java.net.URI;
 
 @Configuration
@@ -136,11 +135,10 @@ public class ScannerModule {
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
-        LastBlockPersister lastBlockPersister = new LastBlockPersister(NetworkType.ETHEREUM_MAINNET, dir, null);
         return new Web3Scanner(
                 NetworkType.ETHEREUM_MAINNET,
                 web3j,
-                lastBlockPersister,
+                new LastBlockPersister(NetworkType.ETHEREUM_MAINNET, dir, null),
                 pollingInterval,
                 commitmentChainLength
         );
@@ -154,11 +152,10 @@ public class ScannerModule {
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
-        LastBlockPersister lastBlockPersister = new LastBlockPersister(NetworkType.ETHEREUM_ROPSTEN, dir, null);
         return new Web3Scanner(
                 NetworkType.ETHEREUM_ROPSTEN,
                 web3j,
-                lastBlockPersister,
+                new LastBlockPersister(NetworkType.ETHEREUM_ROPSTEN, dir, null),
                 pollingInterval,
                 commitmentChainLength
         );
@@ -172,11 +169,10 @@ public class ScannerModule {
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
-        LastBlockPersister lastBlockPersister = new LastBlockPersister(NetworkType.RSK_MAINNET, dir, null);
         return new Web3Scanner(
                 NetworkType.RSK_MAINNET,
                 web3j,
-                lastBlockPersister,
+                new LastBlockPersister(NetworkType.RSK_MAINNET, dir, null),
                 pollingInterval,
                 commitmentChainLength
         );
@@ -190,11 +186,10 @@ public class ScannerModule {
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
-        LastBlockPersister lastBlockPersister = new LastBlockPersister(NetworkType.RSK_TESTNET, dir, null);
         return new Web3Scanner(
                 NetworkType.RSK_TESTNET,
                 web3j,
-                lastBlockPersister,
+                new LastBlockPersister(NetworkType.RSK_TESTNET, dir, null),
                 pollingInterval,
                 commitmentChainLength
         );

@@ -3,7 +3,6 @@ package io.lastwill.eventscan;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.ConnectionFactory;
 import io.mywish.scanner.ScannerModule;
-import io.mywish.scanner.model.NetworkType;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -16,8 +15,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.web3j.protocol.Web3j;
-import org.web3j.protocol.http.HttpService;
 
 import java.net.URI;
 import java.net.URISyntaxException;

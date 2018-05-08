@@ -2,7 +2,6 @@ package com.glowstick.neocli4j;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-
 import java.util.ArrayList;
 import java.util.List;
 

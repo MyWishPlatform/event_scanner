@@ -7,6 +7,7 @@ import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.model.NetworkType;
+import io.mywish.scanner.model.NewNeoBlockEvent;
 import io.mywish.scanner.model.NewWeb3BlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,8 @@ import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.Transaction;
 
 import javax.annotation.PostConstruct;
+import javax.xml.bind.DatatypeConverter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -54,7 +57,7 @@ public class ContractsMonitor {
     }
 
     @EventListener
-    public void onNewBlock(final NewWeb3BlockEvent event) {
+    public void onNewWeb3Block(final NewWeb3BlockEvent event) {
         Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;
@@ -85,6 +88,17 @@ public class ContractsMonitor {
                 grabContractEvents(event.getNetworkType(), contract, transaction, event.getBlock());
             }
         }
+    }
+
+    @EventListener
+    public void onNewNeoBlock(final NewNeoBlockEvent event) {
+        event.getBlock().getTransactions().forEach(tx -> {
+            if (tx.getType() == com.glowstick.neocli4j.Transaction.Type.Invocation) {
+                if (tx.getContracts().size() > 1) tx.getContracts().forEach(contract -> {
+                    System.out.println(tx.getHash() + ": contract called(" + contract + ")");
+                });
+            }
+        });
     }
 
     private void grabProxyEvents(final NetworkType networkType, final List<Transaction> transactions, final EthBlock.Block block) {

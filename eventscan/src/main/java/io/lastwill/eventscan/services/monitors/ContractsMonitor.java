@@ -95,7 +95,7 @@ public class ContractsMonitor {
         event.getBlock().getTransactions().forEach(tx -> {
             if (tx.getType() == com.glowstick.neocli4j.Transaction.Type.Invocation) {
                 if (tx.getContracts().size() > 1) tx.getContracts().forEach(contract -> {
-                    System.out.println(tx.getHash() + ": contract called(" + contract + ")");
+//                    System.out.println(tx.getHash() + ": contract called(" + contract + ")");
                 });
             }
         });

@@ -57,25 +57,31 @@ public class Block {
                                         else if ("InvocationTransaction".equals(type)) txType = Transaction.Type.Invocation;
                                     }
                                     if ("vout".equals(name)) {
-                                        String outAddress = null;
-                                        String outAsset = null;
-                                        Double outValue = null;
+                                        boolean empty = true;
                                         while (parser.nextToken() != JsonToken.END_ARRAY) {
-                                            name = parser.getCurrentName();
-                                            if ("address".equals(name)) {
-                                                parser.nextToken();
-                                                outAddress = parser.getText();
-                                            }
-                                            if ("asset".equals(name)) {
-                                                parser.nextToken();
-                                                outAsset = parser.getText();
-                                            }
-                                            if ("value".equals(name)) {
-                                                parser.nextToken();
-                                                outValue = Double.valueOf(parser.getText());
+                                            if (parser.nextToken() == JsonToken.START_OBJECT || !empty) {
+                                                empty = false;
+                                                String outAddress = null;
+                                                String outAsset = null;
+                                                Double outValue = null;
+                                                while (parser.nextToken() != JsonToken.END_OBJECT) {
+                                                    name = parser.getCurrentName();
+                                                    if ("address".equals(name)) {
+                                                        parser.nextToken();
+                                                        outAddress = parser.getText();
+                                                    }
+                                                    if ("asset".equals(name)) {
+                                                        parser.nextToken();
+                                                        outAsset = parser.getText();
+                                                    }
+                                                    if ("value".equals(name)) {
+                                                        parser.nextToken();
+                                                        outValue = Double.valueOf(parser.getText());
+                                                    }
+                                                }
+                                                txOutputs.add(new TransactionOutput(outAddress, outAsset, outValue));
                                             }
                                         }
-                                        txOutputs.add(new TransactionOutput(outAddress, outAsset, outValue));
                                     }
                                     if ("script".equals(name)) {
                                         parser.nextToken();

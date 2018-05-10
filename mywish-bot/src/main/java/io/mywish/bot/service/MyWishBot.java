@@ -183,14 +183,16 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
     }
 
-    public void onNeoPayment(String network, String address, String value) {
+    public void onNeoPayment(final String network, final String address, final String value, final String link) {
         final String message = new StringBuilder()
                 .append(network)
                 .append(": funds arrived on address ")
                 .append(address)
                 .append(": [")
                 .append(value)
-                .append("].")
+                .append("](")
+                .append(link)
+                .append(").")
                 .toString();
 
         sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));

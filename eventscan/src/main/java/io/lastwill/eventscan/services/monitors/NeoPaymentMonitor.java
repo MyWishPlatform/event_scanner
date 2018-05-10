@@ -36,13 +36,16 @@ public class NeoPaymentMonitor {
     @EventListener
     public void handleNeoBlock(NewNeoBlockEvent event) {
         event.getBlock().getTransactions().forEach(tx -> {
+            if (tx.getType() == Transaction.Type.Invocation) {
+                System.out.println(tx.getHash());
+            }
             if (tx.getType() == Transaction.Type.Contract) {
                 tx.getOutputs().forEach(output -> {
-                    System.out.println(tx.getHash() + ": " + output.getAddress());
                     if (output.getAddress().equals(addressToWatch)) {
                         CryptoCurrency asset = assets.get(output.getAsset());
                         eventPublisher.publish(new NeoPaymentEvent(
                                 event.getNetworkType(),
+                                tx,
                                 output.getAddress(),
                                 toBigInteger(output.getValue(), asset),
                                 asset,

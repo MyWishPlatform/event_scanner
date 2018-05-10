@@ -114,7 +114,8 @@ public class BotIntegration {
         bot.onNeoPayment(
                 networkName.getOrDefault(event.getNetworkType(), defaultNetwork),
                 event.getAddress(),
-                toCurrency(event.getCurrency(), event.getAmount())
+                toCurrency(event.getCurrency(), event.getAmount()),
+                "https://neoscan" + (event.getNetworkType() == NetworkType.NEO_MAINNET ? "" : "-testnet") + ".io/transaction/" + event.getNeoTransaction().getHash().substring(2)
         );
     }
 

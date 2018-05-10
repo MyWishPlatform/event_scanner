@@ -1,9 +1,6 @@
 package io.mywish.bot.integration.services;
 
-import io.lastwill.eventscan.events.ContractCreatedEvent;
-import io.lastwill.eventscan.events.FGWBalanceChangedEvent;
-import io.lastwill.eventscan.events.ProductPaymentEvent;
-import io.lastwill.eventscan.events.UserPaymentEvent;
+import io.lastwill.eventscan.events.*;
 import io.lastwill.eventscan.events.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.model.*;
 import io.mywish.bot.service.MyWishBot;
@@ -40,6 +37,8 @@ public class BotIntegration {
         put(NetworkType.RSK_TESTNET, "tRSK");
         put(NetworkType.BTC_TESTNET_3, "tBTC");
         put(NetworkType.BTC_MAINNET, "BTC");
+        put(NetworkType.NEO_MAINNET, "NEO");
+        put(NetworkType.NEO_TESTNET, "tNEO");
     }};
 
     private final String defaultNetwork = "unknown";
@@ -107,6 +106,15 @@ public class BotIntegration {
                 product.getId(),
                 toCurrency(event.getCurrency(), event.getAmount()),
                 txLink
+        );
+    }
+
+    @EventListener
+    public void onNeoPayment(final NeoPaymentEvent event) {
+        bot.onNeoPayment(
+                networkName.getOrDefault(event.getNetworkType(), defaultNetwork),
+                event.getAddress(),
+                toCurrency(event.getCurrency(), event.getAmount())
         );
     }
 

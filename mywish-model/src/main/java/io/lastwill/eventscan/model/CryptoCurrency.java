@@ -5,4 +5,6 @@ public enum  CryptoCurrency {
     WISH,
     BTC,
     RSK,
+    NEO,
+    GAS
 }

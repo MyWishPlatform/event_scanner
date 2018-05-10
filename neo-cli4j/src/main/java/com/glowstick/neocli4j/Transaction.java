@@ -24,7 +24,7 @@ public class Transaction {
     private final List<String> contracts;
     private final String script;
 
-    private static List<String> extractContracts(String scriptHex) {
+    public static List<String> extractContracts(String scriptHex) {
         List<String> contracts = new ArrayList<>();
         if (scriptHex != null) {
             byte[] script = DatatypeConverter.parseHexBinary(scriptHex);
@@ -38,7 +38,7 @@ public class Transaction {
                     i++;
                     long count = 0;
                     for (int j = 0; j < Math.pow(2, opcode - 0x4C); j++) {
-                        count = (count << 8) + script[i + j];
+                        count = (count << 8) + (script[i + j] & 0xFF);
                     }
                     i += count;
                     continue;

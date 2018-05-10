@@ -35,8 +35,8 @@ public class BotIntegration {
         put(NetworkType.ETHEREUM_ROPSTEN, "tETH");
         put(NetworkType.RSK_MAINNET, "RSK");
         put(NetworkType.RSK_TESTNET, "tRSK");
-        put(NetworkType.BTC_TESTNET_3, "tBTC");
         put(NetworkType.BTC_MAINNET, "BTC");
+        put(NetworkType.BTC_TESTNET_3, "tBTC");
         put(NetworkType.NEO_MAINNET, "NEO");
         put(NetworkType.NEO_TESTNET, "tNEO");
     }};
@@ -132,7 +132,26 @@ public class BotIntegration {
     }
 
     private static String toCurrency(CryptoCurrency currency, BigInteger amount) {
-        BigInteger hundreds = currency == CryptoCurrency.BTC ? amount.divide(BigInteger.valueOf(100000000L)) : amount.divide(BigInteger.valueOf(10000000000000000L));
+        BigInteger hundreds = null;
+        switch (currency) {
+            case NEO: {
+                hundreds = amount.multiply(BigInteger.valueOf(100L));
+                break;
+            }
+            case GAS: {
+                System.out.println(amount.longValue());
+                hundreds = amount.divide(BigInteger.valueOf(1000000L));
+                break;
+            }
+            case BTC: {
+                hundreds = amount.divide(BigInteger.valueOf(100000000L));
+                break;
+            }
+            case ETH: {
+                hundreds = amount.divide(BigInteger.valueOf(10000000000000000L));
+                break;
+            }
+        }
         BigInteger[] parts = hundreds.divideAndRemainder(BigInteger.valueOf(100));
         BigInteger eth = parts[0];
         int rem = parts[1].intValue();

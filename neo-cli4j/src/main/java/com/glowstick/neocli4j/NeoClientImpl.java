@@ -3,7 +3,6 @@ package com.glowstick.neocli4j;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -12,19 +11,19 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class NeoClientImpl implements NeoClient {
     private final HttpClient httpClient;
     private final URI rpc;
     private final JsonFactory jsonFactory;
+    private final BlockParser blockParser;
 
     public NeoClientImpl(HttpClient httpClient, URI rpc) {
         this.jsonFactory = new JsonFactory();
         this.httpClient = httpClient;
         this.rpc = rpc;
+        this.blockParser = new BlockParser();
     }
 
     private String RPC(String method, String... params) throws java.io.IOException {
@@ -70,33 +69,6 @@ public class NeoClientImpl implements NeoClient {
     }
 
     public Block getBlock(String blockHash) throws java.io.IOException {
-        String json = RPC("getblock", blockHash, "1");
-        JsonNode node = new ObjectMapper().readTree(json).get("result");
-        String hash = node.get("hash").textValue();
-        Long time = node.get("time").longValue();
-        List<Transaction> tx = new ArrayList<>();
-        if (node.get("tx").isArray()) node.get("tx").forEach(txNode -> {
-            Transaction.Type txType = null;
-            String txHash = txNode.get("txid").textValue();
-            List<TransactionOutput> txOutputs = new ArrayList<>();
-            String txScript = null;
-
-            String type = txNode.get("type").textValue();
-            if ("MinerTransaction".equals(type)) txType = Transaction.Type.Miner;
-            else if ("ClaimTransaction".equals(type)) txType = Transaction.Type.Claim;
-            else if ("ContractTransaction".equals(type)) txType = Transaction.Type.Contract;
-            else if ("InvocationTransaction".equals(type)) txType = Transaction.Type.Invocation;
-
-            txNode.get("vout").forEach(txOut -> txOutputs.add(new TransactionOutput(
-                    txOut.get("address").textValue(),
-                    txOut.get("asset").textValue(),
-                    txOut.get("value").asDouble()
-            )));
-
-            if (txNode.get("script") != null) txScript = txNode.get("script").textValue();
-
-            tx.add(new Transaction(txType, txHash, txOutputs, txScript));
-        });
-        return new Block(hash, time, tx);
+        return blockParser.parse(RPC("getblock", blockHash, "1"));
     }
 }

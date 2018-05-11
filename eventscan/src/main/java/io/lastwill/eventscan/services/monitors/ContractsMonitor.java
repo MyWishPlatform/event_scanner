@@ -90,7 +90,7 @@ public class ContractsMonitor {
     @EventListener
     public void onNewNeoBlock(final NewNeoBlockEvent event) {
         event.getBlock().getTransactions().forEach(tx -> {
-            if (tx.getType() != com.glowstick.neocli4j.Transaction.Type.Invocation) return;
+            if (tx.getType() != com.glowstick.neocli4j.Transaction.Type.InvocationTransaction) return;
             if (tx.getContracts().size() == 0) return;
             tx.getContracts().forEach(contract -> {
                 System.out.println(tx.getHash() + ": contract called(" + contract + ")");

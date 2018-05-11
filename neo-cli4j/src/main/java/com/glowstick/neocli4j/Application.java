@@ -12,10 +12,11 @@ public class Application {
             HttpClient httpClient = HttpClients.createDefault();
             NeoClient neoCli = new NeoClientImpl(httpClient, new URI("http://localhost:20332"));
 //            System.out.println(neoCli.getBlockHash(2198043));
-            Block block = neoCli.getBlock("0x4a3cbc36d43db2ed8065abf4b74eb829cc4ea918f47e6c848ba03ad6190159c8");
+            Block block = neoCli.getBlock("0x53e56ebc6cfc316473c2addbd289aa6d5da793a90fb5b3679bfef1bed05a88a3");//0x4a3cbc36d43db2ed8065abf4b74eb829cc4ea918f47e6c848ba03ad6190159c8");
             System.out.println("Block: " + block.getHash());
-            System.out.println(block.getTimeSeconds());
+            System.out.println("Timestamp: " + block.getTimeSeconds());
             for (Transaction tx : block.getTransactions()) {
+                tx.getContracts().forEach(System.out::println);
                 System.out.println("  Tx: " + tx.getHash());
                 for (TransactionOutput txOut : tx.getOutputs()) {
                     System.out.println("    Out: " + txOut.getAddress() + ", " + txOut.getValue());

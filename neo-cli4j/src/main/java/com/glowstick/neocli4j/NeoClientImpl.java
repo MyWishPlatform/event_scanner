@@ -3,13 +3,20 @@ package com.glowstick.neocli4j;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class NeoClientImpl implements NeoClient {
@@ -23,16 +30,22 @@ public class NeoClientImpl implements NeoClient {
         this.rpc = rpc;
     }
 
-    private String RPC(String method, Argument... params) throws java.io.IOException {
+    private String RPC(String method, String... params) throws java.io.IOException {
+        ObjectNode body = new ObjectMapper().createObjectNode();
+        body.put("jsonrpc", "2.0");
+        body.put("id", "mywishscanner");
+        body.put("method", method);
+        ArrayNode paramsField = body.putArray("params");
+        Arrays.stream(params).forEach(paramsField::add);
         HttpPost httpPost = new HttpPost(rpc);
-        httpPost.setEntity(new StringEntity("{\"jsonrpc\":\"2.0\",\"id\":\"0\",\"method\":\"" + method + "\",\"params\":[" + String.join(",", Arrays.stream(params).map(Argument::getJSON).collect(Collectors.toList())) + "]}", "UTF-8"));
+        httpPost.setEntity(new StringEntity(body.toString()));
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
         return EntityUtils.toString(this.httpClient.execute(httpPost).getEntity(), "UTF-8");
     }
 
     private String RPC(String method) throws java.io.IOException {
-        return RPC(method, new Argument[]{});
+        return RPC(method, new String[]{});
     }
 
     public Integer getBlockCount() throws java.io.IOException{
@@ -48,7 +61,7 @@ public class NeoClientImpl implements NeoClient {
     }
 
     public String getBlockHash(Integer blockNumber) throws java.io.IOException {
-        String JSON = RPC("getblockhash", new Argument(blockNumber));
+        String JSON = RPC("getblockhash", blockNumber.toString());
         JsonParser parser = jsonFactory.createParser(JSON);
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             if ("result".equals(parser.getCurrentName())) {
@@ -60,27 +73,33 @@ public class NeoClientImpl implements NeoClient {
     }
 
     public Block getBlock(String blockHash) throws java.io.IOException {
-        return Block.parse(jsonFactory.createParser(RPC("getblock", new Argument(blockHash), new Argument(1))));
-    }
+        String json = RPC("getblock", blockHash, "1");
+        JsonNode node = new ObjectMapper().readTree(json).get("result");
+        String hash = node.get("hash").textValue();
+        Long time = node.get("time").longValue();
+        List<Transaction> tx = new ArrayList<>();
+        if (node.get("tx").isArray()) node.get("tx").forEach(txNode -> {
+            Transaction.Type txType = null;
+            String txHash = txNode.get("txid").textValue();
+            List<TransactionOutput> txOutputs = new ArrayList<>();
+            String txScript = null;
 
-    class Argument {
-        private final Integer intValue;
-        private final String strValue;
+            String type = txNode.get("type").textValue();
+            if ("MinerTransaction".equals(type)) txType = Transaction.Type.Miner;
+            else if ("ClaimTransaction".equals(type)) txType = Transaction.Type.Claim;
+            else if ("ContractTransaction".equals(type)) txType = Transaction.Type.Contract;
+            else if ("InvocationTransaction".equals(type)) txType = Transaction.Type.Invocation;
 
-        public Argument(Integer intValue) {
-            this.intValue = intValue;
-            this.strValue = null;
-        }
+            txNode.get("vout").forEach(txOut -> txOutputs.add(new TransactionOutput(
+                    txOut.get("address").textValue(),
+                    txOut.get("asset").textValue(),
+                    txOut.get("value").asDouble()
+            )));
 
-        public Argument(String strValue) {
-            this.strValue = strValue;
-            this.intValue = null;
-        }
+            if (txNode.get("script") != null) txScript = txNode.get("script").textValue();
 
-        public String getJSON() {
-            if (intValue != null) return String.valueOf(intValue);
-            if (strValue != null) return "\"" + strValue + "\"";
-            return null;
-        }
+            tx.add(new Transaction(txType, txHash, txOutputs, txScript));
+        });
+        return new Block(hash, time, tx);
     }
 }

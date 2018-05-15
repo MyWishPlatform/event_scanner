@@ -26,5 +26,10 @@ public abstract class BaseEmptyEventBuilder<T extends BaseEmptyEvent> extends Co
         return buildEmpty(definition, address, transactionReceipt);
     }
 
+    @Override
+    public T build(final TransactionReceipt transactionReceipt, String address, final List<String> values) {
+        return buildEmpty(definition, address, transactionReceipt);
+    }
+
     protected abstract T buildEmpty(final ContractEventDefinition definition, String address, final TransactionReceipt transactionReceipt);
 }

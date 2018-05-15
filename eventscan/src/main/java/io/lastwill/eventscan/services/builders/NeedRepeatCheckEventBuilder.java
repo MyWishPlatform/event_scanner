@@ -25,4 +25,9 @@ public class NeedRepeatCheckEventBuilder extends ContractEventBuilder<CheckedEve
     public CheckedEvent build(TransactionReceipt transactionReceipt, String address, List<Type> indexedValues, List<Type> nonIndexedValues) {
         return new CheckedEvent(definition, transactionReceipt, (Boolean) nonIndexedValues.get(0).getValue(), address);
     }
+
+    @Override
+    public CheckedEvent build(TransactionReceipt transactionReceipt, String address, List<String> values) {
+        return new CheckedEvent(definition, transactionReceipt, Boolean.valueOf(values.get(0)), address);
+    }
 }

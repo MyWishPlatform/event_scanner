@@ -26,4 +26,9 @@ public class TriggeredEventBuilder extends ContractEventBuilder<TriggeredEvent> 
     public TriggeredEvent build(TransactionReceipt transactionReceipt, String address, List<Type> indexedValues, List<Type> nonIndexedValues) {
         return new TriggeredEvent(definition, transactionReceipt, (BigInteger) nonIndexedValues.get(0).getValue(), address);
     }
+
+    @Override
+    public TriggeredEvent build(TransactionReceipt transactionReceipt, String address, List<String> values) {
+        return new TriggeredEvent(definition, transactionReceipt, new BigInteger(values.get(0)), address);
+    }
 }

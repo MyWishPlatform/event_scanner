@@ -6,10 +6,10 @@ import io.mywish.scanner.model.NewNeoBlockEvent;
 import io.mywish.scanner.services.LastBlockPersister;
 import io.mywish.scanner.services.Scanner;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 public class NeoScanner extends Scanner {
@@ -18,6 +18,10 @@ public class NeoScanner extends Scanner {
     public NeoScanner(NeoClient client, NetworkType networkType, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength) {
         super(networkType, lastBlockPersister, pollingInterval, commitmentChainLength);
         this.client = client;
+    }
+
+    public List<Event> getEvents(String txHash) throws java.io.IOException {
+        return client.getEvents(txHash);
     }
 
     @Override

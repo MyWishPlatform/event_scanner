@@ -26,6 +26,11 @@ public class OwnershipTransferredEventBuilder extends ContractEventBuilder<Owner
     }
 
     @Override
+    public OwnershipTransferredEvent build(TransactionReceipt transactionReceipt, String address, List<String> values) {
+        return new OwnershipTransferredEvent(DEFINITION, transactionReceipt, values.get(0), values.get(1), address);
+    }
+
+    @Override
     protected ContractEventDefinition getDefinition() {
         return DEFINITION;
     }

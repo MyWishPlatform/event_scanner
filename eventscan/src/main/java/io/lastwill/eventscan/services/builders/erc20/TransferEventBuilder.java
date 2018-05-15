@@ -29,4 +29,11 @@ public class TransferEventBuilder extends ContractEventBuilder<TransferEvent> {
     public TransferEvent build(TransactionReceipt transactionReceipt, String address, List<Type> indexedValues, List<Type> nonIndexedValues) {
         return new TransferEvent(definition, transactionReceipt, (String) indexedValues.get(0).getValue(), (String) indexedValues.get(1).getValue(), (BigInteger) nonIndexedValues.get(0).getValue(), address);
     }
+
+    @Override
+    public TransferEvent build(TransactionReceipt transactionReceipt, String address, List<String> values) {
+        values.forEach(System.out::println);
+        // TODO change
+        return new TransferEvent(definition, transactionReceipt, values.get(0), values.get(1), BigInteger.valueOf((long)(Double.valueOf(values.get(2)) * 100000000L)), address);
+    }
 }

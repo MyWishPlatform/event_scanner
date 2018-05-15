@@ -27,4 +27,9 @@ public class FundsAddedEventBuilder extends ContractEventBuilder<FundsAddedEvent
     public FundsAddedEvent build(TransactionReceipt transactionReceipt, String address, List<Type> indexedValues, List<Type> nonIndexedValues) {
         return new FundsAddedEvent(definition, transactionReceipt, (String) indexedValues.get(0).getValue(), (BigInteger) nonIndexedValues.get(0).getValue(), address);
     }
+
+    @Override
+    public FundsAddedEvent build(TransactionReceipt transactionReceipt, String address, List<String> values) {
+        return new FundsAddedEvent(definition, transactionReceipt, values.get(0), BigInteger.valueOf((long)(Double.valueOf(values.get(1)) * 100000000L)), address);
+    }
 }

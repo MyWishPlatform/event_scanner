@@ -26,4 +26,8 @@ public class KilledEventBuilder extends ContractEventBuilder<KilledEvent> {
         return new KilledEvent(definition, transactionReceipt, (Boolean) nonIndexedValues.get(0).getValue(), address);
     }
 
+    @Override
+    public KilledEvent build(TransactionReceipt transactionReceipt, String address, List<String> values) {
+        return new KilledEvent(definition, transactionReceipt, Boolean.valueOf(values.get(0)), address);
+    }
 }

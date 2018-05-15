@@ -140,7 +140,6 @@ public class BotIntegration {
                 break;
             }
             case GAS: {
-                System.out.println(amount.longValue());
                 hundreds = amount.divide(BigInteger.valueOf(1000000L));
                 break;
             }

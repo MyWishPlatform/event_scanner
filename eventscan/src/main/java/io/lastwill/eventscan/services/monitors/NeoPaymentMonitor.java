@@ -37,7 +37,7 @@ public class NeoPaymentMonitor {
     public void handleNeoBlock(NewNeoBlockEvent event) {
         event.getBlock().getTransactions().forEach(tx -> {
             if (tx.getType() == Transaction.Type.InvocationTransaction) {
-                System.out.println(tx.getHash());
+//                System.out.println(tx.getHash());
             }
             if (tx.getType() == Transaction.Type.ContractTransaction) {
                 tx.getOutputs().forEach(output -> {

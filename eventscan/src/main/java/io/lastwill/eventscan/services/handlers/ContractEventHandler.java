@@ -32,6 +32,7 @@ public class ContractEventHandler {
 
     @EventListener
     public void eventsHandler(final ContractEventsEvent event) {
+        System.out.println(event.getEvents().get(0).getName());
         for (ContractEvent contractEvent: event.getEvents()) {
             if (contractEvent instanceof CheckedEvent) {
                 externalNotifier.send(event.getNetworkType(),

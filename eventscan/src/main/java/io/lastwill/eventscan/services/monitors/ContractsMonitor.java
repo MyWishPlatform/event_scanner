@@ -10,6 +10,7 @@ import io.mywish.scanner.model.NetworkType;
 import io.mywish.scanner.model.NewNeoBlockEvent;
 import io.mywish.scanner.model.NewWeb3BlockEvent;
 import io.mywish.scanner.services.EventPublisher;
+import io.mywish.scanner.services.scanners.NeoScanner;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,9 +22,8 @@ import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.Transaction;
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import javax.xml.bind.DatatypeConverter;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -39,6 +39,9 @@ public class ContractsMonitor {
 
     @Autowired
     private EventParser eventParser;
+
+    @Autowired
+    private NeoScanner neoScanner;
 
     @Value("${io.lastwill.eventscan.contract.proxy-address.ethereum}")
     private String proxyAddressEthereum;
@@ -88,14 +91,39 @@ public class ContractsMonitor {
     }
 
     @EventListener
-    public void onNewNeoBlock(final NewNeoBlockEvent event) {
-        event.getBlock().getTransactions().forEach(tx -> {
-            if (tx.getType() != com.glowstick.neocli4j.Transaction.Type.InvocationTransaction) return;
-            if (tx.getContracts().size() == 0) return;
-            tx.getContracts().forEach(contract -> {
-                System.out.println(tx.getHash() + ": contract called(" + contract + ")");
+    public void onNewNeoBlock(final NewNeoBlockEvent event) throws java.io.IOException {
+        for (com.glowstick.neocli4j.Transaction tx : event.getBlock().getTransactions()) {
+            if (tx.getType() != com.glowstick.neocli4j.Transaction.Type.InvocationTransaction) continue;
+            if (tx.getContracts().size() == 0) {
+                // contract creation (?)
+            }
+            Map<String, List<ContractEvent>> contractEvents = new HashMap<>();
+            // TODO change
+            neoScanner.getEvents(tx.getHash()).forEach(contractEvent -> {
+                // TODO load from database
+                if (!"0x8586b9a5fe48958aaf51fe226925f205b9273d43".equals(contractEvent.getContract())) return;
+                contractEvents.computeIfAbsent(contractEvent.getContract(), x -> new ArrayList<>()).add(eventParser.parseEventNeo(contractEvent));
+                System.out.println(tx.getHash() + ": contract called(" + contractEvent.getContract() + ")");
             });
-        });
+            EthBlock.Block block = new EthBlock.Block();
+            block.setHash(event.getBlock().getHash());
+            block.setNumber("0x" + Long.toHexString(event.getBlockNumber()));
+            System.out.println(event.getBlockNumber());
+            System.out.println(block.getNumber().longValue());
+            contractEvents.keySet().forEach(contractAddress -> {
+                Contract contract = new Contract();
+                contract.setAddress(contractAddress);
+                System.out.println("publishing");
+                eventPublisher.publish(new ContractEventsEvent(
+                        event.getNetworkType(),
+                        contract,
+                        contractEvents.get(contractAddress),
+                        null,
+                        null,
+                        block
+                ));
+            });
+        }
     }
 
     private void grabProxyEvents(final NetworkType networkType, final List<Transaction> transactions, final EthBlock.Block block) {

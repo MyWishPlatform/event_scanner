@@ -1,7 +1,10 @@
 package io.lastwill.eventscan.services;
 
+import com.glowstick.neocli4j.Event;
 import io.lastwill.eventscan.events.contract.ContractEvent;
+import io.lastwill.eventscan.events.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.services.builders.ContractEventBuilder;
+import io.lastwill.eventscan.services.builders.erc20.TransferEventBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,6 +25,8 @@ public class EventParser {
     @Autowired
     private List<ContractEventBuilder<?>> builders = new ArrayList<>();
 
+    private Map<String, ContractEventBuilder<?>> eventsByName = new HashMap<>();
+
     @PostConstruct
     protected void init() throws Exception {
         for (ContractEventBuilder<?> eventBuilder: builders) {
@@ -29,6 +34,10 @@ public class EventParser {
                 throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with signature " + eventBuilder.getEventSignature());
             }
             events.put(eventBuilder.getEventSignature(), eventBuilder);
+            if (eventsByName.containsKey(eventBuilder.getEventName())) {
+                throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with name " + eventBuilder.getEventName());
+            }
+            eventsByName.put(eventBuilder.getEventName(), eventBuilder);
         }
     }
 
@@ -81,6 +90,14 @@ public class EventParser {
 
 
         return builder.build(transactionReceipt, log.getAddress(), indexedValues, nonIndexedValues);
+    }
+
+    public ContractEvent parseEventNeo(Event event) {
+        ContractEventBuilder<?> builder = eventsByName.get(event.getName());
+        if (builder == null) {
+            return null;
+        }
+        return builder.build(null, event.getContract(), event.getArguments());
     }
 
     public <T, R> Function<T, R> Try(Function<T, R> func) {

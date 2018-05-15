@@ -10,11 +10,16 @@ import java.util.List;
 
 public abstract class ContractEventBuilder<T extends ContractEvent> {
     public abstract T build(TransactionReceipt transactionReceipt, String address, List<Type> indexedValues, List<Type> nonIndexedValues);
+    public abstract T build(TransactionReceipt transactionReceipt, String address, List<String> values);
 
     protected abstract ContractEventDefinition getDefinition();
 
     public String getEventSignature() {
         return getDefinition().getSignature();
+    }
+
+    public String getEventName() {
+        return getDefinition().getEvent().getName();
     }
 
     public List<TypeReference<Type>> getIndexedParameters() {

@@ -2,6 +2,7 @@ package io.lastwill.eventscan.services.builders;
 
 import io.lastwill.eventscan.events.contract.ContractEventDefinition;
 import io.lastwill.eventscan.events.contract.KilledEvent;
+import io.mywish.scanner.WrapperTransactionReceipt;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 import org.web3j.abi.TypeReference;
@@ -22,12 +23,12 @@ public class KilledEventBuilder extends ContractEventBuilder<KilledEvent> {
     );
 
     @Override
-    public KilledEvent build(TransactionReceipt transactionReceipt, String address, List<Type> indexedValues, List<Type> nonIndexedValues) {
+    public KilledEvent build(WrapperTransactionReceipt transactionReceipt, String address, List<Type> indexedValues, List<Type> nonIndexedValues) {
         return new KilledEvent(definition, transactionReceipt, (Boolean) nonIndexedValues.get(0).getValue(), address);
     }
 
     @Override
-    public KilledEvent build(TransactionReceipt transactionReceipt, String address, List<String> values) {
+    public KilledEvent build(WrapperTransactionReceipt transactionReceipt, String address, List<String> values) {
         return new KilledEvent(definition, transactionReceipt, Boolean.valueOf(values.get(0)), address);
     }
 }

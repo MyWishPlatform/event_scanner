@@ -3,16 +3,16 @@ package io.lastwill.eventscan.services.monitors;
 import io.lastwill.eventscan.events.FGWBalanceChangedEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.services.BalanceProvider;
-import io.lastwill.eventscan.services.Web3Provider;
+import io.lastwill.eventscan.services.NetworkProvider;
+import io.mywish.scanner.WrapperTransaction;
 import io.mywish.scanner.model.NetworkType;
-import io.mywish.scanner.model.NewWeb3BlockEvent;
+import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.web3j.protocol.core.methods.response.Transaction;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -25,9 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 public class RskPaymentMonitor {
-
     @Autowired
-    private Web3Provider web3Provider;
+    private NetworkProvider networkProvider;
 
     @Autowired
     private BalanceProvider balanceProvider;
@@ -48,7 +47,7 @@ public class RskPaymentMonitor {
     @PostConstruct
     protected void init() {
         if (mainAddressMainnet != null) {
-            if (web3Provider.getAvailableNetworkTypes().contains(NetworkType.RSK_MAINNET)) {
+            if (networkProvider.getAvailableNetworkTypes().contains(NetworkType.RSK_MAINNET)) {
                 addressByNet.put(NetworkType.RSK_MAINNET, mainAddressMainnet.toLowerCase());
             }
             else {
@@ -56,7 +55,7 @@ public class RskPaymentMonitor {
             }
         }
         if (mainAddressTestnet != null) {
-            if (web3Provider.getAvailableNetworkTypes().contains(NetworkType.RSK_TESTNET)) {
+            if (networkProvider.getAvailableNetworkTypes().contains(NetworkType.RSK_TESTNET)) {
                 addressByNet.put(NetworkType.RSK_TESTNET, mainAddressTestnet.toLowerCase());
             }
             else {
@@ -66,13 +65,13 @@ public class RskPaymentMonitor {
     }
 
     @EventListener
-    public void newBlockHandler(final NewWeb3BlockEvent event) {
+    public void newBlockHandler(final NewBlockEvent event) {
         if (!addressByNet.containsKey(event.getNetworkType())) {
             return;
         }
 
         final String lookingAddress = addressByNet.get(event.getNetworkType());
-        List<Transaction> transactions = event.getTransactionsByAddress().get(lookingAddress);
+        List<WrapperTransaction> transactions = event.getTransactionsByAddress().get(lookingAddress);
         if (transactions == null || transactions.isEmpty()) {
             return;
         }

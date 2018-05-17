@@ -8,15 +8,15 @@ import io.lastwill.eventscan.repositories.UserProfileRepository;
 import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.lastwill.eventscan.services.builders.erc20.TransferEventBuilder;
+import io.mywish.scanner.WrapperTransaction;
 import io.mywish.scanner.model.NetworkType;
 import io.mywish.scanner.services.EventPublisher;
-import io.mywish.scanner.model.NewWeb3BlockEvent;
+import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.web3j.protocol.core.methods.response.Transaction;
 
 import javax.annotation.PostConstruct;
 import java.math.BigInteger;
@@ -49,7 +49,7 @@ public class WishPaymentMonitor {
     }
 
     @EventListener
-    public void onNewBlock(final NewWeb3BlockEvent newWeb3BlockEvent) {
+    public void onNewBlock(final NewBlockEvent newWeb3BlockEvent) {
         // wish only in mainnet works
         if (newWeb3BlockEvent.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {
             return;
@@ -63,9 +63,9 @@ public class WishPaymentMonitor {
             return;
         }
 
-        List<Transaction> transactions = newWeb3BlockEvent.getTransactionsByAddress().get(tokenAddress);
-        for (final Transaction transaction : transactions) {
-            if (!tokenAddress.equalsIgnoreCase(transaction.getTo())) {
+        List<WrapperTransaction> transactions = newWeb3BlockEvent.getTransactionsByAddress().get(tokenAddress);
+        for (final WrapperTransaction transaction : transactions) {
+            if (!tokenAddress.equalsIgnoreCase(transaction.getOutputs().get(0).getAddress())) {
                 continue;
             }
             transactionProvider.getTransactionReceiptAsync(newWeb3BlockEvent.getNetworkType(), transaction.getHash())

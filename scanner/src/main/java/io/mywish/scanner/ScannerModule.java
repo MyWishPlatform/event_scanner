@@ -1,10 +1,12 @@
 package io.mywish.scanner;
 
-import com.glowstick.neocli4j.NeoClient;
 import com.glowstick.neocli4j.NeoClientImpl;
 import com.neemre.btcdcli4j.core.client.BtcdClient;
 import com.neemre.btcdcli4j.core.client.BtcdClientImpl;
 import io.mywish.scanner.model.NetworkType;
+import io.mywish.scanner.networks.BtcNetwork;
+import io.mywish.scanner.networks.NeoNetwork;
+import io.mywish.scanner.networks.Web3Network;
 import io.mywish.scanner.services.scanners.BtcScanner;
 import io.mywish.scanner.services.LastBlockPersister;
 import io.mywish.scanner.services.scanners.NeoScanner;
@@ -31,138 +33,164 @@ public class ScannerModule {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
+    @ConditionalOnProperty("etherscanner.bitcoin.rpc-url.mainnet")
+    @Bean(name = NetworkType.BTC_MAINNET_VALUE)
+    public BtcNetwork btcNetMain(
+            final CloseableHttpClient closeableHttpClient,
+            final @Value("${etherscanner.bitcoin.rpc-url.mainnet}") URI rpc
+    ) throws Exception {
+        String user = null, password = null;
+        if (rpc.getUserInfo() != null) {
+            String[] credentials = rpc.getUserInfo().split(":");
+            if (credentials.length > 1) {
+                user = credentials[0];
+                password = credentials[1];
+            }
+        }
+        return new BtcNetwork(NetworkType.BTC_MAINNET, new BtcdClientImpl(closeableHttpClient, rpc.getScheme(), rpc.getHost(), rpc.getPort(), user, password));
+    }
+
+    @ConditionalOnProperty("etherscanner.bitcoin.rpc-url.testnet")
+    @Bean(name = NetworkType.BTC_TESTNET_3_VALUE)
+    public BtcNetwork btcNetTest(
+            final CloseableHttpClient closeableHttpClient,
+            final @Value("${etherscanner.bitcoin.rpc-url.testnet}") URI rpc
+    ) throws Exception {
+        String user = null, password = null;
+        if (rpc.getUserInfo() != null) {
+            String[] credentials = rpc.getUserInfo().split(":");
+            if (credentials.length > 1) {
+                user = credentials[0];
+                password = credentials[1];
+            }
+        }
+        return new BtcNetwork(NetworkType.BTC_TESTNET_3, new BtcdClientImpl(closeableHttpClient, rpc.getScheme(), rpc.getHost(), rpc.getPort(), user, password));
+    }
+
+
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ethereum")
     @Bean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
-    public Web3j web3jEthereum(@Value("${io.lastwill.eventscan.web3-url.ethereum}") String web3Url) {
-        return Web3j.build(new HttpService(web3Url));
+    public Web3Network ethNetMain(@Value("${io.lastwill.eventscan.web3-url.ethereum}") String web3Url) {
+        return new Web3Network(NetworkType.ETHEREUM_MAINNET, Web3j.build(new HttpService(web3Url)));
     }
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ropsten")
     @Bean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
-    public Web3j web3jRopsten(@Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url) {
-        return Web3j.build(new HttpService(web3Url));
+    public Web3Network ethNetRopsten(@Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url) {
+        return new Web3Network(NetworkType.ETHEREUM_ROPSTEN, Web3j.build(new HttpService(web3Url)));
     }
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-mainnet")
     @Bean(name = NetworkType.RSK_MAINNET_VALUE)
-    public Web3j web3jRsk(@Value("${io.lastwill.eventscan.web3-url.rsk-mainnet}") String web3Url) {
-        return Web3j.build(new HttpService(web3Url));
+    public Web3Network rskNetMain(@Value("${io.lastwill.eventscan.web3-url.rsk-mainnet}") String web3Url) {
+        return new Web3Network(NetworkType.RSK_MAINNET, Web3j.build(new HttpService(web3Url)));
     }
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-testnet")
     @Bean(name = NetworkType.RSK_TESTNET_VALUE)
-    public Web3j web3jRskTest(@Value("${io.lastwill.eventscan.web3-url.rsk-testnet}") String web3Url) {
-        return Web3j.build(new HttpService(web3Url));
+    public Web3Network rskNetTest(@Value("${io.lastwill.eventscan.web3-url.rsk-testnet}") String web3Url) {
+        return new Web3Network(NetworkType.RSK_TESTNET, Web3j.build(new HttpService(web3Url)));
     }
 
-    @ConditionalOnProperty("etherscanner.bitcoin.rpc-url.mainnet")
-    @Bean
-    public BtcScanner btcScanner(
+    @ConditionalOnProperty(name = "etherscanner.neo.rpc-url.mainnet")
+    @Bean(name = NetworkType.NEO_MAINNET_VALUE)
+    public NeoNetwork neoNetMain(
             final CloseableHttpClient closeableHttpClient,
+            final @Value("${etherscanner.neo.rpc-url.mainnet}") URI rpc
+    ) {
+        return new NeoNetwork(NetworkType.NEO_MAINNET, new NeoClientImpl(closeableHttpClient, rpc));
+    }
+
+    @ConditionalOnProperty(name = "etherscanner.neo.rpc-url.testnet")
+    @Bean(name = NetworkType.NEO_TESTNET_VALUE)
+    public NeoNetwork neoNetTest(
+            final CloseableHttpClient closeableHttpClient,
+            final @Value("${etherscanner.neo.rpc-url.testnet}") URI rpc
+    ) {
+        return new NeoNetwork(NetworkType.NEO_TESTNET, new NeoClientImpl(closeableHttpClient, rpc));
+    }
+
+    @ConditionalOnBean(name = NetworkType.BTC_MAINNET_VALUE)
+    @Bean
+    public BtcScanner btcScannerMain(
+            final @Qualifier(NetworkType.BTC_MAINNET_VALUE) BtcNetwork network,
             final @Value("${etherscanner.start-block-dir}") String dir,
-            final @Value("${etherscanner.bitcoin.rpc-url.mainnet}") URI rpc,
             final @Value("${etherscanner.bitcoin.last-block.mainnet:#{null}}") Long lastBlock,
             final @Value("${etherscanner.bitcoin.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.bitcoin.commit-chain-length}") Integer commitmentChainLength
     ) throws Exception {
-        String user = null, password = null;
-        if (rpc.getUserInfo() != null) {
-            String[] credentials = rpc.getUserInfo().split(":");
-            if (credentials.length > 1) {
-                user = credentials[0];
-                password = credentials[1];
-            }
-        }
-        BtcdClient client = new BtcdClientImpl(
-                closeableHttpClient,
-                rpc.getScheme(),
-                rpc.getHost(),
-                rpc.getPort(),
-                user,
-                password
+        return new BtcScanner(
+                network,
+                new LastBlockPersister(network.getType(), dir, lastBlock),
+                new MainNetParams(),
+                pollingInterval,
+                commitmentChainLength
         );
-        LastBlockPersister lastBlockPersister = new LastBlockPersister(NetworkType.BTC_MAINNET, dir, lastBlock);
-        return new BtcScanner(client, NetworkType.BTC_MAINNET, lastBlockPersister, new MainNetParams(), pollingInterval, commitmentChainLength);
     }
 
-    @ConditionalOnProperty("etherscanner.bitcoin.rpc-url.testnet")
+    @ConditionalOnBean(name = NetworkType.BTC_TESTNET_3_VALUE)
     @Bean
-    public BtcScanner btcScannerTestnet(
-            final CloseableHttpClient closeableHttpClient,
+    public BtcScanner btcScannerTest(
+            final @Qualifier(NetworkType.BTC_TESTNET_3_VALUE) BtcNetwork network,
             final @Value("${etherscanner.start-block-dir}") String dir,
-            final @Value("${etherscanner.bitcoin.rpc-url.testnet}") URI rpc,
             final @Value("${etherscanner.bitcoin.last-block.testnet:#{null}}") Long lastBlock,
             final @Value("${etherscanner.bitcoin.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.bitcoin.commit-chain-length}") Integer commitmentChainLength
     ) throws Exception {
-        String user = null, password = null;
-        if (rpc.getUserInfo() != null) {
-            String[] credentials = rpc.getUserInfo().split(":");
-            if (credentials.length > 1) {
-                user = credentials[0];
-                password = credentials[1];
-            }
-        }
-        BtcdClient client = new BtcdClientImpl(
-                closeableHttpClient,
-                rpc.getScheme(),
-                rpc.getHost(),
-                rpc.getPort(),
-                user,
-                password
+        return new BtcScanner(
+                network,
+                new LastBlockPersister(network.getType(), dir, lastBlock),
+                new TestNet3Params(),
+                pollingInterval,
+                commitmentChainLength
         );
-        LastBlockPersister lastBlockPersister = new LastBlockPersister(NetworkType.BTC_TESTNET_3, dir, lastBlock);
-        return new BtcScanner(client, NetworkType.BTC_TESTNET_3, lastBlockPersister, new TestNet3Params(), pollingInterval, commitmentChainLength);
     }
 
-    @ConditionalOnProperty("etherscanner.neo.rpc-url.mainnet")
+    @ConditionalOnBean(name = NetworkType.NEO_MAINNET_VALUE)
     @Bean
-    public NeoScanner neoScanner(
-            final CloseableHttpClient closeableHttpClient,
+    public NeoScanner neoScannerMain(
+            final @Qualifier(NetworkType.NEO_MAINNET_VALUE) NeoNetwork network,
             final @Value("${etherscanner.start-block-dir}") String dir,
-            final @Value("${etherscanner.neo.rpc-url.mainnet}") URI rpc,
             final @Value("${etherscanner.neo.last-block.mainnet:#{null}}") Long lastBlock,
             final @Value("${etherscanner.neo.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.neo.commit-chain-length}") Integer commitmentChainLength
     ) {
-        NeoClient client = new NeoClientImpl(
-                closeableHttpClient,
-                rpc
+        return new NeoScanner(
+                network,
+                new LastBlockPersister(network.getType(), dir, lastBlock),
+                pollingInterval,
+                commitmentChainLength
         );
-        LastBlockPersister lastBlockPersister = new LastBlockPersister(NetworkType.NEO_MAINNET, dir, lastBlock);
-        return new NeoScanner(client, NetworkType.NEO_MAINNET, lastBlockPersister, pollingInterval, commitmentChainLength);
     }
 
-    @ConditionalOnProperty("etherscanner.neo.rpc-url.testnet")
+    @ConditionalOnBean(name = NetworkType.NEO_TESTNET_VALUE)
     @Bean
-    public NeoScanner neoScannerTestnet(
-            final CloseableHttpClient closeableHttpClient,
+    public NeoScanner neoScannerTest(
+            final @Qualifier(NetworkType.NEO_TESTNET_VALUE) NeoNetwork network,
             final @Value("${etherscanner.start-block-dir}") String dir,
-            final @Value("${etherscanner.neo.rpc-url.testnet}") URI rpc,
             final @Value("${etherscanner.neo.last-block.testnet:#{null}}") Long lastBlock,
             final @Value("${etherscanner.neo.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.neo.commit-chain-length}") Integer commitmentChainLength
     ) {
-        NeoClient client = new NeoClientImpl(
-                closeableHttpClient,
-                rpc
+        return new NeoScanner(
+                network,
+                new LastBlockPersister(network.getType(), dir, lastBlock),
+                pollingInterval,
+                commitmentChainLength
         );
-        LastBlockPersister lastBlockPersister = new LastBlockPersister(NetworkType.NEO_TESTNET, dir, lastBlock);
-        return new NeoScanner(client, NetworkType.NEO_TESTNET, lastBlockPersister, pollingInterval, commitmentChainLength);
     }
 
     @ConditionalOnBean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
     @Bean
-    public Web3Scanner ethScanner(
-            final @Qualifier(NetworkType.ETHEREUM_MAINNET_VALUE) Web3j web3j,
+    public Web3Scanner ethScannerMain(
+            final @Qualifier(NetworkType.ETHEREUM_MAINNET_VALUE) Web3Network network,
             final @Value("${etherscanner.start-block-dir}") String dir,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
         return new Web3Scanner(
-                NetworkType.ETHEREUM_MAINNET,
-                web3j,
-                new LastBlockPersister(NetworkType.ETHEREUM_MAINNET, dir, null),
+                network,
+                new LastBlockPersister(network.getType(), dir, null),
                 pollingInterval,
                 commitmentChainLength
         );
@@ -171,15 +199,14 @@ public class ScannerModule {
     @ConditionalOnBean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
     @Bean
     public Web3Scanner ethScannerRopsten(
-            final @Qualifier(NetworkType.ETHEREUM_ROPSTEN_VALUE) Web3j web3j,
+            final @Qualifier(NetworkType.ETHEREUM_ROPSTEN_VALUE) Web3Network network,
             final @Value("${etherscanner.start-block-dir}") String dir,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
         return new Web3Scanner(
-                NetworkType.ETHEREUM_ROPSTEN,
-                web3j,
-                new LastBlockPersister(NetworkType.ETHEREUM_ROPSTEN, dir, null),
+                network,
+                new LastBlockPersister(network.getType(), dir, null),
                 pollingInterval,
                 commitmentChainLength
         );
@@ -187,16 +214,15 @@ public class ScannerModule {
 
     @ConditionalOnBean(name = NetworkType.RSK_MAINNET_VALUE)
     @Bean
-    public Web3Scanner rskScanner(
-            final @Qualifier(NetworkType.RSK_MAINNET_VALUE) Web3j web3j,
+    public Web3Scanner rskScannerMain(
+            final @Qualifier(NetworkType.RSK_MAINNET_VALUE) Web3Network network,
             final @Value("${etherscanner.start-block-dir}") String dir,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
         return new Web3Scanner(
-                NetworkType.RSK_MAINNET,
-                web3j,
-                new LastBlockPersister(NetworkType.RSK_MAINNET, dir, null),
+                network,
+                new LastBlockPersister(network.getType(), dir, null),
                 pollingInterval,
                 commitmentChainLength
         );
@@ -204,16 +230,15 @@ public class ScannerModule {
 
     @ConditionalOnBean(name = NetworkType.RSK_TESTNET_VALUE)
     @Bean
-    public Web3Scanner rskScannerTestnet(
-            final @Qualifier(NetworkType.RSK_TESTNET_VALUE) Web3j web3j,
+    public Web3Scanner rskScannerTest(
+            final @Qualifier(NetworkType.RSK_TESTNET_VALUE) Web3Network network,
             final @Value("${etherscanner.start-block-dir}") String dir,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
         return new Web3Scanner(
-                NetworkType.RSK_TESTNET,
-                web3j,
-                new LastBlockPersister(NetworkType.RSK_TESTNET, dir, null),
+                network,
+                new LastBlockPersister(network.getType(), dir, null),
                 pollingInterval,
                 commitmentChainLength
         );

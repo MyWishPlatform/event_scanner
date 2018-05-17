@@ -10,6 +10,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 
+import java.io.UncheckedIOException;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,12 +55,16 @@ public class NeoClientImpl implements NeoClient {
 
     @Override
     public Block getBlock(String blockHash) throws java.io.IOException {
-        return new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).treeToValue(RPC("getblock", blockHash, "1"), Block.class);
+        Block block = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).treeToValue(RPC("getblock", blockHash, "1"), Block.class);
+        block.getTransactions().forEach(this::initTransaction);
+        return block;
     }
 
     @Override
-    public Transaction getTransaction(String txHash) throws java.io.IOException {
-        return new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).treeToValue(RPC("getrawtransaction", txHash, "1"), Transaction.class);
+    public Transaction getTransaction(String txHash, boolean getInputs) throws java.io.IOException {
+        Transaction tx = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).treeToValue(RPC("getrawtransaction", txHash, "1"), Transaction.class);
+        if (getInputs) initTransaction(tx);
+        return tx;
     }
 
     @Override
@@ -74,5 +80,28 @@ public class NeoClientImpl implements NeoClient {
             }
         }
         return res;
+    }
+
+    @Override
+    public BigInteger getBalance(String address) throws java.io.IOException {
+        JsonNode node = RPC("getaccountstate", address);
+        if (node == null) return null;
+        node = node.get("balances");
+        for (JsonNode subNode : node) {
+            if ("0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b".equals(subNode.get("asset").asText())) {
+                return BigInteger.valueOf(subNode.get("value").asLong());
+            }
+        }
+        return BigInteger.ZERO;
+    }
+
+    private void initTransaction(Transaction transaction) {
+        transaction.getInputs().forEach(input -> {
+            try {
+        input.setAddress(getTransaction(input.getTxid(), false).getOutputs().get(0).getAddress());
+            } catch (java.io.IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
     }
 }

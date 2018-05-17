@@ -1,15 +1,15 @@
 package io.lastwill.eventscan.events.contract;
 
+import io.mywish.scanner.WrapperTransactionReceipt;
 import lombok.Getter;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 @Getter
 public class ContractEvent {
     protected final ContractEventDefinition definition;
     protected final String address;
-    protected final TransactionReceipt transactionReceipt;
+    protected final WrapperTransactionReceipt transactionReceipt;
 
-    public ContractEvent(final ContractEventDefinition definition, final String address, final TransactionReceipt transactionReceipt) {
+    public ContractEvent(final ContractEventDefinition definition, final String address, final WrapperTransactionReceipt transactionReceipt) {
         this.definition = definition;
         this.address = address;
         this.transactionReceipt = transactionReceipt;

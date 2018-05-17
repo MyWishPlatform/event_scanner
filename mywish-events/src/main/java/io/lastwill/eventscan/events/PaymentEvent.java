@@ -1,23 +1,21 @@
 package io.lastwill.eventscan.events;
 
 import io.lastwill.eventscan.model.CryptoCurrency;
+import io.mywish.scanner.WrapperTransaction;
 import io.mywish.scanner.model.BaseEvent;
 import io.mywish.scanner.model.NetworkType;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.web3j.protocol.core.methods.response.Transaction;
-
 import java.math.BigInteger;
 
 @Getter
 public abstract class PaymentEvent extends BaseEvent {
-    private final Transaction transaction;
+    private final WrapperTransaction transaction;
     private final String address;
     private final BigInteger amount;
     private final CryptoCurrency currency;
     private final boolean isSuccess;
 
-    public PaymentEvent(NetworkType networkType, Transaction transaction, String address, BigInteger amount, CryptoCurrency currency, boolean isSuccess) {
+    public PaymentEvent(NetworkType networkType, WrapperTransaction transaction, String address, BigInteger amount, CryptoCurrency currency, boolean isSuccess) {
         super(networkType);
         this.transaction = transaction;
         this.address = address;

@@ -3,7 +3,10 @@ package io.lastwill.eventscan.services.monitors;
 import com.glowstick.neocli4j.Transaction;
 import io.lastwill.eventscan.events.NeoPaymentEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
-import io.mywish.scanner.model.NewNeoBlockEvent;
+import io.mywish.scanner.WrapperTransaction;
+import io.mywish.scanner.WrapperTransactionNeo;
+import io.mywish.scanner.model.NetworkType;
+import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @Slf4j
 @Component
@@ -34,21 +38,21 @@ public class NeoPaymentMonitor {
     }
 
     @EventListener
-    public void handleNeoBlock(NewNeoBlockEvent event) {
-        event.getBlock().getTransactions().forEach(tx -> {
+    public void handleNeoBlock(NewBlockEvent event) {
+        if (event.getNetworkType() != NetworkType.NEO_MAINNET || event.getNetworkType() != NetworkType.NEO_TESTNET) return;
+        event.getBlock().getTransactions().forEach(atx -> {
+            WrapperTransactionNeo tx = (WrapperTransactionNeo) atx;
             if (tx.getType() == Transaction.Type.InvocationTransaction) {
 //                System.out.println(tx.getHash());
             }
             if (tx.getType() == Transaction.Type.ContractTransaction) {
                 tx.getOutputs().forEach(output -> {
                     if (output.getAddress().equals(addressToWatch)) {
-                        CryptoCurrency asset = assets.get(output.getAsset());
                         eventPublisher.publish(new NeoPaymentEvent(
                                 event.getNetworkType(),
                                 tx,
                                 output.getAddress(),
-                                toBigInteger(output.getValue(), asset),
-                                asset,
+                                output.getValue(),
                                 true
                         ));
                     }

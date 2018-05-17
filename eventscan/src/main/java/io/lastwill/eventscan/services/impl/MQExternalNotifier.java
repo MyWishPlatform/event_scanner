@@ -44,6 +44,10 @@ public class MQExternalNotifier implements ExternalNotifier {
     private String queueNameRskFgw;
     @Value("${io.lastwill.eventscan.backend-mq.queue.federation-gateway.rsk-testnet}")
     private String queueNameRskTestFgw;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.neo}")
+    private String queueNameNeo;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.neo-testnet}")
+    private String queueNameNeoTest;
 
     private Map<NetworkType, String> queueByNetwork = new HashMap<>();
 
@@ -66,6 +70,9 @@ public class MQExternalNotifier implements ExternalNotifier {
 
         queueByNetwork.put(NetworkType.RSK_FEDERATION_MAINNET, queueNameRskFgw);
         queueByNetwork.put(NetworkType.RSK_FEDERATION_TESTNET, queueNameRskTestFgw);
+
+        queueByNetwork.put(NetworkType.NEO_MAINNET, queueNameNeo);
+        queueByNetwork.put(NetworkType.NEO_TESTNET, queueNameNeoTest);
 
         connection = factory.newConnection();
         channel = connection.createChannel();

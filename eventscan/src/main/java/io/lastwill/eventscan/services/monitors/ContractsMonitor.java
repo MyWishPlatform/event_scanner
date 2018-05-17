@@ -6,11 +6,12 @@ import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
+import io.mywish.scanner.WrapperBlock;
+import io.mywish.scanner.WrapperLog;
+import io.mywish.scanner.WrapperTransaction;
 import io.mywish.scanner.model.NetworkType;
-import io.mywish.scanner.model.NewNeoBlockEvent;
-import io.mywish.scanner.model.NewWeb3BlockEvent;
+import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
-import io.mywish.scanner.services.scanners.NeoScanner;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,11 +19,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
-import org.web3j.protocol.core.methods.response.EthBlock;
-import org.web3j.protocol.core.methods.response.Log;
-import org.web3j.protocol.core.methods.response.Transaction;
+
 import javax.annotation.PostConstruct;
-import javax.xml.bind.DatatypeConverter;
 import java.util.*;
 
 @Slf4j
@@ -40,9 +38,6 @@ public class ContractsMonitor {
     @Autowired
     private EventParser eventParser;
 
-    @Autowired
-    private NeoScanner neoScanner;
-
     @Value("${io.lastwill.eventscan.contract.proxy-address.ethereum}")
     private String proxyAddressEthereum;
     @Value("${io.lastwill.eventscan.contract.proxy-address.ropsten}")
@@ -57,7 +52,7 @@ public class ContractsMonitor {
     }
 
     @EventListener
-    public void onNewWeb3Block(final NewWeb3BlockEvent event) {
+    public void onNewBlock(final NewBlockEvent event) {
         Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;
@@ -67,21 +62,25 @@ public class ContractsMonitor {
             final String proxyAddress = proxyByNetwork.get(event.getNetworkType());
 
             if (addresses.contains(proxyAddress)) {
-                final List<Transaction> transactions = event.getTransactionsByAddress().get(proxyAddress);
+                final List<WrapperTransaction> transactions = event.getTransactionsByAddress().get(proxyAddress);
                 grabProxyEvents(event.getNetworkType(), transactions, event.getBlock());
             }
         }
 
+        Contract ct = new Contract();
+        ct.setAddress("0xaf4ffcd346eb4c4950749ce2095b6d26b7496d2f");
+        ct.setId(0);
         List<Contract> contracts = contractRepository.findByAddressesList(addresses, event.getNetworkType());
+        contracts.add(ct);
         for (final Contract contract : contracts) {
             if (contract.getAddress() == null || !addresses.contains(contract.getAddress().toLowerCase())) {
                 continue;
             }
 
-            final List<Transaction> transactions = event.getTransactionsByAddress().get(contract.getAddress().toLowerCase());
-            for (final Transaction transaction : transactions) {
+            final List<WrapperTransaction> transactions = event.getTransactionsByAddress().get(contract.getAddress().toLowerCase());
+            for (final WrapperTransaction transaction : transactions) {
                 // grab events
-                if (transaction.getTo() == null) {
+                if (transaction.getOutputs().size() == 0) {
                     continue;
                 }
 
@@ -90,48 +89,12 @@ public class ContractsMonitor {
         }
     }
 
-    @EventListener
-    public void onNewNeoBlock(final NewNeoBlockEvent event) throws java.io.IOException {
-        for (com.glowstick.neocli4j.Transaction tx : event.getBlock().getTransactions()) {
-            if (tx.getType() != com.glowstick.neocli4j.Transaction.Type.InvocationTransaction) continue;
-            if (tx.getContracts().size() == 0) {
-                // contract creation (?)
-            }
-            Map<String, List<ContractEvent>> contractEvents = new HashMap<>();
-            // TODO change
-            neoScanner.getEvents(tx.getHash()).forEach(contractEvent -> {
-                // TODO load from database
-                if (!"0x8586b9a5fe48958aaf51fe226925f205b9273d43".equals(contractEvent.getContract())) return;
-                contractEvents.computeIfAbsent(contractEvent.getContract(), x -> new ArrayList<>()).add(eventParser.parseEventNeo(contractEvent));
-                System.out.println(tx.getHash() + ": contract called(" + contractEvent.getContract() + ")");
-            });
-            EthBlock.Block block = new EthBlock.Block();
-            block.setHash(event.getBlock().getHash());
-            block.setNumber("0x" + Long.toHexString(event.getBlockNumber()));
-            System.out.println(event.getBlockNumber());
-            System.out.println(block.getNumber().longValue());
-            contractEvents.keySet().forEach(contractAddress -> {
-                Contract contract = new Contract();
-                contract.setAddress(contractAddress);
-                System.out.println("publishing");
-                eventPublisher.publish(new ContractEventsEvent(
-                        event.getNetworkType(),
-                        contract,
-                        contractEvents.get(contractAddress),
-                        null,
-                        null,
-                        block
-                ));
-            });
-        }
-    }
-
-    private void grabProxyEvents(final NetworkType networkType, final List<Transaction> transactions, final EthBlock.Block block) {
-        for (Transaction transaction : transactions) {
+    private void grabProxyEvents(final NetworkType networkType, final List<WrapperTransaction> transactions, final WrapperBlock block) {
+        for (WrapperTransaction transaction : transactions) {
             transactionProvider.getTransactionReceiptAsync(networkType, transaction.getHash())
                     .thenAccept(transactionReceipt -> {
-                        MultiValueMap<String, Log> logsByAddress = CollectionUtils.toMultiValueMap(new HashMap<>());
-                        for (Log log : transactionReceipt.getLogs()) {
+                        MultiValueMap<String, WrapperLog> logsByAddress = CollectionUtils.toMultiValueMap(new HashMap<>());
+                        for (WrapperLog log : transactionReceipt.getLogs()) {
                             logsByAddress.add(log.getAddress(), log);
                         }
 
@@ -166,7 +129,7 @@ public class ContractsMonitor {
         }
     }
 
-    private void grabContractEvents(final NetworkType networkType, final Contract contract, final Transaction transaction, final EthBlock.Block block) {
+    private void grabContractEvents(final NetworkType networkType, final Contract contract, final WrapperTransaction transaction, final WrapperBlock block) {
         transactionProvider.getTransactionReceiptAsync(networkType, transaction.getHash())
                 .thenAccept(transactionReceipt -> {
                     List<ContractEvent> eventValues;

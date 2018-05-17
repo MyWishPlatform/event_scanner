@@ -27,6 +27,9 @@ public class Transaction {
     private String hash;
     @JsonProperty("vout")
     private List<TransactionOutput> outputs;
+
+    @JsonProperty("vin")
+    private List<TransactionInput> inputs;
     private List<String> contracts;
 
     @JsonProperty("script")

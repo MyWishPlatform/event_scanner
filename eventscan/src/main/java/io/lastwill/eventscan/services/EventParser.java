@@ -2,9 +2,10 @@ package io.lastwill.eventscan.services;
 
 import com.glowstick.neocli4j.Event;
 import io.lastwill.eventscan.events.contract.ContractEvent;
-import io.lastwill.eventscan.events.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.services.builders.ContractEventBuilder;
-import io.lastwill.eventscan.services.builders.erc20.TransferEventBuilder;
+import io.mywish.scanner.WrapperLog;
+import io.mywish.scanner.WrapperTransaction;
+import io.mywish.scanner.WrapperTransactionReceipt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,7 +13,6 @@ import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.*;
 import org.web3j.protocol.core.methods.response.Log;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -43,7 +43,7 @@ public class EventParser {
 
     private final Map<String, ContractEventBuilder<?>> events = new HashMap<>();
 
-    public List<ContractEvent> parseEvents(TransactionReceipt transactionReceipt) {
+    public List<ContractEvent> parseEvents(WrapperTransactionReceipt transactionReceipt) {
         return transactionReceipt
                 .getLogs()
                 .stream()
@@ -52,7 +52,7 @@ public class EventParser {
                 .collect(Collectors.toList());
     }
 
-    public List<ContractEvent> parseEvents(final TransactionReceipt transactionReceipt, final String eventSignature) {
+    public List<ContractEvent> parseEvents(final WrapperTransactionReceipt transactionReceipt, final String eventSignature) {
         return transactionReceipt
                 .getLogs()
                 .stream()
@@ -63,7 +63,7 @@ public class EventParser {
                 .collect(Collectors.toList());
     }
 
-    public ContractEvent parseEvent(final TransactionReceipt transactionReceipt, final Log log) {
+    public ContractEvent parseEvent(final WrapperTransactionReceipt transactionReceipt, final WrapperLog log) {
         List<String> topics = log.getTopics();
         if (topics.size() < 1) {
             throw new IllegalArgumentException("Log.topics must be at least 1");
@@ -93,6 +93,7 @@ public class EventParser {
     }
 
     public ContractEvent parseEventNeo(Event event) {
+        System.out.println(event.getName());
         ContractEventBuilder<?> builder = eventsByName.get(event.getName());
         if (builder == null) {
             return null;

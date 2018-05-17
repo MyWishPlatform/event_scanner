@@ -1,9 +1,9 @@
 package io.lastwill.eventscan.events.contract;
 
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import io.mywish.scanner.WrapperTransactionReceipt;
 
 public class FinalizedEvent extends BaseEmptyEvent {
-    public FinalizedEvent(ContractEventDefinition definition, TransactionReceipt transactionReceipt, String address) {
+    public FinalizedEvent(ContractEventDefinition definition, WrapperTransactionReceipt transactionReceipt, String address) {
         super(definition, transactionReceipt, address);
     }
 }

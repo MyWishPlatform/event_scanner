@@ -1,7 +1,6 @@
 package io.lastwill.eventscan.services.handlers;
 
 import io.lastwill.eventscan.events.TransactionUnlockedEvent;
-import io.lastwill.eventscan.helpers.TransactionHelper;
 import io.lastwill.eventscan.messages.TransactionCompletedNotify;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,7 @@ public class UnlockedTransactionHandler {
                         event.getAddressLock().getId(),
                         event.getAddressLock().getAddress(),
                         event.getAddressLock().getLockedBy(),
-                        TransactionHelper.isSuccess(event.getTransactionReceipt())
+                        event.getTransactionReceipt().isSuccess()
                 )
         );
     }

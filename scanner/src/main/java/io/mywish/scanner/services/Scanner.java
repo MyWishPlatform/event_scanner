@@ -1,5 +1,6 @@
 package io.mywish.scanner.services;
 
+import io.mywish.scanner.Network;
 import io.mywish.scanner.model.NetworkType;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +14,7 @@ public abstract class Scanner {
     public static final long INFO_INTERVAL = 60000;
     public static final long WARN_INTERVAL = 120000;
 
-    @Getter
-    protected final NetworkType networkType;
+    protected final Network network;
     protected final LastBlockPersister lastBlockPersister;
 
     @Getter
@@ -39,7 +39,7 @@ public abstract class Scanner {
             while (!isTerminated.get()) {
                 try {
                     long start = System.currentTimeMillis();
-                    lastBlockNo = getLastBlock();
+                    lastBlockNo = network.getLastBlock();
                     if (log.isDebugEnabled()) {
                         log.debug("Get actual block no: {} ms.", System.currentTimeMillis() - start);
                     }
@@ -53,10 +53,10 @@ public abstract class Scanner {
 
                     long interval = System.currentTimeMillis() - lastBlockIncrementTimestamp;
                     if (interval > WARN_INTERVAL) {
-                        log.warn("{}: there is no block from {} ms!", networkType, interval);
+                        log.warn("{}: there is no block from {} ms!", network.getType(), interval);
                     }
                     else if (interval > INFO_INTERVAL) {
-                        log.info("{}: there is no block from {} ms.", networkType, interval);
+                        log.info("{}: there is no block from {} ms.", network.getType(), interval);
                     }
 
                     log.debug("All blocks processed, wait new one.");
@@ -65,16 +65,16 @@ public abstract class Scanner {
                     }
                 }
                 catch (InterruptedException e) {
-                    log.warn("{}: polling cycle was interrupted.", networkType, e);
+                    log.warn("{}: polling cycle was interrupted.", network.getType(), e);
                     break;
                 }
                 catch (Throwable e) {
-                    log.error("{}: exception handled in polling cycle. Continue.", networkType, e);
+                    log.error("{}: exception handled in polling cycle. Continue.", network.getType(), e);
                     try {
                         Thread.sleep(pollingInterval);
                     }
                     catch (InterruptedException e1) {
-                        log.warn("{}: polling cycle was interrupted after error.", networkType, e1);
+                        log.warn("{}: polling cycle was interrupted after error.", network.getType(), e1);
                         break;
                     }
                 }
@@ -84,11 +84,10 @@ public abstract class Scanner {
 
     private final Thread pollerThread = new Thread(poller);
 
-    abstract protected Long getLastBlock() throws Exception;
     abstract protected void loadNextBlock() throws Exception;
 
-    public Scanner(NetworkType networkType, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength) {
-        this.networkType = networkType;
+    public Scanner(Network network, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength) {
+        this.network = network;
         this.lastBlockPersister = lastBlockPersister;
         this.pollingInterval = pollingInterval;
         this.commitmentChainLength = commitmentChainLength;
@@ -99,20 +98,20 @@ public abstract class Scanner {
         lastBlockPersister.open();
         nextBlockNo = lastBlockPersister.getLastBlock();
         try {
-            lastBlockNo = getLastBlock();
+            lastBlockNo = network.getLastBlock();
             lastBlockIncrementTimestamp = System.currentTimeMillis();
             if (nextBlockNo == null) {
                 nextBlockNo = lastBlockNo - commitmentChainLength;
             }
-            log.info("{} RPC: latest block is {} but next is {}.", networkType, lastBlockNo, nextBlockNo);
+            log.info("{} RPC: latest block is {} but next is {}.", network.getType(), lastBlockNo, nextBlockNo);
         }
         catch (Exception e) {
-            log.error("{} sending failed.", networkType);
+            log.error("{} sending failed.", network.getType());
             throw e;
         }
 
         pollerThread.start();
-        log.info("Subscribed to {} new block event.", networkType);
+        log.info("Subscribed to {} new block event.", network.getType());
     }
 
     @PreDestroy
@@ -121,10 +120,10 @@ public abstract class Scanner {
             lastBlockPersister.close();
         }
         catch (Exception e) {
-            log.warn("Persister for {} closing failed.", networkType, e);
+            log.warn("Persister for {} closing failed.", network.getType(), e);
         }
         isTerminated.set(true);
-        log.info("Wait {} ms till cycle is completed for {}.", pollingInterval + 1, networkType);
+        log.info("Wait {} ms till cycle is completed for {}.", pollingInterval + 1, network.getType());
         synchronized (sync) {
             sync.notifyAll();
         }

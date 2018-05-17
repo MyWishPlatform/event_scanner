@@ -8,7 +8,9 @@ import java.util.List;
 public class Block {
     private String hash;
     @JsonProperty("time")
-    private Long timeSeconds;
+    private Long timestamp;
     @JsonProperty("tx")
     private List<Transaction> transactions;
+    @JsonProperty("index")
+    private Long number;
 }

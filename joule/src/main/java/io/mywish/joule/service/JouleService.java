@@ -3,15 +3,15 @@ package io.mywish.joule.service;
 import io.mywish.joule.contracts.JouleAPI;
 import io.mywish.joule.model.JouleRegistrationState;
 import io.mywish.joule.repositories.JouleRegistrationRepository;
-import io.mywish.scanner.model.NewWeb3BlockEvent;
+import io.mywish.scanner.WrapperTransaction;
+import io.mywish.scanner.WrapperTransactionReceipt;
+import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.methods.response.Transaction;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,15 +32,15 @@ public class JouleService {
     private JouleRegistrationRepository jouleRegistrationRepository;
 
     @EventListener
-    protected void onNewBlockEvent(NewWeb3BlockEvent newWeb3BlockEvent) {
-        List<Transaction> transactions = newWeb3BlockEvent
+    protected void onNewBlockEvent(NewBlockEvent newBlockEvent) {
+        List<WrapperTransaction> transactions = newBlockEvent
                 .getTransactionsByAddress()
                 .get(jouleAddress.toLowerCase());
         if (transactions == null || transactions.isEmpty()) {
             return;
         }
 
-        for (Transaction transaction: transactions) {
+        for (WrapperTransaction transaction: transactions) {
             if (transaction.getTo() == null) {
                 continue;
             }
@@ -49,7 +49,7 @@ public class JouleService {
                 continue;
             }
 
-            TransactionReceipt receipt;
+            WrapperTransactionReceipt receipt;
             try {
                 receipt = web3j.ethGetTransactionReceipt(transaction.getHash())
                         .send()

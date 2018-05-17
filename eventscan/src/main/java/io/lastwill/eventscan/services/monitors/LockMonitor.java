@@ -3,13 +3,13 @@ package io.lastwill.eventscan.services.monitors;
 import io.lastwill.eventscan.events.TransactionUnlockedEvent;
 import io.lastwill.eventscan.repositories.AddressLockRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
+import io.mywish.scanner.WrapperTransactionReceipt;
 import io.mywish.scanner.services.EventPublisher;
-import io.mywish.scanner.model.NewWeb3BlockEvent;
+import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.io.IOException;
 import java.util.Map;
@@ -29,11 +29,11 @@ public class LockMonitor {
     private EventPublisher eventPublisher;
 
     @EventListener
-    public void onNewBlock(final NewWeb3BlockEvent event) {
+    public void onNewBlock(final NewBlockEvent event) {
         Set<String> addresses = event.getTransactionsByAddress()
                 .entrySet()
                 .stream()
-                .filter(entry -> entry.getValue().stream().anyMatch(tx -> entry.getKey().equalsIgnoreCase(tx.getFrom())))
+                .filter(entry -> entry.getValue().stream().anyMatch(tx -> entry.getKey().equalsIgnoreCase(tx.getInputs().size() > 0 ? tx.getInputs().get(0) : null)))
                 .map(Map.Entry::getKey)
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
@@ -47,9 +47,9 @@ public class LockMonitor {
                     event.getTransactionsByAddress()
                             .get(addressLock.getAddress().toLowerCase())
                             .stream()
-                            .filter(tx -> addressLock.getAddress().equalsIgnoreCase(tx.getFrom()))
+                            .filter(tx -> addressLock.getAddress().equalsIgnoreCase(tx.getInputs().get(0)))
                             .forEach(tx -> {
-                                TransactionReceipt receipt;
+                                WrapperTransactionReceipt receipt;
                                 try {
                                     receipt = transactionProvider.getTransactionReceipt(event.getNetworkType(), tx.getHash());
                                 }

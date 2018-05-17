@@ -2,15 +2,15 @@ package io.lastwill.eventscan.services.builders;
 
 import io.lastwill.eventscan.events.contract.ContractEvent;
 import io.lastwill.eventscan.events.contract.ContractEventDefinition;
+import io.mywish.scanner.WrapperTransactionReceipt;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Type;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.util.List;
 
 public abstract class ContractEventBuilder<T extends ContractEvent> {
-    public abstract T build(TransactionReceipt transactionReceipt, String address, List<Type> indexedValues, List<Type> nonIndexedValues);
-    public abstract T build(TransactionReceipt transactionReceipt, String address, List<String> values);
+    public abstract T build(WrapperTransactionReceipt transactionReceipt, String address, List<Type> indexedValues, List<Type> nonIndexedValues);
+    public abstract T build(WrapperTransactionReceipt transactionReceipt, String address, List<String> values);
 
     protected abstract ContractEventDefinition getDefinition();
 

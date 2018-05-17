@@ -1,10 +1,9 @@
 package io.lastwill.eventscan.services;
 
+import io.mywish.scanner.WrapperTransactionReceipt;
 import io.mywish.scanner.model.NetworkType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,14 +15,10 @@ import java.util.stream.Collectors;
 @Component
 public class TransactionProvider {
     @Autowired
-    private Web3Provider web3Provider;
+    private NetworkProvider networkProvider;
 
-    public TransactionReceipt getTransactionReceipt(final NetworkType networkType, final String hash) throws IOException {
-        return web3Provider.get(networkType)
-                .ethGetTransactionReceipt(hash)
-                .send()
-                .getTransactionReceipt()
-                .orElse(null);
+    public WrapperTransactionReceipt getTransactionReceipt(final NetworkType networkType, final String hash) throws IOException {
+        return networkProvider.get(networkType).getTxReceipt(hash);
     }
 
     private static <T> CompletableFuture<List<T>> sequence(List<CompletableFuture<T>> futures) {
@@ -37,11 +32,8 @@ public class TransactionProvider {
         );
     }
 
-    public CompletionStage<TransactionReceipt> getTransactionReceiptAsync(NetworkType networkType, String hash) {
-        return web3Provider.get(networkType)
-                .ethGetTransactionReceipt(hash)
-                .sendAsync()
-                .thenApply(EthGetTransactionReceipt::getResult);
+    public CompletionStage<WrapperTransactionReceipt> getTransactionReceiptAsync(NetworkType networkType, String hash) {
+        return networkProvider.get(networkType).getTxReceiptAsync(hash);
     }
 //
 //    public CompletionStage<List<TransactionReceipt>> getTransactionReceiptsAsync(Collection<String> hashes) {

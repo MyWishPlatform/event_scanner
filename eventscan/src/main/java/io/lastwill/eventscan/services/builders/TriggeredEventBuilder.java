@@ -2,13 +2,12 @@ package io.lastwill.eventscan.services.builders;
 
 import io.lastwill.eventscan.events.contract.ContractEventDefinition;
 import io.lastwill.eventscan.events.contract.TriggeredEvent;
+import io.mywish.scanner.WrapperTransactionReceipt;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.abi.datatypes.Uint;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
-
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
@@ -23,12 +22,12 @@ public class TriggeredEventBuilder extends ContractEventBuilder<TriggeredEvent> 
     );
 
     @Override
-    public TriggeredEvent build(TransactionReceipt transactionReceipt, String address, List<Type> indexedValues, List<Type> nonIndexedValues) {
+    public TriggeredEvent build(WrapperTransactionReceipt transactionReceipt, String address, List<Type> indexedValues, List<Type> nonIndexedValues) {
         return new TriggeredEvent(definition, transactionReceipt, (BigInteger) nonIndexedValues.get(0).getValue(), address);
     }
 
     @Override
-    public TriggeredEvent build(TransactionReceipt transactionReceipt, String address, List<String> values) {
+    public TriggeredEvent build(WrapperTransactionReceipt transactionReceipt, String address, List<String> values) {
         return new TriggeredEvent(definition, transactionReceipt, new BigInteger(values.get(0)), address);
     }
 }

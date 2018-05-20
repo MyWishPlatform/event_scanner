@@ -1,12 +1,12 @@
 package io.mywish.bot.integration.services;
 
+import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.ProductStatistics;
 import io.lastwill.eventscan.model.UserStatistics;
 import io.lastwill.eventscan.repositories.NetworkRepository;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.repositories.UserRepository;
 import io.mywish.bot.service.InformationProvider;
-import io.mywish.scanner.model.NetworkType;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

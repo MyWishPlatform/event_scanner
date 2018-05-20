@@ -4,14 +4,15 @@ import io.lastwill.eventscan.events.FGWBalanceChangedEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.services.BalanceProvider;
 import io.lastwill.eventscan.services.NetworkProvider;
-import io.mywish.scanner.WrapperTransaction;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
+import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -24,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
-public class RskPaymentMonitor {
+public class RskPaymentMonitor implements ApplicationListener<PayloadApplicationEvent> {
     @Autowired
     private NetworkProvider networkProvider;
 
@@ -64,8 +65,13 @@ public class RskPaymentMonitor {
         }
     }
 
-    @EventListener
-    public void newBlockHandler(final NewBlockEvent event) {
+    @Override
+    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
+        Object event = springEvent.getPayload();
+        if (event instanceof NewBlockEvent) newBlockHandler((NewBlockEvent) event);
+    }
+
+    private void newBlockHandler(final NewBlockEvent event) {
         if (!addressByNet.containsKey(event.getNetworkType())) {
             return;
         }

@@ -1,5 +1,7 @@
-package io.mywish.scanner;
+package io.mywish.wrapper.transaction;
 
+import io.mywish.wrapper.WrapperOutput;
+import io.mywish.wrapper.WrapperTransaction;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
 

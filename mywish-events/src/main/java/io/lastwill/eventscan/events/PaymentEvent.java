@@ -1,9 +1,9 @@
 package io.lastwill.eventscan.events;
 
 import io.lastwill.eventscan.model.CryptoCurrency;
-import io.mywish.scanner.WrapperTransaction;
+import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.scanner.model.BaseEvent;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import lombok.Getter;
 import java.math.BigInteger;
 

@@ -1,7 +1,7 @@
 package io.mywish.scanner.services;
 
-import io.mywish.scanner.Network;
-import io.mywish.scanner.model.NetworkType;
+import io.mywish.wrapper.WrapperBlock;
+import io.mywish.wrapper.WrapperNetwork;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ public abstract class Scanner {
     public static final long INFO_INTERVAL = 60000;
     public static final long WARN_INTERVAL = 120000;
 
-    protected final Network network;
+    protected final WrapperNetwork network;
     protected final LastBlockPersister lastBlockPersister;
 
     @Getter
@@ -84,9 +84,9 @@ public abstract class Scanner {
 
     private final Thread pollerThread = new Thread(poller);
 
-    abstract protected void loadNextBlock() throws Exception;
+    abstract protected void processBlock(WrapperBlock block);
 
-    public Scanner(Network network, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength) {
+    public Scanner(WrapperNetwork network, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength) {
         this.network = network;
         this.lastBlockPersister = lastBlockPersister;
         this.pollingInterval = pollingInterval;
@@ -94,7 +94,7 @@ public abstract class Scanner {
     }
 
     @PostConstruct
-    public void open() throws Exception {
+    private void open() throws Exception {
         lastBlockPersister.open();
         nextBlockNo = lastBlockPersister.getLastBlock();
         try {
@@ -114,8 +114,28 @@ public abstract class Scanner {
         log.info("Subscribed to {} new block event.", network.getType());
     }
 
+    private void loadNextBlock() throws Exception {
+        long delta = lastBlockNo - nextBlockNo;
+        if (delta <= getCommitmentChainLength()) {
+            return;
+        }
+
+        long start = System.currentTimeMillis();
+        WrapperBlock block = network.getBlock(nextBlockNo);
+        if (log.isDebugEnabled()) {
+            log.debug("Get next block: {} ms.", System.currentTimeMillis() - start);
+        }
+
+        lastBlockIncrementTimestamp = System.currentTimeMillis();
+
+        lastBlockPersister.saveLastBlock(nextBlockNo);
+        nextBlockNo++;
+
+        processBlock(block);
+    }
+
     @PreDestroy
-    public void close() {
+    private void close() {
         try {
             lastBlockPersister.close();
         }

@@ -1,7 +1,7 @@
 package io.mywish.bot.integration.services.impl;
 
+import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.bot.integration.services.BlockchainExplorer;
-import io.mywish.scanner.model.NetworkType;
 import lombok.Getter;
 
 public class BlockchainInfoExplorer implements BlockchainExplorer {

@@ -1,21 +1,23 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.ContractEventsEvent;
-import io.lastwill.eventscan.events.contract.ContractEvent;
+import io.lastwill.eventscan.events.contract.erc20.TransferEvent;
+import io.mywish.wrapper.ContractEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
-import io.mywish.scanner.WrapperBlock;
-import io.mywish.scanner.WrapperLog;
-import io.mywish.scanner.WrapperTransaction;
-import io.mywish.scanner.model.NetworkType;
+import io.mywish.wrapper.WrapperBlock;
+import io.mywish.wrapper.WrapperLog;
+import io.mywish.wrapper.WrapperTransaction;
+import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -25,7 +27,7 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class ContractsMonitor {
+public class ContractsMonitor implements ApplicationListener<PayloadApplicationEvent> {
     @Autowired
     private ContractRepository contractRepository;
 
@@ -51,8 +53,13 @@ public class ContractsMonitor {
         proxyByNetwork.put(NetworkType.ETHEREUM_ROPSTEN, proxyAddressRopsten.toLowerCase());
     }
 
-    @EventListener
-    public void onNewBlock(final NewBlockEvent event) {
+    @Override
+    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
+        Object event = springEvent.getPayload();
+        if (event instanceof NewBlockEvent) onNewBlockEvent((NewBlockEvent) event);
+    }
+
+    private void onNewBlockEvent(final NewBlockEvent event) {
         Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;
@@ -68,7 +75,7 @@ public class ContractsMonitor {
         }
 
         Contract ct = new Contract();
-        ct.setAddress("0xaf4ffcd346eb4c4950749ce2095b6d26b7496d2f");
+        ct.setAddress("0x2a464486dc73e90bcf9fa8125622fb0788ca385c");
         ct.setId(0);
         List<Contract> contracts = contractRepository.findByAddressesList(addresses, event.getNetworkType());
         contracts.add(ct);
@@ -91,7 +98,7 @@ public class ContractsMonitor {
 
     private void grabProxyEvents(final NetworkType networkType, final List<WrapperTransaction> transactions, final WrapperBlock block) {
         for (WrapperTransaction transaction : transactions) {
-            transactionProvider.getTransactionReceiptAsync(networkType, transaction.getHash())
+            transactionProvider.getTransactionReceiptAsync(networkType, transaction)
                     .thenAccept(transactionReceipt -> {
                         MultiValueMap<String, WrapperLog> logsByAddress = CollectionUtils.toMultiValueMap(new HashMap<>());
                         for (WrapperLog log : transactionReceipt.getLogs()) {
@@ -130,24 +137,37 @@ public class ContractsMonitor {
     }
 
     private void grabContractEvents(final NetworkType networkType, final Contract contract, final WrapperTransaction transaction, final WrapperBlock block) {
-        transactionProvider.getTransactionReceiptAsync(networkType, transaction.getHash())
+        transactionProvider.getTransactionReceiptAsync(networkType, transaction)
                 .thenAccept(transactionReceipt -> {
-                    List<ContractEvent> eventValues;
+                    System.out.println(transactionReceipt.getLogs().size());
+                    transactionReceipt.getLogs().forEach(log -> {
+                        System.out.println(log.getName());
+                    });
+                    List<ContractEvent> events;
                     try {
-                        eventValues = eventParser.parseEvents(transactionReceipt);
+                        events = eventParser.parseEvents(transactionReceipt);
                     }
                     catch (Throwable e) {
                         log.error("Error on parsing events.", e);
                         return;
                     }
-                    if (eventValues.isEmpty()) {
+                    if (events.isEmpty()) {
                         return;
                     }
+                    events.forEach(baseEvent -> {
+                        if (!(baseEvent instanceof TransferEvent)) return;
+                        TransferEvent event = (TransferEvent) baseEvent;
+                        System.out.println("address: " + event.getAddress());
+                        System.out.println(" name: " + event.getName());
+                        System.out.println("  from: " + event.getFrom());
+                        System.out.println("  to: " + event.getTo());
+                        System.out.println("  tokens: " + event.getTokens());
+                    });
                     eventPublisher.publish(
                             new ContractEventsEvent(
                                     networkType,
                                     contract,
-                                    eventValues,
+                                    events,
                                     transaction,
                                     transactionReceipt,
                                     block)

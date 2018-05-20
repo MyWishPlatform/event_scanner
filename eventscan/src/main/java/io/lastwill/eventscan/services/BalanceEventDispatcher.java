@@ -6,18 +6,25 @@ import io.lastwill.eventscan.messages.PaymentStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @ConditionalOnBean(ExternalNotifier.class)
-public class BalanceEventDispatcher {
+public class BalanceEventDispatcher implements ApplicationListener<PayloadApplicationEvent> {
     @Autowired
     private ExternalNotifier externalNotifier;
 
-    @EventListener
-    public void ownerBalanceChangedHandler(final UserPaymentEvent event) {
+    @Override
+    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
+        Object event = springEvent.getPayload();
+        if (event instanceof UserPaymentEvent) ownerBalanceChangedHandler((UserPaymentEvent) event);
+    }
+
+    private void ownerBalanceChangedHandler(final UserPaymentEvent event) {
         try {
             externalNotifier.send(
                     event.getNetworkType(),

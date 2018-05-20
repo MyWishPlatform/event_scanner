@@ -1,5 +1,6 @@
 package io.mywish.scanner.model;
 
+import io.lastwill.eventscan.model.NetworkType;
 import lombok.Getter;
 import org.bitcoinj.core.Block;
 import org.bitcoinj.core.TransactionOutput;

@@ -1,14 +1,15 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.utility.NetworkStuckEvent;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.model.NewBtcBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class NetworkStuckMonitor {
+public class NetworkStuckMonitor implements ApplicationListener<PayloadApplicationEvent> {
     private final ConcurrentHashMap<NetworkType, LastEvent> lastEvents = new ConcurrentHashMap<>();
     @Value("${io.lastwill.eventscan.network-stuck.interval.btc}")
     private long btcInterval;
@@ -30,20 +31,25 @@ public class NetworkStuckMonitor {
     @Autowired
     private EventPublisher eventPublisher;
 
-    @EventListener
-    public void newBlockEvent(NewBlockEvent event) {
+    @Override
+    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
+        Object event = springEvent.getPayload();
+        if (event instanceof NewBlockEvent) newBlockEvent((NewBlockEvent) event);
+        if (event instanceof NewBtcBlockEvent) newBtcBlockEvent((NewBtcBlockEvent) event);
+    }
+
+    private void newBlockEvent(NewBlockEvent event) {
         lastEvents.put(
                 event.getNetworkType(),
                 new LastEvent(
                         LocalDateTime.now(ZoneOffset.UTC),
-                        Instant.ofEpochSecond(event.getBlock().getTimestamp().longValue()),
-                        event.getBlock().getNumber().longValue()
+                        Instant.ofEpochSecond(event.getBlock().getTimestamp()),
+                        event.getBlock().getNumber()
                 )
         );
     }
 
-    @EventListener
-    public void newBtcBlockEvent(NewBtcBlockEvent event) {
+    private void newBtcBlockEvent(NewBtcBlockEvent event) {
         lastEvents.put(
                 event.getNetworkType(),
                 new LastEvent(

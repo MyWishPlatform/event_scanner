@@ -9,7 +9,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import io.lastwill.eventscan.messages.BaseNotify;
 import io.lastwill.eventscan.messages.Ping;
 import io.lastwill.eventscan.services.ExternalNotifier;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

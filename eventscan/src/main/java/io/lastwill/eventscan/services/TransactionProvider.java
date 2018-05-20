@@ -1,7 +1,8 @@
 package io.lastwill.eventscan.services;
 
-import io.mywish.scanner.WrapperTransactionReceipt;
-import io.mywish.scanner.model.NetworkType;
+import io.mywish.wrapper.WrapperTransaction;
+import io.mywish.wrapper.WrapperTransactionReceipt;
+import io.lastwill.eventscan.model.NetworkType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +18,8 @@ public class TransactionProvider {
     @Autowired
     private NetworkProvider networkProvider;
 
-    public WrapperTransactionReceipt getTransactionReceipt(final NetworkType networkType, final String hash) throws IOException {
-        return networkProvider.get(networkType).getTxReceipt(hash);
+    public WrapperTransactionReceipt getTransactionReceipt(final NetworkType networkType, final WrapperTransaction transaction) throws IOException {
+        return networkProvider.get(networkType).getTxReceipt(transaction);
     }
 
     private static <T> CompletableFuture<List<T>> sequence(List<CompletableFuture<T>> futures) {
@@ -32,8 +33,8 @@ public class TransactionProvider {
         );
     }
 
-    public CompletionStage<WrapperTransactionReceipt> getTransactionReceiptAsync(NetworkType networkType, String hash) {
-        return networkProvider.get(networkType).getTxReceiptAsync(hash);
+    public CompletionStage<WrapperTransactionReceipt> getTransactionReceiptAsync(NetworkType networkType, WrapperTransaction transaction) {
+        return networkProvider.get(networkType).getTxReceiptAsync(transaction);
     }
 //
 //    public CompletionStage<List<TransactionReceipt>> getTransactionReceiptsAsync(Collection<String> hashes) {

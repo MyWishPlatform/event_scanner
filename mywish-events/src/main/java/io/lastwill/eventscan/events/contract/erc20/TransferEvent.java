@@ -1,8 +1,8 @@
 package io.lastwill.eventscan.events.contract.erc20;
 
-import io.lastwill.eventscan.events.contract.ContractEvent;
-import io.lastwill.eventscan.events.contract.ContractEventDefinition;
-import io.mywish.scanner.WrapperTransactionReceipt;
+import io.mywish.wrapper.WrapperTransactionReceipt;
+import io.mywish.wrapper.ContractEvent;
+import io.mywish.wrapper.ContractEventDefinition;
 import lombok.Getter;
 import java.math.BigInteger;
 

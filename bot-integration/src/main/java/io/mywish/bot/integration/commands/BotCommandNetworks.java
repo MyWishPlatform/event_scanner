@@ -1,9 +1,9 @@
 package io.mywish.bot.integration.commands;
 
+import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.services.monitors.NetworkStuckMonitor;
 import io.mywish.bot.service.BotCommand;
 import io.mywish.bot.service.ChatContext;
-import io.mywish.scanner.model.NetworkType;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

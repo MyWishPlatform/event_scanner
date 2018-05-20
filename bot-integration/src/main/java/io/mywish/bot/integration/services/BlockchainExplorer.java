@@ -1,8 +1,6 @@
 package io.mywish.bot.integration.services;
 
-import io.mywish.scanner.model.NetworkType;
-
-import java.net.URL;
+import io.lastwill.eventscan.model.NetworkType;
 
 public interface BlockchainExplorer {
     String buildToAddress(String address);

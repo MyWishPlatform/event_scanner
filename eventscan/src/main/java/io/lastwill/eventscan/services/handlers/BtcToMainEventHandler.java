@@ -4,13 +4,14 @@ import io.lastwill.eventscan.messages.MainPaymentNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
 import io.lastwill.eventscan.services.Btc2RskNetworkConverter;
 import io.lastwill.eventscan.services.ExternalNotifier;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.model.NewBtcBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.TransactionOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -22,7 +23,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
-public class BtcToMainEventHandler {
+public class BtcToMainEventHandler implements ApplicationListener<PayloadApplicationEvent> {
     @Autowired
     private ExternalNotifier externalNotifier;
     @Autowired
@@ -41,8 +42,13 @@ public class BtcToMainEventHandler {
         mainAddresses.put(NetworkType.BTC_TESTNET_3, btcMainTestnetAddress);
     }
 
-    @EventListener
-    public void handleBtcBlock(NewBtcBlockEvent event) {
+    @Override
+    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
+        Object event = springEvent.getPayload();
+        if (event instanceof NewBtcBlockEvent) handleBtcBlock((NewBtcBlockEvent) event);
+    }
+
+    private void handleBtcBlock(NewBtcBlockEvent event) {
         NetworkType sourceNetwork = event.getNetworkType();
         final String mainAddress = mainAddresses.get(sourceNetwork);
         NetworkType targetNetwork = btc2RskNetworkConverter.convert(sourceNetwork);

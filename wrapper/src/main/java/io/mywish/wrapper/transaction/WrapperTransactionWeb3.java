@@ -1,5 +1,7 @@
-package io.mywish.scanner;
+package io.mywish.wrapper.transaction;
 
+import io.mywish.wrapper.WrapperOutput;
+import io.mywish.wrapper.WrapperTransaction;
 import org.web3j.protocol.core.methods.response.Transaction;
 
 import java.math.BigInteger;

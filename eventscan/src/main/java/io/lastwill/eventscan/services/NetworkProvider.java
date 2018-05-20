@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.services;
 
-import io.mywish.scanner.Network;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
+import io.mywish.wrapper.WrapperNetwork;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,9 +13,9 @@ import java.util.Map;
 @Component
 public class NetworkProvider {
     @Autowired
-    private Map<String, Network> networkByName = new HashMap<>();
+    private Map<String, WrapperNetwork> networkByName = new HashMap<>();
 
-    private final Map<NetworkType, Network> networkByType = new HashMap<>();
+    private final Map<NetworkType, WrapperNetwork> networkByType = new HashMap<>();
 
     @PostConstruct
     protected void init() {
@@ -24,8 +24,8 @@ public class NetworkProvider {
         });
     }
 
-    public Network get(NetworkType networkType) {
-        Network network = networkByType.get(networkType);
+    public WrapperNetwork get(NetworkType networkType) {
+        WrapperNetwork network = networkByType.get(networkType);
         if (network == null) {
             throw new UnsupportedOperationException("There is no Network for " + networkType);
         }

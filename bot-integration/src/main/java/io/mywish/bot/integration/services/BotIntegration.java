@@ -4,23 +4,20 @@ import io.lastwill.eventscan.events.*;
 import io.lastwill.eventscan.events.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.model.*;
 import io.mywish.bot.service.MyWishBot;
-import io.mywish.scanner.model.NetworkType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.PayloadApplicationEvent;
 
 import java.math.BigInteger;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class BotIntegration {
+public class BotIntegration implements ApplicationListener<PayloadApplicationEvent> {
     @Autowired
     private MyWishBot bot;
 
@@ -43,8 +40,18 @@ public class BotIntegration {
 
     private final String defaultNetwork = "unknown";
 
-    @EventListener
-    public void onContractCrated(final ContractCreatedEvent contractCreatedEvent) {
+    @Override
+    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
+        Object event = springEvent.getPayload();
+        if (event instanceof ContractCreatedEvent) onContractCreated((ContractCreatedEvent) event);
+        if (event instanceof UserPaymentEvent) onOwnerBalanceChanged((UserPaymentEvent) event);
+        if (event instanceof FGWBalanceChangedEvent) onRskFGWBalanceChanged((FGWBalanceChangedEvent) event);
+        if (event instanceof ProductPaymentEvent) onBtcPaymentChanged((ProductPaymentEvent) event);
+        if (event instanceof NeoPaymentEvent) onNeoPayment((NeoPaymentEvent) event);
+        if (event instanceof NetworkStuckEvent) onNetworkStuck((NetworkStuckEvent) event);
+    }
+
+    private void onContractCreated(final ContractCreatedEvent contractCreatedEvent) {
         final Contract contract = contractCreatedEvent.getContract();
         final Product product = contract.getProduct();
         final String type = ProductStatistics.PRODUCT_TYPES.get(product.getContractType());
@@ -62,8 +69,7 @@ public class BotIntegration {
         }
     }
 
-    @EventListener
-    public void onOwnerBalanceChanged(final UserPaymentEvent event) {
+    private void onOwnerBalanceChanged(final UserPaymentEvent event) {
         final UserProfile userProfile = event.getUserProfile();
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         final String txLink = explorerProvider.getOrStub(event.getNetworkType())
@@ -76,8 +82,7 @@ public class BotIntegration {
         );
     }
 
-    @EventListener
-    public void onRskFGWBalanceChanged(final FGWBalanceChangedEvent event) {
+    private void onRskFGWBalanceChanged(final FGWBalanceChangedEvent event) {
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         final String link = explorerProvider.getOrStub(event.getNetworkType())
                 .buildToAddress(event.getAddress());
@@ -93,8 +98,7 @@ public class BotIntegration {
         );
     }
 
-    @EventListener
-    public void onBtcPaymentChanged(final ProductPaymentEvent event) {
+    private void onBtcPaymentChanged(final ProductPaymentEvent event) {
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         final Product product = event.getProduct();
         final String type = ProductStatistics.PRODUCT_TYPES.get(product.getContractType());
@@ -109,8 +113,7 @@ public class BotIntegration {
         );
     }
 
-    @EventListener
-    public void onNeoPayment(final NeoPaymentEvent event) {
+    private void onNeoPayment(final NeoPaymentEvent event) {
         bot.onNeoPayment(
                 networkName.getOrDefault(event.getNetworkType(), defaultNetwork),
                 event.getAddress(),
@@ -119,8 +122,7 @@ public class BotIntegration {
         );
     }
 
-    @EventListener
-    public void onNetworkStuck(final NetworkStuckEvent event) {
+    private void onNetworkStuck(final NetworkStuckEvent event) {
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         String lastBlock = event.getReceivedTime().atZone(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ISO_DATE_TIME);
         final String blockLink = explorerProvider

@@ -1,16 +1,15 @@
 package io.mywish.scanner;
 
 import com.glowstick.neocli4j.NeoClientImpl;
-import com.neemre.btcdcli4j.core.client.BtcdClient;
 import com.neemre.btcdcli4j.core.client.BtcdClientImpl;
-import io.mywish.scanner.model.NetworkType;
-import io.mywish.scanner.networks.BtcNetwork;
-import io.mywish.scanner.networks.NeoNetwork;
-import io.mywish.scanner.networks.Web3Network;
+import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.services.scanners.BtcScanner;
 import io.mywish.scanner.services.LastBlockPersister;
 import io.mywish.scanner.services.scanners.NeoScanner;
 import io.mywish.scanner.services.scanners.Web3Scanner;
+import io.mywish.wrapper.networks.BtcNetwork;
+import io.mywish.wrapper.networks.NeoNetwork;
+import io.mywish.wrapper.networks.Web3Network;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.TestNet3Params;
@@ -47,7 +46,7 @@ public class ScannerModule {
                 password = credentials[1];
             }
         }
-        return new BtcNetwork(NetworkType.BTC_MAINNET, new BtcdClientImpl(closeableHttpClient, rpc.getScheme(), rpc.getHost(), rpc.getPort(), user, password));
+        return new BtcNetwork(NetworkType.BTC_MAINNET, new BtcdClientImpl(closeableHttpClient, rpc.getScheme(), rpc.getHost(), rpc.getPort(), user, password), new MainNetParams());
     }
 
     @ConditionalOnProperty("etherscanner.bitcoin.rpc-url.testnet")
@@ -64,7 +63,7 @@ public class ScannerModule {
                 password = credentials[1];
             }
         }
-        return new BtcNetwork(NetworkType.BTC_TESTNET_3, new BtcdClientImpl(closeableHttpClient, rpc.getScheme(), rpc.getHost(), rpc.getPort(), user, password));
+        return new BtcNetwork(NetworkType.BTC_TESTNET_3, new BtcdClientImpl(closeableHttpClient, rpc.getScheme(), rpc.getHost(), rpc.getPort(), user, password), new TestNet3Params());
     }
 
 

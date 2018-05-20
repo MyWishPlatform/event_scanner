@@ -1,14 +1,18 @@
-package io.mywish.scanner;
+package io.mywish.wrapper.transaction;
 
 import com.glowstick.neocli4j.Transaction;
 import com.glowstick.neocli4j.TransactionInput;
+import io.mywish.wrapper.WrapperOutput;
+import io.mywish.wrapper.WrapperTransaction;
 import lombok.Getter;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
 public class WrapperTransactionNeo extends WrapperTransaction {
     private final Transaction.Type type;
+    private final List<String> contracts;
 
     public WrapperTransactionNeo(Transaction transaction) {
         super(
@@ -18,5 +22,6 @@ public class WrapperTransactionNeo extends WrapperTransaction {
                 transaction.getContracts().size() == 0 && transaction.getType() == Transaction.Type.InvocationTransaction
         );
         this.type = transaction.getType();
+        this.contracts = transaction.getContracts();
     }
 }

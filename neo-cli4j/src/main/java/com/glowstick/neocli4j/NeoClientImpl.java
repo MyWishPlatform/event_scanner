@@ -28,13 +28,17 @@ public class NeoClientImpl implements NeoClient {
         httpPost.setHeader("Content-type", "application/json");
     }
 
-    private JsonNode RPC(final String method, final String... params) throws java.io.IOException {
+    private JsonNode RPC(final String method, final Object... params) throws java.io.IOException {
         ObjectNode body = new ObjectMapper().createObjectNode()
                 .put("jsonrpc", "2.0")
                 .put("id", "mywishscanner")
                 .put("method", method);
         ArrayNode paramsField = body.putArray("params");
-        Arrays.stream(params).forEach(paramsField::add);
+        Arrays.stream(params).forEach(param -> {
+            if (param instanceof Integer) paramsField.add((Integer)param);
+            if (param instanceof Long) paramsField.add((Long)param);
+            else paramsField.add((String)param);
+        });
         httpPost.setEntity(new StringEntity(body.toString()));
         return new ObjectMapper().readTree(EntityUtils.toString(this.httpClient.execute(httpPost).getEntity(), "UTF-8")).get("result");
     }
@@ -49,8 +53,10 @@ public class NeoClientImpl implements NeoClient {
     }
 
     @Override
-    public String getBlockHash(Integer blockNumber) throws java.io.IOException {
-        return RPC("getblockhash", blockNumber.toString()).asText();
+    public Block getBlock(Long blockNumber) throws java.io.IOException {
+        Block block = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).treeToValue(RPC("getblock", blockNumber, "1"), Block.class);
+        block.getTransactions().forEach(this::initTransaction);
+        return block;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package io.lastwill.eventscan.model;
 
-import io.mywish.scanner.model.NetworkType;
 import lombok.Getter;
 
 import javax.persistence.*;

@@ -3,12 +3,13 @@ package io.lastwill.eventscan.services.monitors;
 import io.lastwill.eventscan.events.TransactionUnlockedEvent;
 import io.lastwill.eventscan.repositories.AddressLockRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
-import io.mywish.scanner.WrapperTransactionReceipt;
 import io.mywish.scanner.services.EventPublisher;
+import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class LockMonitor {
+public class LockMonitor implements ApplicationListener<PayloadApplicationEvent> {
     @Autowired
     private AddressLockRepository addressLockRepository;
 
@@ -28,8 +29,13 @@ public class LockMonitor {
     @Autowired
     private EventPublisher eventPublisher;
 
-    @EventListener
-    public void onNewBlock(final NewBlockEvent event) {
+    @Override
+    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
+        Object event = springEvent.getPayload();
+        if (event instanceof NewBlockEvent) onNewBlock((NewBlockEvent) event);
+    }
+
+    private void onNewBlock(final NewBlockEvent event) {
         Set<String> addresses = event.getTransactionsByAddress()
                 .entrySet()
                 .stream()
@@ -51,7 +57,7 @@ public class LockMonitor {
                             .forEach(tx -> {
                                 WrapperTransactionReceipt receipt;
                                 try {
-                                    receipt = transactionProvider.getTransactionReceipt(event.getNetworkType(), tx.getHash());
+                                    receipt = transactionProvider.getTransactionReceipt(event.getNetworkType(), tx);
                                 }
                                 catch (IOException e) {
                                     log.warn("Getting transaction receipt failed.", e);

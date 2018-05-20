@@ -1,4 +1,4 @@
-package io.mywish.scanner;
+package io.mywish.wrapper;
 
 import lombok.Getter;
 

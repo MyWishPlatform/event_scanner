@@ -1,7 +1,8 @@
 package io.mywish.scanner.model;
 
-import io.mywish.scanner.WrapperBlock;
-import io.mywish.scanner.WrapperTransaction;
+import io.lastwill.eventscan.model.NetworkType;
+import io.mywish.wrapper.WrapperBlock;
+import io.mywish.wrapper.WrapperTransaction;
 import lombok.Getter;
 import org.springframework.util.MultiValueMap;
 

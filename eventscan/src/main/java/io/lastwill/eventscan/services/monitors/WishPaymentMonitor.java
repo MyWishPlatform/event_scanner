@@ -8,14 +8,15 @@ import io.lastwill.eventscan.repositories.UserProfileRepository;
 import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.lastwill.eventscan.services.builders.erc20.TransferEventBuilder;
-import io.mywish.scanner.WrapperTransaction;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.services.EventPublisher;
+import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -25,7 +26,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
-public class WishPaymentMonitor {
+public class WishPaymentMonitor implements ApplicationListener<PayloadApplicationEvent> {
     @Autowired
     private UserProfileRepository userProfileRepository;
     @Autowired
@@ -48,8 +49,13 @@ public class WishPaymentMonitor {
         log.info("Token address: {}.", tokenAddress);
     }
 
-    @EventListener
-    public void onNewBlock(final NewBlockEvent newWeb3BlockEvent) {
+    @Override
+    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
+        Object event = springEvent.getPayload();
+        if (event instanceof NewBlockEvent) onNewBlock((NewBlockEvent) event);
+    }
+
+    private void onNewBlock(final NewBlockEvent newWeb3BlockEvent) {
         // wish only in mainnet works
         if (newWeb3BlockEvent.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {
             return;
@@ -68,8 +74,8 @@ public class WishPaymentMonitor {
             if (!tokenAddress.equalsIgnoreCase(transaction.getOutputs().get(0).getAddress())) {
                 continue;
             }
-            transactionProvider.getTransactionReceiptAsync(newWeb3BlockEvent.getNetworkType(), transaction.getHash())
-                    .thenAccept(transactionReceipt -> eventParser.parseEvents(transactionReceipt, transferEventBuilder.getEventSignature())
+            transactionProvider.getTransactionReceiptAsync(newWeb3BlockEvent.getNetworkType(), transaction)
+                    .thenAccept(transactionReceipt -> eventParser.parseEvents(transactionReceipt)
                             .stream()
                             .filter(event -> event instanceof TransferEvent)
                             .map(event -> (TransferEvent) event)

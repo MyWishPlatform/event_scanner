@@ -1,4 +1,4 @@
-package io.mywish.scanner.services;
+package io.mywish.wrapper.helpers;
 
 import org.bitcoinj.core.*;
 import org.springframework.stereotype.Component;

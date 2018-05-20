@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.repositories;
 
 import io.lastwill.eventscan.model.AddressLock;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

@@ -1,4 +1,4 @@
-package io.mywish.scanner.model;
+package io.lastwill.eventscan.model;
 
 public enum NetworkType {
     ETHEREUM_MAINNET,

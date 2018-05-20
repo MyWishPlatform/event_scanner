@@ -5,9 +5,11 @@ import io.lastwill.eventscan.messages.FgwPaymentIncomeNotify;
 import io.lastwill.eventscan.messages.FgwPaymentOutcomeNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
 import io.lastwill.eventscan.services.ExternalNotifier;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -15,12 +17,17 @@ import java.math.BigInteger;
 
 @Slf4j
 @Component
-public class FGWEventHandler {
+public class FGWEventHandler implements ApplicationListener<PayloadApplicationEvent> {
     @Autowired
     private ExternalNotifier externalNotifier;
 
-    @EventListener
-    public void handleFgwEvent(FGWBalanceChangedEvent event) {
+    @Override
+    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
+        Object event = springEvent.getPayload();
+        if (event instanceof FGWBalanceChangedEvent) handleFgwEvent((FGWBalanceChangedEvent) event);
+    }
+
+    private void handleFgwEvent(FGWBalanceChangedEvent event) {
         NetworkType targetNetwork = convert(event.getNetworkType());
         int diff = event.getDelta().compareTo(BigInteger.ZERO);
         if (diff > 0) {

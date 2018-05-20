@@ -3,24 +3,23 @@ package io.lastwill.eventscan.services.monitors;
 import com.glowstick.neocli4j.Transaction;
 import io.lastwill.eventscan.events.NeoPaymentEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
-import io.mywish.scanner.WrapperTransaction;
-import io.mywish.scanner.WrapperTransactionNeo;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
+import io.mywish.wrapper.transaction.WrapperTransactionNeo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 @Slf4j
 @Component
-public class NeoPaymentMonitor {
+public class NeoPaymentMonitor implements ApplicationListener<PayloadApplicationEvent> {
     @Autowired
     private EventPublisher eventPublisher;
 
@@ -37,8 +36,13 @@ public class NeoPaymentMonitor {
         return null;
     }
 
-    @EventListener
-    public void handleNeoBlock(NewBlockEvent event) {
+    @Override
+    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
+        Object event = springEvent.getPayload();
+        if (event instanceof NewBlockEvent) handleNeoBlock((NewBlockEvent) event);
+    }
+
+    private void handleNeoBlock(NewBlockEvent event) {
         if (event.getNetworkType() != NetworkType.NEO_MAINNET || event.getNetworkType() != NetworkType.NEO_TESTNET) return;
         event.getBlock().getTransactions().forEach(atx -> {
             WrapperTransactionNeo tx = (WrapperTransactionNeo) atx;

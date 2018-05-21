@@ -11,8 +11,7 @@ import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.PayloadApplicationEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -25,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
-public class RskPaymentMonitor implements ApplicationListener<PayloadApplicationEvent> {
+public class RskPaymentMonitor {
     @Autowired
     private NetworkProvider networkProvider;
 
@@ -65,12 +64,7 @@ public class RskPaymentMonitor implements ApplicationListener<PayloadApplication
         }
     }
 
-    @Override
-    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
-        Object event = springEvent.getPayload();
-        if (event instanceof NewBlockEvent) newBlockHandler((NewBlockEvent) event);
-    }
-
+    @EventListener
     private void newBlockHandler(final NewBlockEvent event) {
         if (!addressByNet.containsKey(event.getNetworkType())) {
             return;
@@ -84,7 +78,7 @@ public class RskPaymentMonitor implements ApplicationListener<PayloadApplication
 
         latestBalance.computeIfAbsent(lookingAddress, address -> {
             try {
-                return balanceProvider.getBalance(event.getNetworkType(), address, event.getBlock().getNumber().longValue());
+                return balanceProvider.getBalance(event.getNetworkType(), address, event.getBlock().getNumber());
             }
             catch (IOException e) {
                 log.warn("Error on getting first time balance in {} for FGW address {}.", event.getNetworkType(), lookingAddress, e);
@@ -98,7 +92,7 @@ public class RskPaymentMonitor implements ApplicationListener<PayloadApplication
             return;
         }
 
-        balanceProvider.getBalanceAsync(event.getNetworkType(), lookingAddress, event.getBlock().getNumber().longValue())
+        balanceProvider.getBalanceAsync(event.getNetworkType(), lookingAddress, event.getBlock().getNumber())
                 .thenAccept(newBalance -> {
                     final BigInteger delta = balance.subtract(newBalance);
                     if (delta.compareTo(BigInteger.ZERO) == 0) {
@@ -110,7 +104,7 @@ public class RskPaymentMonitor implements ApplicationListener<PayloadApplication
                             newBalance,
                             delta,
                             CryptoCurrency.RSK,
-                            event.getBlock().getNumber().longValue(),
+                            event.getBlock().getNumber(),
                             true
                     ));
                 })

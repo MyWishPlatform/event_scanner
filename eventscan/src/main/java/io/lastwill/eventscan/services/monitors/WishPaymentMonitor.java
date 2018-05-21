@@ -15,8 +15,7 @@ import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.PayloadApplicationEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -26,7 +25,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
-public class WishPaymentMonitor implements ApplicationListener<PayloadApplicationEvent> {
+public class WishPaymentMonitor {
     @Autowired
     private UserProfileRepository userProfileRepository;
     @Autowired
@@ -49,12 +48,7 @@ public class WishPaymentMonitor implements ApplicationListener<PayloadApplicatio
         log.info("Token address: {}.", tokenAddress);
     }
 
-    @Override
-    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
-        Object event = springEvent.getPayload();
-        if (event instanceof NewBlockEvent) onNewBlock((NewBlockEvent) event);
-    }
-
+    @EventListener
     private void onNewBlock(final NewBlockEvent newWeb3BlockEvent) {
         // wish only in mainnet works
         if (newWeb3BlockEvent.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {

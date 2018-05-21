@@ -8,8 +8,7 @@ import io.mywish.scanner.services.EventPublisher;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.PayloadApplicationEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class NetworkStuckMonitor implements ApplicationListener<PayloadApplicationEvent> {
+public class NetworkStuckMonitor {
     private final ConcurrentHashMap<NetworkType, LastEvent> lastEvents = new ConcurrentHashMap<>();
     @Value("${io.lastwill.eventscan.network-stuck.interval.btc}")
     private long btcInterval;
@@ -31,13 +30,7 @@ public class NetworkStuckMonitor implements ApplicationListener<PayloadApplicati
     @Autowired
     private EventPublisher eventPublisher;
 
-    @Override
-    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
-        Object event = springEvent.getPayload();
-        if (event instanceof NewBlockEvent) newBlockEvent((NewBlockEvent) event);
-        if (event instanceof NewBtcBlockEvent) newBtcBlockEvent((NewBtcBlockEvent) event);
-    }
-
+    @EventListener
     private void newBlockEvent(NewBlockEvent event) {
         lastEvents.put(
                 event.getNetworkType(),
@@ -49,6 +42,7 @@ public class NetworkStuckMonitor implements ApplicationListener<PayloadApplicati
         );
     }
 
+    @EventListener
     private void newBtcBlockEvent(NewBtcBlockEvent event) {
         lastEvents.put(
                 event.getNetworkType(),

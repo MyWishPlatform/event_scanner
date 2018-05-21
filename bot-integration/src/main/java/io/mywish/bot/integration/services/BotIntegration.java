@@ -7,8 +7,7 @@ import io.mywish.bot.service.MyWishBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.PayloadApplicationEvent;
+import org.springframework.context.event.EventListener;
 
 import java.math.BigInteger;
 import java.time.ZoneId;
@@ -17,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class BotIntegration implements ApplicationListener<PayloadApplicationEvent> {
+public class BotIntegration {
     @Autowired
     private MyWishBot bot;
 
@@ -40,17 +39,7 @@ public class BotIntegration implements ApplicationListener<PayloadApplicationEve
 
     private final String defaultNetwork = "unknown";
 
-    @Override
-    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
-        Object event = springEvent.getPayload();
-        if (event instanceof ContractCreatedEvent) onContractCreated((ContractCreatedEvent) event);
-        if (event instanceof UserPaymentEvent) onOwnerBalanceChanged((UserPaymentEvent) event);
-        if (event instanceof FGWBalanceChangedEvent) onRskFGWBalanceChanged((FGWBalanceChangedEvent) event);
-        if (event instanceof ProductPaymentEvent) onBtcPaymentChanged((ProductPaymentEvent) event);
-        if (event instanceof NeoPaymentEvent) onNeoPayment((NeoPaymentEvent) event);
-        if (event instanceof NetworkStuckEvent) onNetworkStuck((NetworkStuckEvent) event);
-    }
-
+    @EventListener
     private void onContractCreated(final ContractCreatedEvent contractCreatedEvent) {
         final Contract contract = contractCreatedEvent.getContract();
         final Product product = contract.getProduct();
@@ -69,6 +58,7 @@ public class BotIntegration implements ApplicationListener<PayloadApplicationEve
         }
     }
 
+    @EventListener
     private void onOwnerBalanceChanged(final UserPaymentEvent event) {
         final UserProfile userProfile = event.getUserProfile();
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
@@ -82,6 +72,7 @@ public class BotIntegration implements ApplicationListener<PayloadApplicationEve
         );
     }
 
+    @EventListener
     private void onRskFGWBalanceChanged(final FGWBalanceChangedEvent event) {
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         final String link = explorerProvider.getOrStub(event.getNetworkType())
@@ -98,6 +89,7 @@ public class BotIntegration implements ApplicationListener<PayloadApplicationEve
         );
     }
 
+    @EventListener
     private void onBtcPaymentChanged(final ProductPaymentEvent event) {
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         final Product product = event.getProduct();
@@ -113,6 +105,7 @@ public class BotIntegration implements ApplicationListener<PayloadApplicationEve
         );
     }
 
+    @EventListener
     private void onNeoPayment(final NeoPaymentEvent event) {
         bot.onNeoPayment(
                 networkName.getOrDefault(event.getNetworkType(), defaultNetwork),
@@ -122,6 +115,7 @@ public class BotIntegration implements ApplicationListener<PayloadApplicationEve
         );
     }
 
+    @EventListener
     private void onNetworkStuck(final NetworkStuckEvent event) {
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         String lastBlock = event.getReceivedTime().atZone(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ISO_DATE_TIME);

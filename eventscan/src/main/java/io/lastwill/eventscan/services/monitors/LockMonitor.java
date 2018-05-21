@@ -8,8 +8,7 @@ import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.PayloadApplicationEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class LockMonitor implements ApplicationListener<PayloadApplicationEvent> {
+public class LockMonitor {
     @Autowired
     private AddressLockRepository addressLockRepository;
 
@@ -29,12 +28,7 @@ public class LockMonitor implements ApplicationListener<PayloadApplicationEvent>
     @Autowired
     private EventPublisher eventPublisher;
 
-    @Override
-    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
-        Object event = springEvent.getPayload();
-        if (event instanceof NewBlockEvent) onNewBlock((NewBlockEvent) event);
-    }
-
+    @EventListener
     private void onNewBlock(final NewBlockEvent event) {
         Set<String> addresses = event.getTransactionsByAddress()
                 .entrySet()

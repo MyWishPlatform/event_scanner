@@ -11,8 +11,7 @@ import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.PayloadApplicationEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import java.math.BigInteger;
 import java.util.List;
@@ -20,7 +19,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
-public class EthPaymentMonitor implements ApplicationListener<PayloadApplicationEvent> {
+public class EthPaymentMonitor {
     @Autowired
     private EventPublisher eventPublisher;
 
@@ -30,12 +29,7 @@ public class EthPaymentMonitor implements ApplicationListener<PayloadApplication
     @Autowired
     private TransactionProvider transactionProvider;
 
-    @Override
-    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
-        Object event = springEvent.getPayload();
-        if (event instanceof NewBlockEvent) onNewBlockEvent((NewBlockEvent) event);
-    }
-
+    @EventListener
     private void onNewBlockEvent(NewBlockEvent event) {
         // payments only in mainnet works
         if (event.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {

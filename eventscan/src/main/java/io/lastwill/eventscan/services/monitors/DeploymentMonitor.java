@@ -11,8 +11,7 @@ import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.PayloadApplicationEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.io.UncheckedIOException;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class DeploymentMonitor implements ApplicationListener<PayloadApplicationEvent> {
+public class DeploymentMonitor {
     @Autowired
     private ContractRepository contractRepository;
 
@@ -38,17 +37,8 @@ public class DeploymentMonitor implements ApplicationListener<PayloadApplication
     @Autowired
     private NetworkProvider networkProvider;
 
-    @Override
-    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
-        try {
-            Object event = springEvent.getPayload();
-            if (event instanceof NewBlockEvent) onNewBlock((NewBlockEvent) event);
-        } catch (java.io.IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private void onNewBlock(final NewBlockEvent event) throws java.io.IOException {
+    @EventListener
+    private void onNewBlock(final NewBlockEvent event) {
         WrapperNetwork network = networkProvider.get(event.getNetworkType());
         Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
@@ -73,7 +63,7 @@ public class DeploymentMonitor implements ApplicationListener<PayloadApplication
         List<Contract> contracts = contractRepository.findByTxHashes(deployHashes.keySet(), event.getNetworkType());
         for (Contract contract : contracts) {
             final WrapperTransaction transaction = deployHashes.get(contract.getTxHash().toLowerCase());
-            transactionProvider.getTransactionReceiptAsync(event.getNetworkType(), network.getTransaction(contract.getTxHash()))
+            transactionProvider.getTransactionReceiptAsync(event.getNetworkType(), transaction)
                     .thenAccept(transactionReceipt -> {
                         if (!transactionReceipt.isSuccess()) {
                             log.warn("Failed contract ({}) creation in transaction {}!", contract.getId(), transaction.getHash());

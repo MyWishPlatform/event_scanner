@@ -10,8 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.TransactionOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.PayloadApplicationEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -23,7 +22,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
-public class BtcToMainEventHandler implements ApplicationListener<PayloadApplicationEvent> {
+public class BtcToMainEventHandler {
     @Autowired
     private ExternalNotifier externalNotifier;
     @Autowired
@@ -42,12 +41,7 @@ public class BtcToMainEventHandler implements ApplicationListener<PayloadApplica
         mainAddresses.put(NetworkType.BTC_TESTNET_3, btcMainTestnetAddress);
     }
 
-    @Override
-    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
-        Object event = springEvent.getPayload();
-        if (event instanceof NewBtcBlockEvent) handleBtcBlock((NewBtcBlockEvent) event);
-    }
-
+    @EventListener
     private void handleBtcBlock(NewBtcBlockEvent event) {
         NetworkType sourceNetwork = event.getNetworkType();
         final String mainAddress = mainAddresses.get(sourceNetwork);

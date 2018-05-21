@@ -16,8 +16,7 @@ import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.PayloadApplicationEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -27,7 +26,7 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class ContractsMonitor implements ApplicationListener<PayloadApplicationEvent> {
+public class ContractsMonitor {
     @Autowired
     private ContractRepository contractRepository;
 
@@ -53,12 +52,7 @@ public class ContractsMonitor implements ApplicationListener<PayloadApplicationE
         proxyByNetwork.put(NetworkType.ETHEREUM_ROPSTEN, proxyAddressRopsten.toLowerCase());
     }
 
-    @Override
-    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
-        Object event = springEvent.getPayload();
-        if (event instanceof NewBlockEvent) onNewBlockEvent((NewBlockEvent) event);
-    }
-
+    @EventListener
     private void onNewBlockEvent(final NewBlockEvent event) {
         Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
@@ -74,6 +68,7 @@ public class ContractsMonitor implements ApplicationListener<PayloadApplicationE
             }
         }
 
+        // TODO remove
         Contract ct = new Contract();
         ct.setAddress("0x2a464486dc73e90bcf9fa8125622fb0788ca385c");
         ct.setId(0);

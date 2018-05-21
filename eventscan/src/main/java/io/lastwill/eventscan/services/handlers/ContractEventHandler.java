@@ -11,15 +11,13 @@ import io.mywish.wrapper.ContractEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @ConditionalOnBean(ExternalNotifier.class)
-public class ContractEventHandler implements ApplicationListener<PayloadApplicationEvent> {
+public class ContractEventHandler {
     @Autowired
     private ExternalNotifier externalNotifier;
 
@@ -32,12 +30,7 @@ public class ContractEventHandler implements ApplicationListener<PayloadApplicat
     @Autowired
     private TransferOwnershipHandler transferOwnershipHandler;
 
-    @Override
-    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
-        Object event = springEvent.getPayload();
-        if (event instanceof ContractEventsEvent) eventsHandler((ContractEventsEvent) event);
-    }
-
+    @EventListener
     private void eventsHandler(final ContractEventsEvent event) {
         for (ContractEvent contractEvent: event.getEvents()) {
             if (contractEvent instanceof CheckedEvent) {
@@ -101,6 +94,5 @@ public class ContractEventHandler implements ApplicationListener<PayloadApplicat
                         new NotifiedNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
         }
-
     }
 }

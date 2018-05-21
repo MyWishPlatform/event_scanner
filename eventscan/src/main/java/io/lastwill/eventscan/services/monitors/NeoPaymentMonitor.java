@@ -9,8 +9,7 @@ import io.mywish.scanner.services.EventPublisher;
 import io.mywish.wrapper.transaction.WrapperTransactionNeo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.PayloadApplicationEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
@@ -19,29 +18,19 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class NeoPaymentMonitor implements ApplicationListener<PayloadApplicationEvent> {
+public class NeoPaymentMonitor {
     @Autowired
     private EventPublisher eventPublisher;
 
+    // TODO remove
     private final String addressToWatch = "AJFTKKCTVsxvXfctQuYeRqFGZhcQC99pKu";
+
     private final Map<String, CryptoCurrency> assets = new HashMap<String, CryptoCurrency>() {{
             put("0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b", CryptoCurrency.NEO);
             put("0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7", CryptoCurrency.GAS);
     }};
 
-    // TODO: remove
-    private static BigInteger toBigInteger(Double value, CryptoCurrency asset) {
-        if (asset == CryptoCurrency.NEO) return BigInteger.valueOf(Math.round(value));
-        if (asset == CryptoCurrency.GAS) return BigInteger.valueOf(Math.round(value * Math.pow(10, 8)));
-        return null;
-    }
-
-    @Override
-    public void onApplicationEvent(PayloadApplicationEvent springEvent) {
-        Object event = springEvent.getPayload();
-        if (event instanceof NewBlockEvent) handleNeoBlock((NewBlockEvent) event);
-    }
-
+    @EventListener
     private void handleNeoBlock(NewBlockEvent event) {
         if (event.getNetworkType() != NetworkType.NEO_MAINNET || event.getNetworkType() != NetworkType.NEO_TESTNET) return;
         event.getBlock().getTransactions().forEach(atx -> {

@@ -11,8 +11,6 @@ import io.mywish.wrapper.WrapperTransactionReceipt;
 import lombok.Getter;
 import org.bitcoinj.core.NetworkParameters;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.IOException;
 import java.math.BigInteger;
 
 public class BtcNetwork extends WrapperNetwork {
@@ -31,45 +29,33 @@ public class BtcNetwork extends WrapperNetwork {
     }
 
     @Override
-    public Long getLastBlock() throws IOException {
-        try {
-            return btcdClient.getBlockCount().longValue();
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
+    public Long getLastBlock() throws Exception {
+        return btcdClient.getBlockCount().longValue();
     }
 
     @Override
-    public WrapperBlock getBlock(String hash) throws java.io.IOException {
-        try {
-            return new WrapperBlockBtc(btcBlockParser.parse(networkParameters, (String) btcdClient.getBlock(hash, false)), networkParameters);
-        } catch (Exception e) {
-            throw new java.io.IOException(e);
-        }
+    public WrapperBlock getBlock(String hash) throws Exception {
+        return new WrapperBlockBtc(btcBlockParser.parse(networkParameters, (String) btcdClient.getBlock(hash, false)), networkParameters);
     }
 
     @Override
-    public WrapperBlock getBlock(Long number) throws java.io.IOException {
-        try {
-            String hash = btcdClient.getBlockHash(number.intValue());
-            return getBlock(btcdClient.getBlockHash(number.intValue()));
-        } catch (Exception e) {
-            throw new java.io.IOException(e);
-        }
+    public WrapperBlock getBlock(Long number) throws Exception {
+        String hash = btcdClient.getBlockHash(number.intValue());
+        return getBlock(btcdClient.getBlockHash(number.intValue()));
     }
 
     @Override
-    public WrapperTransaction getTransaction(String hash) throws java.io.IOException {
-        throw new RuntimeException("Method not supported");
+    public WrapperTransaction getTransaction(String hash) throws Exception {
+        throw new Exception("Method not supported");
     }
 
     @Override
-    public BigInteger getBalance(String address, Long blockNo) {
-        throw new RuntimeException("Method not supported");
+    public BigInteger getBalance(String address, Long blockNo) throws Exception {
+        throw new Exception("Method not supported");
     }
 
     @Override
-    public WrapperTransactionReceipt getTxReceipt(WrapperTransaction transaction) {
-        throw new RuntimeException("Method not supported");
+    public WrapperTransactionReceipt getTxReceipt(WrapperTransaction transaction) throws Exception {
+        throw new Exception("Method not supported");
     }
 }

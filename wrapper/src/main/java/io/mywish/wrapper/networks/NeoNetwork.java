@@ -43,22 +43,22 @@ public class NeoNetwork extends WrapperNetwork {
     }
 
     @Override
-    public Long getLastBlock() throws java.io.IOException {
+    public Long getLastBlock() throws Exception {
         return (long)neoClient.getBlockCount();
     }
 
     @Override
-    public WrapperBlock getBlock(String hash) throws java.io.IOException {
+    public WrapperBlock getBlock(String hash) throws Exception {
         return new WrapperBlockNeo(neoClient.getBlock(hash));
     }
 
     @Override
-    public WrapperBlock getBlock(Long number) throws java.io.IOException {
+    public WrapperBlock getBlock(Long number) throws Exception {
         return new WrapperBlockNeo(neoClient.getBlock(number));
     }
 
     @Override
-    public WrapperTransaction getTransaction(String hash) throws java.io.IOException {
+    public WrapperTransaction getTransaction(String hash) throws Exception {
         return new WrapperTransactionNeo(neoClient.getTransaction(hash, false));
     }
 /*
@@ -68,12 +68,12 @@ public class NeoNetwork extends WrapperNetwork {
     }
 */
     @Override
-    public BigInteger getBalance(String address, Long blockNo) throws java.io.IOException {
+    public BigInteger getBalance(String address, Long blockNo) throws Exception {
         return neoClient.getBalance(address);
     }
 
     @Override
-    public WrapperTransactionReceipt getTxReceipt(WrapperTransaction transaction) throws java.io.IOException {
+    public WrapperTransactionReceipt getTxReceipt(WrapperTransaction transaction) throws Exception {
         return new WrapperTransactionReceiptNeo(
                 (WrapperTransactionNeo) transaction,
                 neoClient.getEvents(transaction.getHash()).stream().map(event -> new WrapperLogNeo(event, definitionsByName.get(event.getName()))).collect(Collectors.toList())

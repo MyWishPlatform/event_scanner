@@ -33,7 +33,7 @@ public class Web3Network extends WrapperNetwork {
 
     @PostConstruct
     private void init() throws Exception {
-        for (ContractEventBuilder<?> eventBuilder: builders) {
+        for (ContractEventBuilder<?> eventBuilder : builders) {
             if (definitionsBySignature.containsKey(eventBuilder.getDefinition().getSignature())) {
                 throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with signature " + eventBuilder.getDefinition().getSignature());
             }
@@ -42,27 +42,27 @@ public class Web3Network extends WrapperNetwork {
     }
 
     @Override
-    public Long getLastBlock() throws java.io.IOException {
+    public Long getLastBlock() throws Exception {
         return web3j.ethBlockNumber().send().getBlockNumber().longValue();
     }
 
     @Override
-    public WrapperBlock getBlock(String hash) throws java.io.IOException {
+    public WrapperBlock getBlock(String hash) throws Exception {
         return new WrapperBlockWeb3(web3j.ethGetBlockByHash(hash, false).send().getBlock());
     }
 
     @Override
-    public WrapperBlock getBlock(Long number) throws java.io.IOException {
+    public WrapperBlock getBlock(Long number) throws Exception {
         return new WrapperBlockWeb3(web3j.ethGetBlockByNumber(new DefaultBlockParameterNumber(number), true).send().getBlock());
     }
 
     @Override
-    public WrapperTransaction getTransaction(String hash) throws java.io.IOException {
+    public WrapperTransaction getTransaction(String hash) throws Exception {
         return new WrapperTransactionWeb3(web3j.ethGetTransactionByHash(hash).send().getTransaction().get());
     }
 
     @Override
-    public BigInteger getBalance(String address, Long blockNo) throws java.io.IOException {
+    public BigInteger getBalance(String address, Long blockNo) throws Exception {
         return web3j
                 .ethGetBalance(address, new DefaultBlockParameterNumber(blockNo))
                 .send()
@@ -70,7 +70,7 @@ public class Web3Network extends WrapperNetwork {
     }
 
     @Override
-    public WrapperTransactionReceipt getTxReceipt(WrapperTransaction transaction) throws java.io.IOException {
+    public WrapperTransactionReceipt getTxReceipt(WrapperTransaction transaction) throws Exception {
         return new WrapperTransactionReceiptWeb3(
                 web3j
                         .ethGetTransactionReceipt(transaction.getHash())
@@ -80,4 +80,3 @@ public class Web3Network extends WrapperNetwork {
         );
     }
 }
-

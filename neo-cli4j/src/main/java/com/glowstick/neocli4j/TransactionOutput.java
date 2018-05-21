@@ -7,6 +7,8 @@ import java.math.BigInteger;
 
 @Getter
 public class TransactionOutput {
+    @JsonProperty("n")
+    private Integer index;
     private String address;
     private String asset;
     private BigInteger value;

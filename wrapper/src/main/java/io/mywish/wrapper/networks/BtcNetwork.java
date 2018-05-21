@@ -8,13 +8,11 @@ import io.mywish.wrapper.WrapperNetwork;
 import io.mywish.wrapper.block.WrapperBlockBtc;
 import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.wrapper.WrapperTransactionReceipt;
-import lombok.Getter;
 import org.bitcoinj.core.NetworkParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.math.BigInteger;
 
 public class BtcNetwork extends WrapperNetwork {
-    @Getter
     final private BtcdClient btcdClient;
 
     private final NetworkParameters networkParameters;

@@ -95,7 +95,7 @@ public class BotIntegration {
         final Product product = event.getProduct();
         final String type = ProductStatistics.PRODUCT_TYPES.get(product.getContractType());
         final String txLink = explorerProvider.getOrStub(event.getNetworkType())
-                .buildToTransaction(event.getTransactionOutput().getParentTransaction().getHashAsString());
+                .buildToTransaction(event.getTransactionOutput().getParentTransaction());
         bot.onBtcPayment(
                 network,
                 type,

@@ -123,7 +123,6 @@ public class ScannerModule {
         return new BtcScanner(
                 network,
                 new LastBlockPersister(network.getType(), dir, lastBlock),
-                new MainNetParams(),
                 pollingInterval,
                 commitmentChainLength
         );
@@ -141,7 +140,6 @@ public class ScannerModule {
         return new BtcScanner(
                 network,
                 new LastBlockPersister(network.getType(), dir, lastBlock),
-                new TestNet3Params(),
                 pollingInterval,
                 commitmentChainLength
         );

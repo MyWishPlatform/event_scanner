@@ -18,7 +18,7 @@ public class WrapperTransactionNeo extends WrapperTransaction {
         super(
                 transaction.getHash(),
                 transaction.getInputs().stream().map(TransactionInput::getAddress).collect(Collectors.toList()),
-                transaction.getOutputs().stream().map(output -> new WrapperOutput(output.getAddress(), output.getValue())).collect(Collectors.toList()),
+                transaction.getOutputs().stream().map(output -> new WrapperOutput(transaction.getHash(), output.getIndex(), output.getAddress(), output.getValue())).collect(Collectors.toList()),
                 transaction.getContracts().size() == 0 && transaction.getType() == Transaction.Type.InvocationTransaction
         );
         this.type = transaction.getType();

@@ -24,9 +24,9 @@ public class ProductBtcPaymentEventHandler {
             return;
         }
         externalNotifier.send(event.getNetworkType(), new ContractPaymentNotify(
-                BigInteger.valueOf(event.getTransactionOutput().getValue().value),
+                event.getTransactionOutput().getValue(),
                 PaymentStatus.COMMITTED,
-                event.getTransactionOutput().getParentTransaction().getHashAsString(),
+                event.getTransactionOutput().getParentTransaction(),
                 event.getTransactionOutput().getIndex(),
                 event.getProduct()
         ));

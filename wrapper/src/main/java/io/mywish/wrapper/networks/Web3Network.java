@@ -19,12 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 public class Web3Network extends WrapperNetwork {
+    final private Web3j web3j;
+
     @Autowired
     private List<ContractEventBuilder<?>> builders = new ArrayList<>();
 
     private Map<String, ContractEventDefinition> definitionsBySignature = new HashMap<>();
-
-    final private Web3j web3j;
 
     public Web3Network(NetworkType type, Web3j web3j) {
         super(type);

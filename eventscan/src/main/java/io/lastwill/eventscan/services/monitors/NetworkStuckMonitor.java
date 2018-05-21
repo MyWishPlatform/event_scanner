@@ -3,7 +3,6 @@ package io.lastwill.eventscan.services.monitors;
 import io.lastwill.eventscan.events.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.model.NewBlockEvent;
-import io.mywish.scanner.model.NewBtcBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,18 +37,6 @@ public class NetworkStuckMonitor {
                         LocalDateTime.now(ZoneOffset.UTC),
                         Instant.ofEpochSecond(event.getBlock().getTimestamp()),
                         event.getBlock().getNumber()
-                )
-        );
-    }
-
-    @EventListener
-    private void newBtcBlockEvent(NewBtcBlockEvent event) {
-        lastEvents.put(
-                event.getNetworkType(),
-                new LastEvent(
-                        LocalDateTime.now(ZoneOffset.UTC),
-                        Instant.ofEpochSecond(event.getBlock().getTimeSeconds()),
-                        event.getBlockNumber()
                 )
         );
     }

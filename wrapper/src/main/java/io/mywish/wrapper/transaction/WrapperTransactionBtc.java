@@ -13,7 +13,7 @@ public class WrapperTransactionBtc extends WrapperTransaction {
         super(
                 transaction.getHashAsString(),
                 null,
-                transaction.getOutputs().stream().map(output -> new WrapperOutput(output.getScriptPubKey().getToAddress(networkParameters, true).toBase58(), BigInteger.valueOf(output.getValue().getValue()))).collect(Collectors.toList()),
+                transaction.getOutputs().stream().map(output -> new WrapperOutput(transaction.getHashAsString(), output.getIndex(), output.getScriptPubKey().getToAddress(networkParameters, true).toBase58(), BigInteger.valueOf(output.getValue().getValue()))).collect(Collectors.toList()),
                 false
         );
     }

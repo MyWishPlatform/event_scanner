@@ -15,13 +15,8 @@ import java.util.HashMap;
 
 @Slf4j
 public class BtcScanner extends Scanner {
-    private final NetworkParameters networkParameters;
-    private final BtcdClient client;
-
-    public BtcScanner(BtcNetwork network, LastBlockPersister lastBlockPersister, NetworkParameters networkParameters, Long pollingInterval, Integer commitmentChainLength) {
+    public BtcScanner(BtcNetwork network, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength) {
         super(network, lastBlockPersister, pollingInterval, commitmentChainLength);
-        this.client = network.getBtcdClient();
-        this.networkParameters = networkParameters;
     }
 
     @Override

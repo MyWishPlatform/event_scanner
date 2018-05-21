@@ -17,7 +17,7 @@ public class WrapperTransactionWeb3 extends WrapperTransaction {
                     add(transaction.getFrom());
                 }},
                 new ArrayList<WrapperOutput>() {{
-                    add(new WrapperOutput(transaction.getTo(), "0".equals(transaction.getValueRaw()) ? BigInteger.ZERO : transaction.getValue()));
+                    add(new WrapperOutput(transaction.getHash(), 0, transaction.getTo(), "0".equals(transaction.getValueRaw()) ? BigInteger.ZERO : transaction.getValue()));
                 }},
                 transaction.getTo() == null || ZERO_ADDRESS.equalsIgnoreCase(transaction.getTo())
         );

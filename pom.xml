@@ -28,6 +28,7 @@
         <module>mywish-events</module>
         <module>bot-integration</module>
         <module>neo-cli4j</module>
+        <module>wrapper</module>
     </modules>
 
     <properties>

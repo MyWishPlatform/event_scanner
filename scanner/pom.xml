@@ -22,15 +22,14 @@
             <version>${web3j.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.MyWishPlatform.btcd-cli4j</groupId>
-            <artifactId>btcd-cli4j-core</artifactId>
-            <version>${btcd-cli4j.version}</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>mywish-model</artifactId>
+            <version>${project.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.bitcoinj/bitcoinj-core -->
         <dependency>
-            <groupId>org.bitcoinj</groupId>
-            <artifactId>bitcoinj-core</artifactId>
-            <version>${bitcoinj.version}</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>wrapper</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

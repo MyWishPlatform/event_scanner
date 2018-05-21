@@ -7,6 +7,7 @@ import io.mywish.scanner.services.scanners.BtcScanner;
 import io.mywish.scanner.services.LastBlockPersister;
 import io.mywish.scanner.services.scanners.NeoScanner;
 import io.mywish.scanner.services.scanners.Web3Scanner;
+import io.mywish.wrapper.helpers.BtcBlockParser;
 import io.mywish.wrapper.networks.BtcNetwork;
 import io.mywish.wrapper.networks.NeoNetwork;
 import io.mywish.wrapper.networks.Web3Network;
@@ -26,6 +27,7 @@ import java.net.URI;
 @Configuration
 @ComponentScan
 @PropertySource("classpath:scanner.properties")
+@Import(BtcBlockParser.class)
 public class ScannerModule {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyConfig() {

@@ -22,7 +22,7 @@ public class BtcNetwork extends WrapperNetwork {
     private final NetworkParameters networkParameters;
 
     @Autowired
-    BtcBlockParser btcBlockParser;
+    private BtcBlockParser btcBlockParser;
 
     public BtcNetwork(NetworkType type, BtcdClient btcdClient, NetworkParameters networkParameters) {
         super(type);

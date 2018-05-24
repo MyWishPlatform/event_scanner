@@ -19,7 +19,8 @@ public class Transaction {
         ContractTransaction,
         AgencyTransaction,
         PublishTransaction,
-        InvocationTransaction
+        InvocationTransaction,
+        StateTransaction
     }
 
     private Type type;

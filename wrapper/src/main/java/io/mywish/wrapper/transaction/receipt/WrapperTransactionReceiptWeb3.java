@@ -25,7 +25,8 @@ public class WrapperTransactionReceiptWeb3 extends WrapperTransactionReceipt {
                     }
                     return null;
                 }).filter(Objects::nonNull).collect(Collectors.toList()),
-                (web3TxReceipt.getStatus().startsWith("0x") ? Numeric.decodeQuantity(web3TxReceipt.getStatus()) : new BigInteger(web3TxReceipt.getStatus()))
+                (web3TxReceipt.getStatus().startsWith("0x") ?
+                        Numeric.decodeQuantity(web3TxReceipt.getStatus()) : new BigInteger(web3TxReceipt.getStatus()))
                         .compareTo(BigInteger.ZERO) != 0
         );
     }

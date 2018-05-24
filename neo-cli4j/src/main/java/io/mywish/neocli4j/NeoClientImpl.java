@@ -3,8 +3,9 @@ package io.mywish.neocli4j;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.mywish.neocli4j.model.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -13,99 +14,116 @@ import org.apache.http.util.EntityUtils;
 import java.io.UncheckedIOException;
 import java.math.BigInteger;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class NeoClientImpl implements NeoClient {
     private final HttpClient httpClient;
     private final HttpPost httpPost;
+    private final ObjectMapper objectMapper;
+    private final Charset UTF8;
 
-    public NeoClientImpl(HttpClient httpClient, URI rpc) {
+    public NeoClientImpl(HttpClient httpClient, URI rpc, ObjectMapper objectMapper) {
         this.httpClient = httpClient;
         this.httpPost = new HttpPost(rpc);
+        this.objectMapper = objectMapper;
+        this.UTF8 = Charset.forName("UTF-8");
+
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
     }
 
-    private JsonNode RPC(final String method, final Object... params) throws java.io.IOException {
-        ObjectNode body = new ObjectMapper().createObjectNode()
-                .put("jsonrpc", "2.0")
-                .put("id", "mywishscanner")
-                .put("method", method);
-        ArrayNode paramsField = body.putArray("params");
-        Arrays.stream(params).forEach(param -> {
-            if (param instanceof Integer) paramsField.add((Integer)param);
-            if (param instanceof Long) paramsField.add((Long)param);
-            else paramsField.add((String)param);
-        });
-        httpPost.setEntity(new StringEntity(body.toString()));
-        return new ObjectMapper().readTree(EntityUtils.toString(this.httpClient.execute(httpPost).getEntity(), "UTF-8")).get("result");
+    private <T> T doRequest(final Class<T> clazz, final String method, final Object... params) throws java.io.IOException {
+        JsonRpcRequest jsonRpcRequest = new JsonRpcRequest("2.0", "mywishscanner", method, Arrays.asList(params));
+//        ObjectNode body = new ObjectMapper().createObjectNode()
+//                .put("jsonrpc", "2.0")
+//                .put("id", "mywishscanner")
+//                .put("method", method);
+//        ArrayNode paramsField = body.putArray("params");
+//        Arrays.stream(params).forEach(param -> {
+//            if (param instanceof Integer) paramsField.add((Integer)param);
+//            if (param instanceof Long) paramsField.add((Long)param);
+//            else paramsField.add((String)param);
+//        });
+        String json = objectMapper.writeValueAsString(jsonRpcRequest);
+        httpPost.setEntity(new StringEntity(json));
+        HttpResponse response = httpClient.execute(httpPost);
+        // TODO: process result codes
+        HttpEntity entity = response.getEntity();
+        // TODO: handle empty response
+        String responseBody = EntityUtils.toString(entity, UTF8);
+        // TODO: handle deserialize exceptions (if needed)
+        T result = objectMapper.readValue(responseBody, clazz);
+        return result;
     }
 
-    private JsonNode RPC(final String method) throws java.io.IOException {
-        return RPC(method, new String[]{});
+    private <T> T doRequest(final Class<T> clazz, final String method) throws java.io.IOException {
+        return doRequest(clazz, method, new Object[]{});
     }
 
     @Override
-    public Integer getBlockCount() throws java.io.IOException{
-        return RPC("getblockcount").asInt();
+    public Integer getBlockCount() throws java.io.IOException {
+        GetBlockCountResponse response = doRequest(GetBlockCountResponse.class, "getblockcount");
+        return response.getResult();
     }
 
     @Override
     public Block getBlock(Long blockNumber) throws java.io.IOException {
-        Block block = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).treeToValue(RPC("getblock", blockNumber, "1"), Block.class);
-        block.getTransactions().forEach(this::initTransaction);
-        return block;
+        GetBlockResponse response = doRequest(GetBlockResponse.class, "getblock", blockNumber, "1");
+        return response.getResult();
     }
 
     @Override
     public Block getBlock(String blockHash) throws java.io.IOException {
-        Block block = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).treeToValue(RPC("getblock", blockHash, "1"), Block.class);
+        GetBlockResponse response = doRequest(GetBlockResponse.class, "getblock", blockHash, "1");
+        Block block = response.getResult();
         block.getTransactions().forEach(this::initTransaction);
         return block;
     }
 
     @Override
     public Transaction getTransaction(String txHash, boolean getInputs) throws java.io.IOException {
-        Transaction tx = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).treeToValue(RPC("getrawtransaction", txHash, "1"), Transaction.class);
-        if (getInputs) initTransaction(tx);
+        GetTransactionResponse response = doRequest(GetTransactionResponse.class, "getrawtransaction", txHash, "1");
+        Transaction tx = response.getResult();
+        if (getInputs) {
+            initTransaction(tx);
+        }
         return tx;
     }
 
     @Override
     public List<Event> getEvents(String txHash) throws java.io.IOException {
-        List<Event> res = new ArrayList<>();
-        JsonNode notifications = RPC("getapplicationlog", txHash);
-        if (notifications != null) {
-            notifications = notifications.get("notifications");
-            if (notifications != null && notifications.isArray()) {
-                for (JsonNode notification : notifications) {
-                    res.add(new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).treeToValue(notification, Event.class));
-                }
-            }
+        GetApplicationLogResponse response = doRequest(GetApplicationLogResponse.class, "getapplicationlog", txHash);
+        if (response.getNotifications() == null || response.getNotifications().isEmpty()) {
+            return Collections.emptyList();
         }
-        return res;
+        return response.getNotifications();
     }
 
     @Override
     public BigInteger getBalance(String address) throws java.io.IOException {
-        JsonNode node = RPC("getaccountstate", address);
-        if (node == null) return null;
-        node = node.get("balances");
-        for (JsonNode subNode : node) {
-            if ("0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b".equals(subNode.get("asset").asText())) {
-                return BigInteger.valueOf(subNode.get("value").asLong());
-            }
+        GetAccountStateResponse response = doRequest(GetAccountStateResponse.class, "getaccountstate", address);
+        if (response.getBalances() == null || response.getBalances().isEmpty()) {
+            // TODO: are you sure null is good value? possible ZERO is better?
+            return null;
         }
-        return BigInteger.ZERO;
+        return response.getBalances()
+                .stream()
+                .filter(balance -> "0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b".equalsIgnoreCase(balance.getAsset()))
+                .map(Balance::getValue)
+                .findFirst()
+                .orElse(BigInteger.ZERO);
     }
 
     private void initTransaction(Transaction transaction) {
         transaction.getInputs().forEach(input -> {
             try {
-        input.setAddress(getTransaction(input.getTxid(), false).getOutputs().get(0).getAddress());
-            } catch (java.io.IOException e) {
+                input.setAddress(getTransaction(input.getTxid(), false).getOutputs().get(0).getAddress());
+            }
+            catch (java.io.IOException e) {
                 throw new UncheckedIOException(e);
             }
         });

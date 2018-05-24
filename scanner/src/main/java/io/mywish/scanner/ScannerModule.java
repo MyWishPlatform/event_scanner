@@ -99,7 +99,7 @@ public class ScannerModule {
             final CloseableHttpClient closeableHttpClient,
             final @Value("${etherscanner.neo.rpc-url.mainnet}") URI rpc
     ) {
-        return new NeoNetwork(NetworkType.NEO_MAINNET, new NeoClientImpl(closeableHttpClient, rpc));
+        return new NeoNetwork(NetworkType.NEO_MAINNET, new NeoClientImpl(closeableHttpClient, rpc, objectMapper));
     }
 
     @ConditionalOnProperty(name = "etherscanner.neo.rpc-url.testnet")
@@ -108,7 +108,7 @@ public class ScannerModule {
             final CloseableHttpClient closeableHttpClient,
             final @Value("${etherscanner.neo.rpc-url.testnet}") URI rpc
     ) {
-        return new NeoNetwork(NetworkType.NEO_TESTNET, new NeoClientImpl(closeableHttpClient, rpc));
+        return new NeoNetwork(NetworkType.NEO_TESTNET, new NeoClientImpl(closeableHttpClient, rpc, objectMapper));
     }
 
     @ConditionalOnBean(name = NetworkType.BTC_MAINNET_VALUE)

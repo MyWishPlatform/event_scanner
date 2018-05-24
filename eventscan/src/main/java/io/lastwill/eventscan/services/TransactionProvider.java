@@ -39,7 +39,7 @@ public class TransactionProvider {
 //    public CompletionStage<List<TransactionReceipt>> getTransactionReceiptsAsync(Collection<String> hashes) {
 //        val futures = hashes.stream()
 //                .map(web3Provider::ethGetTransactionReceipt)
-//                .map(Request::sendAsync)
+//                .map(JsonRpcRequest::sendAsync)
 //                .map(future -> future.thenApply(EthGetTransactionReceipt::getResult))
 //                .collect(Collectors.toList());
 //

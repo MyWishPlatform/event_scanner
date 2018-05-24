@@ -1,6 +1,7 @@
 package io.mywish.scanner.services.scanners;
 
 import io.mywish.wrapper.WrapperBlock;
+import io.mywish.wrapper.WrapperOutput;
 import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.scanner.model.NewBlockEvent;
@@ -28,7 +29,7 @@ public class Web3Scanner extends Scanner {
         block.getTransactions()
                 .forEach(transaction -> {
                     String from = transaction.getInputs().get(0);
-                    String to = transaction.getOutputs().get(0).getAddress();
+                    WrapperOutput to = transaction.getOutputs().get(0);
                     if (from != null) {
                         addressTransactions.add(from.toLowerCase(), transaction);
                     }
@@ -36,7 +37,7 @@ public class Web3Scanner extends Scanner {
                         log.warn("Empty from field for transaction {}. Skip it.", transaction.getHash());
                     }
                     if (to != null) {
-                        addressTransactions.add(to.toLowerCase(), transaction);
+                        addressTransactions.add(to.getAddress().toLowerCase(), transaction);
                     }
                     else {
                         if (transaction.getCreates() != null) {

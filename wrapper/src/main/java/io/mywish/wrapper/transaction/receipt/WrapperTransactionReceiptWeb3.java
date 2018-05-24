@@ -12,6 +12,16 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class WrapperTransactionReceiptWeb3 extends WrapperTransactionReceipt {
+    private static boolean isSuccess(TransactionReceipt web3TxReceipt) {
+        BigInteger status;
+        if (web3TxReceipt.getStatus().startsWith("0x")) {
+            status = Numeric.decodeQuantity(web3TxReceipt.getStatus());
+        } else {
+            status = new BigInteger(web3TxReceipt.getStatus());
+        }
+        return status.compareTo(BigInteger.ZERO) != 0;
+    }
+
     public WrapperTransactionReceiptWeb3(TransactionReceipt web3TxReceipt, Map<String, ContractEventDefinition> eventDefinitionsBySignature) {
         super(
                 web3TxReceipt.getTransactionHash(),
@@ -25,9 +35,7 @@ public class WrapperTransactionReceiptWeb3 extends WrapperTransactionReceipt {
                     }
                     return null;
                 }).filter(Objects::nonNull).collect(Collectors.toList()),
-                (web3TxReceipt.getStatus().startsWith("0x") ?
-                        Numeric.decodeQuantity(web3TxReceipt.getStatus()) : new BigInteger(web3TxReceipt.getStatus()))
-                        .compareTo(BigInteger.ZERO) != 0
+                isSuccess(web3TxReceipt)
         );
     }
 }

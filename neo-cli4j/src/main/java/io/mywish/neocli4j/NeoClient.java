@@ -1,4 +1,4 @@
-package com.glowstick.neocli4j;
+package io.mywish.neocli4j;
 
 import java.math.BigInteger;
 import java.util.List;

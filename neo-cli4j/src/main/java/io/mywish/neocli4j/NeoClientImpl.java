@@ -1,4 +1,4 @@
-package com.glowstick.neocli4j;
+package io.mywish.neocli4j;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;

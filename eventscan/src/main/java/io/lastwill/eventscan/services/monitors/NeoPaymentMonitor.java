@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
-import com.glowstick.neocli4j.Transaction;
+import io.mywish.neocli4j.Transaction;
 import io.lastwill.eventscan.events.NeoPaymentEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.NetworkType;
@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 

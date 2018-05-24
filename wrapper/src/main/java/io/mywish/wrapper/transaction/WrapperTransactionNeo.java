@@ -1,7 +1,7 @@
 package io.mywish.wrapper.transaction;
 
-import com.glowstick.neocli4j.Transaction;
-import com.glowstick.neocli4j.TransactionInput;
+import io.mywish.neocli4j.Transaction;
+import io.mywish.neocli4j.TransactionInput;
 import io.mywish.wrapper.WrapperOutput;
 import io.mywish.wrapper.WrapperTransaction;
 import lombok.Getter;

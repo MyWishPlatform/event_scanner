@@ -1,6 +1,6 @@
 package io.mywish.wrapper.networks;
 
-import com.glowstick.neocli4j.NeoClient;
+import io.mywish.neocli4j.NeoClient;
 import io.mywish.wrapper.WrapperNetwork;
 import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.lastwill.eventscan.model.NetworkType;

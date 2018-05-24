@@ -1,4 +1,4 @@
-package com.glowstick.neocli4j;
+package io.mywish.neocli4j;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;

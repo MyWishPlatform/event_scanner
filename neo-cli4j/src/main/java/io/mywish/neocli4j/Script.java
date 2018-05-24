@@ -1,4 +1,4 @@
-package com.glowstick.neocli4j;
+package io.mywish.neocli4j;
 
 public class Script {
     public Boolean isSentToAddress() {

@@ -1,6 +1,6 @@
 package io.mywish.scanner;
 
-import com.glowstick.neocli4j.NeoClientImpl;
+import io.mywish.neocli4j.NeoClientImpl;
 import com.neemre.btcdcli4j.core.client.BtcdClientImpl;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.services.scanners.BtcScanner;

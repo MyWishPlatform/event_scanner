@@ -1,6 +1,6 @@
 package io.mywish.wrapper.block;
 
-import com.glowstick.neocli4j.Block;
+import io.mywish.neocli4j.Block;
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.transaction.WrapperTransactionNeo;
 

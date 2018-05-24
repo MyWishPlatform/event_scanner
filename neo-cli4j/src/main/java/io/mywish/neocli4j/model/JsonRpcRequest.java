@@ -1,7 +1,10 @@
 package io.mywish.neocli4j.model;
 
+import lombok.Getter;
+
 import java.util.List;
 
+@Getter
 public class JsonRpcRequest {
     private final String jsonrpc;
     private final String id;

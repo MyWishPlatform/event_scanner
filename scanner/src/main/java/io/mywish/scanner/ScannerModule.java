@@ -1,5 +1,6 @@
 package io.mywish.scanner;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mywish.neocli4j.NeoClientImpl;
 import com.neemre.btcdcli4j.core.client.BtcdClientImpl;
 import io.lastwill.eventscan.model.NetworkType;
@@ -97,6 +98,7 @@ public class ScannerModule {
     @Bean(name = NetworkType.NEO_MAINNET_VALUE)
     public NeoNetwork neoNetMain(
             final CloseableHttpClient closeableHttpClient,
+            final ObjectMapper objectMapper,
             final @Value("${etherscanner.neo.rpc-url.mainnet}") URI rpc
     ) {
         return new NeoNetwork(NetworkType.NEO_MAINNET, new NeoClientImpl(closeableHttpClient, rpc, objectMapper));
@@ -106,6 +108,7 @@ public class ScannerModule {
     @Bean(name = NetworkType.NEO_TESTNET_VALUE)
     public NeoNetwork neoNetTest(
             final CloseableHttpClient closeableHttpClient,
+            final ObjectMapper objectMapper,
             final @Value("${etherscanner.neo.rpc-url.testnet}") URI rpc
     ) {
         return new NeoNetwork(NetworkType.NEO_TESTNET, new NeoClientImpl(closeableHttpClient, rpc, objectMapper));

@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -53,7 +52,7 @@ public class LockMonitor {
                                 try {
                                     receipt = transactionProvider.getTransactionReceipt(event.getNetworkType(), tx);
                                 }
-                                catch (IOException e) {
+                                catch (Exception e) {
                                     log.warn("Getting transaction receipt failed.", e);
                                     return;
                                 }

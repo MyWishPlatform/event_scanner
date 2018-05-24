@@ -4,7 +4,6 @@ import io.lastwill.eventscan.model.NetworkType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
 
@@ -18,7 +17,7 @@ public class BalanceProvider {
         return networkProvider.get(networkType).getBalanceAsync(address, blockNo);
     }
 
-    public BigInteger getBalance(NetworkType networkType, String address, long blockNo) throws IOException {
+    public BigInteger getBalance(NetworkType networkType, String address, long blockNo) throws Exception {
         return networkProvider.get(networkType).getBalance(address, blockNo);
     }
 }

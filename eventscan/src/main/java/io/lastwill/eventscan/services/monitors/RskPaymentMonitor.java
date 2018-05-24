@@ -15,7 +15,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
@@ -80,7 +79,7 @@ public class RskPaymentMonitor {
             try {
                 return balanceProvider.getBalance(event.getNetworkType(), address, event.getBlock().getNumber());
             }
-            catch (IOException e) {
+            catch (Exception e) {
                 log.warn("Error on getting first time balance in {} for FGW address {}.", event.getNetworkType(), lookingAddress, e);
                 return null;
             }

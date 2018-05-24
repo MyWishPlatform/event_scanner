@@ -6,7 +6,6 @@ import io.lastwill.eventscan.model.NetworkType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -18,7 +17,7 @@ public class TransactionProvider {
     @Autowired
     private NetworkProvider networkProvider;
 
-    public WrapperTransactionReceipt getTransactionReceipt(final NetworkType networkType, final WrapperTransaction transaction) throws IOException {
+    public WrapperTransactionReceipt getTransactionReceipt(final NetworkType networkType, final WrapperTransaction transaction) throws Exception {
         return networkProvider.get(networkType).getTxReceipt(transaction);
     }
 

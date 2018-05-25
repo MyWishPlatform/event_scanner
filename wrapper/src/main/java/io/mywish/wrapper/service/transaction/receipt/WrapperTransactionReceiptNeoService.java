@@ -26,6 +26,7 @@ public class WrapperTransactionReceiptNeoService {
                 .map(event ->
                         logBuilder.build(event, definitionsByName.get(event.getName()))
                 ).collect(Collectors.toList());
+        // todo detect failures
         boolean success = true;
         return new WrapperTransactionReceipt(
                 hash,

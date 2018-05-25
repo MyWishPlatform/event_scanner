@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 import javax.xml.bind.DatatypeConverter;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +33,7 @@ public class Transaction {
     @JsonProperty("vin")
     private List<TransactionInput> inputs;
     private List<String> contracts;
+    private String scriptHash;
 
     @JsonProperty("script")
     private void extractContracts(final String scriptHex) {
@@ -68,6 +70,15 @@ public class Transaction {
                 }
                 contracts.add("0x" + DatatypeConverter.printHexBinary(address).toLowerCase());
                 i += addressBytes.length;
+            }
+        }
+        if (contracts.isEmpty() && this.getType() == Type.InvocationTransaction) {
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                byte[] contractHash = Ripemd160.getHash(digest.digest(script));
+                contracts.add(DatatypeConverter.printHexBinary(contractHash));
+            } catch (Exception e) {
+                // TODO make oop
             }
         }
     }

@@ -11,15 +11,9 @@ import java.time.Instant;
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("5")
 @Getter
-public class ProductToken extends Product {
+public class ProductToken extends ProductTokenCommon {
     @Override
     public int getContractType() {
         return 5;
-    }
-
-    @Override
-    public BigInteger getCheckGasLimit() {
-        // TODO: why it is required?
-        return BigInteger.valueOf(200000);
     }
 }

@@ -134,10 +134,6 @@ public class ContractsMonitor {
     private void grabContractEvents(final NetworkType networkType, final Contract contract, final WrapperTransaction transaction, final WrapperBlock block) {
         transactionProvider.getTransactionReceiptAsync(networkType, transaction)
                 .thenAccept(transactionReceipt -> {
-                    System.out.println(transactionReceipt.getLogs().size());
-                    transactionReceipt.getLogs().forEach(log -> {
-                        System.out.println(log.getName());
-                    });
                     List<ContractEvent> events;
                     try {
                         events = eventParser.parseEvents(transactionReceipt);
@@ -149,15 +145,6 @@ public class ContractsMonitor {
                     if (events.isEmpty()) {
                         return;
                     }
-                    events.forEach(baseEvent -> {
-                        if (!(baseEvent instanceof TransferEvent)) return;
-                        TransferEvent event = (TransferEvent) baseEvent;
-                        System.out.println("address: " + event.getAddress());
-                        System.out.println(" name: " + event.getName());
-                        System.out.println("  from: " + event.getFrom());
-                        System.out.println("  to: " + event.getTo());
-                        System.out.println("  tokens: " + event.getTokens());
-                    });
                     eventPublisher.publish(
                             new ContractEventsEvent(
                                     networkType,

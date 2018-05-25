@@ -36,7 +36,7 @@ public class Web3Scanner extends Scanner {
                     else {
                         log.warn("Empty from field for transaction {}. Skip it.", transaction.getHash());
                     }
-                    if (to != null) {
+                    if (to != null && to.getAddress() != null) {
                         addressTransactions.add(to.getAddress().toLowerCase(), transaction);
                     }
                     else {

@@ -68,12 +68,7 @@ public class ContractsMonitor {
             }
         }
 
-        // TODO remove
-        Contract ct = new Contract();
-        ct.setAddress("0x2a464486dc73e90bcf9fa8125622fb0788ca385c");
-        ct.setId(0);
         List<Contract> contracts = contractRepository.findByAddressesList(addresses, event.getNetworkType());
-        contracts.add(ct);
         for (final Contract contract : contracts) {
             if (contract.getAddress() == null || !addresses.contains(contract.getAddress().toLowerCase())) {
                 continue;

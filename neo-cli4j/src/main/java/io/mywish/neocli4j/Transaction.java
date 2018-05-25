@@ -76,7 +76,8 @@ public class Transaction {
             try {
                 MessageDigest digest = MessageDigest.getInstance("SHA-256");
                 byte[] contractHash = Ripemd160.getHash(digest.digest(script));
-                contracts.add(0, "0x" + DatatypeConverter.printHexBinary(contractHash));
+                scriptHash = "0x" + DatatypeConverter.printHexBinary(contractHash).toLowerCase();
+                contracts.add(0, scriptHash);
             } catch (Exception e) {
                 // TODO make oop
             }

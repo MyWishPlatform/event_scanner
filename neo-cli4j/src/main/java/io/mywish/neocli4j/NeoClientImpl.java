@@ -31,7 +31,7 @@ public class NeoClientImpl implements NeoClient {
     private final ObjectMapper objectMapper;
     private final Charset UTF8;
 
-    public NeoClientImpl(HttpClient httpClient, URI rpc, ObjectMapper objectMapper) throws NoSuchAlgorithmException {
+    public NeoClientImpl(HttpClient httpClient, URI rpc, ObjectMapper objectMapper) {
         this.httpClient = httpClient;
         this.httpPost = new HttpPost(rpc);
         this.objectMapper = objectMapper;

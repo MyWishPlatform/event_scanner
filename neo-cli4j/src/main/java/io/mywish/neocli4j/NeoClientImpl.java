@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mywish.neocli4j.model.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -11,22 +12,26 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.UncheckedIOException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 public class NeoClientImpl implements NeoClient {
     private final HttpClient httpClient;
     private final HttpPost httpPost;
     private final ObjectMapper objectMapper;
     private final Charset UTF8;
 
-    public NeoClientImpl(HttpClient httpClient, URI rpc, ObjectMapper objectMapper) {
+    public NeoClientImpl(HttpClient httpClient, URI rpc, ObjectMapper objectMapper) throws NoSuchAlgorithmException {
         this.httpClient = httpClient;
         this.httpPost = new HttpPost(rpc);
         this.objectMapper = objectMapper;

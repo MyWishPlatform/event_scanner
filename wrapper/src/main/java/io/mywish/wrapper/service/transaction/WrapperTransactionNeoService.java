@@ -24,7 +24,7 @@ public class WrapperTransactionNeoService implements WrapperTransactionService<T
         List<String> inputs = transaction.getInputs().stream().map(TransactionInput::getAddress).collect(Collectors.toList());
         List<WrapperOutput> outputs = transaction.getOutputs().stream().map(output -> outputBuilder.build(transaction, output)).collect(Collectors.toList());
         boolean contractCreation = transaction.getContracts().size() == 0 && transaction.getType() == Transaction.Type.InvocationTransaction;
-        return new WrapperTransactionNeo(
+        WrapperTransaction res = new WrapperTransactionNeo(
                 hash,
                 inputs,
                 outputs,
@@ -32,5 +32,7 @@ public class WrapperTransactionNeoService implements WrapperTransactionService<T
                 transaction.getType(),
                 transaction.getContracts()
         );
+        if (res.isContractCreation()) res.setCreates(transaction.getContracts().get(0));
+        return res;
     }
 }

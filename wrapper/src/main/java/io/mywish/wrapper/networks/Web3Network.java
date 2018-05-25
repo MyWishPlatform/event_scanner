@@ -4,9 +4,9 @@ import io.mywish.wrapper.WrapperNetwork;
 import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.wrapper.*;
-import io.mywish.wrapper.block.WrapperBlockWeb3;
-import io.mywish.wrapper.transaction.WrapperTransactionWeb3;
-import io.mywish.wrapper.transaction.receipt.WrapperTransactionReceiptWeb3;
+import io.mywish.wrapper.service.block.WrapperBlockWeb3Service;
+import io.mywish.wrapper.service.transaction.WrapperTransactionWeb3Service;
+import io.mywish.wrapper.service.transaction.receipt.WrapperTransactionReceiptWeb3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
@@ -20,6 +20,15 @@ import java.util.Map;
 
 public class Web3Network extends WrapperNetwork {
     final private Web3j web3j;
+
+    @Autowired
+    private WrapperBlockWeb3Service blockBuilder;
+
+    @Autowired
+    private WrapperTransactionWeb3Service transactionBuilder;
+
+    @Autowired
+    private WrapperTransactionReceiptWeb3Service transactionReceiptBuilder;
 
     @Autowired
     private List<ContractEventBuilder<?>> builders = new ArrayList<>();
@@ -48,17 +57,17 @@ public class Web3Network extends WrapperNetwork {
 
     @Override
     public WrapperBlock getBlock(String hash) throws Exception {
-        return new WrapperBlockWeb3(web3j.ethGetBlockByHash(hash, false).send().getBlock());
+        return blockBuilder.build(web3j.ethGetBlockByHash(hash, false).send().getBlock());
     }
 
     @Override
     public WrapperBlock getBlock(Long number) throws Exception {
-        return new WrapperBlockWeb3(web3j.ethGetBlockByNumber(new DefaultBlockParameterNumber(number), true).send().getBlock());
+        return blockBuilder.build(web3j.ethGetBlockByNumber(new DefaultBlockParameterNumber(number), true).send().getBlock());
     }
 
     @Override
     public WrapperTransaction getTransaction(String hash) throws Exception {
-        return new WrapperTransactionWeb3(web3j.ethGetTransactionByHash(hash).send().getTransaction().get());
+        return transactionBuilder.build(web3j.ethGetTransactionByHash(hash).send().getTransaction().get());
     }
 
     @Override
@@ -71,7 +80,7 @@ public class Web3Network extends WrapperNetwork {
 
     @Override
     public WrapperTransactionReceipt getTxReceipt(WrapperTransaction transaction) throws Exception {
-        return new WrapperTransactionReceiptWeb3(
+        return transactionReceiptBuilder.build(
                 web3j
                         .ethGetTransactionReceipt(transaction.getHash())
                         .send()

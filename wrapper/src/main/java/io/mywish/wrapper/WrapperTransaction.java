@@ -13,7 +13,7 @@ public class WrapperTransaction {
     @Setter
     private String creates = null;
 
-    protected WrapperTransaction(String txHash, List<String> inputs, List<WrapperOutput> outputs, boolean contractCreation) {
+    public WrapperTransaction(String txHash, List<String> inputs, List<WrapperOutput> outputs, boolean contractCreation) {
         this.hash = txHash;
         this.inputs = inputs;
         this.outputs = outputs;

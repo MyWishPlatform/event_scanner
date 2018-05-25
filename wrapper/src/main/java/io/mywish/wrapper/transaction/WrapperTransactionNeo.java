@@ -14,14 +14,9 @@ public class WrapperTransactionNeo extends WrapperTransaction {
     private final Transaction.Type type;
     private final List<String> contracts;
 
-    public WrapperTransactionNeo(Transaction transaction) {
-        super(
-                transaction.getHash(),
-                transaction.getInputs().stream().map(TransactionInput::getAddress).collect(Collectors.toList()),
-                transaction.getOutputs().stream().map(output -> new WrapperOutput(transaction.getHash(), output.getIndex(), output.getAddress(), output.getValue())).collect(Collectors.toList()),
-                transaction.getContracts().size() == 0 && transaction.getType() == Transaction.Type.InvocationTransaction
-        );
-        this.type = transaction.getType();
-        this.contracts = transaction.getContracts();
+    public WrapperTransactionNeo(String hash, List<String> inputs, List<WrapperOutput> outputs, boolean contractCreation, Transaction.Type type, List<String> contracts) {
+        super(hash, inputs, outputs, contractCreation);
+        this.type = type;
+        this.contracts = contracts;
     }
 }

@@ -5,10 +5,10 @@ import io.mywish.wrapper.WrapperNetwork;
 import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.wrapper.*;
-import io.mywish.wrapper.block.WrapperBlockNeo;
-import io.mywish.wrapper.log.WrapperLogNeo;
+import io.mywish.wrapper.service.block.WrapperBlockNeoService;
+import io.mywish.wrapper.service.transaction.WrapperTransactionNeoService;
+import io.mywish.wrapper.service.transaction.receipt.WrapperTransactionReceiptNeoService;
 import io.mywish.wrapper.transaction.WrapperTransactionNeo;
-import io.mywish.wrapper.transaction.receipt.WrapperTransactionReceiptNeo;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
@@ -17,10 +17,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class NeoNetwork extends WrapperNetwork {
     final private NeoClient neoClient;
+
+    @Autowired
+    private WrapperBlockNeoService blockBuilder;
+
+    @Autowired
+    private WrapperTransactionNeoService transactionBuilder;
+
+    @Autowired
+    private WrapperTransactionReceiptNeoService transactionReceiptBuilder;
 
     @Autowired
     private List<ContractEventBuilder<?>> builders = new ArrayList<>();
@@ -49,17 +57,17 @@ public class NeoNetwork extends WrapperNetwork {
 
     @Override
     public WrapperBlock getBlock(String hash) throws Exception {
-        return new WrapperBlockNeo(neoClient.getBlock(hash));
+        return blockBuilder.build(neoClient.getBlock(hash));
     }
 
     @Override
     public WrapperBlock getBlock(Long number) throws Exception {
-        return new WrapperBlockNeo(neoClient.getBlock(number));
+        return blockBuilder.build(neoClient.getBlock(number));
     }
 
     @Override
     public WrapperTransaction getTransaction(String hash) throws Exception {
-        return new WrapperTransactionNeo(neoClient.getTransaction(hash, false));
+        return transactionBuilder.build(neoClient.getTransaction(hash, false));
     }
 /*
     @Override
@@ -74,9 +82,10 @@ public class NeoNetwork extends WrapperNetwork {
 
     @Override
     public WrapperTransactionReceipt getTxReceipt(WrapperTransaction transaction) throws Exception {
-        return new WrapperTransactionReceiptNeo(
+        return transactionReceiptBuilder.build(
                 (WrapperTransactionNeo) transaction,
-                neoClient.getEvents(transaction.getHash()).stream().map(event -> new WrapperLogNeo(event, definitionsByName.get(event.getName()))).collect(Collectors.toList())
+                neoClient.getEvents(transaction.getHash()),
+                definitionsByName
         );
     }
 }

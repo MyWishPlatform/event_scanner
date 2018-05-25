@@ -5,15 +5,18 @@ import io.mywish.wrapper.helpers.BtcBlockParser;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperNetwork;
-import io.mywish.wrapper.block.WrapperBlockBtc;
 import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.wrapper.WrapperTransactionReceipt;
+import io.mywish.wrapper.service.block.WrapperBlockBtcService;
 import org.bitcoinj.core.NetworkParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.math.BigInteger;
 
 public class BtcNetwork extends WrapperNetwork {
     final private BtcdClient btcdClient;
+
+    @Autowired
+    private WrapperBlockBtcService blockBuilder;
 
     private final NetworkParameters networkParameters;
 
@@ -33,7 +36,7 @@ public class BtcNetwork extends WrapperNetwork {
 
     @Override
     public WrapperBlock getBlock(String hash) throws Exception {
-        return new WrapperBlockBtc(btcBlockParser.parse(networkParameters, (String) btcdClient.getBlock(hash, false)), networkParameters);
+        return blockBuilder.build(btcBlockParser.parse(networkParameters, (String) btcdClient.getBlock(hash, false)), networkParameters);
     }
 
     @Override

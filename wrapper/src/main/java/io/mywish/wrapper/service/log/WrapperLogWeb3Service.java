@@ -1,29 +1,30 @@
-package io.mywish.wrapper.log;
+package io.mywish.wrapper.service.log;
 
 import io.mywish.wrapper.ContractEventDefinition;
 import io.mywish.wrapper.WrapperLog;
 import io.mywish.wrapper.WrapperType;
+import org.springframework.stereotype.Component;
 import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.protocol.core.methods.response.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class WrapperLogWeb3 extends WrapperLog {
-    public WrapperLogWeb3(Log log, ContractEventDefinition eventDefinition) {
-        super(
-                log.getAddress(),
-                eventDefinition.getName(),
-                new ArrayList<>()
-        );
+@Component
+public class WrapperLogWeb3Service {
+    public WrapperLog build(Log log, ContractEventDefinition definition) {
+        String address = log.getAddress();
+        String name = definition.getName();
+        List<Object> args = new ArrayList<>();
         List<Type> indexedValues = new ArrayList<>();
         List<Type> nonIndexedValues = FunctionReturnDecoder.decode(
                 log.getData(),
-                eventDefinition.getEvent().getNonIndexedParameters()
+                definition.getEvent().getNonIndexedParameters()
         );
 
-        List<TypeReference<Type>> indexedParameters = eventDefinition.getEvent().getIndexedParameters();
+        List<TypeReference<Type>> indexedParameters = definition.getEvent().getIndexedParameters();
         for (int i = 0; i < indexedParameters.size(); i++) {
             indexedValues.add(
                     FunctionReturnDecoder.decodeIndexedValue(
@@ -34,12 +35,13 @@ public class WrapperLogWeb3 extends WrapperLog {
         }
         int i = 0;
         int j = 0;
-        for (WrapperType<?> arg : eventDefinition.getTypes()) {
+        for (WrapperType<?> arg : definition.getTypes()) {
             if (arg.isIndexed()) {
-                this.args.add(indexedValues.get(i++).getValue());
+                args.add(indexedValues.get(i++).getValue());
             } else {
-                this.args.add(nonIndexedValues.get(j++).getValue());
+                args.add(nonIndexedValues.get(j++).getValue());
             }
         }
+        return new WrapperLog(address, name, args);
     }
 }

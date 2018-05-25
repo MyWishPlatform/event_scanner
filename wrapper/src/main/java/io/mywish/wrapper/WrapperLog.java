@@ -11,7 +11,7 @@ public class WrapperLog {
     private final String name;
     protected final List<Object> args;
 
-    protected WrapperLog(String address, String name, List<Object> args) {
+    public WrapperLog(String address, String name, List<Object> args) {
         this.address = address;
         this.name = name;
         this.args = args;

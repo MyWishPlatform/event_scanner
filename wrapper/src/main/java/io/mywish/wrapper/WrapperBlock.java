@@ -10,7 +10,7 @@ public class WrapperBlock {
     private final Long timestamp;
     private final List<WrapperTransaction> transactions;
 
-    protected WrapperBlock(String hash, Long number, Long timestamp, List<WrapperTransaction> transactions) {
+    public WrapperBlock(String hash, Long number, Long timestamp, List<WrapperTransaction> transactions) {
         this.hash = hash;
         this.number = number;
         this.timestamp = timestamp;

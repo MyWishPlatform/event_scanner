@@ -44,10 +44,13 @@ public class WrapperTransactionNeoService implements WrapperTransactionService<T
                 outputs,
                 contractCreation,
                 transaction.getType(),
-                transaction.getContracts()
+                contracts
         );
         if (contractCreation) {
-            res.setCreates(extractCreatedContract(transaction.getScript()));
+            String created = extractCreatedContract(transaction.getScript());
+            res.setCreates(created);
+            // TODO: move it upper
+            contracts.add(created);
         }
         return res;
     }

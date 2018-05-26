@@ -6,6 +6,8 @@ import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.Bool;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.abi.datatypes.Uint;
+
+import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,19 +26,19 @@ public class WrapperType<T extends Type> {
         return new WrapperType<T>(TypeReference.create(c), indexed);
     }
 
-    public static List<Object> argsFromString(List<String> args, List<WrapperType<?>> types) {
+    public static List<Object> argsFromBytes(List<byte[]> args, List<WrapperType<?>> types) {
         List<Object> res = new ArrayList<>();
         for (int i = 0; i < args.size(); i++) {
             WrapperType<?> type = types.get(i);
-            String arg = args.get(i);
+            byte[] arg = args.get(i);
             if (type.getTypeReference().getType() == Address.class) {
-                res.add(arg);
+                res.add(DatatypeConverter.printHexBinary(arg));
             }
             if (type.getTypeReference().getType() == Uint.class) {
-                res.add(new BigInteger(arg));
+                res.add(new BigInteger(new String(arg)));
             }
             if (type.getTypeReference().getType() == Bool.class) {
-                res.add(Boolean.valueOf(arg));
+                res.add(arg[0] != 0);
             }
         }
         return res;

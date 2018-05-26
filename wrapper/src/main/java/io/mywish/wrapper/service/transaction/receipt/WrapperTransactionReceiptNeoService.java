@@ -24,7 +24,7 @@ public class WrapperTransactionReceiptNeoService {
         List<WrapperLog> logs = events
                 .stream()
                 .map(event ->
-                        logBuilder.build(event, definitionsByName.get(event.getName()))
+                        logBuilder.build(event, definitionsByName)
                 ).collect(Collectors.toList());
         // todo detect failures
         boolean success = true;

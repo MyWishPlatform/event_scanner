@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class NeoClientImpl implements NeoClient {
@@ -102,18 +103,17 @@ public class NeoClientImpl implements NeoClient {
     @Override
     public List<Event> getEvents(String txHash) throws java.io.IOException {
         GetApplicationLogResponse response = doRequest(GetApplicationLogResponse.class, "getapplicationlog", txHash);
-        if (response.getNotifications() == null || response.getNotifications().isEmpty()) {
+        if (response.getResult() == null || response.getResult().isEmpty()) {
             return Collections.emptyList();
         }
-        return response.getNotifications();
+        return response.getResult();
     }
 
     @Override
     public BigInteger getBalance(String address) throws java.io.IOException {
         GetAccountStateResponse response = doRequest(GetAccountStateResponse.class, "getaccountstate", address);
         if (response.getBalances() == null || response.getBalances().isEmpty()) {
-            // TODO: are you sure null is good value? possible ZERO is better?
-            return null;
+            return BigInteger.ZERO;
         }
         return response.getBalances()
                 .stream()

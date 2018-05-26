@@ -7,24 +7,16 @@ import lombok.Getter;
 import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class Event {
-    private String contract;
     private String name;
-    private List<String> arguments = new ArrayList<>();
+    private String contract;
+    private List<byte[]> arguments = new ArrayList<>();
 
-    @JsonProperty("state")
-    private void init(JsonNode state) {
-        JsonNode value = state.get("value");
-        if (value.isArray()) {
-            for (JsonNode event : value) {
-                String text = new String(DatatypeConverter.parseHexBinary(event.get("value").asText()));
-                if (name == null) name = text;
-                else arguments.add(text);
-            }
-        } else {
-            // TODO
-        }
+    @JsonProperty("args")
+    private void parseArgs(List<String> data) {
+        this.arguments = data.stream().map(DatatypeConverter::parseHexBinary).collect(Collectors.toList());
     }
 }

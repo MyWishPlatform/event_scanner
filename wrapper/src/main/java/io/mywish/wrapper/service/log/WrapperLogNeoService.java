@@ -20,13 +20,17 @@ public class WrapperLogNeoService {
         put("transferOwnership", "OwnershipTransferred");
     }};
 
-    public WrapperLog build(Event event, ContractEventDefinition definition) {
+    public WrapperLog build(Event event, Map<String, ContractEventDefinition> definitions) {
         String name = ethNametoNeoName.get(event.getName());
         if (name == null) {
             return null;
         }
+        ContractEventDefinition definition = definitions.get(name);
+        if (definition == null) {
+            return null;
+        }
         String contract = event.getContract();
-        List<Object> args = WrapperType.argsFromString(event.getArguments(), definition.getTypes());
+        List<Object> args = WrapperType.argsFromBytes(event.getArguments(), definition.getTypes());
         return new WrapperLog(contract, name, args);
     }
 }

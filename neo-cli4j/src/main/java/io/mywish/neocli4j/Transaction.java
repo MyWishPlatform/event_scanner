@@ -35,7 +35,6 @@ public class Transaction {
     private List<String> contracts;
     private String scriptHash;
 
-    @JsonProperty("script")
     private String script;
 
     public Transaction() {

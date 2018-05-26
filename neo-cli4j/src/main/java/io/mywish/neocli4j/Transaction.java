@@ -33,7 +33,6 @@ public class Transaction {
     @JsonProperty("vin")
     private List<TransactionInput> inputs;
     private List<String> contracts;
-    private String scriptHash;
 
     private String script;
 

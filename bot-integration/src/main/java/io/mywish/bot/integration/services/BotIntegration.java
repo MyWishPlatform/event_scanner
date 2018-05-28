@@ -115,14 +115,16 @@ public class BotIntegration {
 
     @EventListener
     private void onNeoPayment(final NeoPaymentEvent event) {
+        final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        final String address = event.getAddress();
+        final String value = toCurrency(event.getCurrency(), event.getAmount());
+        final String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToTransaction(event.getNeoTransaction().getHash());
         bot.onNeoPayment(
-                networkName.getOrDefault(event.getNetworkType(), defaultNetwork),
-                event.getAddress(),
-                toCurrency(event.getCurrency(), event.getAmount()),
-                "https://neoscan"
-                        + (event.getNetworkType() == NetworkType.NEO_MAINNET ? "" : "-testnet")
-                        + ".io/transaction/"
-                        + event.getNeoTransaction().getHash().substring(2)
+                network,
+                address,
+                value,
+                txLink
         );
     }
 

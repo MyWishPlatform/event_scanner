@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.events.utility;
 
-import io.mywish.scanner.model.BaseEvent;
+import io.lastwill.eventscan.model.BaseEvent;
 import io.lastwill.eventscan.model.NetworkType;
 import lombok.Getter;
 

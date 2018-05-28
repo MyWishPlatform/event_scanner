@@ -1,9 +1,9 @@
 package io.lastwill.eventscan.events;
 
+import io.lastwill.eventscan.model.BaseEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperTransaction;
-import io.mywish.scanner.model.BaseEvent;
 import io.lastwill.eventscan.model.NetworkType;
 import lombok.Getter;
 

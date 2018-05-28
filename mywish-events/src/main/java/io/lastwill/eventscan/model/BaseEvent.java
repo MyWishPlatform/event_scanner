@@ -1,4 +1,4 @@
-package io.mywish.scanner.model;
+package io.lastwill.eventscan.model;
 
 import io.lastwill.eventscan.model.NetworkType;
 import lombok.Getter;

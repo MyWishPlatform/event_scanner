@@ -1,6 +1,6 @@
 package io.mywish.scanner.services;
 
-import io.mywish.scanner.model.BaseEvent;
+import io.lastwill.eventscan.model.BaseEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;

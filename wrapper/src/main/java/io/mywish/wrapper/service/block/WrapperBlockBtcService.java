@@ -2,7 +2,6 @@ package io.mywish.wrapper.service.block;
 
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperTransaction;
-import io.mywish.wrapper.service.WrapperBlockService;
 import io.mywish.wrapper.service.transaction.WrapperTransactionBtcService;
 import org.bitcoinj.core.Block;
 import org.bitcoinj.core.NetworkParameters;
@@ -17,15 +16,14 @@ public class WrapperBlockBtcService {
     @Autowired
     private WrapperTransactionBtcService transactionBuilder;
 
-    public WrapperBlock build(Block block, NetworkParameters networkParameters) {
+    public WrapperBlock build(Block block, Long height, NetworkParameters networkParameters) {
         String hash = block.getHashAsString();
-        Long number = block.getNonce();
         Long timestamp = block.getTimeSeconds();
         List<WrapperTransaction> transactions = block
                 .getTransactions()
                 .stream()
                 .map(tx -> transactionBuilder.build(tx, networkParameters))
                 .collect(Collectors.toList());
-        return new WrapperBlock(hash, number, timestamp, transactions);
+        return new WrapperBlock(hash, height, timestamp, transactions);
     }
 }

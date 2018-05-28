@@ -27,10 +27,14 @@ public class BotStatisticProvider implements InformationProvider {
     private NetworkRepository networkRepository;
 
     private final Map<NetworkType, String> networkNames = new HashMap<NetworkType, String>() {{
-        put(NetworkType.ETHEREUM_ROPSTEN, "Ropsten");
         put(NetworkType.ETHEREUM_MAINNET, "Ethereum");
+        put(NetworkType.ETHEREUM_ROPSTEN, "Ropsten");
         put(NetworkType.RSK_MAINNET, "RSK");
         put(NetworkType.RSK_TESTNET, "RSK Testnet");
+        put(NetworkType.BTC_MAINNET, "BTC");
+        put(NetworkType.BTC_TESTNET_3, "BTC Testnet");
+        put(NetworkType.NEO_MAINNET, "NEO");
+        put(NetworkType.NEO_TESTNET, "NEO Testnet");
     }};
 
     @Override

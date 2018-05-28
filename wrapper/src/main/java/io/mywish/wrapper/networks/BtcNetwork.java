@@ -36,7 +36,16 @@ public class BtcNetwork extends WrapperNetwork {
 
     @Override
     public WrapperBlock getBlock(String hash) throws Exception {
-        return blockBuilder.build(btcBlockParser.parse(networkParameters, (String) btcdClient.getBlock(hash, false)), networkParameters);
+        // TODO optimize
+        long height = btcdClient.getBlock(hash).getHeight();
+        return blockBuilder.build(
+                btcBlockParser.parse(
+                        networkParameters,
+                        (String) btcdClient.getBlock(hash, false)
+                ),
+                height,
+                networkParameters
+        );
     }
 
     @Override

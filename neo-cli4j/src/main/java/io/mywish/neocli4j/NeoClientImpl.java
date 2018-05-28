@@ -28,18 +28,15 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NeoClientImpl implements NeoClient {
     private final HttpClient httpClient;
-    private final HttpPost httpPost;
+    private final URI rpc;
     private final ObjectMapper objectMapper;
     private final Charset UTF8;
 
     public NeoClientImpl(HttpClient httpClient, URI rpc, ObjectMapper objectMapper) {
         this.httpClient = httpClient;
-        this.httpPost = new HttpPost(rpc);
+        this.rpc = rpc;
         this.objectMapper = objectMapper;
         this.UTF8 = Charset.forName("UTF-8");
-
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("Content-type", "application/json");
     }
 
     private <T> T doRequest(final Class<T> clazz, final String method, final Object... params) throws java.io.IOException {
@@ -55,6 +52,9 @@ public class NeoClientImpl implements NeoClient {
 //            else paramsField.add((String)param);
 //        });
         String json = objectMapper.writeValueAsString(jsonRpcRequest);
+        HttpPost httpPost = new HttpPost(rpc);
+        httpPost.setHeader("Accept", "application/json");
+        httpPost.setHeader("Content-type", "application/json");
         httpPost.setEntity(new StringEntity(json));
         HttpResponse response = httpClient.execute(httpPost);
         // TODO: process result codes

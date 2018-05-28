@@ -41,16 +41,6 @@ public class NeoClientImpl implements NeoClient {
 
     private <T> T doRequest(final Class<T> clazz, final String method, final Object... params) throws java.io.IOException {
         JsonRpcRequest jsonRpcRequest = new JsonRpcRequest("2.0", "mywishscanner", method, Arrays.asList(params));
-//        ObjectNode body = new ObjectMapper().createObjectNode()
-//                .put("jsonrpc", "2.0")
-//                .put("id", "mywishscanner")
-//                .put("method", method);
-//        ArrayNode paramsField = body.putArray("params");
-//        Arrays.stream(params).forEach(param -> {
-//            if (param instanceof Integer) paramsField.add((Integer)param);
-//            if (param instanceof Long) paramsField.add((Long)param);
-//            else paramsField.add((String)param);
-//        });
         String json = objectMapper.writeValueAsString(jsonRpcRequest);
         HttpPost httpPost = new HttpPost(rpc);
         httpPost.setHeader("Accept", "application/json");

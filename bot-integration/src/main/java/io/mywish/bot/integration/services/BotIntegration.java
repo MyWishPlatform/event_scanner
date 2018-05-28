@@ -51,7 +51,15 @@ public class BotIntegration {
                 .buildToAddress(contract.getAddress());
 
         if (contractCreatedEvent.isSuccess()) {
-            bot.onContract(network, product.getId(), type, contract.getId(), toCurrency(CryptoCurrency.ETH, product.getCost()), contract.getAddress(), addressLink);
+            bot.onContract(
+                    network,
+                    product.getId(),
+                    type,
+                    contract.getId(),
+                    toCurrency(CryptoCurrency.ETH, product.getCost()),
+                    contract.getAddress(),
+                    addressLink
+            );
         }
         else {
             bot.onContractFailed(network, product.getId(), type, contract.getId(), txLink);
@@ -111,7 +119,10 @@ public class BotIntegration {
                 networkName.getOrDefault(event.getNetworkType(), defaultNetwork),
                 event.getAddress(),
                 toCurrency(event.getCurrency(), event.getAmount()),
-                "https://neoscan" + (event.getNetworkType() == NetworkType.NEO_MAINNET ? "" : "-testnet") + ".io/transaction/" + event.getNeoTransaction().getHash().substring(2)
+                "https://neoscan"
+                        + (event.getNetworkType() == NetworkType.NEO_MAINNET ? "" : "-testnet")
+                        + ".io/transaction/"
+                        + event.getNeoTransaction().getHash().substring(2)
         );
     }
 

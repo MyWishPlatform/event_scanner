@@ -14,12 +14,21 @@ import java.util.List;
 public class OwnershipTransferredEventBuilder extends ContractEventBuilder<OwnershipTransferredEvent> {
     private final static ContractEventDefinition DEFINITION = new ContractEventDefinition(
             "OwnershipTransferred",
-            Arrays.asList(WrapperType.create(Address.class, true), WrapperType.create(Address.class, true))
+            Arrays.asList(
+                    WrapperType.create(Address.class, true),
+                    WrapperType.create(Address.class, true)
+            )
     );
 
     @Override
     public OwnershipTransferredEvent build(WrapperTransactionReceipt transactionReceipt, String address, List<Object> values) {
-        return new OwnershipTransferredEvent(DEFINITION, transactionReceipt, (String) values.get(0), (String) values.get(1), address);
+        return new OwnershipTransferredEvent(
+                DEFINITION,
+                transactionReceipt,
+                (String) values.get(0),
+                (String) values.get(1),
+                address
+        );
     }
 
     @Override

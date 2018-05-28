@@ -18,6 +18,9 @@ public class Event {
     @JsonProperty("args")
     private void parseArgs(List<String> data) {
         data.remove(0);
-        this.arguments = data.stream().map(DatatypeConverter::parseHexBinary).collect(Collectors.toList());
+        this.arguments = data
+                .stream()
+                .map(DatatypeConverter::parseHexBinary)
+                .collect(Collectors.toList());
     }
 }

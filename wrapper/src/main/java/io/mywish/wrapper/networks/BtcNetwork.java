@@ -42,7 +42,7 @@ public class BtcNetwork extends WrapperNetwork {
     @Override
     public WrapperBlock getBlock(Long number) throws Exception {
         String hash = btcdClient.getBlockHash(number.intValue());
-        return getBlock(btcdClient.getBlockHash(number.intValue()));
+        return getBlock(hash);
     }
 
     @Override

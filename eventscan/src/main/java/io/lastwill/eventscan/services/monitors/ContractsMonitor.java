@@ -74,7 +74,12 @@ public class ContractsMonitor {
                 continue;
             }
 
-            final List<WrapperTransaction> transactions = event.getTransactionsByAddress().get(contract.getAddress().toLowerCase());
+            final List<WrapperTransaction> transactions = event
+                    .getTransactionsByAddress()
+                    .get(contract
+                            .getAddress()
+                            .toLowerCase()
+                    );
             for (final WrapperTransaction transaction : transactions) {
                 // grab events
                 if (transaction.getOutputs().size() == 0) {

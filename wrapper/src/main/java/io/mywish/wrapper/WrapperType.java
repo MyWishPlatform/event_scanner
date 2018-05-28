@@ -33,10 +33,16 @@ public class WrapperType<T extends Type> {
             WrapperType<?> type = types.get(i);
             byte[] arg = args.get(i);
             if (type.getTypeReference().getType() == Address.class) {
-                res.add(DatatypeConverter.printHexBinary(arg));
+                res.add(
+                        DatatypeConverter.printHexBinary(arg)
+                );
             }
             if (type.getTypeReference().getType() == Uint.class) {
-                res.add(new BigInteger(Arrays.reverse(arg)));
+                res.add(
+                        new BigInteger(
+                                Arrays.reverse(arg)
+                        )
+                );
             }
             if (type.getTypeReference().getType() == Bool.class) {
                 res.add(arg[0] != 0);

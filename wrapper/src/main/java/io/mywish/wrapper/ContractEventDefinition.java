@@ -20,8 +20,16 @@ public class ContractEventDefinition {
         this.types = types;
         this.event = new Event(
                 name,
-                types.stream().filter(WrapperType::isIndexed).map(WrapperType::getTypeReference).collect(Collectors.toList()),
-                types.stream().filter(type -> !type.isIndexed()).map(WrapperType::getTypeReference).collect(Collectors.toList())
+                types
+                        .stream()
+                        .filter(WrapperType::isIndexed)
+                        .map(WrapperType::getTypeReference)
+                        .collect(Collectors.toList()),
+                types
+                        .stream()
+                        .filter(type -> !type.isIndexed())
+                        .map(WrapperType::getTypeReference)
+                        .collect(Collectors.toList())
         );
         this.signature = EventEncoder.encode(event);
     }

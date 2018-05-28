@@ -30,7 +30,13 @@ public class BotModule {
     public MyWishBot myWishBot() {
         DefaultBotOptions botOptions = ApiContext.getInstance(DefaultBotOptions.class);
         if (proxy != null) {
-            botOptions.setRequestConfig(RequestConfig.custom().setProxy(HttpHost.create(proxy)).setAuthenticationEnabled(false).build());
+            botOptions.setRequestConfig(
+                    RequestConfig
+                            .custom()
+                            .setProxy(HttpHost.create(proxy))
+                            .setAuthenticationEnabled(false)
+                            .build()
+            );
         }
         return new MyWishBot(botOptions);
     }

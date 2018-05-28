@@ -43,8 +43,18 @@ public class NeoScanner extends Scanner {
 //                            log.debug("Skip output with not appropriate script {}.", script);
 //                            return;
 //                        }
-                        addressTransactions.add(output.getAddress(), transaction);
-                        ((WrapperTransactionNeo) transaction).getContracts().forEach(contract -> addressTransactions.add(contract, transaction));
+                        addressTransactions.add(
+                                output.getAddress(),
+                                transaction
+                        );
+                        ((WrapperTransactionNeo) transaction)
+                                .getContracts()
+                                .forEach(contract ->
+                                        addressTransactions.add(
+                                                contract,
+                                                transaction
+                                        )
+                                );
                     });
 //                    eventPublisher.publish(new NewTransactionEvent(networkType, block, output));
                 });

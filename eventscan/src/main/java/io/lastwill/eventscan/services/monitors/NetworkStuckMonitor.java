@@ -58,7 +58,14 @@ public class NetworkStuckMonitor {
                         return;
                     }
 
-                    eventPublisher.publish(new NetworkStuckEvent(networkType, lastEvent.receivedTime, lastEvent.timestamp, lastEvent.blockNo));
+                    eventPublisher.publish(
+                            new NetworkStuckEvent(
+                                    networkType,
+                                    lastEvent.receivedTime,
+                                    lastEvent.timestamp,
+                                    lastEvent.blockNo
+                            )
+                    );
                 });
     }
 
@@ -75,7 +82,14 @@ public class NetworkStuckMonitor {
                         return;
                     }
 
-                    eventPublisher.publish(new NetworkStuckEvent(networkType, lastEvent.receivedTime, lastEvent.timestamp, lastEvent.blockNo));
+                    eventPublisher.publish(
+                            new NetworkStuckEvent(
+                                    networkType,
+                                    lastEvent.receivedTime,
+                                    lastEvent.timestamp,
+                                    lastEvent.blockNo
+                            )
+                    );
                 });
     }
 

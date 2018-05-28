@@ -48,7 +48,7 @@ public class EventParser {
         return builder.build(transactionReceipt, log.getAddress(), log.getArgs());
     }
 
-    public <T, R> Function<T, R> Try(Function<T, R> func) {
+    private <T, R> Function<T, R> Try(Function<T, R> func) {
         return (a) -> {
             try {
                 return func.apply(a);

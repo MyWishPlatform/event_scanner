@@ -21,11 +21,20 @@ import java.util.List;
 public class FundsAddedEventBuilder extends ContractEventBuilder<FundsAddedEvent> {
     private final ContractEventDefinition definition = new ContractEventDefinition(
             "FundsAdded",
-            Arrays.asList(WrapperType.create(Address.class, true), WrapperType.create(Uint.class, false))
+            Arrays.asList(
+                    WrapperType.create(Address.class, true),
+                    WrapperType.create(Uint.class, false)
+            )
     );
 
     @Override
     public FundsAddedEvent build(WrapperTransactionReceipt transactionReceipt, String address, List<Object> values) {
-        return new FundsAddedEvent(definition, transactionReceipt, (String) values.get(0), (BigInteger) values.get(1), address);
+        return new FundsAddedEvent(
+                definition,
+                transactionReceipt,
+                (String) values.get(0),
+                (BigInteger) values.get(1),
+                address
+        );
     }
 }

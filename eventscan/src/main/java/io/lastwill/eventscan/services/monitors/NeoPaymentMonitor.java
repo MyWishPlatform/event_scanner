@@ -31,7 +31,10 @@ public class NeoPaymentMonitor {
 
     @EventListener
     private void handleNeoBlock(NewBlockEvent event) {
-        if (event.getNetworkType() != NetworkType.NEO_MAINNET || event.getNetworkType() != NetworkType.NEO_TESTNET) return;
+        if (event.getNetworkType() != NetworkType.NEO_MAINNET
+                || event.getNetworkType() != NetworkType.NEO_TESTNET) {
+            return;
+        }
         event.getBlock().getTransactions().forEach(atx -> {
             WrapperTransactionNeo tx = (WrapperTransactionNeo) atx;
             if (tx.getType() == Transaction.Type.InvocationTransaction) {

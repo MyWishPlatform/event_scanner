@@ -32,7 +32,18 @@ public class LockMonitor {
         Set<String> addresses = event.getTransactionsByAddress()
                 .entrySet()
                 .stream()
-                .filter(entry -> entry.getValue().stream().anyMatch(tx -> entry.getKey().equalsIgnoreCase(tx.getInputs().size() > 0 ? tx.getInputs().get(0) : null)))
+                .filter(entry ->
+                        entry
+                                .getValue()
+                                .stream()
+                                .anyMatch(tx ->
+                                        entry
+                                                .getKey()
+                                                .equalsIgnoreCase(
+                                                        tx.getInputs().size() > 0 ? tx.getInputs().get(0) : null
+                                                )
+                                )
+                )
                 .map(Map.Entry::getKey)
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
@@ -57,7 +68,14 @@ public class LockMonitor {
                                     return;
                                 }
 
-                                eventPublisher.publish(new TransactionUnlockedEvent(event.getNetworkType(), addressLock, tx, receipt));
+                                eventPublisher.publish(
+                                        new TransactionUnlockedEvent(
+                                                event.getNetworkType(),
+                                                addressLock,
+                                                tx,
+                                                receipt
+                                        )
+                                );
                             });
                 });
     }

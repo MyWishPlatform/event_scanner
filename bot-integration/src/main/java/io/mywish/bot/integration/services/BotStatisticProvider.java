@@ -75,7 +75,12 @@ public class BotStatisticProvider implements InformationProvider {
                             .forEach((type, states) -> {
                                 stringBuilder.append("Contact *").append(type).append("*:\n");
                                 states.forEach((state, count) -> {
-                                    stringBuilder.append("  ").append(state.replaceAll("_", "\\\\_")).append(": *").append(count).append("*\n");
+                                    stringBuilder
+                                            .append("  ")
+                                            .append(state.replaceAll("_", "\\\\_"))
+                                            .append(": *")
+                                            .append(count)
+                                            .append("*\n");
                                 });
                                 int total = states.values().stream().reduce(Integer::sum).orElse(0);
                                 overallContracts.addAndGet(total);

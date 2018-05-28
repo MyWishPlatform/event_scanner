@@ -34,8 +34,16 @@ public class WrapperTransactionNeoService implements WrapperTransactionService<T
     @Override
     public WrapperTransaction build(Transaction transaction) {
         String hash = transaction.getHash();
-        List<String> inputs = transaction.getInputs().stream().map(TransactionInput::getAddress).collect(Collectors.toList());
-        List<WrapperOutput> outputs = transaction.getOutputs().stream().map(output -> outputBuilder.build(transaction, output)).collect(Collectors.toList());
+        List<String> inputs = transaction
+                .getInputs()
+                .stream()
+                .map(TransactionInput::getAddress)
+                .collect(Collectors.toList());
+        List<WrapperOutput> outputs = transaction
+                .getOutputs()
+                .stream()
+                .map(output -> outputBuilder.build(transaction, output))
+                .collect(Collectors.toList());
         List<String> contracts = extractContracts(transaction.getScript());
         boolean contractCreation = contracts.isEmpty() && transaction.getType() == Transaction.Type.InvocationTransaction;
         WrapperTransaction res = new WrapperTransactionNeo(
@@ -102,7 +110,6 @@ public class WrapperTransactionNeoService implements WrapperTransactionService<T
     private String extractCreatedContract(final String scriptHex) {
         byte[] script = DatatypeConverter.parseHexBinary(scriptHex);
         byte[] contractHash = Ripemd160.getHash(digest.digest(script));
-
         return "0x" + DatatypeConverter.printHexBinary(contractHash);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.web3j.abi.datatypes.Uint;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -17,7 +18,7 @@ import java.util.List;
 public class TriggeredEventBuilder extends ContractEventBuilder<TriggeredEvent> {
     private final ContractEventDefinition definition = new ContractEventDefinition(
             "Triggered",
-            Arrays.asList(WrapperType.create(Uint.class, false))
+            Collections.singletonList(WrapperType.create(Uint.class, false))
     );
 
     @Override

@@ -19,7 +19,10 @@ import java.util.List;
 public class MintEventBuilder extends ContractEventBuilder<MintEvent> {
     private final ContractEventDefinition definition = new ContractEventDefinition(
             "Mint",
-            Arrays.asList(WrapperType.create(Address.class, true), WrapperType.create(Uint.class, false))
+            Arrays.asList(
+                    WrapperType.create(Address.class, true),
+                    WrapperType.create(Uint.class, false)
+            )
     );
 
     @Override

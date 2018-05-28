@@ -48,7 +48,10 @@ public class Web3Scanner extends Scanner {
                                 WrapperTransactionReceipt receipt = network.getTxReceipt(transaction);
                                 String contract = receipt.getContracts().get(0);
                                 transaction.setCreates(contract);
-                                addressTransactions.add(contract.toLowerCase(), transaction);
+                                addressTransactions.add(
+                                        contract.toLowerCase(),
+                                        transaction
+                                );
                             }
                             catch (Exception e) {
                                 log.error("Error on getting transaction {} receipt.", transaction.getHash(), e);

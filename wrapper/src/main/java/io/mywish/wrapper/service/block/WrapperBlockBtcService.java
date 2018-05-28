@@ -21,7 +21,11 @@ public class WrapperBlockBtcService {
         String hash = block.getHashAsString();
         Long number = block.getNonce();
         Long timestamp = block.getTimeSeconds();
-        List<WrapperTransaction> transactions = block.getTransactions().stream().map(tx -> transactionBuilder.build(tx, networkParameters)).collect(Collectors.toList());
+        List<WrapperTransaction> transactions = block
+                .getTransactions()
+                .stream()
+                .map(tx -> transactionBuilder.build(tx, networkParameters))
+                .collect(Collectors.toList());
         return new WrapperBlock(hash, number, timestamp, transactions);
     }
 }

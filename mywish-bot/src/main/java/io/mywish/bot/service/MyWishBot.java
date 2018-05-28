@@ -76,7 +76,12 @@ public class MyWishBot extends TelegramLongPollingBot {
             ChatContext chatContext = new ChatContext(this, chatId, userName);
             List<String> args = new ArrayList<>(Arrays.asList(update.getMessage().getText().split(" ")));
             String cmdName = args.remove(0);
-            Optional<BotCommand> botCommand = commands.stream().filter(cmd -> cmd.getName().equals(cmdName)).findFirst();
+            Optional<BotCommand> botCommand = commands
+                    .stream()
+                    .filter(cmd ->
+                            cmd.getName().equals(cmdName)
+                    )
+                    .findFirst();
             if (botCommand.isPresent()) {
                 botCommand.get().execute(chatContext, args);
             }

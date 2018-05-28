@@ -21,7 +21,11 @@ public class WrapperBlockNeoService implements WrapperBlockService<Block> {
         String hash = block.getHash();
         Long number = block.getNumber();
         Long timestamp = block.getTimestamp();
-        List<WrapperTransaction> transactions = block.getTransactions().stream().map(transactionBuilder::build).collect(Collectors.toList());
+        List<WrapperTransaction> transactions = block
+                .getTransactions()
+                .stream()
+                .map(transactionBuilder::build)
+                .collect(Collectors.toList());
         return new WrapperBlock(hash, number, timestamp, transactions);
     }
 }

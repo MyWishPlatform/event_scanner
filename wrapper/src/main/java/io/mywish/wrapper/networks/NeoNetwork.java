@@ -47,7 +47,12 @@ public class NeoNetwork extends WrapperNetwork {
             if (definitionsByName.containsKey(eventBuilder.getDefinition().getName())) {
                 throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with signature " + eventBuilder.getDefinition().getName());
             }
-            definitionsByName.put(eventBuilder.getDefinition().getName(), eventBuilder.getDefinition());
+            definitionsByName.put(
+                    eventBuilder
+                            .getDefinition()
+                            .getName(),
+                    eventBuilder.getDefinition()
+            );
         }
     }
 

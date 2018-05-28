@@ -32,7 +32,10 @@ public class BtcScanner extends Scanner {
         block.getTransactions()
                 .forEach(transaction -> {
                     transaction.getOutputs().forEach(output -> {
-                        addressTransactions.add(output.getAddress(), transaction);
+                        addressTransactions.add(
+                                output.getAddress(),
+                                transaction
+                        );
                     });
 //                    eventPublisher.publish(new NewTransactionEvent(networkType, block, output));
                 });

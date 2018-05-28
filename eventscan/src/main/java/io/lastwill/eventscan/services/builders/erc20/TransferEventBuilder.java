@@ -18,11 +18,22 @@ import java.util.List;
 public class TransferEventBuilder extends ContractEventBuilder<TransferEvent> {
     private final ContractEventDefinition definition = new ContractEventDefinition(
             "Transfer",
-            Arrays.asList(WrapperType.create(Address.class, true), WrapperType.create(Address.class, true), WrapperType.create(Uint.class, false))
+            Arrays.asList(
+                    WrapperType.create(Address.class, true),
+                    WrapperType.create(Address.class, true),
+                    WrapperType.create(Uint.class, false)
+            )
     );
 
     @Override
     public TransferEvent build(WrapperTransactionReceipt transactionReceipt, String address, List<Object> values) {
-        return new TransferEvent(definition, transactionReceipt, (String) values.get(0), (String) values.get(1), (BigInteger) values.get(2), address);
+        return new TransferEvent(
+                definition,
+                transactionReceipt,
+                (String) values.get(0),
+                (String) values.get(1),
+                (BigInteger) values.get(2),
+                address
+        );
     }
 }

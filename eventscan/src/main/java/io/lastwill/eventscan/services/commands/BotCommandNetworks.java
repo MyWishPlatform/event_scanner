@@ -36,10 +36,18 @@ public class BotCommandNetworks implements BotCommand {
         for (NetworkType network : NetworkType.values()) {
             NetworkStuckMonitor.LastEvent lastEvent = lastEvents.get(network);
             if (lastEvent != null) {
+                long blockNo = lastEvent.getBlockNo();
+                ZonedDateTime receivedTime = ZonedDateTime.ofInstant(
+                        lastEvent
+                                .getReceivedTime()
+                                .toInstant(ZoneOffset.UTC),
+                        zone
+                );
+                ZonedDateTime blockTime = ZonedDateTime.ofInstant(lastEvent.getTimestamp(), zone);
                 messages.add(network.name() +
                         "\n\tLast block: " + lastEvent.getBlockNo() +
-                        "\n\tReceived time: " + ZonedDateTime.ofInstant(lastEvent.getReceivedTime().toInstant(ZoneOffset.UTC), zone).format(dateFormatter) +
-                        "\n\tBlock time: " + ZonedDateTime.ofInstant(lastEvent.getTimestamp(), zone).format(dateFormatter)
+                        "\n\tReceived time: " + receivedTime.format(dateFormatter) +
+                        "\n\tBlock time: " + blockTime.format(dateFormatter)
                 );
             }
         }

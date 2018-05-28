@@ -30,7 +30,10 @@ public class WrapperOutputBtcService {
         return new WrapperOutput(
                 transaction.getHashAsString(),
                 output.getIndex(),
-                output.getScriptPubKey().getToAddress(networkParameters, true).toBase58(),
+                output
+                        .getScriptPubKey()
+                        .getToAddress(networkParameters, true)
+                        .toBase58(),
                 BigInteger.valueOf(output.getValue().getValue())
         );
     }

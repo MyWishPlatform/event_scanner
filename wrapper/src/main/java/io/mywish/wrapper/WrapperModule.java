@@ -39,7 +39,18 @@ public class WrapperModule {
                 password = credentials[1];
             }
         }
-        return new BtcNetwork(NetworkType.BTC_MAINNET, new BtcdClientImpl(closeableHttpClient, rpc.getScheme(), rpc.getHost(), rpc.getPort(), user, password), new MainNetParams());
+        return new BtcNetwork(
+                NetworkType.BTC_MAINNET,
+                new BtcdClientImpl(
+                        closeableHttpClient,
+                        rpc.getScheme(),
+                        rpc.getHost(),
+                        rpc.getPort(),
+                        user,
+                        password
+                ),
+                new MainNetParams()
+        );
     }
 
     @ConditionalOnProperty("etherscanner.bitcoin.rpc-url.testnet")
@@ -56,32 +67,54 @@ public class WrapperModule {
                 password = credentials[1];
             }
         }
-        return new BtcNetwork(NetworkType.BTC_TESTNET_3, new BtcdClientImpl(closeableHttpClient, rpc.getScheme(), rpc.getHost(), rpc.getPort(), user, password), new TestNet3Params());
+        return new BtcNetwork(
+                NetworkType.BTC_TESTNET_3,
+                new BtcdClientImpl(
+                        closeableHttpClient,
+                        rpc.getScheme(),
+                        rpc.getHost(),
+                        rpc.getPort(),
+                        user,
+                        password
+                ),
+                new TestNet3Params());
     }
 
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ethereum")
     @Bean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
     public Web3Network ethNetMain(@Value("${io.lastwill.eventscan.web3-url.ethereum}") String web3Url) {
-        return new Web3Network(NetworkType.ETHEREUM_MAINNET, Web3j.build(new HttpService(web3Url)));
+        return new Web3Network(
+                NetworkType.ETHEREUM_MAINNET,
+                Web3j.build(new HttpService(web3Url))
+        );
     }
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ropsten")
     @Bean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
     public Web3Network ethNetRopsten(@Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url) {
-        return new Web3Network(NetworkType.ETHEREUM_ROPSTEN, Web3j.build(new HttpService(web3Url)));
+        return new Web3Network(
+                NetworkType.ETHEREUM_ROPSTEN,
+                Web3j.build(new HttpService(web3Url))
+        );
     }
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-mainnet")
     @Bean(name = NetworkType.RSK_MAINNET_VALUE)
     public Web3Network rskNetMain(@Value("${io.lastwill.eventscan.web3-url.rsk-mainnet}") String web3Url) {
-        return new Web3Network(NetworkType.RSK_MAINNET, Web3j.build(new HttpService(web3Url)));
+        return new Web3Network(
+                NetworkType.RSK_MAINNET,
+                Web3j.build(new HttpService(web3Url))
+        );
     }
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-testnet")
     @Bean(name = NetworkType.RSK_TESTNET_VALUE)
     public Web3Network rskNetTest(@Value("${io.lastwill.eventscan.web3-url.rsk-testnet}") String web3Url) {
-        return new Web3Network(NetworkType.RSK_TESTNET, Web3j.build(new HttpService(web3Url)));
+        return new Web3Network(
+                NetworkType.RSK_TESTNET,
+                Web3j.build(new HttpService(web3Url))
+        );
     }
 
     @ConditionalOnProperty(name = "etherscanner.neo.rpc-url.mainnet")
@@ -91,7 +124,14 @@ public class WrapperModule {
             final ObjectMapper objectMapper,
             final @Value("${etherscanner.neo.rpc-url.mainnet}") URI rpc
     ) {
-        return new NeoNetwork(NetworkType.NEO_MAINNET, new NeoClientImpl(closeableHttpClient, rpc, objectMapper));
+        return new NeoNetwork(
+                NetworkType.NEO_MAINNET,
+                new NeoClientImpl(
+                        closeableHttpClient,
+                        rpc,
+                        objectMapper
+                )
+        );
     }
 
     @ConditionalOnProperty(name = "etherscanner.neo.rpc-url.testnet")
@@ -101,6 +141,13 @@ public class WrapperModule {
             final ObjectMapper objectMapper,
             final @Value("${etherscanner.neo.rpc-url.testnet}") URI rpc
     ) {
-        return new NeoNetwork(NetworkType.NEO_TESTNET, new NeoClientImpl(closeableHttpClient, rpc, objectMapper));
+        return new NeoNetwork(
+                NetworkType.NEO_TESTNET,
+                new NeoClientImpl(
+                        closeableHttpClient,
+                        rpc,
+                        objectMapper
+                )
+        );
     }
 }

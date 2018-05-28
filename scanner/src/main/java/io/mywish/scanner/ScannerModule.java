@@ -1,6 +1,7 @@
 package io.mywish.scanner;
 
 import io.lastwill.eventscan.model.NetworkType;
+import io.mywish.bot.BotModule;
 import io.mywish.scanner.services.scanners.BtcScanner;
 import io.mywish.scanner.services.LastBlockPersister;
 import io.mywish.scanner.services.scanners.NeoScanner;
@@ -18,7 +19,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 @Configuration
 @ComponentScan
 @PropertySource("classpath:scanner.properties")
-@Import(WrapperModule.class)
+@Import({WrapperModule.class, BotModule.class})
 public class ScannerModule {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyConfig() {

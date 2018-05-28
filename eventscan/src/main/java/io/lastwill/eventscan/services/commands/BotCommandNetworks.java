@@ -38,9 +38,7 @@ public class BotCommandNetworks implements BotCommand {
             if (lastEvent != null) {
                 long blockNo = lastEvent.getBlockNo();
                 ZonedDateTime receivedTime = ZonedDateTime.ofInstant(
-                        lastEvent
-                                .getReceivedTime()
-                                .toInstant(ZoneOffset.UTC),
+                        lastEvent.getReceivedTime().toInstant(ZoneOffset.UTC),
                         zone
                 );
                 ZonedDateTime blockTime = ZonedDateTime.ofInstant(lastEvent.getTimestamp(), zone);

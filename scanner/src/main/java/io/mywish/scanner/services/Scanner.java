@@ -5,6 +5,8 @@ import io.mywish.wrapper.WrapperNetwork;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -109,10 +111,13 @@ public abstract class Scanner {
             log.error("{} sending failed.", network.getType());
             throw e;
         }
-
-        pollerThread.start();
-        log.info("Subscribed to {} new block event.", network.getType());
     }
+	
+	@EventListener
+	private void onApplicationLoaded(ContextRefreshedEvent event) {
+		pollerThread.start();
+		log.info("Subscribed to {} new block event.", network.getType());
+	}
 
     private void loadNextBlock() throws Exception {
         long delta = lastBlockNo - nextBlockNo;

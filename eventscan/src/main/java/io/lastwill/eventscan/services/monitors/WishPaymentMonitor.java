@@ -74,26 +74,25 @@ public class WishPaymentMonitor {
                             .filter(event -> event instanceof TransferEvent)
                             .map(event -> (TransferEvent) event)
                             .forEach(eventValue -> {
-                                try {
-                                    String transferTo = eventValue.getTo();
-                                    BigInteger amount = eventValue.getTokens();
+                                String transferTo = eventValue.getTo();
+                                BigInteger amount = eventValue.getTokens();
 
-                                    UserProfile userProfile = userProfileRepository.findByInternalAddress(transferTo);
-                                    if (userProfile == null) {
-                                        return;
-                                    }
-                                    eventPublisher.publish(new UserPaymentEvent(
-                                            newBlockEvent.getNetworkType(),
-                                            transaction,
-                                            amount,
-                                            CryptoCurrency.WISH,
-                                            true,
-                                            userProfile));
+                                UserProfile userProfile = userProfileRepository.findByInternalAddress(transferTo);
+                                if (userProfile == null) {
+                                    return;
                                 }
-                                catch (Exception e) {
-                                    log.warn("Error on parsing ERC20 Transfer event.", e);
-                                }
-                            }));
+                                eventPublisher.publish(new UserPaymentEvent(
+                                        newBlockEvent.getNetworkType(),
+                                        transaction,
+                                        amount,
+                                        CryptoCurrency.WISH,
+                                        true,
+                                        userProfile));
+                            }))
+                    .exceptionally(throwable -> {
+                        log.error("Error on getting receipt for handling WISH payment.", throwable);
+                        return null;
+                    });
 
         }
     }

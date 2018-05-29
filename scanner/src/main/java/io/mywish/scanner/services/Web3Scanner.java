@@ -44,6 +44,14 @@ public class Web3Scanner {
     private final Runnable poller = new Runnable() {
         @Override
         public void run() {
+            // TODO: tmp solution to avoid loosing blocks after start.
+            try {
+                Thread.sleep(5000);
+            }
+            catch (InterruptedException e) {
+                log.error("Scanner thread was interrupted before start.", e);
+                return;
+            }
             while (!isTerminated.get()) {
                 try {
                     long start = System.currentTimeMillis();

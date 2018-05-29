@@ -47,7 +47,7 @@ public class EventParser {
         return transactionReceipt
                 .getLogs()
                 .stream()
-                .filter(log -> log.getTopics().size() < 1)
+                .filter(log -> log.getTopics().size() > 0)
                 .filter(log -> eventSignature.equalsIgnoreCase(log.getTopics().get(0)))
                 .map(Try(log -> parseEvent(transactionReceipt, log)))
                 .filter(Objects::nonNull)

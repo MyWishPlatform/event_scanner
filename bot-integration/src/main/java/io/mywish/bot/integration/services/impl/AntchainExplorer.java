@@ -15,7 +15,7 @@ public class AntchainExplorer implements BlockchainExplorer {
     }
 
     private String build(String argType, String arg) {
-        return "https://" + host + "/" + argType + "/" + arg;
+        return "http://" + host + "/" + argType + "/" + arg;
     }
 
     @Override

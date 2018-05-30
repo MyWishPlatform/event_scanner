@@ -1,11 +1,11 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.FGWBalanceChangedEvent;
-import io.lastwill.eventscan.helpers.TransactionHelper;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.services.BalanceProvider;
-import io.lastwill.eventscan.services.Web3Provider;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.services.NetworkProvider;
+import io.lastwill.eventscan.model.NetworkType;
+import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
@@ -13,10 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.web3j.protocol.core.methods.response.Transaction;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
@@ -26,9 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 public class RskPaymentMonitor {
-
     @Autowired
-    private Web3Provider web3Provider;
+    private NetworkProvider networkProvider;
 
     @Autowired
     private BalanceProvider balanceProvider;
@@ -49,7 +46,7 @@ public class RskPaymentMonitor {
     @PostConstruct
     protected void init() {
         if (mainAddressMainnet != null) {
-            if (web3Provider.getAvailableNetworkTypes().contains(NetworkType.RSK_MAINNET)) {
+            if (networkProvider.getAvailableNetworkTypes().contains(NetworkType.RSK_MAINNET)) {
                 addressByNet.put(NetworkType.RSK_MAINNET, mainAddressMainnet.toLowerCase());
             }
             else {
@@ -57,7 +54,7 @@ public class RskPaymentMonitor {
             }
         }
         if (mainAddressTestnet != null) {
-            if (web3Provider.getAvailableNetworkTypes().contains(NetworkType.RSK_TESTNET)) {
+            if (networkProvider.getAvailableNetworkTypes().contains(NetworkType.RSK_TESTNET)) {
                 addressByNet.put(NetworkType.RSK_TESTNET, mainAddressTestnet.toLowerCase());
             }
             else {
@@ -67,22 +64,22 @@ public class RskPaymentMonitor {
     }
 
     @EventListener
-    public void newBlockHandler(final NewBlockEvent event) {
+    private void newBlockHandler(final NewBlockEvent event) {
         if (!addressByNet.containsKey(event.getNetworkType())) {
             return;
         }
 
         final String lookingAddress = addressByNet.get(event.getNetworkType());
-        List<Transaction> transactions = event.getTransactionsByAddress().get(lookingAddress);
+        List<WrapperTransaction> transactions = event.getTransactionsByAddress().get(lookingAddress);
         if (transactions == null || transactions.isEmpty()) {
             return;
         }
 
         latestBalance.computeIfAbsent(lookingAddress, address -> {
             try {
-                return balanceProvider.getBalance(event.getNetworkType(), address, event.getBlock().getNumber().longValue());
+                return balanceProvider.getBalance(event.getNetworkType(), address, event.getBlock().getNumber());
             }
-            catch (IOException e) {
+            catch (Exception e) {
                 log.warn("Error on getting first time balance in {} for FGW address {}.", event.getNetworkType(), lookingAddress, e);
                 return null;
             }
@@ -94,7 +91,7 @@ public class RskPaymentMonitor {
             return;
         }
 
-        balanceProvider.getBalanceAsync(event.getNetworkType(), lookingAddress, event.getBlock().getNumber().longValue())
+        balanceProvider.getBalanceAsync(event.getNetworkType(), lookingAddress, event.getBlock().getNumber())
                 .thenAccept(newBalance -> {
                     final BigInteger delta = balance.subtract(newBalance);
                     if (delta.compareTo(BigInteger.ZERO) == 0) {
@@ -106,7 +103,7 @@ public class RskPaymentMonitor {
                             newBalance,
                             delta,
                             CryptoCurrency.RSK,
-                            event.getBlock().getNumber().longValue(),
+                            event.getBlock().getNumber(),
                             true
                     ));
                 })

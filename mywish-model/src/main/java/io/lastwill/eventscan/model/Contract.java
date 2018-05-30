@@ -12,6 +12,8 @@ import java.time.OffsetDateTime;
 @Table(name = "contracts_ethcontract")
 @Getter
 public class Contract {
+    // TODO remove setter
+    @Setter
     @Id
     private Integer id;
     @Setter

@@ -1,20 +1,18 @@
 package io.lastwill.eventscan.services.monitors;
 
+import io.mywish.wrapper.WrapperTransaction;
 import io.lastwill.eventscan.events.UserPaymentEvent;
-import io.lastwill.eventscan.helpers.TransactionHelper;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.UserProfile;
 import io.lastwill.eventscan.repositories.UserProfileRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.web3j.protocol.core.methods.response.Transaction;
-
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +30,7 @@ public class EthPaymentMonitor {
     private TransactionProvider transactionProvider;
 
     @EventListener
-    public void onNewBlockEvent(NewBlockEvent event) {
+    private void onNewBlockEvent(NewBlockEvent event) {
         // payments only in mainnet works
         if (event.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {
             return;
@@ -45,23 +43,23 @@ public class EthPaymentMonitor {
 
         List<UserProfile> userProfiles = userProfileRepository.findByAddressesList(addresses);
         for (UserProfile userProfile : userProfiles) {
-            final List<Transaction> transactions = event.getTransactionsByAddress().get(
+            final List<WrapperTransaction> transactions = event.getTransactionsByAddress().get(
                     userProfile.getInternalAddress()
             );
 
             transactions.forEach(transaction -> {
-                if (!userProfile.getInternalAddress().equalsIgnoreCase(transaction.getTo())) {
+                if (!userProfile.getInternalAddress().equalsIgnoreCase(transaction.getOutputs().get(0).getAddress())) {
                     log.debug("Found transaction out from internal address. Skip it.");
                     return;
                 }
-                transactionProvider.getTransactionReceiptAsync(event.getNetworkType(), transaction.getHash())
+                transactionProvider.getTransactionReceiptAsync(event.getNetworkType(), transaction)
                         .thenAccept(receipt -> {
                             eventPublisher.publish(new UserPaymentEvent(
                                     event.getNetworkType(),
                                     transaction,
                                     getAmountFor(userProfile.getInternalAddress(), transaction),
                                     CryptoCurrency.ETH,
-                                    TransactionHelper.isSuccess(receipt),
+                                    receipt.isSuccess(),
                                     userProfile));
                         })
                         .exceptionally(throwable -> {
@@ -72,13 +70,13 @@ public class EthPaymentMonitor {
         }
     }
 
-    private BigInteger getAmountFor(final String address, final Transaction transaction) {
+    private BigInteger getAmountFor(final String address, final WrapperTransaction transaction) {
         BigInteger result = BigInteger.ZERO;
-        if (address.equalsIgnoreCase(transaction.getFrom())) {
-            result = result.subtract(transaction.getValue());
+        if (address.equalsIgnoreCase(transaction.getInputs().get(0))) {
+            result = result.subtract(transaction.getOutputs().get(0).getValue());
         }
-        if (address.equalsIgnoreCase(transaction.getTo())) {
-            result = result.add(transaction.getValue());
+        if (address.equalsIgnoreCase(transaction.getOutputs().get(0).getAddress())) {
+            result = result.add(transaction.getOutputs().get(0).getValue());
         }
         return result;
     }

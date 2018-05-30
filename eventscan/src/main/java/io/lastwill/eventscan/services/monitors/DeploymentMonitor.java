@@ -1,18 +1,20 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.ContractCreatedEvent;
-import io.lastwill.eventscan.helpers.TransactionHelper;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.repositories.ContractRepository;
+import io.lastwill.eventscan.services.NetworkProvider;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.services.EventPublisher;
+import io.mywish.wrapper.WrapperNetwork;
+import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.web3j.protocol.core.methods.response.Transaction;
 
+import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -32,18 +34,22 @@ public class DeploymentMonitor {
     @Autowired
     private TransactionProvider transactionProvider;
 
+    @Autowired
+    private NetworkProvider networkProvider;
+
     @EventListener
-    public void onNewBlock(final NewBlockEvent event) {
+    private void onNewBlock(final NewBlockEvent event) {
+        WrapperNetwork network = networkProvider.get(event.getNetworkType());
         Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;
         }
 
-        Map<String, Transaction> deployHashes = event.getTransactionsByAddress()
+        Map<String, WrapperTransaction> deployHashes = event.getTransactionsByAddress()
                 .values()
                 .stream()
                 .flatMap(Collection::stream)
-                .filter(TransactionHelper::isContractCreation)
+                .filter(WrapperTransaction::isContractCreation)
                 .collect(Collectors.toMap(
                         tr -> tr.getHash().toLowerCase(),
                         Function.identity(),
@@ -56,23 +62,23 @@ public class DeploymentMonitor {
 
         List<Contract> contracts = contractRepository.findByTxHashes(deployHashes.keySet(), event.getNetworkType());
         for (Contract contract : contracts) {
-            final Transaction transaction = deployHashes.get(contract.getTxHash().toLowerCase());
-            transactionProvider.getTransactionReceiptAsync(event.getNetworkType(), contract.getTxHash())
+            final WrapperTransaction transaction = deployHashes.get(contract.getTxHash().toLowerCase());
+            transactionProvider.getTransactionReceiptAsync(event.getNetworkType(), transaction)
                     .thenAccept(transactionReceipt -> {
-                        if (!TransactionHelper.isSuccess(transactionReceipt)) {
+                        if (!transactionReceipt.isSuccess()) {
                             log.warn("Failed contract ({}) creation in transaction {}!", contract.getId(), transaction.getHash());
                         }
                         else {
-                            contract.setAddress(transactionReceipt.getContractAddress().toLowerCase());
+                            contract.setAddress(transactionReceipt.getContracts().get(0).toLowerCase());
                             if (transaction.getCreates() == null) {
-                                transaction.setCreates(transactionReceipt.getContractAddress());
+                                transaction.setCreates(transactionReceipt.getContracts().get(0));
                             }
                         }
                         eventPublisher.publish(new ContractCreatedEvent(
                                 event.getNetworkType(),
                                 contract,
                                 transaction,
-                                event.getBlock(), TransactionHelper.isSuccess(transactionReceipt))
+                                event.getBlock(), transactionReceipt.isSuccess())
                         );
                     })
                     .exceptionally(throwable -> {

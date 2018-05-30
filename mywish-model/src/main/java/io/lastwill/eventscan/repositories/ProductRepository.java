@@ -1,10 +1,6 @@
 package io.lastwill.eventscan.repositories;
 
-import io.lastwill.eventscan.model.Product;
-import io.lastwill.eventscan.model.ProductCrowdsale;
-import io.lastwill.eventscan.model.ProductLastWill;
-import io.lastwill.eventscan.model.ProductStatistics;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.*;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

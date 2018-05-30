@@ -1,9 +1,10 @@
 package io.lastwill.eventscan.events.contract;
 
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import io.mywish.wrapper.ContractEventDefinition;
+import io.mywish.wrapper.WrapperTransactionReceipt;
 
 public class MintFinishedEvent extends BaseEmptyEvent {
-    public MintFinishedEvent(ContractEventDefinition definition, TransactionReceipt transactionReceipt, String address) {
+    public MintFinishedEvent(ContractEventDefinition definition, WrapperTransactionReceipt transactionReceipt, String address) {
         super(definition, transactionReceipt, address);
     }
 }

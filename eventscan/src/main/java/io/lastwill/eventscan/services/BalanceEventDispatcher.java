@@ -17,7 +17,7 @@ public class BalanceEventDispatcher {
     private ExternalNotifier externalNotifier;
 
     @EventListener
-    public void ownerBalanceChangedHandler(final UserPaymentEvent event) {
+    private void ownerBalanceChangedHandler(final UserPaymentEvent event) {
         try {
             externalNotifier.send(
                     event.getNetworkType(),

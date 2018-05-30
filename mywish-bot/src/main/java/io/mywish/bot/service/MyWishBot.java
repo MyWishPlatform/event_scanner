@@ -76,7 +76,12 @@ public class MyWishBot extends TelegramLongPollingBot {
             ChatContext chatContext = new ChatContext(this, chatId, userName);
             List<String> args = new ArrayList<>(Arrays.asList(update.getMessage().getText().split(" ")));
             String cmdName = args.remove(0);
-            Optional<BotCommand> botCommand = commands.stream().filter(cmd -> cmd.getName().equals(cmdName)).findFirst();
+            Optional<BotCommand> botCommand = commands
+                    .stream()
+                    .filter(cmd ->
+                            cmd.getName().equals(cmdName)
+                    )
+                    .findFirst();
             if (botCommand.isPresent()) {
                 botCommand.get().execute(chatContext, args);
             }
@@ -174,6 +179,21 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(" (")
                 .append(productId)
                 .append("): [")
+                .append(value)
+                .append("](")
+                .append(link)
+                .append(").")
+                .toString();
+
+        sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
+    }
+
+    public void onNeoPayment(final String network, final String address, final String value, final String link) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": funds arrived on address ")
+                .append(address)
+                .append(": [")
                 .append(value)
                 .append("](")
                 .append(link)

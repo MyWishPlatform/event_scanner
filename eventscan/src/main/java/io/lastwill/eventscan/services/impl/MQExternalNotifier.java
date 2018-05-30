@@ -9,7 +9,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import io.lastwill.eventscan.messages.BaseNotify;
 import io.lastwill.eventscan.messages.Ping;
 import io.lastwill.eventscan.services.ExternalNotifier;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +44,10 @@ public class MQExternalNotifier implements ExternalNotifier {
     private String queueNameRskFgw;
     @Value("${io.lastwill.eventscan.backend-mq.queue.federation-gateway.rsk-testnet}")
     private String queueNameRskTestFgw;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.neo}")
+    private String queueNameNeo;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.neo-testnet}")
+    private String queueNameNeoTest;
 
     private Map<NetworkType, String> queueByNetwork = new HashMap<>();
 
@@ -66,6 +70,9 @@ public class MQExternalNotifier implements ExternalNotifier {
 
         queueByNetwork.put(NetworkType.RSK_FEDERATION_MAINNET, queueNameRskFgw);
         queueByNetwork.put(NetworkType.RSK_FEDERATION_TESTNET, queueNameRskTestFgw);
+
+        queueByNetwork.put(NetworkType.NEO_MAINNET, queueNameNeo);
+        queueByNetwork.put(NetworkType.NEO_TESTNET, queueNameNeoTest);
 
         connection = factory.newConnection();
         channel = connection.createChannel();

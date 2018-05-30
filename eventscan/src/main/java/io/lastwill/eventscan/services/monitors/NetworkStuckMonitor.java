@@ -1,9 +1,8 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.utility.NetworkStuckEvent;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.model.NewBlockEvent;
-import io.mywish.scanner.model.NewBtcBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,26 +30,13 @@ public class NetworkStuckMonitor {
     private EventPublisher eventPublisher;
 
     @EventListener
-    public void newBlockEvent(NewBlockEvent event) {
+    private void newBlockEvent(NewBlockEvent event) {
         lastEvents.put(
                 event.getNetworkType(),
                 new LastEvent(
                         LocalDateTime.now(ZoneOffset.UTC),
-                        Instant.ofEpochSecond(event.getBlock().getTimestamp().longValue()),
-                        event.getBlock().getNumber().longValue()
-                )
-        );
-    }
-
-
-    @EventListener
-    public void newBtcBlockEvent(NewBtcBlockEvent event) {
-        lastEvents.put(
-                event.getNetworkType(),
-                new LastEvent(
-                        LocalDateTime.now(ZoneOffset.UTC),
-                        Instant.ofEpochSecond(event.getBlock().getTimeSeconds()),
-                        event.getBlockNumber()
+                        Instant.ofEpochSecond(event.getBlock().getTimestamp()),
+                        event.getBlock().getNumber()
                 )
         );
     }
@@ -72,7 +58,14 @@ public class NetworkStuckMonitor {
                         return;
                     }
 
-                    eventPublisher.publish(new NetworkStuckEvent(networkType, lastEvent.receivedTime, lastEvent.timestamp, lastEvent.blockNo));
+                    eventPublisher.publish(
+                            new NetworkStuckEvent(
+                                    networkType,
+                                    lastEvent.receivedTime,
+                                    lastEvent.timestamp,
+                                    lastEvent.blockNo
+                            )
+                    );
                 });
     }
 
@@ -89,7 +82,14 @@ public class NetworkStuckMonitor {
                         return;
                     }
 
-                    eventPublisher.publish(new NetworkStuckEvent(networkType, lastEvent.receivedTime, lastEvent.timestamp, lastEvent.blockNo));
+                    eventPublisher.publish(
+                            new NetworkStuckEvent(
+                                    networkType,
+                                    lastEvent.receivedTime,
+                                    lastEvent.timestamp,
+                                    lastEvent.blockNo
+                            )
+                    );
                 });
     }
 

@@ -1,7 +1,5 @@
 package io.mywish.neocli4j;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mywish.neocli4j.model.*;
 import lombok.extern.slf4j.Slf4j;
@@ -12,18 +10,14 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 
-import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class NeoClientImpl implements NeoClient {
@@ -39,24 +33,34 @@ public class NeoClientImpl implements NeoClient {
         this.UTF8 = Charset.forName("UTF-8");
     }
 
-    private <T> T doRequest(final Class<T> clazz, final String method, final Object... params) throws java.io.IOException {
+    private <T extends JsonRpcResponse> T doRequest(final Class<T> clazz, final String method, final Object... params) throws java.io.IOException {
         JsonRpcRequest jsonRpcRequest = new JsonRpcRequest("2.0", "mywishscanner", method, Arrays.asList(params));
         String json = objectMapper.writeValueAsString(jsonRpcRequest);
         HttpPost httpPost = new HttpPost(rpc);
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
         httpPost.setEntity(new StringEntity(json));
-        HttpResponse response = httpClient.execute(httpPost);
+        HttpResponse httpResponse = httpClient.execute(httpPost);
         // TODO: process result codes
-        HttpEntity entity = response.getEntity();
+        HttpEntity entity = httpResponse.getEntity();
         // TODO: handle empty response
         String responseBody = EntityUtils.toString(entity, UTF8);
         // TODO: handle deserialize exceptions (if needed)
-        T result = objectMapper.readValue(responseBody, clazz);
-        return result;
+        T response = objectMapper.readValue(responseBody, clazz);
+        if (response.getError() != null) {
+            throw new IOException("Exception in method '" + method + "'"
+                    + " with arguments "
+                    + objectMapper.writeValueAsString(params)
+                    + ". Error code: "
+                    + response.getError().getCode()
+                    + ". Error message: "
+                    + response.getError().getMessage()
+            );
+        }
+        return response;
     }
 
-    private <T> T doRequest(final Class<T> clazz, final String method) throws java.io.IOException {
+    private <T extends JsonRpcResponse> T doRequest(final Class<T> clazz, final String method) throws java.io.IOException {
         return doRequest(clazz, method, new Object[]{});
     }
 
@@ -102,10 +106,13 @@ public class NeoClientImpl implements NeoClient {
     @Override
     public BigInteger getBalance(String address) throws java.io.IOException {
         GetAccountStateResponse response = doRequest(GetAccountStateResponse.class, "getaccountstate", address);
-        if (response.getBalances() == null || response.getBalances().isEmpty()) {
+        AccountState accountState = response.getResult();
+        if (accountState == null
+                || accountState.getBalances() == null
+                || accountState.getBalances().isEmpty()) {
             return BigInteger.ZERO;
         }
-        return response.getBalances()
+        return accountState.getBalances()
                 .stream()
                 .filter(balance -> "0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b".equalsIgnoreCase(balance.getAsset()))
                 .map(Balance::getValue)

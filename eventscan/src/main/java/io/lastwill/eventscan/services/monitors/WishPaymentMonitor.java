@@ -8,15 +8,15 @@ import io.lastwill.eventscan.repositories.UserProfileRepository;
 import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.lastwill.eventscan.services.builders.erc20.TransferEventBuilder;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.services.EventPublisher;
+import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.web3j.protocol.core.methods.response.Transaction;
 
 import javax.annotation.PostConstruct;
 import java.math.BigInteger;
@@ -49,12 +49,12 @@ public class WishPaymentMonitor {
     }
 
     @EventListener
-    public void onNewBlock(final NewBlockEvent newBlockEvent) {
+    private void onNewBlock(final NewBlockEvent newWeb3BlockEvent) {
         // wish only in mainnet works
-        if (newBlockEvent.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {
+        if (newWeb3BlockEvent.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {
             return;
         }
-        Set<String> addresses = newBlockEvent.getTransactionsByAddress().keySet();
+        Set<String> addresses = newWeb3BlockEvent.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;
         }
@@ -63,13 +63,13 @@ public class WishPaymentMonitor {
             return;
         }
 
-        List<Transaction> transactions = newBlockEvent.getTransactionsByAddress().get(tokenAddress);
-        for (final Transaction transaction : transactions) {
-            if (!tokenAddress.equalsIgnoreCase(transaction.getTo())) {
+        List<WrapperTransaction> transactions = newWeb3BlockEvent.getTransactionsByAddress().get(tokenAddress);
+        for (final WrapperTransaction transaction : transactions) {
+            if (!tokenAddress.equalsIgnoreCase(transaction.getOutputs().get(0).getAddress())) {
                 continue;
             }
-            transactionProvider.getTransactionReceiptAsync(newBlockEvent.getNetworkType(), transaction.getHash())
-                    .thenAccept(transactionReceipt -> eventParser.parseEvents(transactionReceipt, transferEventBuilder.getEventSignature())
+            transactionProvider.getTransactionReceiptAsync(newWeb3BlockEvent.getNetworkType(), transaction)
+                    .thenAccept(transactionReceipt -> eventParser.parseEvents(transactionReceipt)
                             .stream()
                             .filter(event -> event instanceof TransferEvent)
                             .map(event -> (TransferEvent) event)
@@ -77,22 +77,22 @@ public class WishPaymentMonitor {
                                 String transferTo = eventValue.getTo();
                                 BigInteger amount = eventValue.getTokens();
 
-                                UserProfile userProfile = userProfileRepository.findByInternalAddress(transferTo);
-                                if (userProfile == null) {
-                                    return;
-                                }
-                                eventPublisher.publish(new UserPaymentEvent(
-                                        newBlockEvent.getNetworkType(),
-                                        transaction,
-                                        amount,
-                                        CryptoCurrency.WISH,
-                                        true,
-                                        userProfile));
-                            }))
-                    .exceptionally(throwable -> {
-                        log.error("Error on getting receipt for handling WISH payment.", throwable);
-                        return null;
-                    });
+                                    UserProfile userProfile = userProfileRepository.findByInternalAddress(transferTo);
+                                    if (userProfile == null) {
+                                        return;
+                                    }
+                                    eventPublisher.publish(new UserPaymentEvent(
+                                            newWeb3BlockEvent.getNetworkType(),
+                                            transaction,
+                                            amount,
+                                            CryptoCurrency.WISH,
+                                            true,
+                                            userProfile));
+                                }))
+                                .exceptionally(throwable -> {
+                                    log.error("Error on getting receipt for handling WISH payment.", throwable);
+                                return null;
+                            });
 
         }
     }

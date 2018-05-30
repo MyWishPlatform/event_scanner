@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services;
 
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -1,23 +1,16 @@
 package io.mywish.bot.integration.services;
 
-import io.lastwill.eventscan.events.ContractCreatedEvent;
-import io.lastwill.eventscan.events.FGWBalanceChangedEvent;
-import io.lastwill.eventscan.events.ProductPaymentEvent;
-import io.lastwill.eventscan.events.UserPaymentEvent;
+import io.lastwill.eventscan.events.*;
 import io.lastwill.eventscan.events.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.model.*;
 import io.mywish.bot.service.MyWishBot;
-import io.mywish.scanner.model.NetworkType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,14 +31,16 @@ public class BotIntegration {
         put(NetworkType.ETHEREUM_ROPSTEN, "tETH");
         put(NetworkType.RSK_MAINNET, "RSK");
         put(NetworkType.RSK_TESTNET, "tRSK");
-        put(NetworkType.BTC_TESTNET_3, "tBTC");
         put(NetworkType.BTC_MAINNET, "BTC");
+        put(NetworkType.BTC_TESTNET_3, "tBTC");
+        put(NetworkType.NEO_MAINNET, "NEO");
+        put(NetworkType.NEO_TESTNET, "tNEO");
     }};
 
     private final String defaultNetwork = "unknown";
 
     @EventListener
-    public void onContractCrated(final ContractCreatedEvent contractCreatedEvent) {
+    private void onContractCreated(final ContractCreatedEvent contractCreatedEvent) {
         final Contract contract = contractCreatedEvent.getContract();
         final Product product = contract.getProduct();
         final String type = ProductStatistics.PRODUCT_TYPES.get(product.getContractType());
@@ -56,7 +51,15 @@ public class BotIntegration {
                 .buildToAddress(contract.getAddress());
 
         if (contractCreatedEvent.isSuccess()) {
-            bot.onContract(network, product.getId(), type, contract.getId(), toCurrency(CryptoCurrency.ETH, product.getCost()), contract.getAddress(), addressLink);
+            bot.onContract(
+                    network,
+                    product.getId(),
+                    type,
+                    contract.getId(),
+                    toCurrency(CryptoCurrency.ETH, product.getCost()),
+                    contract.getAddress(),
+                    addressLink
+            );
         }
         else {
             bot.onContractFailed(network, product.getId(), type, contract.getId(), txLink);
@@ -64,7 +67,7 @@ public class BotIntegration {
     }
 
     @EventListener
-    public void onOwnerBalanceChanged(final UserPaymentEvent event) {
+    private void onOwnerBalanceChanged(final UserPaymentEvent event) {
         final UserProfile userProfile = event.getUserProfile();
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         final String txLink = explorerProvider.getOrStub(event.getNetworkType())
@@ -78,7 +81,7 @@ public class BotIntegration {
     }
 
     @EventListener
-    public void onRskFGWBalanceChanged(final FGWBalanceChangedEvent event) {
+    private void onRskFGWBalanceChanged(final FGWBalanceChangedEvent event) {
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         final String link = explorerProvider.getOrStub(event.getNetworkType())
                 .buildToAddress(event.getAddress());
@@ -95,12 +98,12 @@ public class BotIntegration {
     }
 
     @EventListener
-    public void onBtcPaymentChanged(final ProductPaymentEvent event) {
+    private void onBtcPaymentChanged(final ProductPaymentEvent event) {
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         final Product product = event.getProduct();
         final String type = ProductStatistics.PRODUCT_TYPES.get(product.getContractType());
         final String txLink = explorerProvider.getOrStub(event.getNetworkType())
-                .buildToTransaction(event.getTransactionOutput().getParentTransaction().getHashAsString());
+                .buildToTransaction(event.getTransactionOutput().getParentTransaction());
         bot.onBtcPayment(
                 network,
                 type,
@@ -111,7 +114,22 @@ public class BotIntegration {
     }
 
     @EventListener
-    public void onNetworkStuck(final NetworkStuckEvent event) {
+    private void onNeoPayment(final NeoPaymentEvent event) {
+        final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        final String address = event.getAddress();
+        final String value = toCurrency(event.getCurrency(), event.getAmount());
+        final String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToTransaction(event.getNeoTransaction().getHash());
+        bot.onNeoPayment(
+                network,
+                address,
+                value,
+                txLink
+        );
+    }
+
+    @EventListener
+    private void onNetworkStuck(final NetworkStuckEvent event) {
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         String lastBlock = event.getReceivedTime().atZone(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ISO_DATE_TIME);
         final String blockLink = explorerProvider
@@ -124,7 +142,25 @@ public class BotIntegration {
     }
 
     private static String toCurrency(CryptoCurrency currency, BigInteger amount) {
-        BigInteger hundreds = currency == CryptoCurrency.BTC ? amount.divide(BigInteger.valueOf(100000000L)) : amount.divide(BigInteger.valueOf(10000000000000000L));
+        BigInteger hundreds = null;
+        switch (currency) {
+            case NEO: {
+                hundreds = amount.multiply(BigInteger.valueOf(100L));
+                break;
+            }
+            case GAS: {
+                hundreds = amount.divide(BigInteger.valueOf(1000000L));
+                break;
+            }
+            case BTC: {
+                hundreds = amount.divide(BigInteger.valueOf(100000000L));
+                break;
+            }
+            case ETH: {
+                hundreds = amount.divide(BigInteger.valueOf(10000000000000000L));
+                break;
+            }
+        }
         BigInteger[] parts = hundreds.divideAndRemainder(BigInteger.valueOf(100));
         BigInteger eth = parts[0];
         int rem = parts[1].intValue();

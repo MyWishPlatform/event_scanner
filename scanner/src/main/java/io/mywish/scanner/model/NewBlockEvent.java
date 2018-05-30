@@ -1,17 +1,18 @@
 package io.mywish.scanner.model;
 
+import io.lastwill.eventscan.model.BaseEvent;
+import io.lastwill.eventscan.model.NetworkType;
+import io.mywish.wrapper.WrapperBlock;
+import io.mywish.wrapper.WrapperTransaction;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.util.MultiValueMap;
-import org.web3j.protocol.core.methods.response.EthBlock;
-import org.web3j.protocol.core.methods.response.Transaction;
 
 @Getter
 public class NewBlockEvent extends BaseEvent {
-    private final EthBlock.Block block;
-    private final MultiValueMap<String, Transaction> transactionsByAddress;
+    private final WrapperBlock block;
+    private final MultiValueMap<String, WrapperTransaction> transactionsByAddress;
 
-    public NewBlockEvent(NetworkType networkType, EthBlock.Block block, MultiValueMap<String, Transaction> transactionsByAddress) {
+    public NewBlockEvent(NetworkType networkType, WrapperBlock block, MultiValueMap<String, WrapperTransaction> transactionsByAddress) {
         super(networkType);
         this.block = block;
         this.transactionsByAddress = transactionsByAddress;

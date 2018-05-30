@@ -5,9 +5,9 @@ import io.lastwill.eventscan.events.contract.*;
 import io.lastwill.eventscan.messages.*;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.BalanceProvider;
-import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.services.handlers.events.TransferOwnershipHandler;
+import io.mywish.wrapper.ContractEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -31,7 +31,7 @@ public class ContractEventHandler {
     private TransferOwnershipHandler transferOwnershipHandler;
 
     @EventListener
-    public void eventsHandler(final ContractEventsEvent event) {
+    private void eventsHandler(final ContractEventsEvent event) {
         for (ContractEvent contractEvent: event.getEvents()) {
             if (contractEvent instanceof CheckedEvent) {
                 externalNotifier.send(event.getNetworkType(),
@@ -54,7 +54,7 @@ public class ContractEventHandler {
                 balanceProvider.getBalanceAsync(
                         event.getNetworkType(),
                         event.getContract().getAddress(),
-                        event.getBlock().getNumber().longValue()
+                        event.getBlock().getNumber()
                 )
                         .thenAccept(balance -> {
                             try {
@@ -94,6 +94,5 @@ public class ContractEventHandler {
                         new NotifiedNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
         }
-
     }
 }

@@ -6,7 +6,6 @@ import io.lastwill.eventscan.messages.PaymentStatus;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +16,7 @@ public class CreateContractHandler {
     private ExternalNotifier externalNotifier;
 
     @EventListener
-    public void handleContractCreateTransaction(ContractCreatedEvent event) {
+    private void handleContractCreateTransaction(ContractCreatedEvent event) {
         externalNotifier.send(
                 event.getNetworkType(),
                 new ContractDeployedNotify(

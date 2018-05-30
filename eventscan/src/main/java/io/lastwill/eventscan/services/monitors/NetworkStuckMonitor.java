@@ -1,9 +1,8 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.utility.NetworkStuckEvent;
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.model.NewBlockEvent;
-import io.mywish.scanner.model.NewBtcBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,8 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -29,28 +30,19 @@ public class NetworkStuckMonitor {
     private EventPublisher eventPublisher;
 
     @EventListener
-    public void newBlockEvent(NewBlockEvent event) {
+    private void newBlockEvent(NewBlockEvent event) {
         lastEvents.put(
                 event.getNetworkType(),
                 new LastEvent(
                         LocalDateTime.now(ZoneOffset.UTC),
-                        Instant.ofEpochSecond(event.getBlock().getTimestamp().longValue()),
-                        event.getBlock().getNumber().longValue()
+                        Instant.ofEpochSecond(event.getBlock().getTimestamp()),
+                        event.getBlock().getNumber()
                 )
         );
     }
 
-
-    @EventListener
-    public void newBtcBlockEvent(NewBtcBlockEvent event) {
-        lastEvents.put(
-                event.getNetworkType(),
-                new LastEvent(
-                        LocalDateTime.now(ZoneOffset.UTC),
-                        Instant.ofEpochSecond(event.getBlock().getTimeSeconds()),
-                        event.getBlockNumber()
-                )
-        );
+    public Map<NetworkType, LastEvent> getLastEvents() {
+        return Collections.unmodifiableMap(this.lastEvents);
     }
 
     @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}")
@@ -66,7 +58,14 @@ public class NetworkStuckMonitor {
                         return;
                     }
 
-                    eventPublisher.publish(new NetworkStuckEvent(networkType, lastEvent.receivedTime, lastEvent.timestamp, lastEvent.blockNo));
+                    eventPublisher.publish(
+                            new NetworkStuckEvent(
+                                    networkType,
+                                    lastEvent.receivedTime,
+                                    lastEvent.timestamp,
+                                    lastEvent.blockNo
+                            )
+                    );
                 });
     }
 
@@ -83,12 +82,19 @@ public class NetworkStuckMonitor {
                         return;
                     }
 
-                    eventPublisher.publish(new NetworkStuckEvent(networkType, lastEvent.receivedTime, lastEvent.timestamp, lastEvent.blockNo));
+                    eventPublisher.publish(
+                            new NetworkStuckEvent(
+                                    networkType,
+                                    lastEvent.receivedTime,
+                                    lastEvent.timestamp,
+                                    lastEvent.blockNo
+                            )
+                    );
                 });
     }
 
     @Getter
-    private static class LastEvent {
+    public static class LastEvent {
         private final LocalDateTime receivedTime;
         private final Instant timestamp;
         private final long blockNo;

@@ -20,10 +20,9 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>scanner</artifactId>
+            <artifactId>wrapper</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.web3j</groupId>
             <artifactId>core</artifactId>

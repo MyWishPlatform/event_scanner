@@ -1,10 +1,14 @@
 package io.mywish.bot;
 
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import io.mywish.bot.service.MyWishBot;
+import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
+import org.telegram.telegrambots.ApiContext;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
+import org.telegram.telegrambots.bots.DefaultBotOptions;
 
 @ComponentScan
 @Configuration
@@ -14,9 +18,26 @@ public class BotModule {
         ApiContextInitializer.init();
     }
 
-    @ConditionalOnProperty(name = "io.mywish.is-ros-com-nadzor", havingValue = "false", matchIfMissing = true)
+    @Value("${io.mywish.bot.http-proxy:#{null}}")
+    private String proxy;
+
     @Bean
     public TelegramBotsApi telegramBotsApi() {
         return new TelegramBotsApi();
+    }
+
+    @Bean
+    public MyWishBot myWishBot() {
+        DefaultBotOptions botOptions = ApiContext.getInstance(DefaultBotOptions.class);
+        if (proxy != null) {
+            botOptions.setRequestConfig(
+                    RequestConfig
+                            .custom()
+                            .setProxy(HttpHost.create(proxy))
+                            .setAuthenticationEnabled(false)
+                            .build()
+            );
+        }
+        return new MyWishBot(botOptions);
     }
 }

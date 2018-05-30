@@ -1,9 +1,9 @@
 package io.lastwill.eventscan;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.ConnectionFactory;
 import io.mywish.scanner.ScannerModule;
-import io.mywish.scanner.model.NetworkType;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -16,8 +16,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.web3j.protocol.Web3j;
-import org.web3j.protocol.http.HttpService;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -72,30 +70,6 @@ public class Application {
 
     @Bean
     public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
-
-    @Bean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
-    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ethereum")
-    public Web3j web3jEthereum(@Value("${io.lastwill.eventscan.web3-url.ethereum}") String web3Url) {
-        return Web3j.build(new HttpService(web3Url));
-    }
-
-    @Bean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
-    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ropsten")
-    public Web3j web3jRopsten(@Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url) {
-        return Web3j.build(new HttpService(web3Url));
-    }
-
-    @Bean(name = NetworkType.RSK_MAINNET_VALUE)
-    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-mainnet")
-    public Web3j web3jRsk(@Value("${io.lastwill.eventscan.web3-url.rsk-mainnet}") String web3Url) {
-        return Web3j.build(new HttpService(web3Url));
-    }
-
-    @Bean(name = NetworkType.RSK_TESTNET_VALUE)
-    @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-testnet")
-    public Web3j web3jRskTest(@Value("${io.lastwill.eventscan.web3-url.rsk-testnet}") String web3Url) {
-        return Web3j.build(new HttpService(web3Url));
+        return new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 }

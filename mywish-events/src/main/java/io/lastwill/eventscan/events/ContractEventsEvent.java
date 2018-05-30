@@ -1,13 +1,13 @@
 package io.lastwill.eventscan.events;
 
-import io.lastwill.eventscan.events.contract.ContractEvent;
+import io.lastwill.eventscan.model.BaseEvent;
+import io.mywish.wrapper.ContractEvent;
 import io.lastwill.eventscan.model.Contract;
-import io.mywish.scanner.model.BaseEvent;
-import io.mywish.scanner.model.NetworkType;
+import io.mywish.wrapper.WrapperBlock;
+import io.mywish.wrapper.WrapperTransaction;
+import io.mywish.wrapper.WrapperTransactionReceipt;
+import io.lastwill.eventscan.model.NetworkType;
 import lombok.Getter;
-import org.web3j.protocol.core.methods.response.Transaction;
-import org.web3j.protocol.core.methods.response.EthBlock;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.util.List;
 
@@ -15,11 +15,11 @@ import java.util.List;
 public class ContractEventsEvent extends BaseEvent {
     private final Contract contract;
     private final List<ContractEvent> events;
-    private final Transaction transaction;
-    private final TransactionReceipt transactionReceipt;
-    private final EthBlock.Block block;
+    private final WrapperTransaction transaction;
+    private final WrapperTransactionReceipt transactionReceipt;
+    private final WrapperBlock block;
 
-    public ContractEventsEvent(NetworkType networkType, Contract contract, List<ContractEvent> events, Transaction transaction, TransactionReceipt transactionReceipt, EthBlock.Block block) {
+    public ContractEventsEvent(NetworkType networkType, Contract contract, List<ContractEvent> events, WrapperTransaction transaction, WrapperTransactionReceipt transactionReceipt, WrapperBlock block) {
         super(networkType);
         this.contract = contract;
         this.events = events;

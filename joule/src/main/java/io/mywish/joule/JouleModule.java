@@ -27,6 +27,7 @@ import java.math.BigInteger;
 public class JouleModule implements SchedulingConfigurer {
     private final BigInteger defaultGasPrice = BigInteger.valueOf(20000000000L);
     private final BigInteger defaultGasLimit = BigInteger.valueOf(300000L);
+
     @Bean
     public JouleAPI jouleAPI(
             @Value("${io.mywish.joule.contract.address}") String address,

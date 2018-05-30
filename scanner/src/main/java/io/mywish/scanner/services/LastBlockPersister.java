@@ -1,11 +1,9 @@
 package io.mywish.scanner.services;
 
-import io.mywish.scanner.model.NetworkType;
+import io.lastwill.eventscan.model.NetworkType;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;

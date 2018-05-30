@@ -3,6 +3,8 @@ package io.mywish.joule.service;
 import io.mywish.joule.contracts.JouleAPI;
 import io.mywish.joule.model.JouleRegistrationState;
 import io.mywish.joule.repositories.JouleRegistrationRepository;
+import io.mywish.wrapper.WrapperTransaction;
+import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.io.IOException;
@@ -33,19 +34,19 @@ public class JouleService {
 
     @EventListener
     protected void onNewBlockEvent(NewBlockEvent newBlockEvent) {
-        List<Transaction> transactions = newBlockEvent
+        List<WrapperTransaction> transactions = newBlockEvent
                 .getTransactionsByAddress()
                 .get(jouleAddress.toLowerCase());
         if (transactions == null || transactions.isEmpty()) {
             return;
         }
 
-        for (Transaction transaction: transactions) {
-            if (transaction.getTo() == null) {
+        for (WrapperTransaction transaction: transactions) {
+            if (transaction.getOutputs().get(0) == null) {
                 continue;
             }
 
-            if (!jouleAddress.equalsIgnoreCase(transaction.getTo().toLowerCase())) {
+            if (!jouleAddress.equalsIgnoreCase(transaction.getOutputs().get(0).getAddress().toLowerCase())) {
                 continue;
             }
 

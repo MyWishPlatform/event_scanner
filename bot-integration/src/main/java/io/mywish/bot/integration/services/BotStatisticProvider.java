@@ -1,12 +1,12 @@
 package io.mywish.bot.integration.services;
 
+import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.ProductStatistics;
 import io.lastwill.eventscan.model.UserStatistics;
 import io.lastwill.eventscan.repositories.NetworkRepository;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.repositories.UserRepository;
 import io.mywish.bot.service.InformationProvider;
-import io.mywish.scanner.model.NetworkType;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,10 +27,14 @@ public class BotStatisticProvider implements InformationProvider {
     private NetworkRepository networkRepository;
 
     private final Map<NetworkType, String> networkNames = new HashMap<NetworkType, String>() {{
-        put(NetworkType.ETHEREUM_ROPSTEN, "Ropsten");
         put(NetworkType.ETHEREUM_MAINNET, "Ethereum");
+        put(NetworkType.ETHEREUM_ROPSTEN, "Ropsten");
         put(NetworkType.RSK_MAINNET, "RSK");
         put(NetworkType.RSK_TESTNET, "RSK Testnet");
+        put(NetworkType.BTC_MAINNET, "BTC");
+        put(NetworkType.BTC_TESTNET_3, "BTC Testnet");
+        put(NetworkType.NEO_MAINNET, "NEO");
+        put(NetworkType.NEO_TESTNET, "NEO Testnet");
     }};
 
     @Override
@@ -75,7 +79,12 @@ public class BotStatisticProvider implements InformationProvider {
                             .forEach((type, states) -> {
                                 stringBuilder.append("Contact *").append(type).append("*:\n");
                                 states.forEach((state, count) -> {
-                                    stringBuilder.append("  ").append(state.replaceAll("_", "\\\\_")).append(": *").append(count).append("*\n");
+                                    stringBuilder
+                                            .append("  ")
+                                            .append(state.replaceAll("_", "\\\\_"))
+                                            .append(": *")
+                                            .append(count)
+                                            .append("*\n");
                                 });
                                 int total = states.values().stream().reduce(Integer::sum).orElse(0);
                                 overallContracts.addAndGet(total);

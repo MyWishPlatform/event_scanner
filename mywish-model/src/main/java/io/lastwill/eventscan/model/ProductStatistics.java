@@ -15,6 +15,7 @@ public class ProductStatistics {
         put(4, "ICO");
         put(5, "Token");
         put(6, "NEO Token");
+        put(7, "NEO ICO");
     }};
 
     private final Integer contractType;

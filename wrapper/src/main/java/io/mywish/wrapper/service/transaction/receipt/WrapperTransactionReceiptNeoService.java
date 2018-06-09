@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -23,9 +24,9 @@ public class WrapperTransactionReceiptNeoService {
         List<String> contracts = transaction.getContracts();
         List<WrapperLog> logs = events
                 .stream()
-                .map(event ->
-                        logBuilder.build(event, definitionsByName)
-                ).collect(Collectors.toList());
+                .map(event -> logBuilder.build(event, definitionsByName))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         // todo detect failures
         boolean success = true;
         return new WrapperTransactionReceipt(

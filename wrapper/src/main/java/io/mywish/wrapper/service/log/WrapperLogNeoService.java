@@ -4,12 +4,14 @@ import io.mywish.neocli4j.Event;
 import io.mywish.wrapper.ContractEventDefinition;
 import io.mywish.wrapper.WrapperLog;
 import io.mywish.wrapper.WrapperType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class WrapperLogNeoService {
     private Map<String, String> ethNametoNeoName = new HashMap<String, String>() {{
@@ -23,10 +25,12 @@ public class WrapperLogNeoService {
     public WrapperLog build(Event event, Map<String, ContractEventDefinition> definitions) {
         String name = ethNametoNeoName.get(event.getName());
         if (name == null) {
+            log.warn("There is no corresponding NEO event for {}.", event.getName());
             return null;
         }
         ContractEventDefinition definition = definitions.get(name);
         if (definition == null) {
+            log.warn("There is no corresponding NEO event definition for {}.", name);
             return null;
         }
         String contract = event.getContract();

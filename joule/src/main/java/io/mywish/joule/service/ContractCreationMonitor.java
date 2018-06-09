@@ -1,6 +1,6 @@
 package io.mywish.joule.service;
 
-import io.lastwill.eventscan.events.ContractCreatedEvent;
+import io.lastwill.eventscan.events.model.ContractCreatedEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.ProductCrowdsale;
 import io.mywish.joule.model.JouleRegistration;

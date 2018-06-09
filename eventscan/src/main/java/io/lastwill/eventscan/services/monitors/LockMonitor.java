@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
-import io.lastwill.eventscan.events.TransactionUnlockedEvent;
+import io.lastwill.eventscan.events.model.TransactionUnlockedEvent;
 import io.lastwill.eventscan.repositories.AddressLockRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.services.EventPublisher;

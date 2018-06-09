@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
-import io.lastwill.eventscan.events.utility.NetworkStuckEvent;
+import io.lastwill.eventscan.events.model.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;

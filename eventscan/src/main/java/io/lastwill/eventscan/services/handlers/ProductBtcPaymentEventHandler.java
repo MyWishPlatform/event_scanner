@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services.handlers;
 
-import io.lastwill.eventscan.events.ProductPaymentEvent;
+import io.lastwill.eventscan.events.model.ProductPaymentEvent;
 import io.lastwill.eventscan.messages.ContractPaymentNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
 import io.lastwill.eventscan.services.ExternalNotifier;
@@ -8,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
-import java.math.BigInteger;
 
 @Slf4j
 @Component

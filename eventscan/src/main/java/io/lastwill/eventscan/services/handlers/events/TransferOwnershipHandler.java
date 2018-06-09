@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services.handlers.events;
 
-import io.lastwill.eventscan.events.contract.OwnershipTransferredEvent;
+import io.lastwill.eventscan.events.model.contract.OwnershipTransferredEvent;
 import io.lastwill.eventscan.messages.OwnershipTransferredNotify;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;

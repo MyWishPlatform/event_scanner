@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services;
 
-import io.lastwill.eventscan.events.UserPaymentEvent;
+import io.lastwill.eventscan.events.model.UserPaymentEvent;
 import io.lastwill.eventscan.messages.PaymentNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
 import lombok.extern.slf4j.Slf4j;

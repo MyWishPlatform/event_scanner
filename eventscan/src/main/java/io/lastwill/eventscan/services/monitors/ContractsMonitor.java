@@ -1,7 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
-import io.lastwill.eventscan.events.ContractEventsEvent;
-import io.lastwill.eventscan.events.contract.erc20.TransferEvent;
+import io.lastwill.eventscan.events.model.ContractEventsEvent;
 import io.mywish.wrapper.ContractEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.repositories.ContractRepository;

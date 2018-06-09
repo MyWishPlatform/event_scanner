@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services.handlers;
 
-import io.lastwill.eventscan.events.ContractCreatedEvent;
+import io.lastwill.eventscan.events.model.ContractCreatedEvent;
 import io.lastwill.eventscan.messages.ContractDeployedNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
 import io.lastwill.eventscan.services.ExternalNotifier;

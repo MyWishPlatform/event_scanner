@@ -3,6 +3,7 @@ package io.lastwill.eventscan;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.ConnectionFactory;
+import io.lastwill.eventscan.events.EventModule;
 import io.mywish.scanner.ScannerModule;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -23,7 +24,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
 @SpringBootApplication
-@Import({ScannerModule.class})
+@Import({ScannerModule.class, EventModule.class})
 @EntityScan(basePackageClasses = {Application.class, Jsr310JpaConverters.class})
 @EnableScheduling
 public class Application {

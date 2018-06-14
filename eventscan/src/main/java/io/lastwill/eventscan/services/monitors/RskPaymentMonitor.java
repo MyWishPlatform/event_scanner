@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
-import io.lastwill.eventscan.events.FGWBalanceChangedEvent;
+import io.lastwill.eventscan.events.model.FGWBalanceChangedEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.services.BalanceProvider;
 import io.lastwill.eventscan.services.NetworkProvider;

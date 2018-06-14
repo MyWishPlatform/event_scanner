@@ -1,7 +1,7 @@
 package io.mywish.bot.integration.services;
 
-import io.lastwill.eventscan.events.*;
-import io.lastwill.eventscan.events.utility.NetworkStuckEvent;
+import io.lastwill.eventscan.events.model.*;
+import io.lastwill.eventscan.events.model.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.model.*;
 import io.mywish.bot.service.MyWishBot;
 import lombok.extern.slf4j.Slf4j;

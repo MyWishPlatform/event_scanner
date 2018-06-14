@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.mywish.wrapper.WrapperTransaction;
-import io.lastwill.eventscan.events.UserPaymentEvent;
+import io.lastwill.eventscan.events.model.UserPaymentEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.UserProfile;
 import io.lastwill.eventscan.repositories.UserProfileRepository;
@@ -44,8 +44,13 @@ public class EthPaymentMonitor {
         List<UserProfile> userProfiles = userProfileRepository.findByAddressesList(addresses);
         for (UserProfile userProfile : userProfiles) {
             final List<WrapperTransaction> transactions = event.getTransactionsByAddress().get(
-                    userProfile.getInternalAddress()
+                    userProfile.getInternalAddress().toLowerCase()
             );
+
+            if (transactions == null) {
+                log.error("User {} received from DB, but was not found in transaction list (block {}).", userProfile, event.getBlock().getNumber());
+                continue;
+            }
 
             transactions.forEach(transaction -> {
                 if (!userProfile.getInternalAddress().equalsIgnoreCase(transaction.getOutputs().get(0).getAddress())) {

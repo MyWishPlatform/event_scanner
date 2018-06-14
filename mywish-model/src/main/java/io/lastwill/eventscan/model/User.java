@@ -1,6 +1,7 @@
 package io.lastwill.eventscan.model;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
@@ -28,6 +29,7 @@ import java.time.ZonedDateTime;
 )
 
 @Getter
+@ToString(of = {"id", "email"})
 public class User {
     @Id
     private int id;

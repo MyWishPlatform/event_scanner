@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
-import io.lastwill.eventscan.events.ContractCreatedEvent;
+import io.lastwill.eventscan.events.model.ContractCreatedEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.NetworkProvider;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

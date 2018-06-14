@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
-import io.lastwill.eventscan.events.ProductPaymentEvent;
+import io.lastwill.eventscan.events.model.ProductPaymentEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.Btc2RskNetworkConverter;

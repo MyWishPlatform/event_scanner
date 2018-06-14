@@ -1,6 +1,6 @@
 package io.mywish.scanner.model;
 
-import io.lastwill.eventscan.model.BaseEvent;
+import io.lastwill.eventscan.events.model.BaseEvent;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperTransaction;

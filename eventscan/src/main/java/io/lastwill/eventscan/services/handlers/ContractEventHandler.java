@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.services.handlers;
 
-import io.lastwill.eventscan.events.ContractEventsEvent;
-import io.lastwill.eventscan.events.contract.*;
+import io.lastwill.eventscan.events.model.ContractEventsEvent;
+import io.lastwill.eventscan.events.model.contract.*;
 import io.lastwill.eventscan.messages.*;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.BalanceProvider;
@@ -92,6 +92,17 @@ public class ContractEventHandler {
             else if (contractEvent instanceof NotifiedEvent) {
                 externalNotifier.send(event.getNetworkType(),
                         new NotifiedNotify(event.getContract().getId(), event.getTransaction().getHash()));
+            }
+            else if (contractEvent instanceof TimesChangedEvent) {
+                externalNotifier.send(
+                        event.getNetworkType(),
+                        new TimesChangedNotify(
+                                event.getContract().getId(),
+                                event.getTransaction().getHash(),
+                                ((TimesChangedEvent) contractEvent).getStartTime(),
+                                ((TimesChangedEvent) contractEvent).getEndTime()
+                        )
+                );
             }
         }
     }

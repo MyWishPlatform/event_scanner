@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services.handlers;
 
-import io.lastwill.eventscan.events.FGWBalanceChangedEvent;
+import io.lastwill.eventscan.events.model.FGWBalanceChangedEvent;
 import io.lastwill.eventscan.messages.FgwPaymentIncomeNotify;
 import io.lastwill.eventscan.messages.FgwPaymentOutcomeNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;

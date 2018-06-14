@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.mywish.neocli4j.Transaction;
-import io.lastwill.eventscan.events.NeoPaymentEvent;
+import io.lastwill.eventscan.events.model.NeoPaymentEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.model.NewBlockEvent;

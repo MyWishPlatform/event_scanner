@@ -2,7 +2,8 @@ package io.mywish.neocli4j.model;
 
 import lombok.Getter;
 
+@Getter
 public class JsonRpcResponse<T> {
-    @Getter
     private T result;
+    private Error error;
 }

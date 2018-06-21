@@ -1,7 +1,9 @@
 package io.lastwill.eventscan.messages;
 
+import lombok.Getter;
 import lombok.ToString;
 
+@Getter
 @ToString(callSuper = true)
 public class WhitelistRemovedNotify extends NotifyContract {
     private final String address;

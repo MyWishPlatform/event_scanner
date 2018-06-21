@@ -1,8 +1,9 @@
-package io.lastwill.eventscan.events.builders;
+package io.lastwill.eventscan.events.builders.crowdsale;
 
+import io.lastwill.eventscan.events.builders.BaseEmptyEventBuilder;
 import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.wrapper.ContractEventDefinition;
-import io.lastwill.eventscan.events.model.contract.FinalizedEvent;
+import io.lastwill.eventscan.events.model.contract.crowdsale.FinalizedEvent;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -2,6 +2,10 @@ package io.lastwill.eventscan.services.handlers;
 
 import io.lastwill.eventscan.events.model.ContractEventsEvent;
 import io.lastwill.eventscan.events.model.contract.*;
+import io.lastwill.eventscan.events.model.contract.crowdsale.FinalizedEvent;
+import io.lastwill.eventscan.events.model.contract.crowdsale.TimesChangedEvent;
+import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressAddedEvent;
+import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressRemovedEvent;
 import io.lastwill.eventscan.messages.*;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.BalanceProvider;
@@ -101,6 +105,26 @@ public class ContractEventHandler {
                                 event.getTransaction().getHash(),
                                 ((TimesChangedEvent) contractEvent).getStartTime(),
                                 ((TimesChangedEvent) contractEvent).getEndTime()
+                        )
+                );
+            }
+            else if (contractEvent instanceof WhitelistedAddressAddedEvent) {
+                externalNotifier.send(
+                        event.getNetworkType(),
+                        new WhitelistAddedNotify(
+                                event.getContract().getId(),
+                                event.getTransaction().getHash(),
+                                ((WhitelistedAddressAddedEvent) contractEvent).getWhitelistedAddress()
+                        )
+                );
+            }
+            else if (contractEvent instanceof WhitelistedAddressRemovedEvent) {
+                externalNotifier.send(
+                        event.getNetworkType(),
+                        new WhitelistRemovedNotify(
+                                event.getContract().getId(),
+                                event.getTransaction().getHash(),
+                                ((WhitelistedAddressRemovedEvent) contractEvent).getWhitelistedAddress()
                         )
                 );
             }

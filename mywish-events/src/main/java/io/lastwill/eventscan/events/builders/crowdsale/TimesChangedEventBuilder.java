@@ -1,6 +1,6 @@
-package io.lastwill.eventscan.events.builders;
+package io.lastwill.eventscan.events.builders.crowdsale;
 
-import io.lastwill.eventscan.events.model.contract.TimesChangedEvent;
+import io.lastwill.eventscan.events.model.contract.crowdsale.TimesChangedEvent;
 import io.mywish.wrapper.ContractEventBuilder;
 import io.mywish.wrapper.ContractEventDefinition;
 import io.mywish.wrapper.WrapperTransactionReceipt;

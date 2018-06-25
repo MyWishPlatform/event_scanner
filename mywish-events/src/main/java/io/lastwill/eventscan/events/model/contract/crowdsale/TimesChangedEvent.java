@@ -1,4 +1,4 @@
-package io.lastwill.eventscan.events.model.contract;
+package io.lastwill.eventscan.events.model.contract.crowdsale;
 
 import io.mywish.wrapper.ContractEvent;
 import io.mywish.wrapper.ContractEventDefinition;

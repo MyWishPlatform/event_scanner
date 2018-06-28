@@ -2,6 +2,7 @@ package io.mywish.scanner.services;
 
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperNetwork;
+import io.mywish.wrapper.WrapperTransaction;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j

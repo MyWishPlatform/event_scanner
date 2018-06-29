@@ -6,7 +6,9 @@ import io.lastwill.eventscan.events.model.contract.crowdsale.FinalizedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.TimesChangedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressAddedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressRemovedEvent;
+import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.messages.*;
+import io.lastwill.eventscan.model.ProductAirdrop;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.BalanceProvider;
 import io.lastwill.eventscan.services.ExternalNotifier;
@@ -17,6 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+
+import java.math.BigInteger;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -36,7 +42,24 @@ public class ContractEventHandler {
 
     @EventListener
     private void eventsHandler(final ContractEventsEvent event) {
-        for (ContractEvent contractEvent: event.getEvents()) {
+        // catch airdrop events
+        if (event.getContract().getProduct() instanceof ProductAirdrop) {
+            Map<String, BigInteger> airdropAddresses = event.getEvents()
+                    .stream()
+                    .filter(contractEvent -> contractEvent instanceof TransferEvent)
+                    .map(contractEvent -> (TransferEvent) contractEvent)
+                    .collect(Collectors.toMap(TransferEvent::getTo, TransferEvent::getTokens));
+            externalNotifier.send(event.getNetworkType(),
+                    new AirdropNotify(
+                            event.getContract().getId(),
+                            PaymentStatus.COMMITTED,
+                            event.getTransaction().getHash(),
+                            airdropAddresses
+                    )
+            );
+            return;
+        }
+        for (ContractEvent contractEvent : event.getEvents()) {
             if (contractEvent instanceof CheckedEvent) {
                 externalNotifier.send(event.getNetworkType(),
                         new CheckedNotify(event.getContract().getId(), event.getTransaction().getHash()));

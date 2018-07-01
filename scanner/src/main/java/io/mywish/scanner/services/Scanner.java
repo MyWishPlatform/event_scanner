@@ -2,15 +2,16 @@ package io.mywish.scanner.services;
 
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperNetwork;
-import io.mywish.wrapper.WrapperTransaction;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -20,6 +21,10 @@ public abstract class Scanner {
 
     protected final WrapperNetwork network;
     protected final LastBlockPersister lastBlockPersister;
+
+    @Value("${etherscanner.pending-transactions-threshold:0}")
+    private int transactionsThreshold;
+    private PendingTransactionService pendingTransactionService;
 
     @Getter
     private long pollingInterval;
@@ -63,6 +68,15 @@ public abstract class Scanner {
                         log.info("{}: there is no block from {} ms.", network.getType(), interval);
                     }
 
+                    if (pendingTransactionService != null) {
+                        log.debug("Get actual list of pending.");
+
+                        pendingTransactionService.updatePending(
+                                network.fetchPendingTransactions(),
+                                LocalDateTime.ofEpochSecond(start, 0, ZoneOffset.UTC)
+                        );
+                    }
+
                     log.debug("All blocks processed, wait new one.");
                     synchronized (sync) {
                         sync.wait(pollingInterval);
@@ -99,6 +113,14 @@ public abstract class Scanner {
 
     @PostConstruct
     private void open() throws Exception {
+        if (transactionsThreshold > 0) {
+            pendingTransactionService = new PendingTransactionService(
+                    eventPublisher,
+                    network.getType(),
+                    transactionsThreshold
+            );
+        }
+
         lastBlockPersister.open();
         nextBlockNo = lastBlockPersister.getLastBlock();
         try {
@@ -138,6 +160,9 @@ public abstract class Scanner {
         lastBlockPersister.saveLastBlock(nextBlockNo);
         nextBlockNo++;
 
+        if (pendingTransactionService != null) {
+            pendingTransactionService.newBlock(block);
+        }
         processBlock(block);
     }
 

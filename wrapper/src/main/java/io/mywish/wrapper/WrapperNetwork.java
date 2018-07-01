@@ -3,6 +3,7 @@ package io.mywish.wrapper;
 import io.lastwill.eventscan.model.NetworkType;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class WrapperNetwork {
@@ -42,4 +43,6 @@ public abstract class WrapperNetwork {
             }
         });
     }
+
+    public abstract List<WrapperTransaction> fetchPendingTransactions();
 }

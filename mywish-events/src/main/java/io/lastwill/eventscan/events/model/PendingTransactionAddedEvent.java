@@ -5,10 +5,10 @@ import io.mywish.wrapper.WrapperTransaction;
 import lombok.Getter;
 
 @Getter
-public class PendingTransactionAdded extends BaseEvent {
+public class PendingTransactionAddedEvent extends BaseEvent {
     private final WrapperTransaction transaction;
 
-    public PendingTransactionAdded(NetworkType networkType, WrapperTransaction transaction) {
+    public PendingTransactionAddedEvent(NetworkType networkType, WrapperTransaction transaction) {
         super(networkType);
         this.transaction = transaction;
     }

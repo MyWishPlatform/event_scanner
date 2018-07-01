@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import javax.annotation.PostConstruct;
@@ -73,7 +74,7 @@ public abstract class Scanner {
 
                         pendingTransactionService.updatePending(
                                 network.fetchPendingTransactions(),
-                                LocalDateTime.ofEpochSecond(start, 0, ZoneOffset.UTC)
+                                LocalDateTime.ofEpochSecond(start / 1000, 0, ZoneOffset.UTC)
                         );
                     }
 
@@ -142,6 +143,12 @@ public abstract class Scanner {
 		pollerThread.start();
 		log.info("Subscribed to {} new block event.", network.getType());
 	}
+
+	@EventListener
+	private void onApplicationClosed(ContextClosedEvent event) {
+        log.info("Application closed.");
+        close();
+    }
 
     private void loadNextBlock() throws Exception {
         long delta = lastBlockNo - nextBlockNo;

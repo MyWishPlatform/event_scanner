@@ -1,17 +1,15 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.model.ContractEventsEvent;
-import io.mywish.wrapper.ContractEvent;
+import io.lastwill.eventscan.events.model.ContractTransactionFailedEvent;
 import io.lastwill.eventscan.model.Contract;
+import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
-import io.mywish.wrapper.WrapperBlock;
-import io.mywish.wrapper.WrapperLog;
-import io.mywish.wrapper.WrapperTransaction;
-import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
+import io.mywish.wrapper.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,29 +19,26 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Component
 public class ContractsMonitor {
+    private final HashMap<NetworkType, String> proxyByNetwork = new HashMap<>();
     @Autowired
     private ContractRepository contractRepository;
-
     @Autowired
     private EventPublisher eventPublisher;
-
     @Autowired
     private TransactionProvider transactionProvider;
-
     @Autowired
     private EventParser eventParser;
-
     @Value("${io.lastwill.eventscan.contract.proxy-address.ethereum}")
     private String proxyAddressEthereum;
     @Value("${io.lastwill.eventscan.contract.proxy-address.ropsten}")
     private String proxyAddressRopsten;
-
-    private final HashMap<NetworkType, String> proxyByNetwork = new HashMap<>();
 
     @PostConstruct
     protected void init() {
@@ -87,7 +82,11 @@ public class ContractsMonitor {
         }
     }
 
-    private void grabProxyEvents(final NetworkType networkType, final List<WrapperTransaction> transactions, final WrapperBlock block) {
+    private void grabProxyEvents(
+            final NetworkType networkType,
+            final List<WrapperTransaction> transactions,
+            final WrapperBlock block
+    ) {
         for (WrapperTransaction transaction : transactions) {
             transactionProvider.getTransactionReceiptAsync(networkType, transaction)
                     .thenAccept(transactionReceipt -> {
@@ -97,25 +96,12 @@ public class ContractsMonitor {
                         }
 
                         for (Contract contract : contractRepository.findByAddressesList(logsByAddress.keySet(), networkType)) {
-                            List<ContractEvent> eventValues;
-                            try {
-                                eventValues = eventParser.parseEvents(transactionReceipt);
-                            }
-                            catch (Throwable e) {
-                                log.error("Error on parsing events.", e);
-                                return;
-                            }
-                            if (eventValues.isEmpty()) {
-                                return;
-                            }
-                            eventPublisher.publish(
-                                    new ContractEventsEvent(
-                                            networkType,
-                                            contract,
-                                            eventValues,
-                                            transaction,
-                                            transactionReceipt,
-                                            block)
+                            handleReceiptAndContract(
+                                    networkType,
+                                    contract,
+                                    transaction,
+                                    transactionReceipt,
+                                    block
                             );
                         }
 
@@ -127,33 +113,65 @@ public class ContractsMonitor {
         }
     }
 
-    private void grabContractEvents(final NetworkType networkType, final Contract contract, final WrapperTransaction transaction, final WrapperBlock block) {
+    private void grabContractEvents(
+            final NetworkType networkType,
+            final Contract contract,
+            final WrapperTransaction transaction,
+            final WrapperBlock block
+    ) {
         transactionProvider.getTransactionReceiptAsync(networkType, transaction)
                 .thenAccept(transactionReceipt -> {
-                    List<ContractEvent> events;
-                    try {
-                        events = eventParser.parseEvents(transactionReceipt);
-                    }
-                    catch (Throwable e) {
-                        log.error("Error on parsing events.", e);
-                        return;
-                    }
-                    if (events.isEmpty()) {
-                        return;
-                    }
-                    eventPublisher.publish(
-                            new ContractEventsEvent(
-                                    networkType,
-                                    contract,
-                                    events,
-                                    transaction,
-                                    transactionReceipt,
-                                    block)
+                    handleReceiptAndContract(
+                            networkType,
+                            contract,
+                            transaction,
+                            transactionReceipt,
+                            block
                     );
                 })
                 .exceptionally(throwable -> {
                     log.error("ContractEventsEvent handling cause exception.", throwable);
                     return null;
                 });
+    }
+
+    private void handleReceiptAndContract(
+            final NetworkType networkType,
+            final Contract contract,
+            final WrapperTransaction transaction,
+            final WrapperTransactionReceipt transactionReceipt,
+            final WrapperBlock block
+    ) {
+        if (!transactionReceipt.isSuccess()) {
+            eventPublisher.publish(new ContractTransactionFailedEvent(
+                    networkType,
+                    contract,
+                    transaction,
+                    transactionReceipt,
+                    block
+            ));
+        }
+
+        List<ContractEvent> events;
+        try {
+            events = eventParser.parseEvents(transactionReceipt);
+        }
+        catch (Throwable e) {
+            log.error("Error on parsing events.", e);
+            return;
+        }
+        if (events.isEmpty()) {
+            return;
+        }
+        eventPublisher.publish(
+                new ContractEventsEvent(
+                        networkType,
+                        contract,
+                        events,
+                        transaction,
+                        transactionReceipt,
+                        block
+                )
+        );
     }
 }

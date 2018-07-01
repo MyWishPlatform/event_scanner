@@ -94,4 +94,9 @@ public class NeoNetwork extends WrapperNetwork {
                 definitionsByName
         );
     }
+
+    @Override
+    public List<WrapperTransaction> fetchPendingTransactions() {
+        throw new UnsupportedOperationException("fetchPendingTransactions is not supported.");
+    }
 }

@@ -7,13 +7,13 @@ import lombok.Getter;
 import javax.annotation.Nullable;
 
 @Getter
-public class PendingTransactionRemoved extends BaseEvent {
+public class PendingTransactionRemovedEvent extends BaseEvent {
     private final WrapperTransaction transaction;
     private final Reason reason;
     @Nullable
     private final Long blockNumber;
 
-    public PendingTransactionRemoved(NetworkType networkType, WrapperTransaction transaction, Reason reason, @Nullable Long blockNumber) {
+    public PendingTransactionRemovedEvent(NetworkType networkType, WrapperTransaction transaction, Reason reason, @Nullable Long blockNumber) {
         super(networkType);
         this.transaction = transaction;
         this.reason = reason;

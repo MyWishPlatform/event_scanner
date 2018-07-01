@@ -34,7 +34,8 @@ public class WrapperOutputBtcService {
                         .getScriptPubKey()
                         .getToAddress(networkParameters, true)
                         .toBase58(),
-                BigInteger.valueOf(output.getValue().getValue())
+                BigInteger.valueOf(output.getValue().getValue()),
+                output.getScriptBytes()
         );
     }
 }

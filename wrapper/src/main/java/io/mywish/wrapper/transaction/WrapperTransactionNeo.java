@@ -1,13 +1,11 @@
 package io.mywish.wrapper.transaction;
 
 import io.mywish.neocli4j.Transaction;
-import io.mywish.neocli4j.TransactionInput;
 import io.mywish.wrapper.WrapperOutput;
 import io.mywish.wrapper.WrapperTransaction;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 public class WrapperTransactionNeo extends WrapperTransaction {

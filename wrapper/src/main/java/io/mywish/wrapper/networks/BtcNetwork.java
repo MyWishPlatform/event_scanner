@@ -11,6 +11,8 @@ import io.mywish.wrapper.service.block.WrapperBlockBtcService;
 import org.bitcoinj.core.NetworkParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.math.BigInteger;
+import java.util.Collections;
+import java.util.List;
 
 public class BtcNetwork extends WrapperNetwork {
     final private BtcdClient btcdClient;
@@ -55,17 +57,23 @@ public class BtcNetwork extends WrapperNetwork {
     }
 
     @Override
-    public WrapperTransaction getTransaction(String hash) throws Exception {
-        throw new Exception("Method not supported");
+    public WrapperTransaction getTransaction(String hash) {
+        throw new UnsupportedOperationException("Method not supported");
     }
 
     @Override
-    public BigInteger getBalance(String address, Long blockNo) throws Exception {
-        throw new Exception("Method not supported");
+    public BigInteger getBalance(String address, Long blockNo) {
+        throw new UnsupportedOperationException("Method not supported");
     }
 
     @Override
-    public WrapperTransactionReceipt getTxReceipt(WrapperTransaction transaction) throws Exception {
-        throw new Exception("Method not supported");
+    public WrapperTransactionReceipt getTxReceipt(WrapperTransaction transaction) {
+        throw new UnsupportedOperationException("Method not supported");
+    }
+
+    @Override
+    public List<WrapperTransaction> fetchPendingTransactions() {
+        throw new UnsupportedOperationException("Method not supported");
+//        return Collections.emptyList();
     }
 }

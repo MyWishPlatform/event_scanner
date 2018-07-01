@@ -1,7 +1,5 @@
 package io.mywish.wrapper.networks;
 
-import io.mywish.wrapper.WrapperNetwork;
-import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.wrapper.*;
 import io.mywish.wrapper.service.block.WrapperBlockWeb3Service;
@@ -13,13 +11,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.methods.response.Transaction;
+import rx.Subscription;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Stream;
 
 @Slf4j
 public class Web3Network extends WrapperNetwork {
@@ -42,6 +41,7 @@ public class Web3Network extends WrapperNetwork {
 
     private final Map<String, ContractEventDefinition> definitionsBySignature = new HashMap<>();
     private final BlockingQueue<Transaction> pendingTransactions = new LinkedBlockingQueue<>();
+    private Subscription subscription;
 
     public Web3Network(NetworkType type, Web3j web3j) {
         super(type);
@@ -59,8 +59,19 @@ public class Web3Network extends WrapperNetwork {
 
         if (pendingThreshold > 0) {
             log.info("Subscribe to pending transactions.");
-            web3j.pendingTransactionObservable().subscribe(pendingTransactions::add);
+            subscription = web3j.pendingTransactionObservable().subscribe(pendingTransactions::add);
         }
+    }
+
+    @PreDestroy
+    private void close() {
+        if (subscription == null) {
+            return;
+        }
+        if (subscription.isUnsubscribed()) {
+            return;
+        }
+        subscription.unsubscribe();
     }
 
     @Override

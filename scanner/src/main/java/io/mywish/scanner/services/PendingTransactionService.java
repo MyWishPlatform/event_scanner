@@ -1,7 +1,7 @@
 package io.mywish.scanner.services;
 
-import io.lastwill.eventscan.events.model.PendingTransactionAdded;
-import io.lastwill.eventscan.events.model.PendingTransactionRemoved;
+import io.lastwill.eventscan.events.model.PendingTransactionAddedEvent;
+import io.lastwill.eventscan.events.model.PendingTransactionRemovedEvent;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperTransaction;
@@ -36,21 +36,21 @@ public class PendingTransactionService {
                 continue;
             }
             pendingTransactions.put(key, wrapperTransaction);
-            eventPublisher.publish(new PendingTransactionAdded(
+            eventPublisher.publish(new PendingTransactionAddedEvent(
                     networkType,
                     wrapperTransaction
             ));
         }
 
-        log.info("Updated {} transaction, now list has {} transactions.", transactions.size(), pendingTransactions.size());
+        log.info("Updated {} transaction, now list has {} transactions, threshold {}.", transactions.size(), pendingTransactions.size(), transactionsThreshold);
         while (pendingTransactions.size() > transactionsThreshold) {
             PendingKey lastKey = pendingTransactions.lastKey();
             log.debug("Removing pending transaction at {}.", lastKey.createdTime);
             WrapperTransaction transaction = pendingTransactions.remove(lastKey);
-            eventPublisher.publish(new PendingTransactionRemoved(
+            eventPublisher.publish(new PendingTransactionRemovedEvent(
                     networkType,
                     transaction,
-                    PendingTransactionRemoved.Reason.TIMEOUT,
+                    PendingTransactionRemovedEvent.Reason.TIMEOUT,
                     null
             ));
         }
@@ -61,18 +61,23 @@ public class PendingTransactionService {
 
     public void newBlock(WrapperBlock block) {
         LocalDateTime now = LocalDateTime.ofEpochSecond(block.getTimestamp(), 0, ZoneOffset.UTC);
+        int counter = 0;
         for (WrapperTransaction transaction : block.getTransactions()) {
             PendingKey key = new PendingKey(transaction.getHash(), now);
             WrapperTransaction removedTransaction = pendingTransactions.remove(key);
             if (removedTransaction == null) {
                 continue;
             }
-            eventPublisher.publish(new PendingTransactionRemoved(
+            counter ++;
+            eventPublisher.publish(new PendingTransactionRemovedEvent(
                     networkType,
                     removedTransaction,
-                    PendingTransactionRemoved.Reason.ACCEPTED,
+                    PendingTransactionRemovedEvent.Reason.ACCEPTED,
                     block.getNumber()
             ));
+        }
+        if (counter > 0) {
+            log.info("Remove transactions {} because of block {}.", counter, block.getNumber());
         }
     }
 

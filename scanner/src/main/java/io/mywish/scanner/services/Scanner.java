@@ -114,7 +114,8 @@ public abstract class Scanner {
 
     @PostConstruct
     private void open() throws Exception {
-        if (transactionsThreshold > 0) {
+        if (transactionsThreshold > 0 && network.isPendingTransactionsSupported()) {
+            log.info("Start pending tx collector for network {} with threshold {} txs.", network.getType(), transactionsThreshold);
             pendingTransactionService = new PendingTransactionService(
                     eventPublisher,
                     network.getType(),

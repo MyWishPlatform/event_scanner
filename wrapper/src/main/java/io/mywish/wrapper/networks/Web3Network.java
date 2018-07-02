@@ -118,6 +118,11 @@ public class Web3Network extends WrapperNetwork {
     }
 
     @Override
+    public boolean isPendingTransactionsSupported() {
+        return true;
+    }
+
+    @Override
     public List<WrapperTransaction> fetchPendingTransactions() {
         if (pendingTransactions.isEmpty()) {
             return Collections.emptyList();

@@ -44,5 +44,6 @@ public abstract class WrapperNetwork {
         });
     }
 
+    public abstract boolean isPendingTransactionsSupported();
     public abstract List<WrapperTransaction> fetchPendingTransactions();
 }

@@ -8,16 +8,17 @@ import io.mywish.wrapper.WrapperTransaction;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.TreeMap;
 
 @Slf4j
 public class PendingTransactionService {
     private final EventPublisher eventPublisher;
     private final NetworkType networkType;
-    private final TreeMap<PendingKey, WrapperTransaction> pendingTransactions = new TreeMap<>();
+    private final TreeMap<LocalDateTime, List<String>> transactionsByTime = new TreeMap<>();
+    private final HashMap<String, WrapperTransaction> transactionsByHash = new HashMap<>();
     private final int transactionsThreshold;
 
     public PendingTransactionService(EventPublisher eventPublisher, NetworkType networkType, int transactionsThreshold) {
@@ -30,41 +31,61 @@ public class PendingTransactionService {
         if (transactions.isEmpty()) {
             return;
         }
+        List<String> hashes = transactionsByTime.getOrDefault(now, new ArrayList<>());
         for (WrapperTransaction wrapperTransaction : transactions) {
-            PendingKey key = new PendingKey(wrapperTransaction.getHash(), now);
-            if (pendingTransactions.containsKey(key)) {
+            if (transactionsByHash.containsKey(wrapperTransaction.getHash())) {
                 continue;
             }
-            pendingTransactions.put(key, wrapperTransaction);
-            eventPublisher.publish(new PendingTransactionAddedEvent(
-                    networkType,
-                    wrapperTransaction
-            ));
+            transactionsByHash.put(wrapperTransaction.getHash(), wrapperTransaction);
+            hashes.add(wrapperTransaction.getHash());
+            try {
+                eventPublisher.publish(new PendingTransactionAddedEvent(
+                        networkType,
+                        wrapperTransaction
+                ));
+            }
+            catch (Exception e) {
+                log.warn("Exception occurs on handling new pending transaction.", e);
+            }
         }
+        transactionsByTime.put(now, hashes);
 
-        log.info("Updated {} transaction, now list has {} transactions, threshold {}.", transactions.size(), pendingTransactions.size(), transactionsThreshold);
-        while (pendingTransactions.size() > transactionsThreshold) {
-            PendingKey lastKey = pendingTransactions.lastKey();
-            log.debug("Removing pending transaction at {}.", lastKey.createdTime);
-            WrapperTransaction transaction = pendingTransactions.remove(lastKey);
-            eventPublisher.publish(new PendingTransactionRemovedEvent(
-                    networkType,
-                    transaction,
-                    PendingTransactionRemovedEvent.Reason.TIMEOUT,
-                    null
-            ));
+        log.info("{} new transactions, now list has {} transactions, threshold is {}.",
+                transactions.size(),
+                transactionsByHash.size(),
+                transactionsThreshold
+        );
+        while (transactionsByHash.size() > transactionsThreshold) {
+            LocalDateTime firstKey = transactionsByTime.firstKey();
+            log.debug("Removing pending transaction at {}.", firstKey);
+            List<String> oldHashes = transactionsByTime.remove(firstKey);
+            for (String hash : oldHashes) {
+                WrapperTransaction transaction = transactionsByHash.remove(hash);
+                if (transaction == null) {
+                    continue;
+                }
+                try {
+                    eventPublisher.publish(new PendingTransactionRemovedEvent(
+                            networkType,
+                            transaction,
+                            PendingTransactionRemovedEvent.Reason.TIMEOUT,
+                            null
+                    ));
+                }
+                catch (Exception e) {
+                    log.warn("Exception occurs on removing outdated transaction.", e);
+                }
+            }
         }
-        if (!pendingTransactions.isEmpty()) {
-            log.info("Last pending transaction is at {}.", pendingTransactions.lastKey().createdTime);
+        if (!transactionsByHash.isEmpty()) {
+            log.info("Most early pending transaction is at {}.", transactionsByTime.firstKey());
         }
     }
 
     public void newBlock(WrapperBlock block) {
-        LocalDateTime now = LocalDateTime.ofEpochSecond(block.getTimestamp(), 0, ZoneOffset.UTC);
         int counter = 0;
         for (WrapperTransaction transaction : block.getTransactions()) {
-            PendingKey key = new PendingKey(transaction.getHash(), now);
-            WrapperTransaction removedTransaction = pendingTransactions.remove(key);
+            WrapperTransaction removedTransaction = transactionsByHash.remove(transaction.getHash());
             if (removedTransaction == null) {
                 continue;
             }
@@ -78,34 +99,6 @@ public class PendingTransactionService {
         }
         if (counter > 0) {
             log.info("Remove transactions {} because of block {}.", counter, block.getNumber());
-        }
-    }
-
-    public static class PendingKey implements Comparable<PendingKey> {
-        private final String transactionHash;
-        private final LocalDateTime createdTime;
-
-        public PendingKey(String transactionHash, LocalDateTime createdTime) {
-            this.transactionHash = transactionHash;
-            this.createdTime = createdTime;
-        }
-
-        @Override
-        public int compareTo(PendingKey o) {
-            return createdTime.compareTo(o.createdTime);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof PendingKey)) return false;
-            PendingKey that = (PendingKey) o;
-            return Objects.equals(transactionHash, that.transactionHash);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(transactionHash);
         }
     }
 }

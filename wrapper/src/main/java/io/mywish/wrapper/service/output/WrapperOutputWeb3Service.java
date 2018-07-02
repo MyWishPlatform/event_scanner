@@ -17,7 +17,7 @@ public class WrapperOutputWeb3Service implements WrapperOutputService<Transactio
                 0,
                 transaction.getTo(),
                 "0".equals(transaction.getValueRaw()) ? BigInteger.ZERO : transaction.getValue(),
-                DatatypeConverter.parseHexBinary(transaction.getInput())
+                DatatypeConverter.parseHexBinary(transaction.getInput().substring(2))
         );
     }
 }

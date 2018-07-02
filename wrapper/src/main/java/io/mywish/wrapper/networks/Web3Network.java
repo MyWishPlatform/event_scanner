@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
+import org.web3j.protocol.core.filters.PendingTransactionFilter;
+import org.web3j.protocol.core.methods.response.EthFilter;
 import org.web3j.protocol.core.methods.response.Transaction;
 import rx.Subscription;
 
@@ -42,6 +44,7 @@ public class Web3Network extends WrapperNetwork {
     private final Map<String, ContractEventDefinition> definitionsBySignature = new HashMap<>();
     private final BlockingQueue<Transaction> pendingTransactions = new LinkedBlockingQueue<>();
     private Subscription subscription;
+    private EthFilter filter;
 
     public Web3Network(NetworkType type, Web3j web3j) {
         super(type);
@@ -72,6 +75,7 @@ public class Web3Network extends WrapperNetwork {
             return;
         }
         subscription.unsubscribe();
+        subscription = null;
     }
 
     @Override

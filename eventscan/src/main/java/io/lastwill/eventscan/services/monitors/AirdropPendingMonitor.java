@@ -34,8 +34,6 @@ public class AirdropPendingMonitor {
     private ContractRepository contractRepository;
     @Autowired
     private ExternalNotifier externalNotifier;
-    @Autowired
-    private TransactionProvider transactionProvider;
 
     private static Map<String, BigInteger> parseInputToAirdrop(byte[] input) {
         ByteBuffer buffer = ByteBuffer.wrap(input);
@@ -105,12 +103,19 @@ public class AirdropPendingMonitor {
 
     @EventListener
     public void handlePendingAdded(final PendingTransactionAddedEvent event) {
+        if (event.getTransaction().isContractCreation()) {
+            return;
+        }
+
         Set<String> addresses =
                 event.getTransaction().getOutputs()
                         .stream()
                         .map(WrapperOutput::getAddress)
                         .map(String::toLowerCase)
                         .collect(Collectors.toSet());
+        if (addresses.isEmpty()) {
+            return;
+        }
 
         contractRepository.findByAddressesList(addresses, event.getNetworkType())
                 .stream()
@@ -148,12 +153,20 @@ public class AirdropPendingMonitor {
         if (event.getReason() != PendingTransactionRemovedEvent.Reason.TIMEOUT) {
             return;
         }
+        if (event.getTransaction().isContractCreation()) {
+            return;
+        }
+
         Set<String> addresses =
                 event.getTransaction().getOutputs()
                         .stream()
                         .map(WrapperOutput::getAddress)
                         .map(String::toLowerCase)
                         .collect(Collectors.toSet());
+
+        if (addresses.isEmpty()) {
+            return;
+        }
 
         contractRepository.findByAddressesList(addresses, event.getNetworkType())
                 .stream()

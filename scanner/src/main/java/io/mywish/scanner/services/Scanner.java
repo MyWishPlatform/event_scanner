@@ -122,6 +122,9 @@ public abstract class Scanner {
                     transactionsThreshold
             );
         }
+        else {
+            log.info("Pending tx collector for network {} was not started. Supported by network: {}, threshold: {}.", network.getType(), network.isPendingTransactionsSupported(), transactionsThreshold);
+        }
 
         lastBlockPersister.open();
         nextBlockNo = lastBlockPersister.getLastBlock();

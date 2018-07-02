@@ -45,19 +45,20 @@ public class PendingTransactionService {
                 ));
             }
             catch (Exception e) {
-                log.warn("Exception occurs on handling new pending transaction.", e);
+                log.warn("{}: Exception occurs on handling new pending transaction.", networkType, e);
             }
         }
         transactionsByTime.put(now, hashes);
 
-        log.info("{} new transactions, now list has {} transactions, threshold is {}.",
+        log.info("{}: {} new transactions, now list has {} transactions, threshold is {}.",
+                networkType,
                 transactions.size(),
                 transactionsByHash.size(),
                 transactionsThreshold
         );
         while (transactionsByHash.size() > transactionsThreshold) {
             LocalDateTime firstKey = transactionsByTime.firstKey();
-            log.debug("Removing pending transaction at {}.", firstKey);
+            log.debug("{}: removing pending transaction at {}.", networkType, firstKey);
             List<String> oldHashes = transactionsByTime.remove(firstKey);
             for (String hash : oldHashes) {
                 WrapperTransaction transaction = transactionsByHash.remove(hash);
@@ -73,12 +74,12 @@ public class PendingTransactionService {
                     ));
                 }
                 catch (Exception e) {
-                    log.warn("Exception occurs on removing outdated transaction.", e);
+                    log.warn("{}: Exception occurs on removing outdated transaction.", networkType, e);
                 }
             }
         }
         if (!transactionsByHash.isEmpty()) {
-            log.info("Most early pending transaction is at {}.", transactionsByTime.firstKey());
+            log.info("{}: most early pending transaction is at {}.", networkType, transactionsByTime.firstKey());
         }
     }
 
@@ -98,7 +99,7 @@ public class PendingTransactionService {
             ));
         }
         if (counter > 0) {
-            log.info("Remove transactions {} because of block {}.", counter, block.getNumber());
+            log.info("{}: remove transactions {} because of block {}.", networkType, counter, block.getNumber());
         }
     }
 }

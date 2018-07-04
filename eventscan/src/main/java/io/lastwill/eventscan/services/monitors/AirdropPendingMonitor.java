@@ -69,7 +69,7 @@ public class AirdropPendingMonitor {
         for (int i = 0; i < addresses.length; i++) {
             buffer.get(bytes32);
             bytes32toBytes20(bytes32, bytes20);
-            addresses[i] = DatatypeConverter.printHexBinary(bytes20);
+            addresses[i] = "0x" + DatatypeConverter.printHexBinary(bytes20).toLowerCase();
         }
 
         buffer.get(bytes32);

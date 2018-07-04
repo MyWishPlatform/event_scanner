@@ -32,7 +32,7 @@ public class BotCommandNetworks implements BotCommand {
     @Override
     public void execute(ChatContext context, List<String> args) {
         List<String> messages = new ArrayList<>();
-        Map<NetworkType, NetworkStuckMonitor.LastEvent> lastEvents = networkStuckMonitor.getLastEvents();
+        Map<NetworkType, NetworkStuckMonitor.LastEvent> lastEvents = networkStuckMonitor.getLastBlockEvents();
         for (NetworkType network : NetworkType.values()) {
             NetworkStuckMonitor.LastEvent lastEvent = lastEvents.get(network);
             if (lastEvent != null) {

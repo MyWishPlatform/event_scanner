@@ -1,11 +1,12 @@
 package io.mywish.scanner.services;
 
+import io.mywish.scanner.model.NewPendingTransactionsEvent;
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperNetwork;
+import io.mywish.wrapper.WrapperTransaction;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -13,6 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -22,10 +24,6 @@ public abstract class Scanner {
 
     protected final WrapperNetwork network;
     protected final LastBlockPersister lastBlockPersister;
-
-    @Value("${etherscanner.pending-transactions-threshold:0}")
-    private int transactionsThreshold;
-    private PendingTransactionService pendingTransactionService;
 
     @Getter
     private long pollingInterval;
@@ -69,13 +67,15 @@ public abstract class Scanner {
                         log.info("{}: there is no block from {} ms.", network.getType(), interval);
                     }
 
-                    if (pendingTransactionService != null) {
+                    if (network.isPendingTransactionsSupported()) {
                         log.debug("Get actual list of pending.");
-
-                        pendingTransactionService.updatePending(
-                                network.fetchPendingTransactions(),
-                                LocalDateTime.ofEpochSecond(start / 1000, 0, ZoneOffset.UTC)
-                        );
+                        List<WrapperTransaction> pendingTxs = network.fetchPendingTransactions();
+                        if (!pendingTxs.isEmpty()) {
+                            eventPublisher.publish(new NewPendingTransactionsEvent(
+                                    network.getType(),
+                                    pendingTxs
+                            ));
+                        }
                     }
 
                     log.debug("All blocks processed, wait new one.");
@@ -114,18 +114,6 @@ public abstract class Scanner {
 
     @PostConstruct
     private void open() throws Exception {
-        if (transactionsThreshold > 0 && network.isPendingTransactionsSupported()) {
-            log.info("Start pending tx collector for network {} with threshold {} txs.", network.getType(), transactionsThreshold);
-            pendingTransactionService = new PendingTransactionService(
-                    eventPublisher,
-                    network.getType(),
-                    transactionsThreshold
-            );
-        }
-        else {
-            log.info("Pending tx collector for network {} was not started. Supported by network: {}, threshold: {}.", network.getType(), network.isPendingTransactionsSupported(), transactionsThreshold);
-        }
-
         lastBlockPersister.open();
         nextBlockNo = lastBlockPersister.getLastBlock();
         try {
@@ -171,9 +159,6 @@ public abstract class Scanner {
         lastBlockPersister.saveLastBlock(nextBlockNo);
         nextBlockNo++;
 
-        if (pendingTransactionService != null) {
-            pendingTransactionService.newBlock(block);
-        }
         processBlock(block);
     }
 

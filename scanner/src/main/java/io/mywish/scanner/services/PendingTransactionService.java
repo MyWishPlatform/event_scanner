@@ -3,11 +3,17 @@ package io.mywish.scanner.services;
 import io.lastwill.eventscan.events.model.PendingTransactionAddedEvent;
 import io.lastwill.eventscan.events.model.PendingTransactionRemovedEvent;
 import io.lastwill.eventscan.model.NetworkType;
+import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.model.NewPendingTransactionsEvent;
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperTransaction;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,19 +21,27 @@ import java.util.TreeMap;
 
 @Slf4j
 public class PendingTransactionService {
-    private final EventPublisher eventPublisher;
+    @Autowired
+    private EventPublisher eventPublisher;
+    @Value("${etherscanner.pending-transactions-threshold:0}")
+    private int transactionsThreshold;
+
     private final NetworkType networkType;
     private final TreeMap<LocalDateTime, List<String>> transactionsByTime = new TreeMap<>();
     private final HashMap<String, WrapperTransaction> transactionsByHash = new HashMap<>();
-    private final int transactionsThreshold;
 
-    public PendingTransactionService(EventPublisher eventPublisher, NetworkType networkType, int transactionsThreshold) {
-        this.eventPublisher = eventPublisher;
+    public PendingTransactionService(NetworkType networkType) {
         this.networkType = networkType;
-        this.transactionsThreshold = transactionsThreshold;
     }
 
-    public void updatePending(List<WrapperTransaction> transactions, LocalDateTime now) {
+    @EventListener
+    public void updatePending(NewPendingTransactionsEvent event) {
+        if (networkType != event.getNetworkType()) {
+            return;
+        }
+
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        List<WrapperTransaction> transactions = event.getPendingTransactions();
         if (transactions.isEmpty()) {
             return;
         }
@@ -83,14 +97,21 @@ public class PendingTransactionService {
         }
     }
 
-    public void newBlock(WrapperBlock block) {
+
+    @EventListener
+    public void newBlock(NewBlockEvent event) {
+        if (networkType != event.getNetworkType()) {
+            return;
+        }
+
+        WrapperBlock block = event.getBlock();
         int counter = 0;
         for (WrapperTransaction transaction : block.getTransactions()) {
             WrapperTransaction removedTransaction = transactionsByHash.remove(transaction.getHash());
             if (removedTransaction == null) {
                 continue;
             }
-            counter ++;
+            counter++;
             eventPublisher.publish(new PendingTransactionRemovedEvent(
                     networkType,
                     removedTransaction,

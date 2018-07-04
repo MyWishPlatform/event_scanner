@@ -115,7 +115,7 @@ public class NetworkStuckMonitor {
                 });
     }
 
-    @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.pending}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.pending}")
+//    @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.pending}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.pending}")
     protected void checkPending() {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         lastPendingTxEvents.keySet()

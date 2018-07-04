@@ -85,28 +85,26 @@ public class ContractsMonitor {
             final WrapperBlock block
     ) {
         for (WrapperTransaction transaction : transactions) {
-            transactionProvider.getTransactionReceiptAsync(networkType, transaction)
-                    .thenAccept(transactionReceipt -> {
-                        MultiValueMap<String, ContractEvent> logsByAddress = CollectionUtils.toMultiValueMap(new HashMap<>());
-                        for (ContractEvent contractEvent : transactionReceipt.getLogs()) {
-                            logsByAddress.add(contractEvent.getAddress(), contractEvent);
-                        }
+            try {
+                WrapperTransactionReceipt transactionReceipt = transactionProvider.getTransactionReceipt(networkType, transaction);
+                MultiValueMap<String, ContractEvent> logsByAddress = CollectionUtils.toMultiValueMap(new HashMap<>());
+                for (ContractEvent contractEvent : transactionReceipt.getLogs()) {
+                    logsByAddress.add(contractEvent.getAddress(), contractEvent);
+                }
 
-                        for (Contract contract : contractRepository.findByAddressesList(logsByAddress.keySet(), networkType)) {
-                            handleReceiptAndContract(
-                                    networkType,
-                                    contract,
-                                    transaction,
-                                    transactionReceipt,
-                                    block
-                            );
-                        }
-
-                    })
-                    .exceptionally(throwable -> {
-                        log.error("ContractEventsEvent handling cause exception.", throwable);
-                        return null;
-                    });
+                for (Contract contract : contractRepository.findByAddressesList(logsByAddress.keySet(), networkType)) {
+                    handleReceiptAndContract(
+                            networkType,
+                            contract,
+                            transaction,
+                            transactionReceipt,
+                            block
+                    );
+                }
+            }
+            catch (Exception e) {
+                log.error("ContractEventsEvent handling cause exception.", e);
+            }
         }
     }
 
@@ -115,21 +113,20 @@ public class ContractsMonitor {
             final Contract contract,
             final WrapperTransaction transaction,
             final WrapperBlock block
-    ) {
-        transactionProvider.getTransactionReceiptAsync(networkType, transaction)
-                .thenAccept(transactionReceipt -> {
-                    handleReceiptAndContract(
-                            networkType,
-                            contract,
-                            transaction,
-                            transactionReceipt,
-                            block
-                    );
-                })
-                .exceptionally(throwable -> {
-                    log.error("ContractEventsEvent handling cause exception.", throwable);
-                    return null;
-                });
+    )  {
+        try {
+            WrapperTransactionReceipt transactionReceipt = transactionProvider.getTransactionReceipt(networkType, transaction);
+            handleReceiptAndContract(
+                    networkType,
+                    contract,
+                    transaction,
+                    transactionReceipt,
+                    block
+            );
+        }
+        catch (Exception e) {
+            log.error("ContractEventsEvent handling cause exception.", e);
+        }
     }
 
     private void handleReceiptAndContract(

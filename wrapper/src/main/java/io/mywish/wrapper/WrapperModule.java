@@ -7,6 +7,7 @@ import io.mywish.neocli4j.NeoClientImpl;
 import io.mywish.wrapper.networks.BtcNetwork;
 import io.mywish.wrapper.networks.NeoNetwork;
 import io.mywish.wrapper.networks.Web3Network;
+import okhttp3.OkHttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.TestNet3Params;
@@ -84,22 +85,24 @@ public class WrapperModule {
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ethereum")
     @Bean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
     public Web3Network ethNetMain(
+            OkHttpClient client,
             @Value("${io.lastwill.eventscan.web3-url.ethereum}") String web3Url,
             @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) {
         return new Web3Network(
                 NetworkType.ETHEREUM_MAINNET,
-                Web3j.build(new HttpService(web3Url)),
+                Web3j.build(new HttpService(web3Url, client, false)),
                 pendingThreshold);
     }
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ropsten")
     @Bean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
     public Web3Network ethNetRopsten(
+            OkHttpClient client,
             @Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url,
             @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) {
         return new Web3Network(
                 NetworkType.ETHEREUM_ROPSTEN,
-                Web3j.build(new HttpService(web3Url)),
+                Web3j.build(new HttpService(web3Url, client, false)),
                 pendingThreshold);
     }
 

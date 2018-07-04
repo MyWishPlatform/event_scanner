@@ -114,7 +114,7 @@ public class ContractEventHandler {
                         new InitializedNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }
             else if (contractEvent instanceof OwnershipTransferredEvent) {
-                transferOwnershipHandler.handle(event.getNetworkType(), (OwnershipTransferredEvent) contractEvent);
+                transferOwnershipHandler.handle(event.getNetworkType(), (OwnershipTransferredEvent) contractEvent, event.getTransactionReceipt());
             }
             else if (contractEvent instanceof FinalizedEvent || contractEvent instanceof MintFinishedEvent) {
                 externalNotifier.send(event.getNetworkType(),

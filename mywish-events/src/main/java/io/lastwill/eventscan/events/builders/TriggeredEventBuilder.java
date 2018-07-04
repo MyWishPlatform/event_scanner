@@ -1,7 +1,6 @@
 package io.lastwill.eventscan.events.builders;
 
 import io.mywish.wrapper.ContractEventBuilder;
-import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.wrapper.WrapperType;
 import io.mywish.wrapper.ContractEventDefinition;
 import io.lastwill.eventscan.events.model.contract.TriggeredEvent;
@@ -21,7 +20,7 @@ public class TriggeredEventBuilder extends ContractEventBuilder<TriggeredEvent> 
     );
 
     @Override
-    public TriggeredEvent build(WrapperTransactionReceipt transactionReceipt, String address, List<Object> values) {
-        return new TriggeredEvent(definition, transactionReceipt, (BigInteger) values.get(0), address);
+    public TriggeredEvent build(String address, List<Object> values) {
+        return new TriggeredEvent(definition, (BigInteger) values.get(0), address);
     }
 }

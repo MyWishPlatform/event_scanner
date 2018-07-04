@@ -1,7 +1,6 @@
 package io.lastwill.eventscan.events.builders;
 
 import io.mywish.wrapper.ContractEventBuilder;
-import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.wrapper.WrapperType;
 import io.mywish.wrapper.ContractEventDefinition;
 import io.lastwill.eventscan.events.model.contract.KilledEvent;
@@ -21,10 +20,9 @@ public class KilledEventBuilder extends ContractEventBuilder<KilledEvent> {
     );
 
     @Override
-    public KilledEvent build(WrapperTransactionReceipt transactionReceipt, String address, List<Object> values) {
+    public KilledEvent build(String address, List<Object> values) {
         return new KilledEvent(
                 definition,
-                transactionReceipt,
                 (Boolean) values.get(0),
                 address
         );

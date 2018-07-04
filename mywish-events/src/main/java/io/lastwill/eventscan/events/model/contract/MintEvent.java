@@ -12,8 +12,8 @@ public class MintEvent extends ContractEvent {
     private final String to;
     private final BigInteger amount;
 
-    public MintEvent(ContractEventDefinition definition, WrapperTransactionReceipt transactionReceipt, String to, BigInteger amount, String address) {
-        super(definition, address, transactionReceipt);
+    public MintEvent(ContractEventDefinition definition, String to, BigInteger amount, String address) {
+        super(definition, address);
         this.to = to;
         this.amount = amount;
     }

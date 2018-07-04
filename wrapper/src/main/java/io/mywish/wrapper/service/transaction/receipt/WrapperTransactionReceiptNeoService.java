@@ -1,6 +1,7 @@
 package io.mywish.wrapper.service.transaction.receipt;
 
 import io.mywish.neocli4j.Event;
+import io.mywish.wrapper.ContractEvent;
 import io.mywish.wrapper.ContractEventDefinition;
 import io.mywish.wrapper.WrapperLog;
 import io.mywish.wrapper.WrapperTransactionReceipt;
@@ -17,14 +18,14 @@ import java.util.stream.Collectors;
 @Component
 public class WrapperTransactionReceiptNeoService {
     @Autowired
-    WrapperLogNeoService logBuilder;
+    private WrapperLogNeoService logBuilder;
 
     public WrapperTransactionReceipt build(WrapperTransactionNeo transaction, List<Event> events, Map<String, ContractEventDefinition> definitionsByName) {
         String hash = transaction.getHash();
         List<String> contracts = transaction.getContracts();
-        List<WrapperLog> logs = events
+        List<ContractEvent> logs = events
                 .stream()
-                .map(event -> logBuilder.build(event, definitionsByName))
+                .map(logBuilder::build)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         // todo detect failures

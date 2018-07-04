@@ -1,7 +1,6 @@
 package io.lastwill.eventscan.events.builders;
 
 import io.mywish.wrapper.ContractEventBuilder;
-import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.lastwill.eventscan.events.model.contract.BaseEmptyEvent;
 import io.mywish.wrapper.ContractEventDefinition;
 import lombok.Getter;
@@ -20,9 +19,9 @@ public abstract class BaseEmptyEventBuilder<T extends BaseEmptyEvent> extends Co
     }
 
     @Override
-    public T build(final WrapperTransactionReceipt transactionReceipt, String address, final List<Object> indexedValues) {
-        return buildEmpty(definition, address, transactionReceipt);
+    public T build(String address, final List<Object> indexedValues) {
+        return buildEmpty(definition, address);
     }
 
-    protected abstract T buildEmpty(final ContractEventDefinition definition, String address, final WrapperTransactionReceipt transactionReceipt);
+    protected abstract T buildEmpty(final ContractEventDefinition definition, String address);
 }

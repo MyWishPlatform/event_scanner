@@ -9,8 +9,8 @@ import java.math.BigInteger;
 @Getter
 public class TriggeredEvent extends ContractEvent {
     private final BigInteger balance;
-    public TriggeredEvent(ContractEventDefinition definition, WrapperTransactionReceipt transactionReceipt, BigInteger balance, String address) {
-        super(definition, address, transactionReceipt);
+    public TriggeredEvent(ContractEventDefinition definition, BigInteger balance, String address) {
+        super(definition, address);
         this.balance = balance;
     }
 }

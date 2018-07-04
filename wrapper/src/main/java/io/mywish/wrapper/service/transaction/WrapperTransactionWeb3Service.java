@@ -24,11 +24,13 @@ public class WrapperTransactionWeb3Service implements WrapperTransactionService<
         List<String> inputs = Collections.singletonList(transaction.getFrom());
         List<WrapperOutput> outputs = Collections.singletonList(outputBuilder.build(transaction));
         boolean contractCreation = transaction.getTo() == null || ZERO_ADDRESS.equalsIgnoreCase(transaction.getTo());
-        return new WrapperTransaction(
+        WrapperTransaction wrapper = new WrapperTransaction(
                 hash,
                 inputs,
                 outputs,
                 contractCreation
         );
+        wrapper.setCreates(transaction.getCreates());
+        return wrapper;
     }
 }

@@ -7,10 +7,8 @@ import io.mywish.wrapper.service.transaction.WrapperTransactionWeb3Service;
 import io.mywish.wrapper.service.transaction.receipt.WrapperTransactionReceiptWeb3Service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
-import org.web3j.protocol.core.filters.PendingTransactionFilter;
 import org.web3j.protocol.core.methods.response.EthFilter;
 import org.web3j.protocol.core.methods.response.Transaction;
 import rx.Subscription;
@@ -38,17 +36,16 @@ public class Web3Network extends WrapperNetwork {
     @Autowired
     private List<ContractEventBuilder<?>> builders;
 
-    @Value("${etherscanner.pending-transactions-threshold:0}")
-    private int pendingThreshold;
+    private final int pendingThreshold;
 
     private final Map<String, ContractEventDefinition> definitionsBySignature = new HashMap<>();
     private final BlockingQueue<Transaction> pendingTransactions = new LinkedBlockingQueue<>();
     private Subscription subscription;
-    private EthFilter filter;
 
-    public Web3Network(NetworkType type, Web3j web3j) {
+    public Web3Network(NetworkType type, Web3j web3j, int pendingThreshold) {
         super(type);
         this.web3j = web3j;
+        this.pendingThreshold = pendingThreshold;
     }
 
     @PostConstruct

@@ -15,7 +15,7 @@ import java.util.List;
 
 @Component
 @Getter
-public class TransferEventBuilder extends ContractEventBuilder<TransferEvent> {
+public class TransferERC20EventBuilder extends ContractEventBuilder<TransferEvent> {
     private final ContractEventDefinition definition = new ContractEventDefinition(
             "Transfer",
             Arrays.asList(

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.ConnectionFactory;
 import io.lastwill.eventscan.events.EventModule;
 import io.mywish.scanner.ScannerModule;
+import okhttp3.OkHttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -22,6 +23,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 @Import({ScannerModule.class, EventModule.class})
@@ -68,6 +70,17 @@ public class Application {
         return factory;
     }
 
+    @Bean
+    public OkHttpClient okHttpClient(
+            @Value("${io.lastwill.eventscan.backend.socket-timeout}") long socketTimeout,
+            @Value("${io.lastwill.eventscan.backend.connection-timeout}") long connectionTimeout
+    ) {
+        return new OkHttpClient.Builder()
+                .writeTimeout(socketTimeout, TimeUnit.MILLISECONDS)
+                .readTimeout(socketTimeout, TimeUnit.MILLISECONDS)
+                .connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+                .build();
+    }
 
     @Bean
     public ObjectMapper objectMapper() {

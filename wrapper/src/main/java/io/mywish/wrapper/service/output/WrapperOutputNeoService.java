@@ -12,7 +12,8 @@ public class WrapperOutputNeoService {
                 transaction.getHash(),
                 output.getIndex(),
                 output.getAddress(),
-                output.getValue()
-        );
+                output.getValue(),
+                // TODO: add to neo raw output if needed
+                new byte[0]);
     }
 }

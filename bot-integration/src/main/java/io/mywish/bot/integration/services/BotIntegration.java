@@ -2,6 +2,7 @@ package io.mywish.bot.integration.services;
 
 import io.lastwill.eventscan.events.model.*;
 import io.lastwill.eventscan.events.model.utility.NetworkStuckEvent;
+import io.lastwill.eventscan.events.model.utility.PendingStuckEvent;
 import io.lastwill.eventscan.model.*;
 import io.mywish.bot.service.MyWishBot;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +29,9 @@ public class BotIntegration {
 
     @Autowired
     protected BlockchainExplorerProvider explorerProvider;
+
+    private final ZoneId localZone = ZoneId.of("Europe/Moscow");
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final Map<NetworkType, String> networkName = new HashMap<NetworkType, String>() {{
         put(NetworkType.ETHEREUM_MAINNET, "ETH");
@@ -131,12 +138,22 @@ public class BotIntegration {
     @EventListener
     private void onNetworkStuck(final NetworkStuckEvent event) {
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
-        String lastBlock = event.getReceivedTime().atZone(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ISO_DATE_TIME);
+        String lastBlock = formatToLocal(event.getReceivedTime());
         final String blockLink = explorerProvider
                 .getOrStub(event.getNetworkType())
                 .buildToBlock(event.getLastBlockNo());
         bot.sendToAll(
                 "Network " + network + " *stuck!* Last block was at " + lastBlock + " [" + event.getLastBlockNo() + "](" + blockLink + ").",
+                true
+        );
+    }
+
+    @EventListener
+    private void onPendingStuck(final PendingStuckEvent event) {
+        final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        String lastBlock = formatToLocal(event.getReceivedTime());
+        bot.sendToAll(
+                "*No pending transactions* for the network " + network + "! Last pending was at " + lastBlock + ", count: " + event.getCount() + ".",
                 true
         );
     }
@@ -175,5 +192,13 @@ public class BotIntegration {
             sRem = "." + rem;
         }
         return eth + sRem + " " + currency;
+    }
+
+    private String formatToLocal(LocalDateTime localDateTime) {
+        return ZonedDateTime.ofInstant(
+                localDateTime.toInstant(ZoneOffset.UTC),
+                this.localZone
+        )
+                .format(dateFormatter);
     }
 }

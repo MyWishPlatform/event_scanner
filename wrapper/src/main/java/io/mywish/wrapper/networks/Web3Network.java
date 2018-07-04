@@ -1,25 +1,28 @@
 package io.mywish.wrapper.networks;
 
-import io.mywish.wrapper.WrapperNetwork;
-import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.wrapper.*;
 import io.mywish.wrapper.service.block.WrapperBlockWeb3Service;
 import io.mywish.wrapper.service.transaction.WrapperTransactionWeb3Service;
 import io.mywish.wrapper.service.transaction.receipt.WrapperTransactionReceiptWeb3Service;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
+import org.web3j.protocol.core.methods.response.EthFilter;
+import org.web3j.protocol.core.methods.response.Transaction;
+import rx.Subscription;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
+@Slf4j
 public class Web3Network extends WrapperNetwork {
-    final private Web3j web3j;
+    private final Web3j web3j;
 
     @Autowired
     private WrapperBlockWeb3Service blockBuilder;
@@ -31,13 +34,18 @@ public class Web3Network extends WrapperNetwork {
     private WrapperTransactionReceiptWeb3Service transactionReceiptBuilder;
 
     @Autowired
-    private List<ContractEventBuilder<?>> builders = new ArrayList<>();
+    private List<ContractEventBuilder<?>> builders;
 
-    private Map<String, ContractEventDefinition> definitionsBySignature = new HashMap<>();
+    private final int pendingThreshold;
 
-    public Web3Network(NetworkType type, Web3j web3j) {
+    private final Map<String, ContractEventDefinition> definitionsBySignature = new HashMap<>();
+    private final BlockingQueue<Transaction> pendingTransactions = new LinkedBlockingQueue<>();
+    private Subscription subscription;
+
+    public Web3Network(NetworkType type, Web3j web3j, int pendingThreshold) {
         super(type);
         this.web3j = web3j;
+        this.pendingThreshold = pendingThreshold;
     }
 
     @PostConstruct
@@ -48,6 +56,23 @@ public class Web3Network extends WrapperNetwork {
             }
             definitionsBySignature.put(eventBuilder.getDefinition().getSignature(), eventBuilder.getDefinition());
         }
+
+        if (pendingThreshold > 0) {
+            log.info("Subscribe to pending transactions.");
+            subscription = web3j.pendingTransactionObservable().subscribe(pendingTransactions::add);
+        }
+    }
+
+    @PreDestroy
+    private void close() {
+        if (subscription == null) {
+            return;
+        }
+        if (subscription.isUnsubscribed()) {
+            return;
+        }
+        subscription.unsubscribe();
+        subscription = null;
     }
 
     @Override
@@ -87,5 +112,23 @@ public class Web3Network extends WrapperNetwork {
                         .getResult(),
                 definitionsBySignature
         );
+    }
+
+    @Override
+    public boolean isPendingTransactionsSupported() {
+        return true;
+    }
+
+    @Override
+    public List<WrapperTransaction> fetchPendingTransactions() {
+        if (pendingTransactions.isEmpty()) {
+            return Collections.emptyList();
+        }
+        ArrayList<WrapperTransaction> result = new ArrayList<>(pendingTransactions.size() + 3);
+        while (!pendingTransactions.isEmpty()) {
+            Transaction transaction = pendingTransactions.remove();
+            result.add(transactionBuilder.build(transaction));
+        }
+        return result;
     }
 }

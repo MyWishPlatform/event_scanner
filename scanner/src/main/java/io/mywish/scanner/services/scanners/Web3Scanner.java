@@ -1,5 +1,6 @@
 package io.mywish.scanner.services.scanners;
 
+import io.mywish.scanner.services.PendingTransactionService;
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperOutput;
 import io.mywish.wrapper.WrapperTransaction;

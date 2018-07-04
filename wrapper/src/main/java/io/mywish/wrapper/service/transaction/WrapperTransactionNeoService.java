@@ -110,6 +110,6 @@ public class WrapperTransactionNeoService implements WrapperTransactionService<T
     private String extractCreatedContract(final String scriptHex) {
         byte[] script = DatatypeConverter.parseHexBinary(scriptHex);
         byte[] contractHash = Ripemd160.getHash(digest.digest(script));
-        return "0x" + DatatypeConverter.printHexBinary(contractHash);
+        return "0x" + DatatypeConverter.printHexBinary(contractHash).toLowerCase();
     }
 }

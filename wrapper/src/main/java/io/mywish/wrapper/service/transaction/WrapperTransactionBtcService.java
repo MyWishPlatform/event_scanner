@@ -25,12 +25,11 @@ public class WrapperTransactionBtcService {
                 .map(output -> outputBuilder.build(transaction, output, networkParameters))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        boolean contractCreation = false;
         return new WrapperTransaction(
                 hash,
                 inputs,
                 outputs,
-                contractCreation
+                false
         );
     }
 }

@@ -5,6 +5,7 @@ import io.mywish.wrapper.service.WrapperOutputService;
 import org.springframework.stereotype.Component;
 import org.web3j.protocol.core.methods.response.Transaction;
 
+import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
 
 @Component
@@ -15,7 +16,8 @@ public class WrapperOutputWeb3Service implements WrapperOutputService<Transactio
                 transaction.getHash(),
                 0,
                 transaction.getTo(),
-                "0".equals(transaction.getValueRaw()) ? BigInteger.ZERO : transaction.getValue()
+                "0".equals(transaction.getValueRaw()) ? BigInteger.ZERO : transaction.getValue(),
+                DatatypeConverter.parseHexBinary(transaction.getInput().substring(2))
         );
     }
 }

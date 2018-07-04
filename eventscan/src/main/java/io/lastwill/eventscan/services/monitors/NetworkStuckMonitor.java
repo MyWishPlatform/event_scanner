@@ -118,7 +118,7 @@ public class NetworkStuckMonitor {
     @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.pending}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.pending}")
     protected void checkPending() {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-        lastBlockEvents.keySet()
+        lastPendingTxEvents.keySet()
                 .stream()
 //                .filter(networkType -> networkType == NetworkType.BTC_MAINNET || networkType == NetworkType.BTC_TESTNET_3)
                 .forEach(networkType -> {

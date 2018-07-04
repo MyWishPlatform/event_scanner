@@ -1,14 +1,20 @@
 package io.mywish.scanner.services;
 
+import io.mywish.scanner.model.NewPendingTransactionsEvent;
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperNetwork;
+import io.mywish.wrapper.WrapperTransaction;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -59,6 +65,17 @@ public abstract class Scanner {
                     }
                     else if (interval > INFO_INTERVAL) {
                         log.info("{}: there is no block from {} ms.", network.getType(), interval);
+                    }
+
+                    if (network.isPendingTransactionsSupported()) {
+                        log.debug("Get actual list of pending.");
+                        List<WrapperTransaction> pendingTxs = network.fetchPendingTransactions();
+                        if (!pendingTxs.isEmpty()) {
+                            eventPublisher.publish(new NewPendingTransactionsEvent(
+                                    network.getType(),
+                                    pendingTxs
+                            ));
+                        }
                     }
 
                     log.debug("All blocks processed, wait new one.");
@@ -118,6 +135,12 @@ public abstract class Scanner {
 		pollerThread.start();
 		log.info("Subscribed to {} new block event.", network.getType());
 	}
+
+	@EventListener
+	private void onApplicationClosed(ContextClosedEvent event) {
+        log.info("Application closed.");
+        close();
+    }
 
     private void loadNextBlock() throws Exception {
         long delta = lastBlockNo - nextBlockNo;

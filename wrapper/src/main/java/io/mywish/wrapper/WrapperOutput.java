@@ -6,15 +6,17 @@ import java.math.BigInteger;
 
 @Getter
 public class WrapperOutput {
-    final private String parentTransaction;
-    final private String address;
-    final private Integer index;
-    final private BigInteger value;
+    private final String parentTransaction;
+    private final String address;
+    private final Integer index;
+    private final BigInteger value;
+    private final byte[] rawOutputScript;
 
-    public WrapperOutput(String parentTransaction, Integer index, String address, BigInteger value) {
+    public WrapperOutput(String parentTransaction, Integer index, String address, BigInteger value, byte[] rawOutputScript) {
         this.parentTransaction = parentTransaction;
         this.index = index;
         this.address = address;
         this.value = value;
+        this.rawOutputScript = rawOutputScript;
     }
 }

@@ -83,20 +83,24 @@ public class WrapperModule {
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ethereum")
     @Bean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
-    public Web3Network ethNetMain(@Value("${io.lastwill.eventscan.web3-url.ethereum}") String web3Url) {
+    public Web3Network ethNetMain(
+            @Value("${io.lastwill.eventscan.web3-url.ethereum}") String web3Url,
+            @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) {
         return new Web3Network(
                 NetworkType.ETHEREUM_MAINNET,
-                Web3j.build(new HttpService(web3Url))
-        );
+                Web3j.build(new HttpService(web3Url)),
+                pendingThreshold);
     }
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ropsten")
     @Bean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
-    public Web3Network ethNetRopsten(@Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url) {
+    public Web3Network ethNetRopsten(
+            @Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url,
+            @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) {
         return new Web3Network(
                 NetworkType.ETHEREUM_ROPSTEN,
-                Web3j.build(new HttpService(web3Url))
-        );
+                Web3j.build(new HttpService(web3Url)),
+                pendingThreshold);
     }
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-mainnet")
@@ -104,8 +108,8 @@ public class WrapperModule {
     public Web3Network rskNetMain(@Value("${io.lastwill.eventscan.web3-url.rsk-mainnet}") String web3Url) {
         return new Web3Network(
                 NetworkType.RSK_MAINNET,
-                Web3j.build(new HttpService(web3Url))
-        );
+                Web3j.build(new HttpService(web3Url)),
+                0);
     }
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-testnet")
@@ -113,8 +117,8 @@ public class WrapperModule {
     public Web3Network rskNetTest(@Value("${io.lastwill.eventscan.web3-url.rsk-testnet}") String web3Url) {
         return new Web3Network(
                 NetworkType.RSK_TESTNET,
-                Web3j.build(new HttpService(web3Url))
-        );
+                Web3j.build(new HttpService(web3Url)),
+                0);
     }
 
     @ConditionalOnProperty(name = "etherscanner.neo.rpc-url.mainnet")

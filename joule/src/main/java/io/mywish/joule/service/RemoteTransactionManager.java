@@ -40,7 +40,7 @@ public class RemoteTransactionManager extends TransactionManager {
             Web3j web3j,
             @Value("${io.mywish.joule.tx.from-address}") String fromAddress,
             @Value("${io.mywish.joule.tx.sign.url}") URL url) {
-        super(web3j);
+        super(web3j, fromAddress);
         this.lockService = lockService;
         this.web3j = web3j;
         this.fromAddress = fromAddress;

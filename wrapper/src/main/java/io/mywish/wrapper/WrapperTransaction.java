@@ -2,6 +2,8 @@ package io.mywish.wrapper;
 
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Getter
@@ -13,7 +15,11 @@ public class WrapperTransaction {
     @Setter
     private String creates = null;
 
-    public WrapperTransaction(String txHash, List<String> inputs, List<WrapperOutput> outputs, boolean contractCreation) {
+    public WrapperTransaction(
+            final String txHash,
+            final List<String> inputs,
+            final List<WrapperOutput> outputs,
+            boolean contractCreation) {
         this.hash = txHash;
         this.inputs = inputs;
         this.outputs = outputs;

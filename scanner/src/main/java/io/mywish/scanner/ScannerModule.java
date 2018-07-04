@@ -2,6 +2,7 @@ package io.mywish.scanner;
 
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.bot.integration.BotIntegrationModule;
+import io.mywish.scanner.services.PendingTransactionService;
 import io.mywish.scanner.services.scanners.BtcScanner;
 import io.mywish.scanner.services.LastBlockPersister;
 import io.mywish.scanner.services.scanners.NeoScanner;
@@ -34,7 +35,7 @@ public class ScannerModule {
             final @Value("${etherscanner.bitcoin.last-block.mainnet:#{null}}") Long lastBlock,
             final @Value("${etherscanner.bitcoin.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.bitcoin.commit-chain-length}") Integer commitmentChainLength
-    ) throws Exception {
+    ) {
         return new BtcScanner(
                 network,
                 new LastBlockPersister(network.getType(), dir, lastBlock),
@@ -51,7 +52,7 @@ public class ScannerModule {
             final @Value("${etherscanner.bitcoin.last-block.testnet:#{null}}") Long lastBlock,
             final @Value("${etherscanner.bitcoin.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.bitcoin.commit-chain-length}") Integer commitmentChainLength
-    ) throws Exception {
+    ) {
         return new BtcScanner(
                 network,
                 new LastBlockPersister(network.getType(), dir, lastBlock),
@@ -92,6 +93,18 @@ public class ScannerModule {
                 pollingInterval,
                 commitmentChainLength
         );
+    }
+
+    @ConditionalOnBean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
+    @Bean
+    public PendingTransactionService pendingTransactionServiceMain() {
+        return new PendingTransactionService(NetworkType.ETHEREUM_MAINNET);
+    }
+
+    @ConditionalOnBean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
+    @Bean
+    public PendingTransactionService pendingTransactionServiceRopsten() {
+        return new PendingTransactionService(NetworkType.ETHEREUM_ROPSTEN);
     }
 
     @ConditionalOnBean(name = NetworkType.ETHEREUM_MAINNET_VALUE)

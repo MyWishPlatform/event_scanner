@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.messages;
 
 public enum PaymentStatus {
-    CREATED,
+    PENDING,
     COMMITTED,
     REJECTED
 }

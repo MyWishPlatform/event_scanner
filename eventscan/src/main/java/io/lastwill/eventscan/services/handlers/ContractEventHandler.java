@@ -8,6 +8,7 @@ import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressA
 import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressRemovedEvent;
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.messages.*;
+import io.lastwill.eventscan.model.AirdropEntry;
 import io.lastwill.eventscan.model.ProductAirdrop;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.BalanceProvider;
@@ -21,6 +22,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -44,11 +46,13 @@ public class ContractEventHandler {
     private void eventsHandler(final ContractEventsEvent event) {
         // catch airdrop events
         if (event.getContract().getProduct() instanceof ProductAirdrop) {
-            Map<String, BigInteger> airdropAddresses = event.getEvents()
+            List<AirdropEntry> airdropAddresses = event.getEvents()
                     .stream()
                     .filter(contractEvent -> contractEvent instanceof TransferEvent)
                     .map(contractEvent -> (TransferEvent) contractEvent)
-                    .collect(Collectors.toMap(TransferEvent::getTo, TransferEvent::getTokens));
+                    .map(transferEvent -> new AirdropEntry(transferEvent.getTo(), transferEvent.getTokens()))
+                    .collect(Collectors.toList());
+
             externalNotifier.send(event.getNetworkType(),
                     new AirdropNotify(
                             event.getContract().getId(),

@@ -5,6 +5,7 @@ import io.lastwill.eventscan.events.model.PendingTransactionAddedEvent;
 import io.lastwill.eventscan.events.model.PendingTransactionRemovedEvent;
 import io.lastwill.eventscan.messages.AirdropNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
+import io.lastwill.eventscan.model.AirdropEntry;
 import io.lastwill.eventscan.model.ProductAirdrop;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;
@@ -18,10 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -35,12 +33,12 @@ public class AirdropPendingMonitor {
     @Autowired
     private ExternalNotifier externalNotifier;
 
-    private static Map<String, BigInteger> parseInputToAirdrop(byte[] input) {
+    private static List<AirdropEntry> parseInputToAirdrop(byte[] input) {
         ByteBuffer buffer = ByteBuffer.wrap(input);
         int methodId = buffer.getInt();
         if (methodId != TRANSFER_METHOD_ID && methodId != TRANSFER_FROM_METHOD_ID) {
             log.warn("Wrong method input script, expected {} or {}, but got {}.", TRANSFER_FROM_METHOD_ID, TRANSFER_METHOD_ID, methodId);
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
         if (methodId == TRANSFER_FROM_METHOD_ID) {
             // skip address parameter if "transferFrom" called
@@ -59,11 +57,11 @@ public class AirdropPendingMonitor {
         BigInteger addressesLength = new BigInteger(bytes32);
         if (addressesLength.compareTo(BigInteger.ZERO) <= 0) {
             log.warn("Addresses array length is less or equals zero.");
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
         if (addressesLength.intValue() > MAX_ARRAY_LENGTH) {
             log.warn("Addresses array length is too big: max {}, but got {}.", MAX_ARRAY_LENGTH, addressesLength);
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
         String[] addresses = new String[addressesLength.intValue()];
         for (int i = 0; i < addresses.length; i++) {
@@ -76,22 +74,22 @@ public class AirdropPendingMonitor {
         BigInteger valuesLength = new BigInteger(bytes32);
         if (valuesLength.compareTo(BigInteger.ZERO) <= 0) {
             log.warn("Values array length is less or equals zero.");
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
         if (valuesLength.intValue() > MAX_ARRAY_LENGTH) {
             log.warn("Values array length is too big: max {}, but got {}.", MAX_ARRAY_LENGTH, valuesLength);
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
         if (valuesLength.compareTo(addressesLength) != 0) {
             log.warn("Wrong input script structure: arrays length mismatch {} != {}.", addressesLength, valuesLength);
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
 
-        Map<String, BigInteger> result = new HashMap<>(valuesLength.intValue());
+        List<AirdropEntry> result = new ArrayList<>(valuesLength.intValue());
         for (int i = 0; i < valuesLength.intValue(); i++) {
             buffer.get(bytes32);
             BigInteger value = new BigInteger(bytes32);
-            result.put(addresses[i], value);
+            result.add(new AirdropEntry(addresses[i], value));
         }
 
         return result;
@@ -129,7 +127,7 @@ public class AirdropPendingMonitor {
                                     }
                                     try {
 
-                                        Map<String, BigInteger> values =
+                                        List<AirdropEntry> values =
                                                 parseInputToAirdrop(wrapperOutput.getRawOutputScript());
                                         externalNotifier.send(
                                                 event.getNetworkType(),
@@ -179,7 +177,7 @@ public class AirdropPendingMonitor {
                                         return;
                                     }
                                     try {
-                                        Map<String, BigInteger> values =
+                                        List<AirdropEntry> values =
                                                 parseInputToAirdrop(wrapperOutput.getRawOutputScript());
                                         externalNotifier.send(
                                                 event.getNetworkType(),
@@ -211,7 +209,7 @@ public class AirdropPendingMonitor {
                         return;
                     }
                     try {
-                        Map<String, BigInteger> values =
+                        List<AirdropEntry> values =
                                 parseInputToAirdrop(wrapperOutput.getRawOutputScript());
                         externalNotifier.send(
                                 event.getNetworkType(),

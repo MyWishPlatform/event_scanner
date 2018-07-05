@@ -20,7 +20,7 @@ public class WrapperTransactionReceiptNeoService {
     @Autowired
     private WrapperLogNeoService logBuilder;
 
-    public WrapperTransactionReceipt build(WrapperTransactionNeo transaction, List<Event> events, Map<String, ContractEventDefinition> definitionsByName) {
+    public WrapperTransactionReceipt build(WrapperTransactionNeo transaction, List<Event> events) {
         String hash = transaction.getHash();
         List<String> contracts = transaction.getContracts();
         List<ContractEvent> logs = events

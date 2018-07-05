@@ -32,7 +32,7 @@ public class WrapperTransactionReceiptWeb3Service {
         return status.compareTo(BigInteger.ZERO) != 0;
     }
 
-    public WrapperTransactionReceipt build(TransactionReceipt receipt, Map<String, ContractEventDefinition> eventDefinitionsBySignature) {
+    public WrapperTransactionReceipt build(TransactionReceipt receipt) {
         String hash = receipt.getTransactionHash();
         List<String> contracts = Collections.singletonList(receipt.getContractAddress());
         List<ContractEvent> logs = receipt

@@ -2,6 +2,8 @@ package io.mywish.wrapper.networks;
 
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.wrapper.*;
+import io.mywish.wrapper.parity.Web3jEx;
+import io.mywish.wrapper.parity.model.GetPendingTransaction;
 import io.mywish.wrapper.service.block.WrapperBlockWeb3Service;
 import io.mywish.wrapper.service.transaction.WrapperTransactionWeb3Service;
 import io.mywish.wrapper.service.transaction.receipt.WrapperTransactionReceiptWeb3Service;
@@ -9,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
-import org.web3j.protocol.core.methods.response.EthFilter;
+import org.web3j.protocol.core.Request;
 import org.web3j.protocol.core.methods.response.Transaction;
 import rx.Subscription;
 
@@ -19,6 +21,7 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class Web3Network extends WrapperNetwork {
@@ -57,7 +60,7 @@ public class Web3Network extends WrapperNetwork {
             definitionsBySignature.put(eventBuilder.getDefinition().getSignature(), eventBuilder.getDefinition());
         }
 
-        if (pendingThreshold > 0) {
+        if (pendingThreshold > 0 && !(web3j instanceof Web3jEx)) {
             log.info("Subscribe to pending transactions.");
             subscription = web3j.pendingTransactionObservable().subscribe(pendingTransactions::add);
         }
@@ -120,7 +123,14 @@ public class Web3Network extends WrapperNetwork {
     }
 
     @Override
-    public List<WrapperTransaction> fetchPendingTransactions() {
+    public List<WrapperTransaction> fetchPendingTransactions() throws Exception {
+        if (web3j instanceof Web3jEx) {
+            return ((Web3jEx) web3j).parityGetPendingTransactions().send()
+                    .getResult()
+                    .stream()
+                    .map(transactionBuilder::build)
+                    .collect(Collectors.toList());
+        }
         if (pendingTransactions.isEmpty()) {
             return Collections.emptyList();
         }

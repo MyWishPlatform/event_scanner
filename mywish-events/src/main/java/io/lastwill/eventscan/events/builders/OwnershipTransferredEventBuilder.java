@@ -1,7 +1,6 @@
 package io.lastwill.eventscan.events.builders;
 
 import io.mywish.wrapper.ContractEventBuilder;
-import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.wrapper.WrapperType;
 import io.mywish.wrapper.ContractEventDefinition;
 import io.lastwill.eventscan.events.model.contract.OwnershipTransferredEvent;
@@ -21,10 +20,9 @@ public class OwnershipTransferredEventBuilder extends ContractEventBuilder<Owner
     );
 
     @Override
-    public OwnershipTransferredEvent build(WrapperTransactionReceipt transactionReceipt, String address, List<Object> values) {
+    public OwnershipTransferredEvent build(String address, List<Object> values) {
         return new OwnershipTransferredEvent(
                 DEFINITION,
-                transactionReceipt,
                 (String) values.get(0),
                 (String) values.get(1),
                 address

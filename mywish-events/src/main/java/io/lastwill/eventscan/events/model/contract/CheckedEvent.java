@@ -8,8 +8,8 @@ import lombok.Getter;
 @Getter
 public class CheckedEvent extends ContractEvent {
     private final boolean isAccident;
-    public CheckedEvent(ContractEventDefinition definition, WrapperTransactionReceipt transactionReceipt, boolean isAccident, String address) {
-        super(definition, address, transactionReceipt);
+    public CheckedEvent(ContractEventDefinition definition, boolean isAccident, String address) {
+        super(definition, address);
         this.isAccident = isAccident;
     }
 }

@@ -5,7 +5,6 @@ import io.lastwill.eventscan.events.model.ContractTransactionFailedEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.ContractRepository;
-import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
@@ -33,8 +32,6 @@ public class ContractsMonitor {
     private EventPublisher eventPublisher;
     @Autowired
     private TransactionProvider transactionProvider;
-    @Autowired
-    private EventParser eventParser;
     @Value("${io.lastwill.eventscan.contract.proxy-address.ethereum}")
     private String proxyAddressEthereum;
     @Value("${io.lastwill.eventscan.contract.proxy-address.ropsten}")
@@ -88,28 +85,26 @@ public class ContractsMonitor {
             final WrapperBlock block
     ) {
         for (WrapperTransaction transaction : transactions) {
-            transactionProvider.getTransactionReceiptAsync(networkType, transaction)
-                    .thenAccept(transactionReceipt -> {
-                        MultiValueMap<String, WrapperLog> logsByAddress = CollectionUtils.toMultiValueMap(new HashMap<>());
-                        for (WrapperLog log : transactionReceipt.getLogs()) {
-                            logsByAddress.add(log.getAddress(), log);
-                        }
+            try {
+                WrapperTransactionReceipt transactionReceipt = transactionProvider.getTransactionReceipt(networkType, transaction);
+                MultiValueMap<String, ContractEvent> logsByAddress = CollectionUtils.toMultiValueMap(new HashMap<>());
+                for (ContractEvent contractEvent : transactionReceipt.getLogs()) {
+                    logsByAddress.add(contractEvent.getAddress(), contractEvent);
+                }
 
-                        for (Contract contract : contractRepository.findByAddressesList(logsByAddress.keySet(), networkType)) {
-                            handleReceiptAndContract(
-                                    networkType,
-                                    contract,
-                                    transaction,
-                                    transactionReceipt,
-                                    block
-                            );
-                        }
-
-                    })
-                    .exceptionally(throwable -> {
-                        log.error("ContractEventsEvent handling cause exception.", throwable);
-                        return null;
-                    });
+                for (Contract contract : contractRepository.findByAddressesList(logsByAddress.keySet(), networkType)) {
+                    handleReceiptAndContract(
+                            networkType,
+                            contract,
+                            transaction,
+                            transactionReceipt,
+                            block
+                    );
+                }
+            }
+            catch (Exception e) {
+                log.error("ContractEventsEvent handling cause exception.", e);
+            }
         }
     }
 
@@ -118,21 +113,20 @@ public class ContractsMonitor {
             final Contract contract,
             final WrapperTransaction transaction,
             final WrapperBlock block
-    ) {
-        transactionProvider.getTransactionReceiptAsync(networkType, transaction)
-                .thenAccept(transactionReceipt -> {
-                    handleReceiptAndContract(
-                            networkType,
-                            contract,
-                            transaction,
-                            transactionReceipt,
-                            block
-                    );
-                })
-                .exceptionally(throwable -> {
-                    log.error("ContractEventsEvent handling cause exception.", throwable);
-                    return null;
-                });
+    )  {
+        try {
+            WrapperTransactionReceipt transactionReceipt = transactionProvider.getTransactionReceipt(networkType, transaction);
+            handleReceiptAndContract(
+                    networkType,
+                    contract,
+                    transaction,
+                    transactionReceipt,
+                    block
+            );
+        }
+        catch (Exception e) {
+            log.error("ContractEventsEvent handling cause exception.", e);
+        }
     }
 
     private void handleReceiptAndContract(
@@ -152,14 +146,7 @@ public class ContractsMonitor {
             ));
         }
 
-        List<ContractEvent> events;
-        try {
-            events = eventParser.parseEvents(transactionReceipt);
-        }
-        catch (Throwable e) {
-            log.error("Error on parsing events.", e);
-            return;
-        }
+        List<ContractEvent> events = transactionReceipt.getLogs();
         if (events.isEmpty()) {
             return;
         }

@@ -1,7 +1,6 @@
 package io.lastwill.eventscan.events.builders.crowdsale;
 
 import io.lastwill.eventscan.events.builders.BaseEmptyEventBuilder;
-import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.wrapper.ContractEventDefinition;
 import io.lastwill.eventscan.events.model.contract.crowdsale.FinalizedEvent;
 import org.springframework.stereotype.Component;
@@ -13,7 +12,7 @@ public class FinalizedEventBuilder extends BaseEmptyEventBuilder<FinalizedEvent>
     }
 
     @Override
-    protected FinalizedEvent buildEmpty(final ContractEventDefinition definition, String address, final WrapperTransactionReceipt transactionReceipt) {
-        return new FinalizedEvent(definition, transactionReceipt, address);
+    protected FinalizedEvent buildEmpty(final ContractEventDefinition definition, String address) {
+        return new FinalizedEvent(definition, address);
     }
 }

@@ -5,7 +5,6 @@ import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.UserProfile;
 import io.lastwill.eventscan.repositories.UserProfileRepository;
-import io.lastwill.eventscan.services.EventParser;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.services.EventPublisher;
@@ -31,8 +30,6 @@ public class WishPaymentMonitor {
     private EventPublisher eventPublisher;
     @Autowired
     private TransactionProvider transactionProvider;
-    @Autowired
-    private EventParser eventParser;
 
     @Value("${io.lastwill.eventscan.contract.token-address}")
     private String tokenAddress;
@@ -66,7 +63,7 @@ public class WishPaymentMonitor {
                 continue;
             }
             transactionProvider.getTransactionReceiptAsync(newWeb3BlockEvent.getNetworkType(), transaction)
-                    .thenAccept(transactionReceipt -> eventParser.parseEvents(transactionReceipt)
+                    .thenAccept(transactionReceipt -> transactionReceipt.getLogs()
                             .stream()
                             .filter(event -> event instanceof TransferEvent)
                             .map(event -> (TransferEvent) event)

@@ -22,7 +22,7 @@ public class TransferERC223EventBuilder extends ContractEventBuilder<TransferEve
             Arrays.asList(
                     WrapperType.create(Address.class, true),
                     WrapperType.create(Address.class, true),
-                    WrapperType.create(Uint.class, false),
+                    WrapperType.create(Uint.class, true),
                     WrapperType.create(DynamicBytes.class, false)
             )
     );

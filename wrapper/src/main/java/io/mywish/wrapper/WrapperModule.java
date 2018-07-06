@@ -7,6 +7,7 @@ import io.mywish.neocli4j.NeoClientImpl;
 import io.mywish.wrapper.networks.BtcNetwork;
 import io.mywish.wrapper.networks.NeoNetwork;
 import io.mywish.wrapper.networks.Web3Network;
+import io.mywish.wrapper.parity.Web3jEx;
 import okhttp3.OkHttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.bitcoinj.params.MainNetParams;
@@ -90,7 +91,7 @@ public class WrapperModule {
             @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) {
         return new Web3Network(
                 NetworkType.ETHEREUM_MAINNET,
-                Web3j.build(new HttpService(web3Url, client, false)),
+                Web3jEx.build(new HttpService(web3Url, client, false)),
                 pendingThreshold);
     }
 
@@ -102,7 +103,7 @@ public class WrapperModule {
             @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) {
         return new Web3Network(
                 NetworkType.ETHEREUM_ROPSTEN,
-                Web3j.build(new HttpService(web3Url, client, false)),
+                Web3jEx.build(new HttpService(web3Url, client, false)),
                 pendingThreshold);
     }
 

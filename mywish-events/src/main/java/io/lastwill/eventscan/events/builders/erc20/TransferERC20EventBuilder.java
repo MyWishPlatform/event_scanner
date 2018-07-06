@@ -1,9 +1,9 @@
-package io.lastwill.eventscan.events.builders;
+package io.lastwill.eventscan.events.builders.erc20;
 
-import io.mywish.wrapper.ContractEventBuilder;
-import io.mywish.wrapper.ContractEventDefinition;
-import io.lastwill.eventscan.events.model.contract.FundsAddedEvent;
 import io.mywish.wrapper.WrapperType;
+import io.mywish.wrapper.ContractEventDefinition;
+import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
+import io.mywish.wrapper.ContractEventBuilder;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 import org.web3j.abi.datatypes.Address;
@@ -12,23 +12,25 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 
-@Getter
 @Component
-public class FundsAddedEventBuilder extends ContractEventBuilder<FundsAddedEvent> {
+@Getter
+public class TransferERC20EventBuilder extends ContractEventBuilder<TransferEvent> {
     private final ContractEventDefinition definition = new ContractEventDefinition(
-            "FundsAdded",
+            "Transfer",
             Arrays.asList(
+                    WrapperType.create(Address.class, true),
                     WrapperType.create(Address.class, true),
                     WrapperType.create(Uint.class, false)
             )
     );
 
     @Override
-    public FundsAddedEvent build(String address, List<Object> values) {
-        return new FundsAddedEvent(
+    public TransferEvent build(String address, List<Object> values) {
+        return new TransferEvent(
                 definition,
                 (String) values.get(0),
-                (BigInteger) values.get(1),
+                (String) values.get(1),
+                (BigInteger) values.get(2),
                 address
         );
     }

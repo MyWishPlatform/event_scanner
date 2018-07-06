@@ -1,7 +1,6 @@
 package io.lastwill.eventscan.events.builders;
 
 import io.mywish.wrapper.ContractEventBuilder;
-import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.wrapper.WrapperType;
 import io.lastwill.eventscan.events.model.contract.CheckedEvent;
 import io.mywish.wrapper.ContractEventDefinition;
@@ -20,7 +19,7 @@ public class CheckedEventBuilder extends ContractEventBuilder<CheckedEvent> {
     );
 
     @Override
-    public CheckedEvent build(WrapperTransactionReceipt transactionReceipt, String address, List<Object> values) {
-        return new CheckedEvent(definition, transactionReceipt, (Boolean) values.get(0), address);
+    public CheckedEvent build(String address, List<Object> values) {
+        return new CheckedEvent(definition, (Boolean) values.get(0), address);
     }
 }

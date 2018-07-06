@@ -5,6 +5,7 @@ import io.lastwill.eventscan.messages.OwnershipTransferredNotify;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.model.NetworkType;
+import io.mywish.wrapper.WrapperTransactionReceipt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ public class TransferOwnershipHandler {
     @Autowired
     private ExternalNotifier externalNotifier;
 
-    public void handle(final NetworkType networkType, final OwnershipTransferredEvent event) {
+    public void handle(final NetworkType networkType, final OwnershipTransferredEvent event, final WrapperTransactionReceipt transactionReceipt) {
         String tokenAddress = event.getAddress();
         String transferTo = event.getNewOwner();
 
@@ -24,7 +25,7 @@ public class TransferOwnershipHandler {
                         networkType,
                         new OwnershipTransferredNotify(
                                 productCrowdsale.getTokenContract().getId(),
-                                event.getTransactionReceipt().getTransactionHash(),
+                                transactionReceipt.getTransactionHash(),
                                 productCrowdsale.getCrowdsaleContract().getId()
                         )
                 ));

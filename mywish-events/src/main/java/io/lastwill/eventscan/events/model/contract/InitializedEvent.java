@@ -4,7 +4,7 @@ import io.mywish.wrapper.ContractEventDefinition;
 import io.mywish.wrapper.WrapperTransactionReceipt;
 
 public class InitializedEvent extends BaseEmptyEvent {
-    public InitializedEvent(ContractEventDefinition definition, WrapperTransactionReceipt transactionReceipt, String address) {
-        super(definition, transactionReceipt, address);
+    public InitializedEvent(ContractEventDefinition definition, String address) {
+        super(definition, address);
     }
 }

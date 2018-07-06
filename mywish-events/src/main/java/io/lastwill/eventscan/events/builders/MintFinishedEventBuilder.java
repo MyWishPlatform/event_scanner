@@ -1,6 +1,5 @@
 package io.lastwill.eventscan.events.builders;
 
-import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.wrapper.ContractEventDefinition;
 import io.lastwill.eventscan.events.model.contract.MintFinishedEvent;
 import org.springframework.stereotype.Component;
@@ -12,7 +11,7 @@ public class MintFinishedEventBuilder extends BaseEmptyEventBuilder<MintFinished
     }
 
     @Override
-    protected MintFinishedEvent buildEmpty(final ContractEventDefinition definition, String address, final WrapperTransactionReceipt transactionReceipt) {
-        return new MintFinishedEvent(definition, transactionReceipt, address);
+    protected MintFinishedEvent buildEmpty(final ContractEventDefinition definition, String address) {
+        return new MintFinishedEvent(definition, address);
     }
 }

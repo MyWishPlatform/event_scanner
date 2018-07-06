@@ -12,8 +12,8 @@ public class TimesChangedEvent extends ContractEvent {
     private final BigInteger startTime;
     private final BigInteger endTime;
 
-    public TimesChangedEvent(ContractEventDefinition definition, String address, WrapperTransactionReceipt transactionReceipt, BigInteger startTime, BigInteger endTime) {
-        super(definition, address, transactionReceipt);
+    public TimesChangedEvent(ContractEventDefinition definition, String address, BigInteger startTime, BigInteger endTime) {
+        super(definition, address);
         this.startTime = startTime;
         this.endTime = endTime;
     }

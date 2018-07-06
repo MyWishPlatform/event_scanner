@@ -1,7 +1,7 @@
 package io.mywish.wrapper.service.transaction.receipt;
 
+import io.mywish.wrapper.ContractEvent;
 import io.mywish.wrapper.ContractEventDefinition;
-import io.mywish.wrapper.WrapperLog;
 import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.wrapper.service.log.WrapperLogWeb3Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,23 +25,22 @@ public class WrapperTransactionReceiptWeb3Service {
         BigInteger status;
         if (receipt.getStatus().startsWith("0x")) {
             status = Numeric.decodeQuantity(receipt.getStatus());
-        } else {
+        }
+        else {
             status = new BigInteger(receipt.getStatus());
         }
         return status.compareTo(BigInteger.ZERO) != 0;
     }
 
-    public WrapperTransactionReceipt build(TransactionReceipt receipt, Map<String, ContractEventDefinition> eventDefinitionsBySignature) {
+    public WrapperTransactionReceipt build(TransactionReceipt receipt) {
         String hash = receipt.getTransactionHash();
         List<String> contracts = Collections.singletonList(receipt.getContractAddress());
-        List<WrapperLog> logs =
-                receipt.getLogs().stream().map(log -> {
-                    String signature = log.getTopics().get(0);
-                    if (eventDefinitionsBySignature.containsKey(signature)) {
-                        return logBuilder.build(log, eventDefinitionsBySignature.get(signature));
-                    }
-                    return null;
-                }).filter(Objects::nonNull).collect(Collectors.toList());
+        List<ContractEvent> logs = receipt
+                .getLogs()
+                .stream()
+                .map(log -> logBuilder.build(log))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         return new WrapperTransactionReceipt(
                 hash,
                 contracts,

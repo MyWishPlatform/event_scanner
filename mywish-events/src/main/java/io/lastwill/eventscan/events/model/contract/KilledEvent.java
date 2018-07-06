@@ -8,8 +8,8 @@ import lombok.Getter;
 @Getter
 public class KilledEvent extends ContractEvent {
     private final boolean byUser;
-    public KilledEvent(ContractEventDefinition definition, WrapperTransactionReceipt transactionReceipt, boolean byUser, String address) {
-        super(definition, address, transactionReceipt);
+    public KilledEvent(ContractEventDefinition definition, boolean byUser, String address) {
+        super(definition, address);
         this.byUser = byUser;
     }
 }

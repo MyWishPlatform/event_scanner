@@ -37,6 +37,9 @@ public class WrapperLogWeb3Service {
         String signature = log.getTopics().get(0);
 
         ContractEventBuilder<?> builder = buildersBySignature.get(signature);
+        if (builder == null) {
+            return null;
+        }
         ContractEventDefinition eventDefinition = builder.getDefinition();
 
         List<Object> args = new ArrayList<>();

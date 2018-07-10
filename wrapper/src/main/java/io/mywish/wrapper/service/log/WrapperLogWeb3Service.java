@@ -1,6 +1,7 @@
 package io.mywish.wrapper.service.log;
 
 import io.mywish.wrapper.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.web3j.abi.FunctionReturnDecoder;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class WrapperLogWeb3Service {
     @Autowired
@@ -32,12 +34,13 @@ public class WrapperLogWeb3Service {
         }
     }
 
-    public ContractEvent build(Log log) {
-        String address = log.getAddress();
-        String signature = log.getTopics().get(0);
+    public ContractEvent build(Log logParam) {
+        String address = logParam.getAddress();
+        String signature = logParam.getTopics().get(0);
 
         ContractEventBuilder<?> builder = buildersBySignature.get(signature);
         if (builder == null) {
+            log.warn("There is not builder for ETH event with signature {}.", signature);
             return null;
         }
         ContractEventDefinition eventDefinition = builder.getDefinition();
@@ -47,14 +50,14 @@ public class WrapperLogWeb3Service {
         List<TypeReference<Type>> indexedParameters = eventDefinition.getEvent().getIndexedParameters();
         for (int i = 0; i < indexedParameters.size(); i++) {
             Type type = FunctionReturnDecoder.decodeIndexedValue(
-                    log.getTopics().get(i + 1),
+                    logParam.getTopics().get(i + 1),
                     indexedParameters.get(i)
             );
             args.add(type.getValue());
         }
 
         FunctionReturnDecoder.decode(
-                log.getData(),
+                logParam.getData(),
                 eventDefinition.getEvent().getNonIndexedParameters()
         )
                 .forEach(type -> args.add(type.getValue()));

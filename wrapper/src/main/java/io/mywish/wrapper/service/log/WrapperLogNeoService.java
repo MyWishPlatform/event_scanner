@@ -50,14 +50,11 @@ public class WrapperLogNeoService {
     }
 
     public ContractEvent build(Event event) {
-        String name = ethToNeoNames.get(event.getName());
-        if (name == null) {
-            log.warn("There is no corresponding NEO event for {}.", event.getName());
+        ContractEventBuilder builder = buildersByName.get(event.getName());
+        if (builder == null) {
+            log.warn("There is not builder for NEO event {}.", event.getName());
             return null;
         }
-
-        ContractEventBuilder builder = buildersByName.get(name);
-
         List<Object> args = argsFromBytes(event.getArguments(), builder.getDefinition().getTypes());
 
         return builder.build(event.getContract(), args);

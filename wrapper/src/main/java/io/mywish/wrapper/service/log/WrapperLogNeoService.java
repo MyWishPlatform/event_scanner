@@ -26,11 +26,11 @@ public class WrapperLogNeoService {
     private Map<String, ContractEventBuilder<?>> buildersByName = new HashMap<>();
 
     private final static Map<String, String> ethToNeoNames = new HashMap<String, String>() {{
-        put("transfer", "Transfer");
-        put("mint", "Mint");
-        put("finishMint", "MintFinished");
-        put("init", "Initialized");
-        put("transferOwnership", "OwnershipTransferred");
+        put("Transfer", "transfer");
+        put("Mint", "mint");
+        put("MintFinished", "finishMint");
+        put("Initialized", "init");
+        put("OwnershipTransferred", "transferOwnership");
     }};
 
     @PostConstruct
@@ -45,6 +45,7 @@ public class WrapperLogNeoService {
             if (buildersByName.containsKey(neoName)) {
                 throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with name (" + name + ") " + neoName + " , skip it.");
             }
+            log.info("Added builder {} for NEO event {}.", eventBuilder.getClass().getSimpleName(), neoName);
             buildersByName.put(neoName, eventBuilder);
         }
     }

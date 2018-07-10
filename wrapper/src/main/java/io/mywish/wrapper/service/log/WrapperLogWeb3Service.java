@@ -30,6 +30,7 @@ public class WrapperLogWeb3Service {
             if (buildersBySignature.containsKey(signature)) {
                 throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with signature " + signature);
             }
+            log.info("Added builder {} for event with signature {}.", eventBuilder.getClass().getSimpleName(), signature);
             buildersBySignature.put(signature, eventBuilder);
         }
     }

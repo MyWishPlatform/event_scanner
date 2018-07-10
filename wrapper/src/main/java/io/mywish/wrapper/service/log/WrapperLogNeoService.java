@@ -43,7 +43,14 @@ public class WrapperLogNeoService {
                 continue;
             }
             if (buildersByName.containsKey(neoName)) {
-                throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with name (" + name + ") " + neoName + " , skip it.");
+                ContractEventBuilder duplicateBuilder = buildersByName.get(neoName);
+                if (duplicateBuilder.getClass().equals(eventBuilder.getClass())) {
+                    throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with name (" + name + ") " + neoName + " , skip it.");
+                }
+                else {
+                    log.warn("There two builders with the same name {}: {} and {}. Skip second.", neoName, duplicateBuilder.getClass().getSimpleName(), eventBuilder.getClass().getSimpleName());
+                    continue;
+                }
             }
             log.info("Added builder {} for NEO event {}.", eventBuilder.getClass().getSimpleName(), neoName);
             buildersByName.put(neoName, eventBuilder);

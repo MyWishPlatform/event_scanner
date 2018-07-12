@@ -7,9 +7,11 @@ import io.lastwill.eventscan.events.model.contract.crowdsale.TimesChangedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressAddedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressRemovedEvent;
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
+import io.lastwill.eventscan.events.model.contract.investmentPool.*;
 import io.lastwill.eventscan.messages.*;
 import io.lastwill.eventscan.model.AirdropEntry;
 import io.lastwill.eventscan.model.ProductAirdrop;
+import io.lastwill.eventscan.model.ProductInvestmentPool;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.BalanceProvider;
 import io.lastwill.eventscan.services.ExternalNotifier;
@@ -108,6 +110,54 @@ public class ContractEventHandler {
                                 log.error("Updating balance for contract {} failed.", event.getContract().getId(), e);
                             }
                         });
+            }
+            else if (contractEvent instanceof InvestEvent && event.getContract().getProduct() instanceof ProductInvestmentPool) {
+                externalNotifier.send(event.getNetworkType(),
+                        new ExFundsAddedNotify(
+                                event.getContract().getId(),
+                                event.getTransaction().getHash(),
+                                ((InvestEvent) contractEvent).getAmount(),
+                                BigInteger.ZERO,
+                                ((InvestEvent) contractEvent).getInvestorAddress()
+                        )
+                );
+
+            }
+            else if (contractEvent instanceof WithdrawTokensEvent && event.getContract().getProduct() instanceof ProductInvestmentPool) {
+                externalNotifier.send(event.getNetworkType(),
+                        new TokensSentNotify(
+                                event.getContract().getId(),
+                                event.getTransaction().getHash(),
+                                ((WithdrawTokensEvent) contractEvent).getInvestorAddress(),
+                                ((WithdrawTokensEvent) contractEvent).getAmount()
+                        ));
+            }
+            else if (contractEvent instanceof WithdrawRewardEvent && event.getContract().getProduct() instanceof ProductInvestmentPool) {
+                externalNotifier.send(event.getNetworkType(),
+                        new TokensSentNotify(
+                                event.getContract().getId(),
+                                event.getTransaction().getHash(),
+                                ((WithdrawRewardEvent) contractEvent).getAdminAddress(),
+                                ((WithdrawRewardEvent) contractEvent).getAmount()
+                        ));
+            }
+            else if (contractEvent instanceof SetInvestmentAddressEvent && event.getContract().getProduct() instanceof ProductInvestmentPool) {
+                externalNotifier.send(event.getNetworkType(),
+                        new InvestmentPoolSetupNotify(
+                                event.getContract().getId(),
+                                event.getTransaction().getHash(),
+                                ((SetInvestmentAddressEvent) contractEvent).getInvestmentAddress(),
+                                null
+                        ));
+            }
+            else if (contractEvent instanceof SetTokenAddressEvent && event.getContract().getProduct() instanceof ProductInvestmentPool) {
+                externalNotifier.send(event.getNetworkType(),
+                        new InvestmentPoolSetupNotify(
+                                event.getContract().getId(),
+                                event.getTransaction().getHash(),
+                                null,
+                                ((SetTokenAddressEvent) contractEvent).getTokenAddress()
+                        ));
             }
             else if (contractEvent instanceof InitializedEvent) {
                 externalNotifier.send(event.getNetworkType(),

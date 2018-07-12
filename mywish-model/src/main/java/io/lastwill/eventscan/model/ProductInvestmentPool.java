@@ -11,8 +11,8 @@ import java.math.BigInteger;
 @DiscriminatorValue("9")
 public class ProductInvestmentPool extends Product {
     @Getter
-    @Column(name = "user_address")
-    private String userAddress;
+    @Column(name = "admin_address")
+    private String adminAddress;
 
     @Getter
     @Column(name = "token_address")

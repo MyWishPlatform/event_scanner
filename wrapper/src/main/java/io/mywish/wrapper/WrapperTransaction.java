@@ -25,4 +25,12 @@ public class WrapperTransaction {
         this.outputs = outputs;
         this.contractCreation = contractCreation;
     }
+
+    public boolean isSingleOutput() {
+        return outputs.size() == 1;
+    }
+
+    public String getSingleOutputAddress() {
+        return outputs.get(0).getAddress();
+    }
 }

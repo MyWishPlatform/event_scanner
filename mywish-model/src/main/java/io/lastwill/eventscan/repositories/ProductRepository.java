@@ -41,4 +41,12 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
             @Param("addresses") Collection<String> btcAddresses,
             @Param("network") NetworkType networkType
     );
+
+    @Query("select c from ProductInvestmentPool c " +
+            "where c.network.type = :network " +
+            "and c.tokenAddress in :addresses ")
+    List<ProductInvestmentPool> findIPoolByTokenAddress(
+            @Param("addresses") Collection<String> addresses,
+            @Param("network") NetworkType networkType
+    );
 }

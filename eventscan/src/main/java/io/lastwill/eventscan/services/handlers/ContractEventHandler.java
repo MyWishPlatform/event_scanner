@@ -109,18 +109,33 @@ public class ContractEventHandler {
                             catch (Throwable e) {
                                 log.error("Updating balance for contract {} failed.", event.getContract().getId(), e);
                             }
+                        })
+                        .exceptionally(throwable -> {
+                            log.error("Getting balance for handling FundsAddedEvent failed.", throwable);
+                            return null;
                         });
             }
             else if (contractEvent instanceof InvestEvent && event.getContract().getProduct() instanceof ProductInvestmentPool) {
-                externalNotifier.send(event.getNetworkType(),
-                        new ExFundsAddedNotify(
-                                event.getContract().getId(),
-                                event.getTransaction().getHash(),
-                                ((InvestEvent) contractEvent).getAmount(),
-                                BigInteger.ZERO,
-                                ((InvestEvent) contractEvent).getInvestorAddress()
-                        )
-                );
+                balanceProvider.getBalanceAsync(
+                        event.getNetworkType(),
+                        event.getContract().getAddress(),
+                        event.getBlock().getNumber()
+                )
+                        .thenAccept(balance -> externalNotifier.send(event.getNetworkType(),
+                                new ExFundsAddedNotify(
+                                        event.getContract().getId(),
+                                        event.getTransaction().getHash(),
+                                        ((InvestEvent) contractEvent).getAmount(),
+                                        balance,
+                                        ((InvestEvent) contractEvent).getInvestorAddress()
+                                )
+                        ))
+                        .exceptionally(throwable -> {
+                            log.error("Getting balance for handling InvestEvent failed.", throwable);
+                            return null;
+                        });
+
+
 
             }
             else if (contractEvent instanceof WithdrawTokensEvent && event.getContract().getProduct() instanceof ProductInvestmentPool) {

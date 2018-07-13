@@ -3,6 +3,7 @@ package io.lastwill.eventscan.services.monitors;
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.messages.TokensAddedNotify;
 import io.lastwill.eventscan.model.Contract;
+import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.ProductInvestmentPool;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.repositories.ProductRepository;
@@ -36,6 +37,13 @@ public class InvestmentPoolMonitor {
 
     @EventListener
     protected void onNewBlock(NewBlockEvent event) {
+        if (event.getTransactionsByAddress().isEmpty()) {
+            return;
+        }
+        if (event.getNetworkType() != NetworkType.ETHEREUM_MAINNET
+                && event.getNetworkType() != NetworkType.ETHEREUM_ROPSTEN) {
+            return;
+        }
         List<ProductInvestmentPool> products = productRepository.findIPoolByTokenAddress(
                 event.getTransactionsByAddress().keySet(),
                 event.getNetworkType()

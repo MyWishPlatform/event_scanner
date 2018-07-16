@@ -1,5 +1,6 @@
 package io.mywish.wrapper.helpers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.*;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +10,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Component
 public class BtcBlockParser {
     private final static long LONG_MASK = 0xffffffffL;
@@ -47,8 +49,13 @@ public class BtcBlockParser {
             throw new ArrayIndexOutOfBoundsException("Transactions count is too big: " + txCount + " > " + MAX_TRANSACTIONS_COUNT);
         }
         List<Transaction> result = new ArrayList<>((int) txCount);
-        for (int i = 0; i < txCount; i ++) {
-            result.add(readTransaction(parameters, buffer, i == 0));
+        for (int i = 0; i < txCount; i++) {
+            try {
+                result.add(readTransaction(parameters, buffer, i == 0));
+            }
+            catch (Exception e) {
+                log.warn("Error on parsing tx #{}. Skip it.", i, e);
+            }
         }
         return result;
     }

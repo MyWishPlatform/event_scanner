@@ -15,7 +15,7 @@ import java.util.List;
 public class BtcBlockParser {
     private final static long LONG_MASK = 0xffffffffL;
     private final static long MAX_TRANSACTIONS_COUNT = 0x7fff;
-    private final static long MAX_SCRIPT_SIZE = 10000;
+    private final static long MAX_SCRIPT_SIZE = 11000;
     private final static long MAX_COINBASE_SCRIPT_SIZE = 100;
 
     public Block parse(NetworkParameters parameters, String hex) {
@@ -50,12 +50,7 @@ public class BtcBlockParser {
         }
         List<Transaction> result = new ArrayList<>((int) txCount);
         for (int i = 0; i < txCount; i++) {
-            try {
-                result.add(readTransaction(parameters, buffer, i == 0));
-            }
-            catch (Exception e) {
-                log.warn("Error on parsing tx #{}. Skip it.", i, e);
-            }
+            result.add(readTransaction(parameters, buffer, i == 0));
         }
         return result;
     }

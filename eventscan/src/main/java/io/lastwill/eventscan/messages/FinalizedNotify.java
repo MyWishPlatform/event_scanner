@@ -5,6 +5,10 @@ public class FinalizedNotify extends NotifyContract {
         super(contractId, PaymentStatus.COMMITTED, txHash);
     }
 
+    public FinalizedNotify(int contractId, PaymentStatus status, String txHash) {
+        super(contractId, status, txHash);
+    }
+
     @Override
     public String getType() {
         return "finalized";

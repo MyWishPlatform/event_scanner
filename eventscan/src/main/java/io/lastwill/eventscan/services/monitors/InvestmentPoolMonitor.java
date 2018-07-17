@@ -1,6 +1,9 @@
 package io.lastwill.eventscan.services.monitors;
 
+import io.lastwill.eventscan.events.model.ContractTransactionFailedEvent;
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
+import io.lastwill.eventscan.messages.FinalizedNotify;
+import io.lastwill.eventscan.messages.PaymentStatus;
 import io.lastwill.eventscan.messages.TokensAddedNotify;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.NetworkType;
@@ -10,19 +13,22 @@ import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.wrapper.WrapperOutput;
 import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.wrapper.WrapperTransactionReceipt;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 @Slf4j
 @Component
 public class InvestmentPoolMonitor {
+    private static final int FINALIZE_METHOD_ID = 0x4bb278f3;
     @Autowired
     private ProductRepository productRepository;
 
@@ -104,5 +110,36 @@ public class InvestmentPoolMonitor {
 
             }
         }
+    }
+
+    @EventListener
+    protected void handleContractFailed(ContractTransactionFailedEvent event) {
+        if (!(event.getContract().getProduct() instanceof ProductInvestmentPool)) {
+            return;
+        }
+        event.getTransaction()
+                .getOutputs()
+                .stream()
+                .filter(wrapperOutput -> wrapperOutput.getAddress().equalsIgnoreCase(event.getContract().getAddress()))
+                .filter(InvestmentPoolMonitor::isFinalizeMethod)
+                .forEach(wrapperOutput -> {
+                    externalNotifier.send(
+                            event.getNetworkType(),
+                            new FinalizedNotify(
+                                    event.getContract().getId(),
+                                    PaymentStatus.REJECTED,
+                                    event.getTransaction().getHash()
+                            )
+                    );
+                });
+    }
+
+    private static boolean isFinalizeMethod(WrapperOutput wrapperOutput) {
+        if (wrapperOutput.getRawOutputScript().length < 4) {
+            return false;
+        }
+        ByteBuffer buffer = ByteBuffer.wrap(wrapperOutput.getRawOutputScript());
+        int methodId = buffer.getInt();
+        return FINALIZE_METHOD_ID == methodId;
     }
 }

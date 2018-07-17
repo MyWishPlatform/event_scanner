@@ -220,6 +220,16 @@ public class ContractEventHandler {
                         )
                 );
             }
+            else if (contractEvent instanceof CancelledEvent) {
+                externalNotifier.send(
+                        event.getNetworkType(),
+                        new CancelledNotify(
+                                event.getContract().getId(),
+                                PaymentStatus.COMMITTED,
+                                event.getTransaction().getHash()
+                        )
+                );
+            }
         }
     }
 }

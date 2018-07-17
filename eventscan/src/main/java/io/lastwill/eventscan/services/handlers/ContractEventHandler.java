@@ -66,6 +66,12 @@ public class ContractEventHandler {
             return;
         }
         for (ContractEvent contractEvent : event.getEvents()) {
+            // skip event if event.address != contract.address (it might be when internal transaction occurs)
+            if (!contractEvent.getAddress().equalsIgnoreCase(event.getContract().getAddress())) {
+                log.warn("There is skipped internal transaction event to address {} with name {}.", contractEvent.getAddress(), contractEvent.getName());
+                continue;
+            }
+
             if (contractEvent instanceof CheckedEvent) {
                 externalNotifier.send(event.getNetworkType(),
                         new CheckedNotify(event.getContract().getId(), event.getTransaction().getHash()));

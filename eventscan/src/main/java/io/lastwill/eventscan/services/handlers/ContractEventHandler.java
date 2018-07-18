@@ -236,6 +236,17 @@ public class ContractEventHandler {
                         )
                 );
             }
+            else if (contractEvent instanceof ClaimRefundEvent) {
+                externalNotifier.send(
+                        event.getNetworkType(),
+                        new RefundNotify(
+                                event.getContract().getId(),
+                                PaymentStatus.COMMITTED,
+                                event.getTransaction().getHash(),
+                                ((ClaimRefundEvent) contractEvent).getAmount()
+                        )
+                );
+            }
         }
     }
 }

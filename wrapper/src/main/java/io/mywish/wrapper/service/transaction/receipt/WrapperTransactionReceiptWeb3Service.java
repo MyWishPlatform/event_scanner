@@ -4,8 +4,10 @@ import io.mywish.wrapper.ContractEvent;
 import io.mywish.wrapper.ContractEventDefinition;
 import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.wrapper.service.log.WrapperLogWeb3Service;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.utils.Numeric;
 
@@ -16,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class WrapperTransactionReceiptWeb3Service {
     @Autowired
@@ -38,7 +41,7 @@ public class WrapperTransactionReceiptWeb3Service {
         List<ContractEvent> logs = receipt
                 .getLogs()
                 .stream()
-                .map(log -> logBuilder.build(log))
+                .map(this::buildEvent)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         return new WrapperTransactionReceipt(
@@ -47,5 +50,15 @@ public class WrapperTransactionReceiptWeb3Service {
                 logs,
                 isSuccess(receipt)
         );
+    }
+
+    private ContractEvent buildEvent(Log eventLog) {
+        try {
+            return logBuilder.build(eventLog);
+        }
+        catch (Exception e) {
+            log.warn("Impossible to build event from log with signature {}, tx {}.", eventLog.getTopics().get(0), eventLog.getTransactionHash(), e);
+            return null;
+        }
     }
 }

@@ -7,10 +7,10 @@ import lombok.Getter;
 import java.math.BigInteger;
 
 @Getter
-public class TransferEvent extends io.lastwill.eventscan.events.model.contract.erc20.TransferEvent {
+public class Erc223TransferEvent extends io.lastwill.eventscan.events.model.contract.erc20.TransferEvent {
     private final byte[] data;
 
-    public TransferEvent(ContractEventDefinition definition, String from, String to, BigInteger tokens, byte[] data, String address) {
+    public Erc223TransferEvent(ContractEventDefinition definition, String from, String to, BigInteger tokens, byte[] data, String address) {
         super(definition, from, to, tokens, address);
         this.data = data;
     }

@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.events.builders.erc223;
 
-import io.lastwill.eventscan.events.model.contract.erc223.TransferEvent;
+import io.lastwill.eventscan.events.model.contract.erc223.Erc223TransferEvent;
 import io.mywish.wrapper.ContractEventBuilder;
 import io.mywish.wrapper.ContractEventDefinition;
 import io.mywish.wrapper.WrapperType;
@@ -16,7 +16,7 @@ import java.util.List;
 
 @Component
 @Getter
-public class TransferERC223EventBuilder extends ContractEventBuilder<TransferEvent> {
+public class TransferERC223EventBuilder extends ContractEventBuilder<Erc223TransferEvent> {
     private final ContractEventDefinition definition = new ContractEventDefinition(
             "Transfer",
             Arrays.asList(
@@ -28,8 +28,8 @@ public class TransferERC223EventBuilder extends ContractEventBuilder<TransferEve
     );
 
     @Override
-    public TransferEvent build(String address, List<Object> values) {
-        return new TransferEvent(
+    public Erc223TransferEvent build(String address, List<Object> values) {
+        return new Erc223TransferEvent(
                 definition,
                 (String) values.get(0),
                 (String) values.get(1),

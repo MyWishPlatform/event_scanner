@@ -16,7 +16,7 @@ public class BtcBlockParser {
     private final static long LONG_MASK = 0xffffffffL;
     private final static long MAX_TRANSACTIONS_COUNT = 0x7fff;
     // must be less than 2^31
-    private final static long MAX_SCRIPT_SIZE = 11000;
+    private final static long MAX_SCRIPT_SIZE = 10000;
     private final static long MAX_COINBASE_SCRIPT_SIZE = 100;
 
     public Block parse(NetworkParameters parameters, String hex) {

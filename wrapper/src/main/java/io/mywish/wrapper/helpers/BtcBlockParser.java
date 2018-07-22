@@ -162,7 +162,6 @@ public class BtcBlockParser {
         long value = buffer.getLong();
         long scriptSize = readVarInt(buffer);
         if (scriptSize > MAX_SCRIPT_SIZE) {
-            buffer.position(buffer.position() + (int) scriptSize);
             log.warn("Output script size is too big: {} > {}.", scriptSize, MAX_SCRIPT_SIZE);
             buffer.position(buffer.position() + (int) scriptSize);
             return null;

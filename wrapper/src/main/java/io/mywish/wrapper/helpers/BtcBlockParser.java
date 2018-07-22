@@ -15,6 +15,7 @@ import java.util.List;
 public class BtcBlockParser {
     private final static long LONG_MASK = 0xffffffffL;
     private final static long MAX_TRANSACTIONS_COUNT = 0x7fff;
+    // must be less than 2^31
     private final static long MAX_SCRIPT_SIZE = 11000;
     private final static long MAX_COINBASE_SCRIPT_SIZE = 100;
 
@@ -50,7 +51,12 @@ public class BtcBlockParser {
         }
         List<Transaction> result = new ArrayList<>((int) txCount);
         for (int i = 0; i < txCount; i++) {
-            result.add(readTransaction(parameters, buffer, i == 0));
+            Transaction transaction = readTransaction(parameters, buffer, i == 0);
+            if (transaction == null) {
+                log.warn("Skip transaction {}.", i);
+                continue;
+            }
+            result.add(transaction);
         }
         return result;
     }
@@ -58,17 +64,25 @@ public class BtcBlockParser {
     private static TransactionInput readInput(NetworkParameters parameters, ByteBuffer buffer, boolean isCoinbase) {
         TransactionOutPoint outPoint = readOutPoint(parameters, buffer);
         long scriptSize = readVarInt(buffer);
+        boolean skipScript = false;
         if (scriptSize > MAX_SCRIPT_SIZE) {
-            throw new ArrayIndexOutOfBoundsException("Script size is too big: " + scriptSize + " > " + MAX_SCRIPT_SIZE);
+            log.warn("Script size is too big: {} > {}.", scriptSize, MAX_SCRIPT_SIZE);
+            skipScript = true;
+//            throw new ArrayIndexOutOfBoundsException("Script size is too big: " + scriptSize + " > " + MAX_SCRIPT_SIZE);
         }
-        byte[] scriptBytes = new byte[(int) scriptSize];
-        buffer.get(scriptBytes);
+        byte[] scriptBytes = new byte[skipScript ? 0 : (int) scriptSize];
+        if (skipScript) {
+            buffer.position(buffer.position() + (int) scriptSize);
+        }
+        else {
+            buffer.get(scriptBytes);
+        }
         long sequence = buffer.getInt() & LONG_MASK;
         TransactionInput input = isCoinbase
                 ? new TransactionInput(parameters, null, scriptBytes)
                 : new TransactionInput(parameters, null, scriptBytes, outPoint);
         input.setSequenceNumber(sequence);
-        return input;
+        return skipScript ? null : input;
     }
 
 
@@ -87,8 +101,13 @@ public class BtcBlockParser {
             throw new ArrayIndexOutOfBoundsException("Inputs count is too big: " + inCount + " > " + MAX_TRANSACTIONS_COUNT);
         }
 
+        boolean skipTransaction = false;
         for (int i = 0; i < inCount; i ++) {
             TransactionInput transactionInput = readInput(parameters, buffer, isCoinbase && i == 0);
+            if (transactionInput == null) {
+                skipTransaction = true;
+                continue;
+            }
             transaction.addInput(transactionInput);
         }
 
@@ -99,6 +118,10 @@ public class BtcBlockParser {
 
         for (int i = 0; i < outCount; i ++) {
             TransactionOutput transactionOutput = readOutput(parameters, buffer);
+            if (transactionOutput == null) {
+                skipTransaction = true;
+                continue;
+            }
             transaction.addOutput(transactionOutput);
         }
 
@@ -111,7 +134,7 @@ public class BtcBlockParser {
         long lockTime = buffer.getInt() & LONG_MASK;
         transaction.setLockTime(lockTime);
 
-        return transaction;
+        return skipTransaction ? null : transaction;
     }
 
     private static byte[][] readWitnesses(NetworkParameters parameters, ByteBuffer buffer) {
@@ -123,7 +146,10 @@ public class BtcBlockParser {
         for (int i = 0; i < witnessesCount; i ++) {
             long witnessSize = readVarInt(buffer);
             if (witnessSize > MAX_SCRIPT_SIZE) {
-                throw new ArrayIndexOutOfBoundsException("Witness size is too big: " + witnessSize + " > " + MAX_SCRIPT_SIZE);
+                log.warn("Witness size is too big: {} > {}.", witnessSize, MAX_SCRIPT_SIZE);
+                buffer.position(buffer.position() + (int) witnessSize);
+                continue;
+//                throw new ArrayIndexOutOfBoundsException("Witness size is too big: " + witnessSize + " > " + MAX_SCRIPT_SIZE);
             }
             witnessesData[i] = new byte[(int) witnessSize];
             buffer.get(witnessesData[i]);
@@ -136,7 +162,11 @@ public class BtcBlockParser {
         long value = buffer.getLong();
         long scriptSize = readVarInt(buffer);
         if (scriptSize > MAX_SCRIPT_SIZE) {
-            throw new ArrayIndexOutOfBoundsException("Script size is too big: " + scriptSize + " > " + MAX_SCRIPT_SIZE);
+            buffer.position(buffer.position() + (int) scriptSize);
+            log.warn("Output script size is too big: {} > {}.", scriptSize, MAX_SCRIPT_SIZE);
+            buffer.position(buffer.position() + (int) scriptSize);
+            return null;
+//            throw new ArrayIndexOutOfBoundsException("Script size is too big: " + scriptSize + " > " + MAX_SCRIPT_SIZE);
         }
         byte[] scriptBytes = new byte[(int) scriptSize];
         buffer.get(scriptBytes);

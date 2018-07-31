@@ -57,11 +57,6 @@ public class BtcNetwork extends WrapperNetwork {
     }
 
     @Override
-    public WrapperTransaction getTransaction(String hash) {
-        throw new UnsupportedOperationException("Method not supported");
-    }
-
-    @Override
     public BigInteger getBalance(String address, Long blockNo) {
         throw new UnsupportedOperationException("Method not supported");
     }

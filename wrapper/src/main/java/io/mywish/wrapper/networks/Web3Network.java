@@ -81,11 +81,6 @@ public class Web3Network extends WrapperNetwork {
     }
 
     @Override
-    public WrapperTransaction getTransaction(String hash) throws Exception {
-        return transactionBuilder.build(web3j.ethGetTransactionByHash(hash).send().getTransaction().get());
-    }
-
-    @Override
     public BigInteger getBalance(String address, Long blockNo) throws Exception {
         return web3j
                 .ethGetBalance(address, new DefaultBlockParameterNumber(blockNo))

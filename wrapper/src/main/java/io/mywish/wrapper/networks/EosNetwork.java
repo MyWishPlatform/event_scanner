@@ -2,6 +2,7 @@ package io.mywish.wrapper.networks;
 
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.eoscli4j.EosClient;
+import io.mywish.eoscli4j.model.Transaction;
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperNetwork;
 import io.mywish.wrapper.WrapperTransaction;
@@ -9,6 +10,7 @@ import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.wrapper.service.block.WrapperBlockEosService;
 import io.mywish.wrapper.service.transaction.WrapperTransactionEosService;
 import io.mywish.wrapper.service.transaction.receipt.WrapperTransactionReceiptEosService;
+import io.mywish.wrapper.transaction.WrapperTransactionEos;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigInteger;
@@ -53,7 +55,7 @@ public class EosNetwork extends WrapperNetwork {
 
     @Override
     public WrapperTransactionReceipt getTxReceipt(WrapperTransaction transaction) throws Exception {
-        return transactionReceiptBuilder
+        return transactionReceiptBuilder.build(((WrapperTransactionEos)transaction).getNativeTransaction());
     }
 
     @Override

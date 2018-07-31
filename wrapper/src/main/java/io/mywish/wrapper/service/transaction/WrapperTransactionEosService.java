@@ -4,6 +4,7 @@ import io.mywish.eoscli4j.model.Transaction;
 import io.mywish.wrapper.WrapperOutput;
 import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.wrapper.service.WrapperTransactionService;
+import io.mywish.wrapper.transaction.WrapperTransactionEos;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -17,6 +18,6 @@ public class WrapperTransactionEosService implements WrapperTransactionService<T
         List<String> inputs = Collections.emptyList();
         List<WrapperOutput> outputs = Collections.emptyList();
         Boolean contractCreation = false; // TODO: implement
-        return new WrapperTransaction(hash, inputs, outputs, contractCreation);
+        return new WrapperTransactionEos(hash, inputs, outputs, contractCreation, transaction);
     }
 }

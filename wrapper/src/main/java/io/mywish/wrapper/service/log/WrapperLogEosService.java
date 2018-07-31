@@ -1,9 +1,9 @@
 package io.mywish.wrapper.service.log;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.mywish.eoscli4j.model.TransactionAction;
 import io.mywish.wrapper.ContractEvent;
 import io.mywish.wrapper.ContractEventBuilder;
-import io.mywish.wrapper.ContractEventDefinition;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,6 +34,7 @@ public class WrapperLogEosService {
         }
     }
 
+    // TODO: extend functional
     public ContractEvent build(TransactionAction action) {
         String name = action.getName();
         ContractEventBuilder<?> builder = buildersByName.get(name);
@@ -41,6 +42,15 @@ public class WrapperLogEosService {
             log.warn("There is not builder for EOS event with name {}.", name);
             return null;
         }
-        ContractEventDefinition eventDefinition = builder.getDefinition();
+        // implying that we are constructing 'create' event
+        if (!"create".equals(name)) return null;
+        List<Object> args = new ArrayList<>();
+        JsonNode node = action.getData();
+        String issuer = node.get("issuer").asText();
+        String supply = node.get("maximum_supply").asText();
+        System.out.println(issuer + ": " + supply);
+        args.add(issuer);
+        args.add(supply);
+        return builder.build(action.getAccount(), args);
     }
 }

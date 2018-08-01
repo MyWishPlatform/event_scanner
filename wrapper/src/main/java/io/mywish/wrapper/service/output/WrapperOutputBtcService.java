@@ -27,13 +27,22 @@ public class WrapperOutputBtcService {
             log.debug("Skip output with not appropriate script {}.", script);
             return null;
         }
+        String address;
+        try {
+            address = output
+                    .getScriptPubKey()
+                    .getToAddress(networkParameters, true)
+                    .toBase58();
+
+        }
+        catch (Exception e) {
+            log.error("Impossible to convert script {} to address.", output.getScriptPubKey(), e);
+            address = "";
+        }
         return new WrapperOutput(
                 transaction.getHashAsString(),
                 output.getIndex(),
-                output
-                        .getScriptPubKey()
-                        .getToAddress(networkParameters, true)
-                        .toBase58(),
+                address,
                 BigInteger.valueOf(output.getValue().getValue()),
                 output.getScriptBytes()
         );

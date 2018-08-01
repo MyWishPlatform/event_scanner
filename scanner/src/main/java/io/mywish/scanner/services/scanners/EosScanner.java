@@ -14,6 +14,7 @@ public class EosScanner extends Scanner {
     private final Runnable blockReceiver = () -> {
         try {
             ((EosNetwork) network).subscribe(network.getLastBlock(), block -> {
+                lastBlockPersister.saveLastBlock(block.getNumber());
                 processBlock(block);
             });
         } catch (Exception e) {
@@ -28,7 +29,7 @@ public class EosScanner extends Scanner {
 
     @Override
     protected void processBlock(WrapperBlock block) {
-
+        System.out.println(block.getNumber());
     }
 
     @PostConstruct

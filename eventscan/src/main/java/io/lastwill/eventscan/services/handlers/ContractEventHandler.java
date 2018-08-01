@@ -73,7 +73,15 @@ public class ContractEventHandler {
                 continue;
             }
 
-            if (contractEvent instanceof CheckedEvent) {
+            if (contractEvent instanceof CreateEvent) {
+                CreateEvent createEvent = (CreateEvent)contractEvent;
+                externalNotifier.send(event.getNetworkType(),
+                        new CreateNotify(event.getContract().getId(),
+                                event.getTransaction().getHash(),
+                                createEvent.getIssuer(),
+                                createEvent.getSupply()));
+            }
+            else if (contractEvent instanceof CheckedEvent) {
                 externalNotifier.send(event.getNetworkType(),
                         new CheckedNotify(event.getContract().getId(), event.getTransaction().getHash()));
             }

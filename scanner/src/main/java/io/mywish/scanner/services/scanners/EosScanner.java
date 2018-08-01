@@ -1,13 +1,18 @@
 package io.mywish.scanner.services.scanners;
 
+import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.LastBlockPersister;
 import io.mywish.scanner.services.Scanner;
 import io.mywish.wrapper.WrapperBlock;
+import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.wrapper.networks.EosNetwork;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.util.HashMap;
 
 @Slf4j
 public class EosScanner extends Scanner {
@@ -18,7 +23,8 @@ public class EosScanner extends Scanner {
                 processBlock(block);
             });
         } catch (Exception e) {
-
+            // TODO: exception handling
+            e.printStackTrace();
         }
     };
 
@@ -29,6 +35,8 @@ public class EosScanner extends Scanner {
 
     @Override
     protected void processBlock(WrapperBlock block) {
+        MultiValueMap<String, WrapperTransaction> addressTransactions = CollectionUtils.toMultiValueMap(new HashMap<>());
+        eventPublisher.publish(new NewBlockEvent(network.getType(), block, addressTransactions));
         System.out.println(block.getNumber());
     }
 

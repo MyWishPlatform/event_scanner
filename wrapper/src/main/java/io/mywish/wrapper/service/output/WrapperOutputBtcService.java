@@ -37,7 +37,7 @@ public class WrapperOutputBtcService {
         }
         catch (Exception e) {
             log.error("Impossible to convert script {} to address.", output.getScriptPubKey(), e);
-            address = "";
+            return null;
         }
         return new WrapperOutput(
                 transaction.getHashAsString(),

@@ -32,7 +32,7 @@ public class CreateEventBuilder extends ContractEventBuilder<CreateEvent> {
     }
 
     private final static ContractEventDefinition DEFINITION = new ContractEventDefinition(
-            "OwnershipTransferred",
+            "Create",
             Arrays.asList(
                     WrapperType.create(TypeString.class, true),
                     WrapperType.create(TypeString.class, true)

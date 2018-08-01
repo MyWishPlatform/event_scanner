@@ -20,29 +20,28 @@ public class WrapperLogEosService {
     @Autowired
     private List<ContractEventBuilder<?>> builders = new ArrayList<>();
 
-    private final Map<String, ContractEventBuilder<?>> buildersByName = new HashMap<>();
+    // only create now
+    private ContractEventBuilder createEventBuilder;
 
     @PostConstruct
     protected void init() throws Exception {
         for (ContractEventBuilder<?> eventBuilder : builders) {
-            String name = eventBuilder.getDefinition().getName();
-            if (buildersByName.containsKey(name)) {
-                throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with name " + name);
+            if ("Create".equals(eventBuilder.getDefinition().getName())) {
+                createEventBuilder = eventBuilder;
+                break;
             }
-            log.info("Added builder {} for event with name {}.", eventBuilder.getClass().getSimpleName(), name);
-            buildersByName.put(name, eventBuilder);
         }
     }
 
     // TODO: extend functional
     public ContractEvent build(TransactionAction action) {
         String name = action.getName();
-        ContractEventBuilder<?> builder = buildersByName.get(name);
+/*        ContractEventBuilder<?> builder = buildersByName.get(name);
         if (builder == null) {
             log.warn("There is not builder for EOS event with name {}.", name);
             return null;
-        }
-        // implying that we are constructing 'create' event
+        }*/
+        // only create now
         if (!"create".equals(name)) return null;
         List<Object> args = new ArrayList<>();
         JsonNode node = action.getData();
@@ -51,6 +50,6 @@ public class WrapperLogEosService {
         System.out.println(issuer + ": " + supply);
         args.add(issuer);
         args.add(supply);
-        return builder.build(action.getAccount(), args);
+        return createEventBuilder.build(action.getAccount(), args);
     }
 }

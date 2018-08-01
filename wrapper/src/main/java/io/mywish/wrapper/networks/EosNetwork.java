@@ -67,4 +67,14 @@ public class EosNetwork extends WrapperNetwork {
     public List<WrapperTransaction> fetchPendingTransactions() throws Exception {
         throw new Exception("Method not supported");
     }
+
+    public interface EosBlockCallback {
+        void callback(WrapperBlock block);
+    }
+
+    public void subscribe(Long lastBlock, EosBlockCallback callback) throws Exception {
+        this.eosClient.subscribe(lastBlock, eosBlock -> {
+            callback.callback(blockBuilder.build(eosBlock));
+        });
+    }
 }

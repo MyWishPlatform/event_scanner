@@ -2,6 +2,8 @@ package io.mywish.eoscli4j;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mywish.eoscli4j.model.request.BalanceRequest;
 import io.mywish.eoscli4j.model.request.BlockRequest;
 import io.mywish.eoscli4j.model.request.Request;
@@ -60,20 +62,26 @@ public class EosClientImpl implements EosClient {
         );
     }
 
+    private BlockResponse parseBlock(JsonNode blockNode) throws Exception {
+        ObjectNode node = (ObjectNode)blockNode;
+        ArrayNode transactions = objectMapper.createArrayNode();
+        blockNode.get("transactions").forEach(txNode -> {
+            if (!txNode.get("trx").isTextual()) {
+                transactions.add(txNode);
+            }
+        });
+        node.set("transactions", transactions);
+        return objectMapper.treeToValue(node, BlockResponse.class);
+    }
+
     @Override
     public BlockResponse getBlock(String hash) throws Exception {
-        return objectMapper.treeToValue(
-                doRequest("/v1/chain/get_block", new BlockRequest(hash)),
-                BlockResponse.class
-        );
+        return parseBlock(doRequest("/v1/chain/get_block", new BlockRequest(hash)));
     }
 
     @Override
     public BlockResponse getBlock(Long number) throws Exception {
-        return objectMapper.treeToValue(
-                doRequest("/v1/chain/get_block", new BlockRequest(number)),
-                BlockResponse.class
-        );
+        return parseBlock(doRequest("/v1/chain/get_block", new BlockRequest(number)));
     }
 
     @Override
@@ -89,7 +97,7 @@ public class EosClientImpl implements EosClient {
         while (true) {
             int length = this.tcpClient.readInt();
             String blockJSON = this.tcpClient.readString(length);
-            BlockResponse block = objectMapper.readValue(blockJSON, BlockResponse.class);
+            BlockResponse block = parseBlock(objectMapper.readTree(blockJSON));
             callback.callback(block);
         }
     }

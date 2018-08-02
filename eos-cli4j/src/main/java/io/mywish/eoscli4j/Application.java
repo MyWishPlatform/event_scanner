@@ -16,7 +16,7 @@ public class Application {
             HttpClient httpClient = HttpClients.createDefault();
             ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             EosClient client = new EosClientImpl("127.0.0.1", 56732, httpClient, new URI("http://127.0.0.1:8887"), mapper);
-            BlockResponse b = client.getBlock(7629915L);
+            BlockResponse b = client.getBlock(7908273L);
             System.out.println(b.getBlockNum());
             System.out.println(b.getId());
             System.out.println(b.getTransactions().size());

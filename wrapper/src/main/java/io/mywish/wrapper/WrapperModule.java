@@ -3,7 +3,7 @@ package io.mywish.wrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neemre.btcdcli4j.core.client.BtcdClientImpl;
 import io.lastwill.eventscan.model.NetworkType;
-import io.mywish.eoscli4j.EosClientImpl;
+import io.mywish.eoscli4j.service.EosClientImpl;
 import io.mywish.neocli4j.NeoClientImpl;
 import io.mywish.wrapper.networks.BtcNetwork;
 import io.mywish.wrapper.networks.EosNetwork;

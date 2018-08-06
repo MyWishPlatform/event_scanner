@@ -14,7 +14,7 @@ import java.util.List;
 public class WrapperTransactionEosService implements WrapperTransactionService<Transaction> {
     @Override
     public WrapperTransaction build(Transaction transaction) {
-        String hash = transaction.getTrx().getId();
+        String hash = transaction.getId();
         List<String> inputs = Collections.emptyList();
         List<WrapperOutput> outputs = Collections.emptyList();
         Boolean contractCreation = false; // TODO: implement

@@ -1,9 +1,11 @@
-package io.mywish.eoscli4j;
+package io.mywish.eoscli4j.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.mywish.eoscli4j.BlockCallback;
+import io.mywish.eoscli4j.EosClient;
 import io.mywish.eoscli4j.model.request.BalanceRequest;
 import io.mywish.eoscli4j.model.request.BlockRequest;
 import io.mywish.eoscli4j.model.request.Request;
@@ -93,7 +95,7 @@ public class EosClientImpl implements EosClient {
 
     @Override
     public void subscribe(long lastBlock, BlockCallback callback) throws Exception {
-        this.tcpClient.write("s" + String.valueOf(lastBlock));
+        this.tcpClient.write("s" + String.valueOf(lastBlock) + "\n");
         while (true) {
             int length = this.tcpClient.readInt();
             String blockJSON = this.tcpClient.readString(length);

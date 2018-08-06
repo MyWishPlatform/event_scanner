@@ -40,7 +40,7 @@ public class EosScanner extends Scanner {
         MultiValueMap<String, WrapperTransaction> addressTransactions = CollectionUtils.toMultiValueMap(new HashMap<>());
         block.getTransactions().forEach(tx -> {
             Transaction eosTx = ((WrapperTransactionEos)tx).getNativeTransaction();
-            eosTx.getTrx().getTransaction().getActions().forEach(action -> {
+            eosTx.getActions().forEach(action -> {
                 addressTransactions.set(action.getAccount(), tx);
             });
         });

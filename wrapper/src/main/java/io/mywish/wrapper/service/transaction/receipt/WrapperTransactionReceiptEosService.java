@@ -1,7 +1,8 @@
 package io.mywish.wrapper.service.transaction.receipt;
 
 import io.mywish.eoscli4j.model.Transaction;
-import io.mywish.eoscli4j.model.TransactionAction;
+import io.mywish.eoscli4j.model.EosAction;
+import io.mywish.eoscli4j.model.TransactionStatus;
 import io.mywish.wrapper.ContractEvent;
 import io.mywish.wrapper.WrapperTransactionReceipt;
 import io.mywish.wrapper.service.log.WrapperLogEosService;
@@ -21,17 +22,15 @@ public class WrapperTransactionReceiptEosService {
     private WrapperLogEosService logBuilder;
 
     public WrapperTransactionReceipt build(Transaction transaction) {
-        String hash = transaction.getTrx().getId();
+        String hash = transaction.getId();
         List<String> contracts = Collections.emptyList();
         List<ContractEvent> logs = transaction
-                .getTrx()
-                .getTransaction()
                 .getActions()
                 .stream()
                 .map(this::buildEvent)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        Boolean success = "executed".equals(transaction.getStatus());
+        Boolean success = transaction.getStatus() == TransactionStatus.Executed;
 
         return new WrapperTransactionReceipt(
                 hash,
@@ -41,7 +40,7 @@ public class WrapperTransactionReceiptEosService {
         );
     }
 
-    private ContractEvent buildEvent(TransactionAction action) {
+    private ContractEvent buildEvent(EosAction action) {
         try {
             return logBuilder.build(action);
         }

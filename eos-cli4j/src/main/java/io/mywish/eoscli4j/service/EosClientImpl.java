@@ -15,6 +15,7 @@ import io.mywish.eoscli4j.model.response.ChainInfoResponse;
 import io.mywish.eoscli4j.model.response.Error;
 import io.mywish.eoscli4j.model.response.Response;
 import io.mywish.eoscli4j.service.TcpClient;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -26,6 +27,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.Charset;
 
+@Slf4j
 public class EosClientImpl implements EosClient {
     private final TcpClient tcpClient;
     private final HttpClient client;
@@ -65,15 +67,15 @@ public class EosClientImpl implements EosClient {
     }
 
     private BlockResponse parseBlock(JsonNode blockNode) throws Exception {
-        ObjectNode node = (ObjectNode)blockNode;
-        ArrayNode transactions = objectMapper.createArrayNode();
-        blockNode.get("transactions").forEach(txNode -> {
-            if (!txNode.get("trx").isTextual()) {
-                transactions.add(txNode);
-            }
-        });
-        node.set("transactions", transactions);
-        return objectMapper.treeToValue(node, BlockResponse.class);
+//        ObjectNode node = (ObjectNode)blockNode;
+//        ArrayNode transactions = objectMapper.createArrayNode();
+//        blockNode.get("transactions").forEach(txNode -> {
+//            if (!txNode.get("trx").isTextual()) {
+//                transactions.add(txNode);
+//            }
+//        });
+//        node.set("transactions", transactions);
+        return objectMapper.treeToValue(blockNode, BlockResponse.class);
     }
 
     @Override
@@ -94,13 +96,25 @@ public class EosClientImpl implements EosClient {
     }
 
     @Override
-    public void subscribe(long lastBlock, BlockCallback callback) throws Exception {
-        this.tcpClient.write("s" + String.valueOf(lastBlock) + "\n");
+    public void subscribe(Long lastBlock, BlockCallback callback) throws Exception {
+        String lastBlockNo = lastBlock == null ? "" : String.valueOf(lastBlock);
+        log.info("Begin subscription from {} block.", lastBlockNo);
+        tcpClient.write("s" + lastBlockNo + "\n");
+
         while (true) {
-            int length = this.tcpClient.readInt();
-            String blockJSON = this.tcpClient.readString(length);
-            BlockResponse block = parseBlock(objectMapper.readTree(blockJSON));
-            callback.callback(block);
+            try {
+                int length = tcpClient.readInt();
+                String blockJSON = tcpClient.readString(length);
+                BlockResponse block = parseBlock(objectMapper.readTree(blockJSON));
+                if (!callback.callback(block)) {
+                    log.info("Subscription terminated by consumer.");
+                    break;
+                }
+                lastBlock = block.getBlockNum();
+            }
+            catch (Exception e) {
+                log.error("Error getting block {}. Get next.", lastBlock, e);
+            }
         }
     }
 }

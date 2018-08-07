@@ -20,13 +20,12 @@ import java.util.HashMap;
 public class EosScanner extends Scanner {
     private final Runnable blockReceiver = () -> {
         try {
-            ((EosNetwork) network).subscribe(network.getLastBlock(), block -> {
+            ((EosNetwork) network).subscribe(lastBlockPersister.getLastBlock(), block -> {
                 lastBlockPersister.saveLastBlock(block.getNumber());
                 processBlock(block);
             });
         } catch (Exception e) {
-            // TODO: exception handling
-            e.printStackTrace();
+            log.error("Error on getting EOS block by subscription.", e);
         }
     };
 
@@ -38,14 +37,19 @@ public class EosScanner extends Scanner {
     @Override
     protected void processBlock(WrapperBlock block) {
         MultiValueMap<String, WrapperTransaction> addressTransactions = CollectionUtils.toMultiValueMap(new HashMap<>());
+
         block.getTransactions().forEach(tx -> {
-            Transaction eosTx = ((WrapperTransactionEos)tx).getNativeTransaction();
-            eosTx.getActions().forEach(action -> {
-                addressTransactions.set(action.getAccount(), tx);
-            });
+            tx.getInputs()
+                    .forEach(address -> {
+                        addressTransactions.set(address, tx);
+                    });
+
+            tx.getOutputs()
+                    .forEach(wrapperOutput -> {
+                        addressTransactions.set(wrapperOutput.getAddress(), tx);
+                    });
         });
         eventPublisher.publish(new NewBlockEvent(network.getType(), block, addressTransactions));
-        System.out.println(block.getNumber());
     }
 
     @PostConstruct

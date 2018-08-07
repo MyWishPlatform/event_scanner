@@ -1,7 +1,5 @@
 package io.mywish.wrapper.service.transaction.receipt;
 
-import io.mywish.eoscli4j.model.Transaction;
-import io.mywish.eoscli4j.model.EosAction;
 import io.mywish.eoscli4j.model.TransactionStatus;
 import io.mywish.wrapper.ContractEvent;
 import io.mywish.wrapper.WrapperTransaction;

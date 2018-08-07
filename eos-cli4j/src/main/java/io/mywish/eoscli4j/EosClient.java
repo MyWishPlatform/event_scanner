@@ -9,5 +9,5 @@ public interface EosClient {
     BlockResponse getBlock(String hash) throws Exception;
     BlockResponse getBlock(Long number) throws Exception;
     BalanceResponse getBalance(String code, String account) throws Exception;
-    void subscribe(long lastBlock, BlockCallback callback) throws Exception;
+    void subscribe(Long lastBlock, BlockCallback callback) throws Exception;
 }

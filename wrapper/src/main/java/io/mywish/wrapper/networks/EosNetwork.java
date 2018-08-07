@@ -11,14 +11,21 @@ import io.mywish.wrapper.service.block.WrapperBlockEosService;
 import io.mywish.wrapper.service.transaction.WrapperTransactionEosService;
 import io.mywish.wrapper.service.transaction.receipt.WrapperTransactionReceiptEosService;
 import io.mywish.wrapper.transaction.WrapperTransactionEos;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 public class EosNetwork extends WrapperNetwork {
     private final EosClient eosClient;
+    private AtomicBoolean continueSubscription = new AtomicBoolean(true);
 
     @Autowired
     private WrapperBlockEosService blockBuilder;
@@ -71,8 +78,20 @@ public class EosNetwork extends WrapperNetwork {
     }
 
     public void subscribe(Long lastBlock, EosBlockCallback callback) throws Exception {
-        this.eosClient.subscribe(lastBlock, eosBlock -> {
+        final AtomicInteger counter = new AtomicInteger(0);
+        eosClient.subscribe(lastBlock, eosBlock -> {
+            if (counter.incrementAndGet() == 10) {
+                log.info("{}: 10 blocks received, the last {} ({})", getType(), eosBlock.getBlockNum(), eosBlock.getId());
+                counter.set(0);
+            }
             callback.callback(blockBuilder.build(eosBlock));
+            return continueSubscription.get();
         });
+    }
+
+    @PreDestroy
+    public void close() {
+        log.info("Terminate {} network.", getType());
+        continueSubscription.set(false);
     }
 }

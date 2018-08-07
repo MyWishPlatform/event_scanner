@@ -43,7 +43,7 @@ public class WrapperLogEosService {
             byAddress.put(name, eventBuilder);
         }
 
-        if (signatureToName.isEmpty()) {
+        if (!signatureToName.isEmpty()) {
             signatureToName.forEach((sig, name) -> {
                 log.error("There is not bind event builder {} with signature {}.", name, sig);
             });

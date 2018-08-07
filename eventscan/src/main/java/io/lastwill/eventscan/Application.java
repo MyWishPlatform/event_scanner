@@ -86,6 +86,8 @@ public class Application {
     @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper()
+                // TODO: remove it!
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .registerModule(new JavaTimeModule());
     }
 }

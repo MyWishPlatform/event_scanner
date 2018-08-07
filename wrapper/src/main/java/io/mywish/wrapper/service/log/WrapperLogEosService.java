@@ -12,7 +12,7 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+//@Component
 @Slf4j
 public class WrapperLogEosService {
     @Autowired

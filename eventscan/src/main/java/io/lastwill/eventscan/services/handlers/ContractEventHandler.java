@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.services.handlers;
 
 import io.lastwill.eventscan.events.model.ContractEventsEvent;
-import io.lastwill.eventscan.events.model.CreateEvent;
+import io.lastwill.eventscan.events.model.CreateTokenEvent;
 import io.lastwill.eventscan.events.model.contract.*;
 import io.lastwill.eventscan.events.model.contract.crowdsale.FinalizedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.TimesChangedEvent;
@@ -24,9 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import java.math.BigInteger;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -73,13 +71,13 @@ public class ContractEventHandler {
                 continue;
             }
 
-            if (contractEvent instanceof CreateEvent) {
-                CreateEvent createEvent = (CreateEvent)contractEvent;
+            if (contractEvent instanceof CreateTokenEvent) {
+                CreateTokenEvent createTokenEvent = (CreateTokenEvent)contractEvent;
                 externalNotifier.send(event.getNetworkType(),
                         new CreateNotify(event.getContract().getId(),
                                 event.getTransaction().getHash(),
-                                createEvent.getIssuer(),
-                                createEvent.getSupply()));
+                                createTokenEvent.getIssuer(),
+                                createTokenEvent.getSupply()));
             }
             else if (contractEvent instanceof CheckedEvent) {
                 externalNotifier.send(event.getNetworkType(),

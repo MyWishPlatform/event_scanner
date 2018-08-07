@@ -14,6 +14,7 @@ import io.mywish.wrapper.transaction.WrapperTransactionEos;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 
 public class EosNetwork extends WrapperNetwork {
@@ -24,9 +25,6 @@ public class EosNetwork extends WrapperNetwork {
 
     @Autowired
     private WrapperTransactionReceiptEosService transactionReceiptBuilder;
-
-    @Autowired
-    private WrapperTransactionEosService transactionBuilder;
 
     public EosNetwork(NetworkType type, EosClient eosClient) {
         super(type);
@@ -55,7 +53,7 @@ public class EosNetwork extends WrapperNetwork {
 
     @Override
     public WrapperTransactionReceipt getTxReceipt(WrapperTransaction transaction) throws Exception {
-        return transactionReceiptBuilder.build(((WrapperTransactionEos)transaction).getNativeTransaction());
+        return transactionReceiptBuilder.build(transaction);
     }
 
     @Override

@@ -29,14 +29,16 @@ import java.nio.charset.Charset;
 
 @Slf4j
 public class EosClientImpl implements EosClient {
-    private final TcpClient tcpClient;
     private final HttpClient client;
     private final URI rpc;
     private final ObjectMapper objectMapper;
     private Charset UTF8;
+    private final String tcpHost;
+    private final int tcpPort;
 
     public EosClientImpl(String tcpHost, int tcpPort, HttpClient client, URI rpc, ObjectMapper objectMapper) throws Exception {
-        this.tcpClient = new TcpClient(tcpHost, tcpPort);
+        this.tcpHost = tcpHost;
+        this.tcpPort = tcpPort;
         this.client = client;
         this.rpc = rpc;
         this.objectMapper = objectMapper;
@@ -97,6 +99,8 @@ public class EosClientImpl implements EosClient {
 
     @Override
     public void subscribe(Long lastBlock, BlockCallback callback) throws Exception {
+        TcpClient tcpClient = new TcpClient(tcpHost, tcpPort);
+
         String lastBlockNo = lastBlock == null ? "" : String.valueOf(lastBlock);
         log.info("Begin subscription from {} block.", lastBlockNo);
         tcpClient.write("s" + lastBlockNo + "\n");
@@ -112,9 +116,14 @@ public class EosClientImpl implements EosClient {
                 }
                 lastBlock = block.getBlockNum();
             }
+            catch (java.io.EOFException e) {
+                log.error("Socket failed. Terminate subscription.", e);
+                break;
+            }
             catch (Exception e) {
-                log.error("Error getting block {}. Get next.", lastBlock, e);
+                log.warn("Error getting block {}. Get next.", lastBlock, e);
             }
         }
+        tcpClient.close();
     }
 }

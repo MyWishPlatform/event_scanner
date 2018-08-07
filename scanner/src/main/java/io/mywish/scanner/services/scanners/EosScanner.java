@@ -15,18 +15,37 @@ import org.springframework.util.MultiValueMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.HashMap;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class EosScanner extends Scanner {
+    private final static long SUBSCRIPTION_REPEAT_SEC = 10;
+    private final AtomicBoolean terminated = new AtomicBoolean(false);
+    private final Object sync = new Object();
     private final Runnable blockReceiver = () -> {
-        try {
-            ((EosNetwork) network).subscribe(lastBlockPersister.getLastBlock(), block -> {
-                lastBlockPersister.saveLastBlock(block.getNumber());
-                processBlock(block);
-            });
-        } catch (Exception e) {
-            log.error("Error on getting EOS block by subscription.", e);
+        do {
+
+            try {
+                getEosNetwork().subscribe(lastBlockPersister.getLastBlock(), block -> {
+                    lastBlockPersister.saveLastBlock(block.getNumber());
+                    processBlock(block);
+                });
+            }
+            catch (Exception e) {
+                log.error("Subscription aborted with error. Repeat after {} seconds.", SUBSCRIPTION_REPEAT_SEC, e);
+                synchronized (sync) {
+                    try {
+                        sync.wait(SUBSCRIPTION_REPEAT_SEC * 1000);
+                    }
+                    catch (InterruptedException ex) {
+                        log.error("Waiting after error was interrupted.", ex);
+                        break;
+                    }
+                }
+            }
         }
+        while (!terminated.get());
     };
 
     public EosScanner(EosNetwork network, LastBlockPersister lastBlockPersister) {
@@ -52,6 +71,10 @@ public class EosScanner extends Scanner {
         eventPublisher.publish(new NewBlockEvent(network.getType(), block, addressTransactions));
     }
 
+    protected EosNetwork getEosNetwork() {
+        return (EosNetwork) network;
+    }
+
     @PostConstruct
     @Override
     protected void open() {
@@ -61,6 +84,13 @@ public class EosScanner extends Scanner {
     @PreDestroy
     @Override
     protected void close() {
+        terminated.set(true);
+        getEosNetwork().close();
+        log.info("Wait {} ms till cycle is completed for {}.", SUBSCRIPTION_REPEAT_SEC + 1, network.getType());
+        synchronized (sync) {
+            sync.notifyAll();
+        }
+
         try {
             lastBlockPersister.close();
         }

@@ -2,12 +2,13 @@ package io.mywish.eoscli4j.service;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 
 public class TcpClient {
-    private Socket socket;
-    private DataInputStream dataInputStream;
-    private DataOutputStream dataOutputStream;
+    private final Socket socket;
+    private final DataInputStream dataInputStream;
+    private final DataOutputStream dataOutputStream;
 
     public TcpClient(String host, int port) throws Exception {
         this.socket = new Socket(host, port);
@@ -31,5 +32,9 @@ public class TcpClient {
         byte[] res = new byte[length];
         this.dataInputStream.readFully(res);
         return new String(res);
+    }
+
+    public void close() throws IOException {
+        socket.close();
     }
 }

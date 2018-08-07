@@ -24,6 +24,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 
 import java.math.BigInteger;
+import java.net.SocketException;
 import java.net.URI;
 import java.nio.charset.Charset;
 
@@ -116,7 +117,7 @@ public class EosClientImpl implements EosClient {
                 }
                 lastBlock = block.getBlockNum();
             }
-            catch (java.io.EOFException e) {
+            catch (java.io.EOFException | SocketException e) {
                 log.error("Socket failed. Terminate subscription.", e);
                 break;
             }

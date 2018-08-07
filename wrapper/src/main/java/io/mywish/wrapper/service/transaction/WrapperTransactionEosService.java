@@ -5,11 +5,11 @@ import io.mywish.eoscli4j.model.EosAction;
 import io.mywish.eoscli4j.model.Transaction;
 import io.mywish.wrapper.WrapperOutput;
 import io.mywish.wrapper.WrapperTransaction;
+import io.mywish.wrapper.model.output.WrapperOutputEos;
 import io.mywish.wrapper.service.WrapperTransactionService;
 import io.mywish.wrapper.transaction.WrapperTransactionEos;
 import org.springframework.stereotype.Component;
 
-import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,16 +32,24 @@ public class WrapperTransactionEosService implements WrapperTransactionService<T
         List<WrapperOutput> outputs = transaction
                 .getActions()
                 .stream()
-                .map(eosAction -> new WrapperOutput(
+                .map(eosAction -> new WrapperOutputEos(
                         transaction.getId(),
                         0,
                         eosAction.getAccount() + ACCOUNT_NAME_SEPARATOR + eosAction.getName(),
                         BigInteger.ZERO, // TODO: parse value from data
-                        DatatypeConverter.parseHexBinary(eosAction.getData())
+                        new byte[0],
+                        eosAction.getData()
+//                        DatatypeConverter.parseHexBinary(eosAction.getData())
                 ))
                 .collect(Collectors.toList());
 
         Boolean contractCreation = false; // TODO: implement
-        return new WrapperTransactionEos(hash, inputs, outputs, contractCreation, transaction);
+        return new WrapperTransactionEos(
+                hash,
+                inputs,
+                outputs,
+                contractCreation,
+                transaction.getStatus()
+        );
     }
 }

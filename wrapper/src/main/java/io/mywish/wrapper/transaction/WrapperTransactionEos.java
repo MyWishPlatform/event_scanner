@@ -1,18 +1,18 @@
 package io.mywish.wrapper.transaction;
 
-import io.mywish.eoscli4j.model.Transaction;
+import io.mywish.eoscli4j.model.TransactionStatus;
 import io.mywish.wrapper.WrapperOutput;
 import io.mywish.wrapper.WrapperTransaction;
 import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 public class WrapperTransactionEos extends WrapperTransaction {
-    @Getter
-    private Transaction nativeTransaction;
+    private final TransactionStatus status;
 
-    public WrapperTransactionEos(String hash, List<String> inputs, List<WrapperOutput> outputs, boolean contractCreation, Transaction nativeTransaction) {
+    public WrapperTransactionEos(String hash, List<String> inputs, List<WrapperOutput> outputs, boolean contractCreation, TransactionStatus status) {
         super(hash, inputs, outputs, contractCreation);
-        this.nativeTransaction = nativeTransaction;
+        this.status = status;
     }
 }

@@ -17,24 +17,26 @@ public class TcpClient {
     }
 
     public void write(String data) throws Exception {
-        this.dataOutputStream.writeBytes(data);
+        dataOutputStream.writeBytes(data);
     }
 
     public int readInt() throws Exception {
         int res = 0;
         for (int i = 0; i < 4; i++) {
-            res += (this.dataInputStream.readByte() & 0xFF) << (8*i);
+            res |= (dataInputStream.readByte() & 0xFF) << (8*i);
         }
         return res;
     }
 
     public String readString(int length) throws Exception {
         byte[] res = new byte[length];
-        this.dataInputStream.readFully(res);
+        dataInputStream.readFully(res);
         return new String(res);
     }
 
     public void close() throws IOException {
+        dataInputStream.close();
+        dataOutputStream.close();
         socket.close();
     }
 }

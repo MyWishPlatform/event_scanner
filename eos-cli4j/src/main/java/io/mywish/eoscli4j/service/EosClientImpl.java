@@ -108,13 +108,18 @@ public class EosClientImpl implements EosClient {
 
         while (true) {
             try {
+                log.debug("Reading length.");
                 int length = tcpClient.readInt();
+                log.debug("Reading string {} bytes.", length);
                 String blockJSON = tcpClient.readString(length);
+                log.debug("Parsing block.");
                 BlockResponse block = parseBlock(objectMapper.readTree(blockJSON));
+                log.debug("Handle block.");
                 if (!callback.callback(block)) {
                     log.info("Subscription terminated by consumer.");
                     break;
                 }
+                log.debug("Last block was {}.", block.getBlockNum());
                 lastBlock = block.getBlockNum();
             }
             catch (java.io.EOFException | SocketException e) {

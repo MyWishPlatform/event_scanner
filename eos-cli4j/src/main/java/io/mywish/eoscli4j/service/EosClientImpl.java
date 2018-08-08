@@ -102,7 +102,7 @@ public class EosClientImpl implements EosClient {
     public void subscribe(Long lastBlock, BlockCallback callback) throws Exception {
         TcpClient tcpClient = new TcpClient(tcpHost, tcpPort);
 
-        String lastBlockNo = lastBlock == null ? "" : String.valueOf(lastBlock);
+        String lastBlockNo = lastBlock == null ? "0" : String.valueOf(lastBlock);
         log.info("Begin subscription from {} block.", lastBlockNo);
         tcpClient.write("s" + lastBlockNo + "\n");
 

@@ -14,7 +14,7 @@ import java.util.List;
 @Component
 public class CreateAccountEventBuilder extends ContractEventBuilder<CreateAccountEvent> {
     private final static ContractEventDefinition DEFINITION = new ContractEventDefinition(
-            "eosio::newaccount",
+            "eosio::newaccount", // it just a stub event name, do not change it!
             Arrays.asList(
                     WrapperType.create(Address.class, true),
                     WrapperType.create(Address.class, true)

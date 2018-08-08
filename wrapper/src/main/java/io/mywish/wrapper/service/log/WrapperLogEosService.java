@@ -6,6 +6,7 @@ import io.mywish.wrapper.ContractEventBuilder;
 import io.mywish.wrapper.model.output.WrapperOutputEos;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -20,36 +21,40 @@ public class WrapperLogEosService {
     @Autowired
     private List<ContractEventBuilder<?>> builders = new ArrayList<>();
 
+    @Value("${io.lastwill.eventscan.events.builders.create-token-name}")
+    private String createTokenActionName;
+
     // only create now
     private HashMap<String, ContractEventBuilder<?>> byAddress = new HashMap<>();
 
-    private static final HashMap<String, String> signatureToName = new HashMap<String, String>() {{
+    private static final HashMap<String, String> signatureToActionName = new HashMap<String, String>() {{
        put("0xc439029223ffeb43b811c70e26388a081f73f241e7766b81b925e1a1606e6fe8", "eosio::newaccount");
-//       put("", "eosio::create");
     }};
 
     @PostConstruct
     protected void init() throws Exception {
+
+        // define actions from config
+        signatureToActionName.put("0xfad54e54b8f76b6e89b6b455eca7b7f86a1780dd4552d2b586669a81831efeb4", createTokenActionName);
+
         for (ContractEventBuilder<?> eventBuilder : builders) {
             String signature = eventBuilder.getDefinition().getSignature();
-            String existingName = signatureToName.remove(signature);
-            if (existingName == null) {
+            String actionName = signatureToActionName.remove(signature);
+            if (actionName == null) {
                 continue;
             }
-            String name = eventBuilder.getDefinition().getName();
-
-            if (byAddress.containsKey(name)) {
-                throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with name (" + signature + ") " + name + ".");
+            if (byAddress.containsKey(actionName)) {
+                throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with name (" + signature + ") " + actionName + ".");
             }
 
-            byAddress.put(name, eventBuilder);
+            byAddress.put(actionName, eventBuilder);
         }
 
-        if (!signatureToName.isEmpty()) {
-            signatureToName.forEach((sig, name) -> {
+        if (!signatureToActionName.isEmpty()) {
+            signatureToActionName.forEach((sig, name) -> {
                 log.error("There is not bind event builder {} with signature {}.", name, sig);
             });
-            throw new Exception("There is " + signatureToName.size() + " builders which is not bind. See previous error for more info.");
+            throw new Exception("There is " + signatureToActionName.size() + " builders which is not bind. See previous error for more info.");
         }
     }
 

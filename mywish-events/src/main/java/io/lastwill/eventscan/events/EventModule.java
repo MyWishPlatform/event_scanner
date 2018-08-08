@@ -6,6 +6,6 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @ComponentScan
-@PropertySource("classpath:module.properties")
+@PropertySource("classpath:mywish-events.properties")
 public class EventModule {
 }

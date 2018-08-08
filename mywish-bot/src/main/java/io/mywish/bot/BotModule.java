@@ -13,7 +13,7 @@ import org.telegram.telegrambots.bots.DefaultBotOptions;
 
 @ComponentScan
 @Configuration
-@PropertySource("classpath:module.properties")
+@PropertySource("classpath:mywish-bot.properties")
 public class BotModule {
     static {
         ApiContextInitializer.init();

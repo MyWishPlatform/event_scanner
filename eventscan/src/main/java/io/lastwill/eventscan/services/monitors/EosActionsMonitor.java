@@ -1,8 +1,10 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.model.CreateAccountEvent;
+import io.lastwill.eventscan.events.model.CreateTokenEvent;
 import io.lastwill.eventscan.messages.AccountCreatedNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
+import io.lastwill.eventscan.messages.TokenCreatedNotify;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class AccountCreationMonitor {
+public class EosActionsMonitor {
     @Autowired
     private ContractRepository contractRepository;
 
@@ -63,25 +65,30 @@ public class AccountCreationMonitor {
                         return;
                     }
 
-                    CreateAccountEvent createAccountEvent = receipt.getLogs()
-                            .stream()
-                            .filter(contractEvent -> contractEvent instanceof CreateAccountEvent)
-                            .map(contractEvent -> (CreateAccountEvent) contractEvent)
-                            .findAny()
-                            .orElse(null);
+                    receipt.getLogs()
+                            .forEach(contractEvent -> {
+                                if (contractEvent instanceof CreateAccountEvent) {
+                                    CreateAccountEvent createAccountEvent = (CreateAccountEvent) contractEvent;
+                                    externalNotifier.send(event.getNetworkType(),
+                                            new AccountCreatedNotify(
+                                                    contract.getId(),
+                                                    receipt.isSuccess() ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED,
+                                                    wrapperTransaction.getHash(),
+                                                    createAccountEvent.getName()
+                                            ));
 
-                    if (createAccountEvent == null) {
-                        log.warn("Create account tx detected, but there is no corresponding event.");
-                        return;
-                    }
-
-                    externalNotifier.send(event.getNetworkType(),
-                            new AccountCreatedNotify(
-                                    contract.getId(),
-                                    receipt.isSuccess() ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED,
-                                    wrapperTransaction.getHash(),
-                                    createAccountEvent.getName()
-                            ));
+                                }
+                                else if (contractEvent instanceof CreateTokenEvent) {
+                                    CreateTokenEvent createTokenEvent = (CreateTokenEvent) contractEvent;
+                                    externalNotifier.send(event.getNetworkType(),
+                                            new TokenCreatedNotify(
+                                                    contract.getId(),
+                                                    receipt.isSuccess() ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED,
+                                                    wrapperTransaction.getHash(),
+                                                    createTokenEvent.getAddress()
+                                            ));
+                                }
+                            });
                 });
 
     }

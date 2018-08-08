@@ -10,7 +10,6 @@ import io.mywish.wrapper.service.WrapperTransactionService;
 import io.mywish.wrapper.transaction.WrapperTransactionEos;
 import org.springframework.stereotype.Component;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,10 +33,9 @@ public class WrapperTransactionEosService implements WrapperTransactionService<T
                 .stream()
                 .map(eosAction -> new WrapperOutputEos(
                         transaction.getId(),
-                        0,
                         eosAction.getAccount() + ACCOUNT_NAME_SEPARATOR + eosAction.getName(),
-                        BigInteger.ZERO, // TODO: parse value from data
-                        new byte[0],
+                        eosAction.getAccount(),
+                        eosAction.getName(),
                         eosAction.getData()
 //                        DatatypeConverter.parseHexBinary(eosAction.getData())
                 ))

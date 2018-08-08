@@ -73,7 +73,7 @@ public class WrapperLogEosService {
                 String value = iterator.next().textValue();
                 args.add(value);
             }
-            return builder.build(output.getAddress(), args);
+            return builder.build(output.getAccount(), args);
         }
         catch (Exception ex) {
             log.warn("Exception during parsing the event {}.", output.getAddress(), ex);

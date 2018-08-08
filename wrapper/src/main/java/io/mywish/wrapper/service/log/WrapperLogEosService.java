@@ -1,5 +1,6 @@
 package io.mywish.wrapper.service.log;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.mywish.wrapper.ContractEvent;
 import io.mywish.wrapper.ContractEventBuilder;
 import io.mywish.wrapper.model.output.WrapperOutputEos;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 @Component
@@ -54,14 +56,16 @@ public class WrapperLogEosService {
     public ContractEvent build(WrapperOutputEos output) {
         // address is the same like <account>::<method name>
         ContractEventBuilder builder = byAddress.get(output.getAddress());
-        if (!byAddress.containsKey(output.getAddress())) {
+        if (builder == null) {
             log.warn("Unhandled event {}.", output.getAddress());
             return null;
         }
         try {
-            List<Object> args = new ArrayList<>(builder.getDefinition().getTypes().size());
-            for (int i = 0; i < args.size(); i ++) {
-                String value = output.getActionArguments().get(i).textValue();
+            int argsCount = builder.getDefinition().getTypes().size();
+            List<Object> args = new ArrayList<>(argsCount);
+            Iterator<JsonNode> iterator = output.getActionArguments().iterator();
+            for (int i = 0; i < argsCount; i ++) {
+                String value = iterator.next().textValue();
                 args.add(value);
             }
             return builder.build(output.getAddress(), args);

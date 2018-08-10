@@ -1,7 +1,6 @@
 package io.lastwill.eventscan.events.builders;
 
-import io.lastwill.eventscan.events.model.CreateAccountEvent;
-import io.lastwill.eventscan.events.model.CreateTokenEvent;
+import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
 import io.mywish.wrapper.ContractEventBuilder;
 import io.mywish.wrapper.ContractEventDefinition;
 import io.mywish.wrapper.WrapperType;

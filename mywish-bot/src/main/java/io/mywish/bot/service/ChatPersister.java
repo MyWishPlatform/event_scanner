@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -61,6 +62,7 @@ public class ChatPersister {
         if (file.canWrite()) {
             try {
                 lastOutputStream = new FileOutputStream(file, true);
+                writeToStream();
             }
             catch (FileNotFoundException e) {
                 log.error("Error on creating file {} writer.", file, e);
@@ -72,6 +74,18 @@ public class ChatPersister {
         }
         else {
             log.warn("Chats file not writable. Chats were not persisted!");
+        }
+    }
+
+    @PreDestroy
+    public void close() {
+        if (lastOutputStream != null) {
+            try {
+                lastOutputStream.close();
+            }
+            catch (IOException e) {
+                log.error("Error on closing output stream.", e);
+            }
         }
     }
 

@@ -1,10 +1,12 @@
 package io.mywish.bot.integration.services;
 
 import io.lastwill.eventscan.events.model.*;
+import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
 import io.lastwill.eventscan.events.model.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.events.model.utility.PendingStuckEvent;
 import io.lastwill.eventscan.model.*;
 import io.mywish.bot.service.MyWishBot;
+import io.mywish.wrapper.ContractEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +44,8 @@ public class BotIntegration {
         put(NetworkType.BTC_TESTNET_3, "tBTC");
         put(NetworkType.NEO_MAINNET, "NEO");
         put(NetworkType.NEO_TESTNET, "tNEO");
+        put(NetworkType.EOS_TESTNET, "tEOS");
+        put(NetworkType.EOS_MAINNET, "EOS");
     }};
 
     private final String defaultNetwork = "unknown";
@@ -156,6 +160,23 @@ public class BotIntegration {
                 "*No pending transactions* for the network " + network + "! Last pending was at " + lastBlock + ", count: " + event.getCount() + ".",
                 true
         );
+    }
+
+    @EventListener
+    private void onContractEvent(final ContractEventsEvent event) {
+        final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+
+        for (ContractEvent contractEvent : event.getEvents()) {
+            if (contractEvent instanceof CreateAccountEvent) {
+                final String accountRef = explorerProvider.getOrStub(event.getNetworkType())
+                        .buildToAddress(((CreateAccountEvent) contractEvent).getCreated());
+
+                bot.sendToAll(
+                        network + ": account [" + ((CreateAccountEvent) contractEvent).getCreated() + "] (" + accountRef + ") created.",
+                        true
+                );
+            }
+        }
     }
 
     private static String toCurrency(CryptoCurrency currency, BigInteger amount) {

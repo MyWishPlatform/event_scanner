@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
-import io.lastwill.eventscan.events.model.CreateAccountEvent;
+import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
 import io.lastwill.eventscan.events.model.CreateTokenEvent;
 import io.lastwill.eventscan.messages.AccountCreatedNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
@@ -74,7 +74,7 @@ public class EosActionsMonitor {
                                                     contract.getId(),
                                                     receipt.isSuccess() ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED,
                                                     wrapperTransaction.getHash(),
-                                                    createAccountEvent.getName()
+                                                    createAccountEvent.getCreated()
                                             ));
 
                                 }

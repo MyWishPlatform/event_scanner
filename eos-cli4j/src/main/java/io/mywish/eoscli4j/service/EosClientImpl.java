@@ -104,7 +104,7 @@ public class EosClientImpl implements EosClient {
 
         String lastBlockNo = lastBlock == null ? "0" : String.valueOf(lastBlock);
         tcpClient.write("s" + lastBlockNo + "\n");
-        log.info("Begin subscribed from {} block.", lastBlockNo);
+        log.info("Subscribed from {} block.", lastBlockNo);
 
         while (true) {
             try {

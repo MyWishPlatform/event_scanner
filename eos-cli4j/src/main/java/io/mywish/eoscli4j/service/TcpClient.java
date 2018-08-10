@@ -18,6 +18,7 @@ public class TcpClient {
 
     public void write(String data) throws Exception {
         dataOutputStream.writeBytes(data);
+        dataOutputStream.flush();
     }
 
     public int readInt() throws Exception {

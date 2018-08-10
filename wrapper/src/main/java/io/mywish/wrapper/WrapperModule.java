@@ -161,20 +161,18 @@ public class WrapperModule {
         );
     }
 
-    @ConditionalOnProperty(name = "etherscanner.eos.rpc-url.testnet")
+    @ConditionalOnProperty(name = {"etherscanner.eos.rpc-url.testnet", "etherscanner.eos.tcp-url.testnet"})
     @Bean(name = NetworkType.EOS_TESTNET_VALUE)
     public EosNetwork eosNetTest(
             final CloseableHttpClient closeableHttpClient,
             final ObjectMapper objectMapper,
-            final @Value("${etherscanner.eos.tcp-host.testnet}") String tcpHost,
-            final @Value("${etherscanner.eos.tcp-port.testnet}") int tcpPort,
+            final @Value("${etherscanner.eos.tcp-url.testnet}") URI rcpUrl,
             final @Value("${etherscanner.eos.rpc-url.testnet}") URI rpc
     ) throws Exception {
         return new EosNetwork(
                 NetworkType.EOS_TESTNET,
                 new EosClientImpl(
-                        tcpHost,
-                        tcpPort,
+                        rcpUrl,
                         closeableHttpClient,
                         rpc,
                         objectMapper
@@ -182,20 +180,18 @@ public class WrapperModule {
         );
     }
 
-    @ConditionalOnProperty(name = "etherscanner.eos.rpc-url.mainnet")
+    @ConditionalOnProperty(name = {"etherscanner.eos.rpc-url.mainnet", "etherscanner.eos.tcp-url.mainnet"})
     @Bean(name = NetworkType.EOS_MAINNET_VALUE)
     public EosNetwork eosNetMain(
             final CloseableHttpClient closeableHttpClient,
             final ObjectMapper objectMapper,
-            final @Value("${etherscanner.eos.tcp-host.mainnet}") String tcpHost,
-            final @Value("${etherscanner.eos.tcp-port.mainnet}") int tcpPort,
+            final @Value("${etherscanner.eos.tcp-url.mainnet}") URI tcpUrl,
             final @Value("${etherscanner.eos.rpc-url.mainnet}") URI rpc
     ) throws Exception {
         return new EosNetwork(
                 NetworkType.EOS_MAINNET,
                 new EosClientImpl(
-                        tcpHost,
-                        tcpPort,
+                        tcpUrl,
                         closeableHttpClient,
                         rpc,
                         objectMapper

@@ -37,9 +37,9 @@ public class EosClientImpl implements EosClient {
     private final String tcpHost;
     private final int tcpPort;
 
-    public EosClientImpl(String tcpHost, int tcpPort, HttpClient client, URI rpc, ObjectMapper objectMapper) throws Exception {
-        this.tcpHost = tcpHost;
-        this.tcpPort = tcpPort;
+    public EosClientImpl(URI tcpUrl, HttpClient client, URI rpc, ObjectMapper objectMapper) throws Exception {
+        this.tcpHost = tcpUrl.getHost();
+        this.tcpPort = tcpUrl.getPort();
         this.client = client;
         this.rpc = rpc;
         this.objectMapper = objectMapper;

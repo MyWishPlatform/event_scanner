@@ -122,7 +122,7 @@ public class EosClientImpl implements EosClient {
                 log.debug("Last block was {}.", block.getBlockNum());
                 lastBlock = block.getBlockNum();
             }
-            catch (java.io.EOFException | SocketException e) {
+            catch (java.io.EOFException | SocketException | java.net.SocketTimeoutException e) {
                 log.error("Socket failed. Terminate subscription.", e);
                 break;
             }

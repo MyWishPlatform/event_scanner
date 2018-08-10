@@ -68,7 +68,11 @@ public class LastBlockPersister {
         }
 
         try {
-            lastOutputStream = new FileOutputStream(file, true);
+            lastOutputStream = new FileOutputStream(file, false);
+            if (lastBlock == null) {
+                return;
+            }
+            saveLastBlock(lastBlock);
         }
         catch (IOException e) {
             log.error("Error on creating file writer.", e);
@@ -76,14 +80,16 @@ public class LastBlockPersister {
     }
 
     public void close() {
-        if (lastOutputStream != null) {
-            try {
-                lastOutputStream.close();
-                lastOutputStream = null;
-            }
-            catch (IOException e) {
-                log.error("Error on closing stream.", e);
-            }
+        if (lastOutputStream == null) {
+            return;
+        }
+
+        try {
+            lastOutputStream.close();
+            lastOutputStream = null;
+        }
+        catch (IOException e) {
+            log.error("Error on closing stream.", e);
         }
     }
 

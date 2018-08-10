@@ -100,7 +100,7 @@ public class EosClientImpl implements EosClient {
 
     @Override
     public void subscribe(Long lastBlock, BlockCallback callback) throws Exception {
-        TcpClient tcpClient = new TcpClient(tcpHost, tcpPort);
+        TcpClient tcpClient = new TcpClient(tcpHost, tcpPort, 60000);
 
         String lastBlockNo = lastBlock == null ? "0" : String.valueOf(lastBlock);
         tcpClient.write("s" + lastBlockNo + "\n");

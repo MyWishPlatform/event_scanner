@@ -48,16 +48,6 @@ public class NeoNetwork extends WrapperNetwork {
     }
 
     @Override
-    public WrapperTransaction getTransaction(String hash) throws Exception {
-        return transactionBuilder.build(neoClient.getTransaction(hash, false));
-    }
-/*
-    @Override
-    public WrapperTransaction getTransaction(String hash) throws java.io.IOException {
-        return new WrapperTransactionNeo(neoClient.getTransaction(hash, true));
-    }
-*/
-    @Override
     public BigInteger getBalance(String address, Long blockNo) throws Exception {
         return neoClient.getBalance(address);
     }

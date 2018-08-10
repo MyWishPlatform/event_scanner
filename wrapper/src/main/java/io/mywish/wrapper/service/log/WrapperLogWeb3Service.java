@@ -19,7 +19,7 @@ import java.util.Map;
 @Component
 public class WrapperLogWeb3Service {
     @Autowired
-    private List<ContractEventBuilder<?>> builders = new ArrayList<>();
+    private List<ContractEventBuilder<?>> builders;
 
     private final Map<String, ContractEventBuilder<?>> buildersBySignature = new HashMap<>();
 

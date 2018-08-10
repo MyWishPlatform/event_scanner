@@ -45,7 +45,7 @@ public class WrapperLogNeoService {
             if (buildersByName.containsKey(neoName)) {
                 ContractEventBuilder duplicateBuilder = buildersByName.get(neoName);
                 if (duplicateBuilder.getClass().equals(eventBuilder.getClass())) {
-                    throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with name (" + signature + ") " + neoName + " , skip it.");
+                    throw new Exception("Duplicate builder " + eventBuilder.getClass() + " with name (" + signature + ") " + neoName + ".");
                 }
                 else {
                     log.warn("There two builders with the same name {}: {} and {}. Skip second.", neoName, duplicateBuilder.getClass().getSimpleName(), eventBuilder.getClass().getSimpleName());

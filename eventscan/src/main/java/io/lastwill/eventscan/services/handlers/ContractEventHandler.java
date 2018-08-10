@@ -1,6 +1,7 @@
 package io.lastwill.eventscan.services.handlers;
 
 import io.lastwill.eventscan.events.model.ContractEventsEvent;
+import io.lastwill.eventscan.events.model.CreateTokenEvent;
 import io.lastwill.eventscan.events.model.contract.*;
 import io.lastwill.eventscan.events.model.contract.crowdsale.FinalizedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.TimesChangedEvent;
@@ -23,9 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import java.math.BigInteger;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j

@@ -29,6 +29,8 @@ public class NetworkStuckMonitor {
     private long btcInterval;
     @Value("${io.lastwill.eventscan.network-stuck.interval.eth}")
     private long ethInterval;
+    @Value("${io.lastwill.eventscan.network-stuck.interval.eos}")
+    private long eosInterval;
     @Value("${io.lastwill.eventscan.network-stuck.interval.pending}")
     private long pendingInterval;
 
@@ -72,11 +74,38 @@ public class NetworkStuckMonitor {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         lastBlockEvents.keySet()
                 .stream()
-                .filter(networkType -> networkType != NetworkType.BTC_MAINNET && networkType != NetworkType.BTC_TESTNET_3)
+                .filter(networkType -> networkType != NetworkType.BTC_MAINNET
+                        && networkType != NetworkType.BTC_TESTNET_3
+                        && networkType != NetworkType.EOS_MAINNET
+                        && networkType != NetworkType.EOS_TESTNET)
                 .forEach(networkType -> {
                     LastEvent lastEvent = lastBlockEvents.get(networkType);
                     // last block + interval is in future
                     if (lastEvent.receivedTime.plusSeconds(ethInterval / 1000).isAfter(now)) {
+                        return;
+                    }
+
+                    eventPublisher.publish(
+                            new NetworkStuckEvent(
+                                    networkType,
+                                    lastEvent.receivedTime,
+                                    lastEvent.timestamp,
+                                    lastEvent.blockNo
+                            )
+                    );
+                });
+    }
+
+    @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.eos}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.eos}")
+    protected void checkEos() {
+        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        lastBlockEvents.keySet()
+                .stream()
+                .filter(networkType -> networkType == NetworkType.EOS_TESTNET || networkType == NetworkType.EOS_MAINNET)
+                .forEach(networkType -> {
+                    LastEvent lastEvent = lastBlockEvents.get(networkType);
+                    // last block + interval is in future
+                    if (lastEvent.receivedTime.plusSeconds(eosInterval / 1000).isAfter(now)) {
                         return;
                     }
 

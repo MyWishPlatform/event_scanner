@@ -18,6 +18,8 @@ public class ProductStatistics {
         put(7, "NEO ICO");
         put(8, "Airdrop");
         put(9, "Investment Pool");
+        put(10, "EOS Token");
+        put(11, "EOS Account");
     }};
 
     private final Integer contractType;

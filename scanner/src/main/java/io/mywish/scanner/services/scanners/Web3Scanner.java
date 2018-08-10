@@ -1,6 +1,7 @@
 package io.mywish.scanner.services.scanners;
 
 import io.mywish.scanner.services.PendingTransactionService;
+import io.mywish.scanner.services.ScannerPolling;
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperOutput;
 import io.mywish.wrapper.WrapperTransaction;
@@ -16,7 +17,7 @@ import org.springframework.util.MultiValueMap;
 import java.util.HashMap;
 
 @Slf4j
-public class Web3Scanner extends Scanner {
+public class Web3Scanner extends ScannerPolling {
     public Web3Scanner(Web3Network network, LastBlockPersister lastBlockPersister, long pollingInterval, int commitmentChainLength) {
         super(network, lastBlockPersister, pollingInterval, commitmentChainLength);
     }

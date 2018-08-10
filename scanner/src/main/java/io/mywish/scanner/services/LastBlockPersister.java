@@ -68,7 +68,7 @@ public class LastBlockPersister {
         }
 
         try {
-            lastOutputStream = new FileOutputStream(file, false);
+            lastOutputStream = new FileOutputStream(file, true);
         }
         catch (IOException e) {
             log.error("Error on creating file writer.", e);

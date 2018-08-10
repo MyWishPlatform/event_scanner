@@ -5,10 +5,12 @@ import io.mywish.bot.integration.BotIntegrationModule;
 import io.mywish.scanner.services.PendingTransactionService;
 import io.mywish.scanner.services.scanners.BtcScanner;
 import io.mywish.scanner.services.LastBlockPersister;
+import io.mywish.scanner.services.scanners.EosScanner;
 import io.mywish.scanner.services.scanners.NeoScanner;
 import io.mywish.scanner.services.scanners.Web3Scanner;
 import io.mywish.wrapper.WrapperModule;
 import io.mywish.wrapper.networks.BtcNetwork;
+import io.mywish.wrapper.networks.EosNetwork;
 import io.mywish.wrapper.networks.NeoNetwork;
 import io.mywish.wrapper.networks.Web3Network;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -58,6 +60,32 @@ public class ScannerModule {
                 new LastBlockPersister(network.getType(), dir, lastBlock),
                 pollingInterval,
                 commitmentChainLength
+        );
+    }
+
+    @ConditionalOnBean(name = NetworkType.EOS_MAINNET_VALUE)
+    @Bean
+    public EosScanner eosScannerMain(
+            final @Qualifier(NetworkType.EOS_MAINNET_VALUE) EosNetwork network,
+            final @Value("${etherscanner.start-block-dir}") String dir,
+            final @Value("${etherscanner.eos.last-block.mainnet:#{null}}") Long lastBlock
+    ) {
+        return new EosScanner(
+                network,
+                new LastBlockPersister(network.getType(), dir, lastBlock)
+        );
+    }
+
+    @ConditionalOnBean(name = NetworkType.EOS_TESTNET_VALUE)
+    @Bean
+    public EosScanner eosScannerTest(
+            final @Qualifier(NetworkType.EOS_TESTNET_VALUE) EosNetwork network,
+            final @Value("${etherscanner.start-block-dir}") String dir,
+            final @Value("${etherscanner.eos.last-block.testnet:#{null}}") Long lastBlock
+    ) {
+        return new EosScanner(
+                network,
+                new LastBlockPersister(network.getType(), dir, lastBlock)
         );
     }
 

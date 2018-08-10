@@ -1,5 +1,6 @@
 package io.mywish.scanner.services.scanners;
 
+import io.mywish.scanner.services.ScannerPolling;
 import io.mywish.wrapper.WrapperBlock;
 import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
@@ -13,7 +14,7 @@ import org.springframework.util.MultiValueMap;
 import java.util.HashMap;
 
 @Slf4j
-public class NeoScanner extends Scanner {
+public class NeoScanner extends ScannerPolling {
     public NeoScanner(NeoNetwork network, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength) {
         super(network, lastBlockPersister, pollingInterval, commitmentChainLength);
     }

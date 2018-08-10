@@ -2,6 +2,7 @@ package io.lastwill.eventscan;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.rabbitmq.client.ConnectionFactory;
 import io.lastwill.eventscan.events.EventModule;
 import io.mywish.scanner.ScannerModule;
@@ -84,6 +85,9 @@ public class Application {
 
     @Bean
     public ObjectMapper objectMapper() {
-        return new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return new ObjectMapper()
+                // TODO: remove it!
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .registerModule(new JavaTimeModule());
     }
 }

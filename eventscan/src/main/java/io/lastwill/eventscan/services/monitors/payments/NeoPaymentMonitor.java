@@ -1,4 +1,4 @@
-package io.lastwill.eventscan.services.monitors;
+package io.lastwill.eventscan.services.monitors.payments;
 
 import io.mywish.neocli4j.Transaction;
 import io.lastwill.eventscan.events.model.NeoPaymentEvent;

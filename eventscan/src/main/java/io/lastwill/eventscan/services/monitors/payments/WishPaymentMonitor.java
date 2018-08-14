@@ -1,4 +1,4 @@
-package io.lastwill.eventscan.services.monitors;
+package io.lastwill.eventscan.services.monitors.payments;
 
 import io.lastwill.eventscan.events.model.UserPaymentEvent;
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;

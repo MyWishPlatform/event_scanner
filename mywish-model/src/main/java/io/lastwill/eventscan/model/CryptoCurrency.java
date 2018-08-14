@@ -6,5 +6,6 @@ public enum  CryptoCurrency {
     BTC,
     RSK,
     NEO,
-    GAS
+    GAS,
+    EOS
 }

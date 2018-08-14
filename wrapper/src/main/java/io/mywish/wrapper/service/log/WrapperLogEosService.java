@@ -29,6 +29,7 @@ public class WrapperLogEosService {
 
     private static final HashMap<String, String> signatureToActionName = new HashMap<String, String>() {{
        put("0xc439029223ffeb43b811c70e26388a081f73f241e7766b81b925e1a1606e6fe8", "eosio::newaccount");
+       put("0x734eb4304d685e75d086f32b6d152f26dcb5b67966530fcfcb88e2236026fbdb", "eosio.token::transfer");
     }};
 
     @PostConstruct

@@ -16,4 +16,5 @@ public class UserProfile {
     @JoinColumn(name = "user_id")
     private User user;
     private String internalAddress;
+    private String memo;
 }

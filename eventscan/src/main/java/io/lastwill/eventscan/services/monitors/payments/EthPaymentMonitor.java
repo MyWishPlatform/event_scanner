@@ -1,4 +1,4 @@
-package io.lastwill.eventscan.services.monitors;
+package io.lastwill.eventscan.services.monitors.payments;
 
 import io.mywish.wrapper.WrapperTransaction;
 import io.lastwill.eventscan.events.model.UserPaymentEvent;

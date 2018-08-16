@@ -14,4 +14,7 @@ public interface UserProfileRepository extends CrudRepository<UserProfile, Integ
 
     @Query("select c from UserProfile c where lower(c.internalAddress) = :address")
     UserProfile findByInternalAddress(@Param("address") String internalAddress);
+
+    @Query("select c from UserProfile c where c.memo = :memo")
+    UserProfile findByMemo(@Param("memo") String memo);
 }

@@ -198,6 +198,12 @@ public class BotIntegration {
                 hundreds = amount.divide(BigInteger.valueOf(10000000000000000L));
                 break;
             }
+            case EOS: {
+                hundreds = amount.divide(BigInteger.valueOf(100L));
+                break;
+            }
+            default:
+                hundreds = amount;
         }
         BigInteger[] parts = hundreds.divideAndRemainder(BigInteger.valueOf(100));
         BigInteger eth = parts[0];

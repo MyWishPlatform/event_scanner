@@ -33,4 +33,12 @@ public class WrapperTransaction {
     public String getSingleOutputAddress() {
         return outputs.get(0).getAddress();
     }
+
+    public boolean isSingleInput() {
+        return inputs.size() == 1;
+    }
+
+    public String getSingleInputAddress() {
+        return inputs.get(0);
+    }
 }

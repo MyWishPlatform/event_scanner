@@ -172,7 +172,18 @@ public class BotIntegration {
                         .buildToAddress(((CreateAccountEvent) contractEvent).getCreated());
 
                 bot.sendToAll(
-                        network + ": account [" + ((CreateAccountEvent) contractEvent).getCreated() + "] (" + accountRef + ") created.",
+                        network + ": account [" + ((CreateAccountEvent) contractEvent).getCreated() + "](" + accountRef + ") created.",
+                        true
+                );
+            }
+            else  if (contractEvent instanceof CreateTokenEvent) {
+                CreateTokenEvent createTokenEvent = (CreateTokenEvent) contractEvent;
+                final String tokenRef = explorerProvider.getOrStub(event.getNetworkType())
+                        .buildToAddress(createTokenEvent.getAddress());
+                final String accountRef = explorerProvider.getOrStub(event.getNetworkType())
+                        .buildToAddress(createTokenEvent.getIssuer());
+                bot.sendToAll(
+                        network + ": token [" + createTokenEvent.getSupply() + "](" + tokenRef + ") create by [" + createTokenEvent.getIssuer() + "](" + accountRef + ").",
                         true
                 );
             }

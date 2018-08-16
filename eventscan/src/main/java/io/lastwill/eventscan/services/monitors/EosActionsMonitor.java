@@ -86,6 +86,7 @@ public class EosActionsMonitor {
                                                     wrapperTransaction.getHash(),
                                                     createAccountEvent.getCreated()
                                             ));
+                                    contractEvents.add(contractEvent);
                                 }
                                 else if (contractEvent instanceof CreateTokenEvent) {
                                     CreateTokenEvent createTokenEvent = (CreateTokenEvent) contractEvent;
@@ -96,6 +97,7 @@ public class EosActionsMonitor {
                                                     wrapperTransaction.getHash(),
                                                     createTokenEvent.getAddress()
                                             ));
+                                    contractEvents.add(contractEvent);
                                 }
                             });
 

@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
+import io.lastwill.eventscan.events.model.ContractEventsEvent;
 import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
 import io.lastwill.eventscan.events.model.CreateTokenEvent;
 import io.lastwill.eventscan.messages.AccountCreatedNotify;
@@ -10,6 +11,8 @@ import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.services.EventPublisher;
+import io.mywish.wrapper.ContractEvent;
 import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.wrapper.WrapperTransactionReceipt;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,6 +38,9 @@ public class EosActionsMonitor {
 
     @Autowired
     private TransactionProvider transactionProvider;
+
+    @Autowired
+    private EventPublisher eventPublisher;
 
     @EventListener
     private void onNewBlockEvent(final NewBlockEvent event) {
@@ -65,6 +74,7 @@ public class EosActionsMonitor {
                         return;
                     }
 
+                    List<ContractEvent> contractEvents = new ArrayList<>();
                     receipt.getLogs()
                             .forEach(contractEvent -> {
                                 if (contractEvent instanceof CreateAccountEvent) {
@@ -76,7 +86,6 @@ public class EosActionsMonitor {
                                                     wrapperTransaction.getHash(),
                                                     createAccountEvent.getCreated()
                                             ));
-
                                 }
                                 else if (contractEvent instanceof CreateTokenEvent) {
                                     CreateTokenEvent createTokenEvent = (CreateTokenEvent) contractEvent;
@@ -89,6 +98,18 @@ public class EosActionsMonitor {
                                             ));
                                 }
                             });
+
+                    if (contractEvents.isEmpty()) {
+                        return;
+                    }
+                    eventPublisher.publish(new ContractEventsEvent(
+                            event.getNetworkType(),
+                            contract,
+                            contractEvents,
+                            wrapperTransaction,
+                            receipt,
+                            event.getBlock()
+                    ));
                 });
 
     }

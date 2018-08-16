@@ -45,6 +45,10 @@ public class ContractsMonitor {
 
     @EventListener
     private void onNewBlockEvent(final NewBlockEvent event) {
+        // skip eos because address is not unique in our contract model
+        if (event.getNetworkType() == NetworkType.EOS_MAINNET || event.getNetworkType() == NetworkType.EOS_TESTNET) {
+            return;
+        }
         Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;

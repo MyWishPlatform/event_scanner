@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -32,11 +32,13 @@ public class Transaction {
     }
 
     public List<EosAction> getActions() {
+        if (details.transaction == null) {
+            return Collections.emptyList();
+        }
         return details.transaction.actions;
     }
 
 
-    @RequiredArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class TransactionDetails {
         private final String id;
@@ -44,6 +46,25 @@ public class Transaction {
         @JsonProperty("packedTrx")
         private final String packedDetails;
         private final TransactionReceipt transaction;
+
+        public TransactionDetails(
+                @JsonProperty("id") String id,
+                @JsonProperty("compression") EosCompression compression,
+                @JsonProperty("packedTrx") String packedDetails,
+                @JsonProperty("transaction") TransactionReceipt transaction
+        ) {
+            this.id = id;
+            this.compression = compression;
+            this.packedDetails = packedDetails;
+            this.transaction = transaction;
+        }
+
+        public TransactionDetails(String id) {
+            this.id = id;
+            this.compression = EosCompression.None;
+            this.packedDetails = null;
+            this.transaction = null;
+        }
 
     }
 

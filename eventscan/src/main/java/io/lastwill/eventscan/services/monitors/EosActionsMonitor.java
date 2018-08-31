@@ -110,6 +110,7 @@ public class EosActionsMonitor {
                                                     wrapperTransaction.getHash(),
                                                     receipt.isSuccess()
                                             ));
+                                    contractEvents.add(contractEvent);
                                 }
                             });
 

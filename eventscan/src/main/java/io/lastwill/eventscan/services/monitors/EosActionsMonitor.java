@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
+import io.lastwill.eventscan.events.model.ContractCreatedEvent;
 import io.lastwill.eventscan.events.model.ContractEventsEvent;
 import io.lastwill.eventscan.events.model.SetCodeEvent;
 import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
@@ -102,15 +103,15 @@ public class EosActionsMonitor {
                                     contractEvents.add(contractEvent);
                                 }
                                 else if (contractEvent instanceof SetCodeEvent) {
-                                    externalNotifier.send(event.getNetworkType(),
-                                            new ContractDeployedNotify(
-                                                    contract.getId(),
-                                                    receipt.isSuccess() ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED,
-                                                    contractEvent.getAddress(),
-                                                    wrapperTransaction.getHash(),
+                                    eventPublisher.publish(
+                                            new ContractCreatedEvent(
+                                                    event.getNetworkType(),
+                                                    contract,
+                                                    wrapperTransaction,
+                                                    event.getBlock(),
                                                     receipt.isSuccess()
-                                            ));
-                                    contractEvents.add(contractEvent);
+                                            )
+                                    );
                                 }
                             });
 

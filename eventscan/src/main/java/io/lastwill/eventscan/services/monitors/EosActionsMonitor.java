@@ -20,6 +20,7 @@ import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.wrapper.WrapperTransactionReceipt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +45,11 @@ public class EosActionsMonitor {
 
     @Autowired
     private EventPublisher eventPublisher;
+
+//    @Value("${io.lastwill.eventscan.service.eos-monitor.create-token-name.testnet}")
+//    private String createTokenActionNameTestnet;
+//    @Value("${io.lastwill.eventscan.service.eos-minitor.create-token-name.mainnet}")
+//    private String createTokenActionNameMainnet;
 
     @EventListener
     private void onNewBlockEvent(final NewBlockEvent event) {

@@ -1,9 +1,11 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.model.ContractEventsEvent;
+import io.lastwill.eventscan.events.model.SetCodeEvent;
 import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
 import io.lastwill.eventscan.events.model.CreateTokenEvent;
 import io.lastwill.eventscan.messages.AccountCreatedNotify;
+import io.lastwill.eventscan.messages.ContractDeployedNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
 import io.lastwill.eventscan.messages.TokenCreatedNotify;
 import io.lastwill.eventscan.model.NetworkType;
@@ -98,6 +100,16 @@ public class EosActionsMonitor {
                                                     createTokenEvent.getAddress()
                                             ));
                                     contractEvents.add(contractEvent);
+                                }
+                                else if (contractEvent instanceof SetCodeEvent) {
+                                    externalNotifier.send(event.getNetworkType(),
+                                            new ContractDeployedNotify(
+                                                    contract.getId(),
+                                                    receipt.isSuccess() ? PaymentStatus.COMMITTED : PaymentStatus.REJECTED,
+                                                    contractEvent.getAddress(),
+                                                    wrapperTransaction.getHash(),
+                                                    receipt.isSuccess()
+                                            ));
                                 }
                             });
 

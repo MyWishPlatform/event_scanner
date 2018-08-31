@@ -2,6 +2,7 @@ package io.lastwill.eventscan.events;
 
 import io.lastwill.eventscan.events.builders.CreateAccountEventBuilder;
 import io.lastwill.eventscan.events.builders.CreateTokenEventBuilder;
+import io.lastwill.eventscan.events.builders.SetCodeEventBuilder;
 import io.lastwill.eventscan.events.builders.TriggeredEventBuilder;
 import io.lastwill.eventscan.events.builders.eos.EosTransferEventBuilder;
 import io.lastwill.eventscan.events.builders.erc20.TransferERC20EventBuilder;
@@ -23,5 +24,9 @@ public class BuildersTest {
         EosTransferEventBuilder eosTransferEventBuilder = new EosTransferEventBuilder();
         Assert.assertEquals("See WrapperLogEosService.","0x734eb4304d685e75d086f32b6d152f26dcb5b67966530fcfcb88e2236026fbdb", eosTransferEventBuilder.getDefinition().getSignature());
         System.out.println(eosTransferEventBuilder.getDefinition().getSignature() + " -> " + eosTransferEventBuilder.getDefinition().getName());
+
+        SetCodeEventBuilder setCodeEventBuilder = new SetCodeEventBuilder();
+        Assert.assertEquals("See WrapperLogEosService.","0x49f847db0524ed54d691f44de815e9d561ce771fcfccb8629ed5c3e6c4df664e", setCodeEventBuilder.getDefinition().getSignature());
+        System.out.println(setCodeEventBuilder.getDefinition().getSignature() + " -> " + setCodeEventBuilder.getDefinition().getName());
     }
 }

@@ -27,6 +27,8 @@ public class WrapperLogEosService {
         put("0x734eb4304d685e75d086f32b6d152f26dcb5b67966530fcfcb88e2236026fbdb", "transfer");
         put("0x49f847db0524ed54d691f44de815e9d561ce771fcfccb8629ed5c3e6c4df664e", "setcode");
         put("0x5daa87a0e9463431830481fd4b6e3403442dfb9a12b9c07597e9f61d50b633c8", "init");
+        put("0x5702595fbe7aaf5e94baa93c3f0179c3c82dbfbc2e6386ac3cca8e87457fce35", "setfinish");
+        put("0xb2860396c193df8f7dcc188ad8c74f6cbd69e24c025830008b224906f94d9455", "setstart");
     }};
 
     @PostConstruct

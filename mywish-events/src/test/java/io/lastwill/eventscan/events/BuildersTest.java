@@ -4,6 +4,7 @@ import io.lastwill.eventscan.events.builders.CreateAccountEventBuilder;
 import io.lastwill.eventscan.events.builders.CreateTokenEventBuilder;
 import io.lastwill.eventscan.events.builders.InitializedEventBuilder;
 import io.lastwill.eventscan.events.builders.SetCodeEventBuilder;
+import io.lastwill.eventscan.events.builders.crowdsale.FinalizedEventBuilder;
 import io.lastwill.eventscan.events.builders.crowdsale.SetFinishEventBuilder;
 import io.lastwill.eventscan.events.builders.crowdsale.SetStartEventBuilder;
 import io.lastwill.eventscan.events.builders.eos.EosTransferEventBuilder;
@@ -21,6 +22,7 @@ public class BuildersTest {
         checkBuilder(new InitializedEventBuilder(), "0x5daa87a0e9463431830481fd4b6e3403442dfb9a12b9c07597e9f61d50b633c8");
         checkBuilder(new SetFinishEventBuilder(), "0x5702595fbe7aaf5e94baa93c3f0179c3c82dbfbc2e6386ac3cca8e87457fce35");
         checkBuilder(new SetStartEventBuilder(), "0xb2860396c193df8f7dcc188ad8c74f6cbd69e24c025830008b224906f94d9455");
+        checkBuilder(new FinalizedEventBuilder(), "0x6823b073d48d6e3a7d385eeb601452d680e74bb46afe3255a7d778f3a9b17681");
     }
 
     private void checkBuilder(ContractEventBuilder builder, String expectedSignature) {

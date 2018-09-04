@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.math.BigInteger;
 import java.util.*;
 
 @Component
@@ -66,9 +67,23 @@ public class WrapperLogEosService {
             int argsCount = builder.getDefinition().getTypes().size();
             List<Object> args = new ArrayList<>(argsCount);
             Iterator<JsonNode> iterator = output.getActionArguments().iterator();
-            for (int i = 0; i < argsCount; i ++) {
-                String value = iterator.next().textValue();
-                args.add(value);
+            for (int i = 0; i < argsCount; i++) {
+                JsonNode node = iterator.next();
+                if (node.isBigDecimal()) {
+                    args.add(node.decimalValue());
+                }
+                else if (node.isBigInteger()) {
+                    args.add(node.bigIntegerValue());
+                }
+                else if (node.isInt()) {
+                    args.add(BigInteger.valueOf(node.intValue()));
+                }
+                else if (node.isLong()) {
+                    args.add(BigInteger.valueOf(node.longValue()));
+                }
+                else {
+                    args.add(node.textValue());
+                }
             }
             return builder.build(output.getAddress(), args);
         }

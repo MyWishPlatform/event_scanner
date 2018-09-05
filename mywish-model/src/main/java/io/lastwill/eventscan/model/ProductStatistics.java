@@ -20,6 +20,7 @@ public class ProductStatistics {
         put(9, "Investment Pool");
         put(10, "EOS Token");
         put(11, "EOS Account");
+        put(12, "EOS ICO");
     }};
 
     private final Integer contractType;

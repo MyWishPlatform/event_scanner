@@ -1,9 +1,12 @@
 package io.lastwill.eventscan.services.monitors;
 
+import io.lastwill.eventscan.events.model.ContractCreatedEvent;
 import io.lastwill.eventscan.events.model.ContractEventsEvent;
+import io.lastwill.eventscan.events.model.SetCodeEvent;
 import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
 import io.lastwill.eventscan.events.model.CreateTokenEvent;
 import io.lastwill.eventscan.messages.AccountCreatedNotify;
+import io.lastwill.eventscan.messages.ContractDeployedNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
 import io.lastwill.eventscan.messages.TokenCreatedNotify;
 import io.lastwill.eventscan.model.NetworkType;
@@ -17,6 +20,7 @@ import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.wrapper.WrapperTransactionReceipt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +45,11 @@ public class EosActionsMonitor {
 
     @Autowired
     private EventPublisher eventPublisher;
+
+//    @Value("${io.lastwill.eventscan.service.eos-monitor.create-token-name.testnet}")
+//    private String createTokenActionNameTestnet;
+//    @Value("${io.lastwill.eventscan.service.eos-minitor.create-token-name.mainnet}")
+//    private String createTokenActionNameMainnet;
 
     @EventListener
     private void onNewBlockEvent(final NewBlockEvent event) {
@@ -98,6 +107,17 @@ public class EosActionsMonitor {
                                                     createTokenEvent.getAddress()
                                             ));
                                     contractEvents.add(contractEvent);
+                                }
+                                else if (contractEvent instanceof SetCodeEvent) {
+                                    eventPublisher.publish(
+                                            new ContractCreatedEvent(
+                                                    event.getNetworkType(),
+                                                    contract,
+                                                    wrapperTransaction,
+                                                    event.getBlock(),
+                                                    receipt.isSuccess()
+                                            )
+                                    );
                                 }
                             });
 

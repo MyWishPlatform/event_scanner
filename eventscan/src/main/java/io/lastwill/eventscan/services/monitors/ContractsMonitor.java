@@ -67,6 +67,9 @@ public class ContractsMonitor {
 //            return;
 //        }
         Set<String> addresses = event.getTransactionsByAddress().keySet();
+        // remove addresses to ignore
+        addresses.removeAll(skipAddresses);
+
         if (addresses.isEmpty()) {
             return;
         }
@@ -79,9 +82,6 @@ public class ContractsMonitor {
                 grabProxyEvents(event.getNetworkType(), transactions, event.getBlock());
             }
         }
-
-        // remove addresses to ignore
-        addresses.removeAll(skipAddresses);
 
         List<Contract> contracts = contractRepository.findByAddressesList(addresses, event.getNetworkType());
         for (final Contract contract : contracts) {

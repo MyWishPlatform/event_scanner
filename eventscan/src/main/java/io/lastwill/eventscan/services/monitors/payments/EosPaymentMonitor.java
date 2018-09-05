@@ -12,6 +12,7 @@ import io.mywish.scanner.services.EventPublisher;
 import io.mywish.wrapper.WrapperOutput;
 import io.mywish.wrapper.WrapperTransaction;
 import io.mywish.wrapper.WrapperTransactionReceipt;
+import io.mywish.wrapper.model.output.WrapperOutputEos;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +25,9 @@ import java.util.List;
 @Slf4j
 @Component
 public class EosPaymentMonitor {
-    @Value("${io.lastwill.eventscan.eos.token-contract-action}")
+    @Value("${io.lastwill.eventscan.eos.token-contract}")
+    private String eosTokenContract;
+    @Value("${io.lastwill.eventscan.eos.token-action}")
     private String eosTokenAction;
     @Value("${io.lastwill.eventscan.eos.target-address}")
     private String targetAddress;
@@ -44,14 +47,18 @@ public class EosPaymentMonitor {
             return;
         }
 
-        List<WrapperTransaction> transactions = newBlockEvent.getTransactionsByAddress().get(eosTokenAction);
+        List<WrapperTransaction> transactions = newBlockEvent.getTransactionsByAddress().get(eosTokenContract);
         if (transactions == null || transactions.isEmpty()) {
             return;
         }
 
         for (WrapperTransaction transaction: transactions) {
             for (WrapperOutput output : transaction.getOutputs()) {
-                if (!output.getAddress().equalsIgnoreCase(eosTokenAction)) {
+                if (!output.getAddress().equalsIgnoreCase(eosTokenContract)) {
+                    continue;
+                }
+                WrapperOutputEos outputEos = (WrapperOutputEos) output;
+                if (!outputEos.getName().equalsIgnoreCase(eosTokenAction)) {
                     continue;
                 }
 

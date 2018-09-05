@@ -8,7 +8,10 @@ import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
-import io.mywish.wrapper.*;
+import io.mywish.wrapper.ContractEvent;
+import io.mywish.wrapper.WrapperBlock;
+import io.mywish.wrapper.WrapperTransaction;
+import io.mywish.wrapper.WrapperTransactionReceipt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,9 +21,12 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
 import javax.annotation.PostConstruct;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -36,19 +42,30 @@ public class ContractsMonitor {
     private String proxyAddressEthereum;
     @Value("${io.lastwill.eventscan.contract.proxy-address.ropsten}")
     private String proxyAddressRopsten;
+    @Value("${io.lastwill.eventscan.contract.skip-addresses}")
+    private String skipAddressesLine;
+    private List<String> skipAddresses = Collections.emptyList();
 
     @PostConstruct
     protected void init() {
         proxyByNetwork.put(NetworkType.ETHEREUM_MAINNET, proxyAddressEthereum.toLowerCase());
         proxyByNetwork.put(NetworkType.ETHEREUM_ROPSTEN, proxyAddressRopsten.toLowerCase());
+        if (skipAddressesLine == null || skipAddressesLine.isEmpty()) {
+            return;
+        }
+        skipAddresses = Stream.of(skipAddressesLine.split(","))
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
     }
 
     @EventListener
     private void onNewBlockEvent(final NewBlockEvent event) {
         // skip eos because address is not unique in our contract model
-        if (event.getNetworkType() == NetworkType.EOS_MAINNET || event.getNetworkType() == NetworkType.EOS_TESTNET) {
-            return;
-        }
+//        if (event.getNetworkType() == NetworkType.EOS_MAINNET || event.getNetworkType() == NetworkType.EOS_TESTNET) {
+//            return;
+//        }
         Set<String> addresses = event.getTransactionsByAddress().keySet();
         if (addresses.isEmpty()) {
             return;
@@ -62,6 +79,9 @@ public class ContractsMonitor {
                 grabProxyEvents(event.getNetworkType(), transactions, event.getBlock());
             }
         }
+
+        // remove addresses to ignore
+        addresses.removeAll(skipAddresses);
 
         List<Contract> contracts = contractRepository.findByAddressesList(addresses, event.getNetworkType());
         for (final Contract contract : contracts) {
@@ -117,7 +137,7 @@ public class ContractsMonitor {
             final Contract contract,
             final WrapperTransaction transaction,
             final WrapperBlock block
-    )  {
+    ) {
         try {
             WrapperTransactionReceipt transactionReceipt = transactionProvider.getTransactionReceipt(networkType, transaction);
             handleReceiptAndContract(

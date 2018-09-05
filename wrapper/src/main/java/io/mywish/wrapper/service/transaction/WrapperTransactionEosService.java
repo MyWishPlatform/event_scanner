@@ -33,11 +33,9 @@ public class WrapperTransactionEosService implements WrapperTransactionService<T
                 .stream()
                 .map(eosAction -> new WrapperOutputEos(
                         transaction.getId(),
-                        eosAction.getAccount() + ACCOUNT_NAME_SEPARATOR + eosAction.getName(),
                         eosAction.getAccount(),
                         eosAction.getName(),
                         eosAction.getData()
-//                        DatatypeConverter.parseHexBinary(eosAction.getData())
                 ))
                 .collect(Collectors.toList());
 

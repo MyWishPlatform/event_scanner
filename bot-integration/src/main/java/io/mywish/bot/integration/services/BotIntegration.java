@@ -79,16 +79,21 @@ public class BotIntegration {
 
     @EventListener
     private void onOwnerBalanceChanged(final UserPaymentEvent event) {
-        final UserProfile userProfile = event.getUserProfile();
-        final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
-        final String txLink = explorerProvider.getOrStub(event.getNetworkType())
-                .buildToTransaction(event.getTransaction().getHash());
-        bot.onBalance(
-                network,
-                userProfile.getUser().getId(),
-                toCurrency(event.getCurrency(), event.getAmount()),
-                txLink
-        );
+        try {
+            final UserProfile userProfile = event.getUserProfile();
+            final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+            final String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                    .buildToTransaction(event.getTransaction().getHash());
+            bot.onBalance(
+                    network,
+                    userProfile.getUser().getId(),
+                    toCurrency(event.getCurrency(), event.getAmount()),
+                    txLink
+            );
+        }
+        catch (Exception e) {
+            log.error("Error on sending payment info to the bot.", e);
+        }
     }
 
     @EventListener

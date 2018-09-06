@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -40,6 +41,11 @@ public class EosPaymentMonitor {
 
     @Autowired
     private EventPublisher eventPublisher;
+
+    @PostConstruct
+    private void init() {
+        log.info("Contract {}, action {}, target address {}.", eosTokenContract, eosTokenAction, targetAddress);
+    }
 
     @EventListener
     public void newBlockEvent(final NewBlockEvent newBlockEvent) {

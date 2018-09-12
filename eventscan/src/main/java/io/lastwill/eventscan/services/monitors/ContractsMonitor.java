@@ -21,10 +21,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
 import javax.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -66,7 +63,7 @@ public class ContractsMonitor {
 //        if (event.getNetworkType() == NetworkType.EOS_MAINNET || event.getNetworkType() == NetworkType.EOS_TESTNET) {
 //            return;
 //        }
-        Set<String> addresses = event.getTransactionsByAddress().keySet();
+        Set<String> addresses = new HashSet<>(event.getTransactionsByAddress().keySet());
         // remove addresses to ignore
         addresses.removeAll(skipAddresses);
 

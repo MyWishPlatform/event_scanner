@@ -27,7 +27,7 @@ import java.util.List;
 @Slf4j
 @Component
 public class EosishPaymentMonitor {
-    @Value("${io.lastwill.eventscan.eosis.token-contract}")
+    @Value("${io.lastwill.eventscan.eosish.token-contract}")
     private String tokenContract;
     @Value("${io.lastwill.eventscan.eos.token-action}")
     private String tokenAction;

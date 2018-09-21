@@ -1,9 +1,9 @@
 package io.lastwill.eventscan.events.builders.crowdsale;
 
 import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedEvent;
-import io.mywish.wrapper.ContractEventBuilder;
-import io.mywish.wrapper.ContractEventDefinition;
-import io.mywish.wrapper.WrapperType;
+import io.mywish.blockchain.ContractEventBuilder;
+import io.mywish.blockchain.ContractEventDefinition;
+import io.mywish.blockchain.WrapperType;
 import lombok.Getter;
 import org.web3j.abi.datatypes.Address;
 

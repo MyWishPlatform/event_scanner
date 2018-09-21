@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.events.model.contract.eos;
 
 import io.lastwill.eventscan.events.model.contract.erc223.Erc223TransferEvent;
-import io.mywish.wrapper.ContractEventDefinition;
+import io.mywish.blockchain.ContractEventDefinition;
 import lombok.Getter;
 
 import java.math.BigInteger;

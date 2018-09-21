@@ -1,8 +1,8 @@
 package io.lastwill.eventscan.events.builders;
 
-import io.mywish.wrapper.ContractEventBuilder;
+import io.mywish.blockchain.ContractEventBuilder;
 import io.lastwill.eventscan.events.model.contract.BaseEmptyEvent;
-import io.mywish.wrapper.ContractEventDefinition;
+import io.mywish.blockchain.ContractEventDefinition;
 import lombok.Getter;
 import java.util.Collections;
 import java.util.List;

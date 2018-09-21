@@ -1,13 +1,11 @@
 package io.mywish.scanner.services.scanners;
 
-import io.mywish.eoscli4j.model.Transaction;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.LastBlockPersister;
 import io.mywish.scanner.services.Scanner;
-import io.mywish.wrapper.WrapperBlock;
-import io.mywish.wrapper.WrapperTransaction;
-import io.mywish.wrapper.networks.EosNetwork;
-import io.mywish.wrapper.transaction.WrapperTransactionEos;
+import io.mywish.blockchain.WrapperBlock;
+import io.mywish.blockchain.WrapperTransaction;
+import io.mywish.blockchain.networks.EosNetwork;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -15,7 +13,6 @@ import org.springframework.util.MultiValueMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j

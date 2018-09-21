@@ -6,7 +6,7 @@ import io.lastwill.eventscan.events.model.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.events.model.utility.PendingStuckEvent;
 import io.lastwill.eventscan.model.*;
 import io.mywish.bot.service.MyWishBot;
-import io.mywish.wrapper.ContractEvent;
+import io.mywish.blockchain.ContractEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

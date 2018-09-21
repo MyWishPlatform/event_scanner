@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.services.monitors.payments;
 
-import io.mywish.wrapper.WrapperTransaction;
+import io.mywish.blockchain.WrapperTransaction;
 import io.lastwill.eventscan.events.model.UserPaymentEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.UserProfile;

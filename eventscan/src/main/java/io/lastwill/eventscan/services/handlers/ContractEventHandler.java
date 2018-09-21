@@ -1,7 +1,6 @@
 package io.lastwill.eventscan.services.handlers;
 
 import io.lastwill.eventscan.events.model.ContractEventsEvent;
-import io.lastwill.eventscan.events.model.CreateTokenEvent;
 import io.lastwill.eventscan.events.model.contract.*;
 import io.lastwill.eventscan.events.model.contract.crowdsale.FinalizedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.TimesChangedEvent;
@@ -17,7 +16,7 @@ import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.BalanceProvider;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.services.handlers.events.TransferOwnershipHandler;
-import io.mywish.wrapper.ContractEvent;
+import io.mywish.blockchain.ContractEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;

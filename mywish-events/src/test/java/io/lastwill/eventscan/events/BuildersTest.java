@@ -8,7 +8,7 @@ import io.lastwill.eventscan.events.builders.crowdsale.FinalizedEventBuilder;
 import io.lastwill.eventscan.events.builders.crowdsale.SetFinishEventBuilder;
 import io.lastwill.eventscan.events.builders.crowdsale.SetStartEventBuilder;
 import io.lastwill.eventscan.events.builders.eos.EosTransferEventBuilder;
-import io.mywish.wrapper.ContractEventBuilder;
+import io.mywish.blockchain.ContractEventBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 

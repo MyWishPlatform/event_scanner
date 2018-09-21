@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.events.builders.crowdsale;
 
 import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressRemovedEvent;
-import io.mywish.wrapper.ContractEventDefinition;
+import io.mywish.blockchain.ContractEventDefinition;
 import org.springframework.stereotype.Component;
 
 @Component

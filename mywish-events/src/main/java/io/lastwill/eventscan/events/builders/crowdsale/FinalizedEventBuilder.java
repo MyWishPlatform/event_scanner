@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.events.builders.crowdsale;
 
 import io.lastwill.eventscan.events.builders.BaseEmptyEventBuilder;
-import io.mywish.wrapper.ContractEventDefinition;
+import io.mywish.blockchain.ContractEventDefinition;
 import io.lastwill.eventscan.events.model.contract.crowdsale.FinalizedEvent;
 import org.springframework.stereotype.Component;
 

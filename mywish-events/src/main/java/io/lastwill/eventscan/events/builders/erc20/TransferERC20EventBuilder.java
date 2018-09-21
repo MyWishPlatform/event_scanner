@@ -1,16 +1,16 @@
 package io.lastwill.eventscan.events.builders.erc20;
 
 import io.lastwill.eventscan.events.builders.TypeHelper;
-import io.mywish.wrapper.WrapperType;
-import io.mywish.wrapper.ContractEventDefinition;
+import io.mywish.blockchain.WrapperType;
+import io.mywish.blockchain.ContractEventDefinition;
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
-import io.mywish.wrapper.ContractEventBuilder;
+import io.mywish.blockchain.ContractEventBuilder;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.Uint;
-import java.math.BigInteger;
+
 import java.util.Arrays;
 import java.util.List;
 

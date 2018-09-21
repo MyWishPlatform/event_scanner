@@ -1,15 +1,13 @@
 package io.mywish.scanner.services.scanners;
 
-import io.mywish.scanner.services.PendingTransactionService;
 import io.mywish.scanner.services.ScannerPolling;
-import io.mywish.wrapper.WrapperBlock;
-import io.mywish.wrapper.WrapperOutput;
-import io.mywish.wrapper.WrapperTransaction;
-import io.mywish.wrapper.WrapperTransactionReceipt;
+import io.mywish.blockchain.WrapperBlock;
+import io.mywish.blockchain.WrapperOutput;
+import io.mywish.blockchain.WrapperTransaction;
+import io.mywish.blockchain.WrapperTransactionReceipt;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.LastBlockPersister;
-import io.mywish.scanner.services.Scanner;
-import io.mywish.wrapper.networks.Web3Network;
+import io.mywish.blockchain.networks.Web3Network;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;

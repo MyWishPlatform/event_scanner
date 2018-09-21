@@ -1,6 +1,6 @@
 package io.lastwill.eventscan.events.builders;
 
-import io.mywish.wrapper.ContractEventDefinition;
+import io.mywish.blockchain.ContractEventDefinition;
 import io.lastwill.eventscan.events.model.contract.InitializedEvent;
 import org.springframework.stereotype.Component;
 

@@ -6,7 +6,7 @@ import io.mywish.blockchain.ContractEventDefinition;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("EosFinalizedEventBuilder")
 @NoArgsConstructor
 public class FinalizedEventBuilder extends ActionEventBuilder<InitializedEvent> {
     private final static ContractEventDefinition DEFINITION = new ContractEventDefinition(

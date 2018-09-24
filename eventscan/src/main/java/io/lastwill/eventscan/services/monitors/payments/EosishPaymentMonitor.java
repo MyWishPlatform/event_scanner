@@ -7,12 +7,11 @@ import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.UserProfile;
 import io.lastwill.eventscan.repositories.UserProfileRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
-import io.mywish.scanner.model.NewBlockEvent;
-import io.mywish.scanner.services.EventPublisher;
 import io.mywish.blockchain.WrapperOutput;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.blockchain.WrapperTransactionReceipt;
-import io.mywish.blockchain.model.output.WrapperOutputEos;
+import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,8 +27,6 @@ import java.util.List;
 public class EosishPaymentMonitor {
     @Value("${io.lastwill.eventscan.eosish.token-contract}")
     private String tokenContract;
-    @Value("${io.lastwill.eventscan.eos.token-action}")
-    private String tokenAction;
     @Value("${io.lastwill.eventscan.eos.target-address}")
     private String targetAddress;
     @Value("${io.lastwill.eventscan.eosish.token-symbol}")
@@ -46,7 +43,7 @@ public class EosishPaymentMonitor {
 
     @PostConstruct
     private void init() {
-        log.info("Contract={}, symbol={}, action={}, target address={}.", tokenContract, tokeSymbol, tokenAction, targetAddress);
+        log.info("Contract={}, symbol={}, target address={}.", tokenContract, tokeSymbol, targetAddress);
     }
 
     @EventListener
@@ -55,7 +52,7 @@ public class EosishPaymentMonitor {
             return;
         }
 
-        List<WrapperTransaction> transactions = newBlockEvent.getTransactionsByAddress().get(tokenContract);
+        final List<WrapperTransaction> transactions = newBlockEvent.getTransactionsByAddress().get(tokenContract);
         if (transactions == null || transactions.isEmpty()) {
             return;
         }
@@ -65,12 +62,8 @@ public class EosishPaymentMonitor {
                 if (!output.getAddress().equalsIgnoreCase(tokenContract)) {
                     continue;
                 }
-                WrapperOutputEos outputEos = (WrapperOutputEos) output;
-                if (!outputEos.getName().equalsIgnoreCase(tokenAction)) {
-                    continue;
-                }
 
-                WrapperTransactionReceipt receipt;
+                final WrapperTransactionReceipt receipt;
                 try {
                     receipt = transactionProvider.getTransactionReceipt(
                             newBlockEvent.getNetworkType(),
@@ -86,15 +79,10 @@ public class EosishPaymentMonitor {
                         .stream()
                         .filter(event -> event instanceof EosTransferEvent)
                         .map(event -> (EosTransferEvent) event)
+                        .filter(eosTransferEvent -> tokenContract.equalsIgnoreCase(eosTransferEvent.getAddress()))
+                        .filter(eosTransferEvent -> targetAddress.equalsIgnoreCase(eosTransferEvent.getTo()))
+                        .filter(eosTransferEvent -> tokeSymbol.equalsIgnoreCase(eosTransferEvent.getSymbol()))
                         .forEach(transferEvent -> {
-                            if (!targetAddress.equalsIgnoreCase(transferEvent.getTo())) {
-                                return;
-                            }
-
-                            if (!tokeSymbol.equalsIgnoreCase(transferEvent.getSymbol())) {
-                                return;
-                            }
-
                             String memo = new String(transferEvent.getData(), StandardCharsets.US_ASCII);
                             UserProfile userProfile = userProfileRepository.findByMemo(memo);
                             if (userProfile == null) {

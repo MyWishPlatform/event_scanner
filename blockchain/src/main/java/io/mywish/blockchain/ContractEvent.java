@@ -12,11 +12,7 @@ public class ContractEvent {
         this.address = address;
     }
 
-    public String getName() {
-        return definition.getEvent().getName();
-    }
-
-    public String getSignature() {
-        return definition.getSignature();
+    public String getEventName() {
+        return definition.getName();
     }
 }

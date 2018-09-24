@@ -188,7 +188,7 @@ public class BotIntegration {
                 final String accountRef = explorerProvider.getOrStub(event.getNetworkType())
                         .buildToAddress(createTokenEvent.getIssuer());
                 bot.sendToAll(
-                        network + ": token [" + createTokenEvent.getSupply() + "](" + tokenRef + ") create by [" + createTokenEvent.getIssuer() + "](" + accountRef + ").",
+                        network + ": token [" + createTokenEvent.getSymbol() + "](" + tokenRef + ") create by [" + createTokenEvent.getIssuer() + "](" + accountRef + ").",
                         true
                 );
             }

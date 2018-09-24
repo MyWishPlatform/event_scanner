@@ -38,12 +38,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>wrapper</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>neo-cli4j</artifactId>
+            <artifactId>blockchain</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

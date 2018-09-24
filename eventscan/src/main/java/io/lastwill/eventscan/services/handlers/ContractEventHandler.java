@@ -66,7 +66,7 @@ public class ContractEventHandler {
         for (ContractEvent contractEvent : event.getEvents()) {
             // skip event if event.address != contract.address (it might be when internal transaction occurs)
             if (!contractEvent.getAddress().equalsIgnoreCase(event.getContract().getAddress())) {
-                log.warn("There is skipped internal transaction event to address {} with name {}.", contractEvent.getAddress(), contractEvent.getName());
+                log.warn("There is skipped internal transaction event to address {} with name {}.", contractEvent.getAddress(), contractEvent.getEventName());
                 continue;
             }
 

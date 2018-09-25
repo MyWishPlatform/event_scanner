@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>wrapper</artifactId>
+            <artifactId>blockchain</artifactId>
             <version>${project.version}</version>
         </dependency>
 

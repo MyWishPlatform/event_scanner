@@ -7,7 +7,7 @@ import io.lastwill.eventscan.services.Btc2RskNetworkConverter;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
-import io.mywish.wrapper.WrapperOutput;
+import io.mywish.blockchain.WrapperOutput;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;

@@ -1,8 +1,8 @@
 package io.lastwill.eventscan.events.model;
 
 import io.lastwill.eventscan.model.AddressLock;
-import io.mywish.wrapper.WrapperTransaction;
-import io.mywish.wrapper.WrapperTransactionReceipt;
+import io.mywish.blockchain.WrapperTransaction;
+import io.mywish.blockchain.WrapperTransactionReceipt;
 import io.lastwill.eventscan.model.NetworkType;
 import lombok.Getter;
 

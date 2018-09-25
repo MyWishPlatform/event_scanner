@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.events.model.contract;
 
-import io.mywish.wrapper.ContractEvent;
-import io.mywish.wrapper.ContractEventDefinition;
+import io.mywish.blockchain.ContractEvent;
+import io.mywish.blockchain.ContractEventDefinition;
 import lombok.Getter;
 
 @Getter

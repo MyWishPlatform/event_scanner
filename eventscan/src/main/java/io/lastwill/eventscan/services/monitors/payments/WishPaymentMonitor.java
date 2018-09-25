@@ -8,7 +8,7 @@ import io.lastwill.eventscan.repositories.UserProfileRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.services.EventPublisher;
-import io.mywish.wrapper.WrapperTransaction;
+import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

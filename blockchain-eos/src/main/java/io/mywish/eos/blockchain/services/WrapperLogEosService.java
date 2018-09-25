@@ -1,9 +1,8 @@
 package io.mywish.eos.blockchain.services;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.lastwill.eventscan.model.NetworkProviderType;
 import io.mywish.blockchain.ContractEvent;
-import io.mywish.blockchain.ContractEventBuilder;
 import io.mywish.blockchain.ContractEventDefinition;
 import io.mywish.eos.blockchain.builders.ActionEventBuilder;
 import io.mywish.eos.blockchain.model.EosActionDefinition;
@@ -13,8 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -24,7 +24,7 @@ public class WrapperLogEosService {
     private List<ActionEventBuilder<?>> builders = new ArrayList<>();
 
     // only create now
-    private HashMap<String, ContractEventBuilder<?>> byActionName = new HashMap<>();
+    private HashMap<String, ActionEventBuilder<?>> byActionName = new HashMap<>();
 
 //    private final HashSet<String> requiredActions =  new HashSet<String>() {{
 //        add("create");
@@ -39,7 +39,7 @@ public class WrapperLogEosService {
 
     @PostConstruct
     protected void init() throws Exception {
-        for (ContractEventBuilder<?> eventBuilder : builders) {
+        for (ActionEventBuilder<?> eventBuilder : builders) {
             if (eventBuilder.getNetworkProviderType() != NetworkProviderType.EOS) {
                 return;
             }
@@ -54,7 +54,7 @@ public class WrapperLogEosService {
     }
 
     public ContractEvent build(WrapperOutputEos output) {
-        ContractEventBuilder builder = byActionName.get(buildKey(output));
+        ActionEventBuilder builder = byActionName.get(buildKey(output));
         if (builder == null) {
             builder = byActionName.get(output.getName());
             if (builder == null) {
@@ -63,27 +63,7 @@ public class WrapperLogEosService {
             }
         }
         try {
-            List<Object> args = new ArrayList<>();
-            Iterator<JsonNode> iterator = output.getActionArguments().iterator();
-            while (iterator.hasNext()) {
-                JsonNode node = iterator.next();
-                if (node.isBigDecimal()) {
-                    args.add(node.decimalValue());
-                }
-                else if (node.isBigInteger()) {
-                    args.add(node.bigIntegerValue());
-                }
-                else if (node.isInt()) {
-                    args.add(BigInteger.valueOf(node.intValue()));
-                }
-                else if (node.isLong()) {
-                    args.add(BigInteger.valueOf(node.longValue()));
-                }
-                else {
-                    args.add(node.textValue());
-                }
-            }
-            return builder.build(output.getAddress(), args);
+            return builder.build(output.getAddress(), (ObjectNode) output.getActionArguments());
         }
         catch (Exception ex) {
             log.warn("Exception during parsing the event {}.", output.getAddress(), ex);

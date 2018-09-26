@@ -1,10 +1,7 @@
 package io.lastwill.eventscan.services.monitors;
 
-import io.lastwill.eventscan.events.model.ContractCreatedEvent;
-import io.lastwill.eventscan.events.model.ContractEventsEvent;
-import io.lastwill.eventscan.events.model.SetCodeEvent;
+import io.lastwill.eventscan.events.model.*;
 import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
-import io.lastwill.eventscan.events.model.CreateTokenEvent;
 import io.lastwill.eventscan.messages.AccountCreatedNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
 import io.lastwill.eventscan.messages.TokenCreatedNotify;
@@ -105,7 +102,7 @@ public class EosActionsMonitor {
                                             ));
                                     contractEvents.add(contractEvent);
                                 }
-                                else if (contractEvent instanceof SetCodeEvent) {
+                                else if (contractEvent instanceof SetCodeEvent || contractEvent instanceof CreateAirdropEvent) {
                                     eventPublisher.publish(
                                             new ContractCreatedEvent(
                                                     event.getNetworkType(),

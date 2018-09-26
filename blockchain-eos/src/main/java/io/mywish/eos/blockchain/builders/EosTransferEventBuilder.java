@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.lastwill.eventscan.events.TypeHelper;
 import io.lastwill.eventscan.events.model.contract.eos.EosTransferEvent;
 import io.mywish.blockchain.ContractEventDefinition;
-import io.mywish.eos.blockchain.helper.MaxSupplyParser;
+import io.mywish.eos.blockchain.helper.EosStructureParser;
 import io.mywish.eos.blockchain.model.MaxSupply;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ public class EosTransferEventBuilder extends ActionEventBuilder<EosTransferEvent
     private TypeHelper typeHelper;
 
     @Autowired
-    private MaxSupplyParser parser;
+    private EosStructureParser parser;
 
     private final ContractEventDefinition definition = new ContractEventDefinition(
             "transfer"
@@ -27,7 +27,7 @@ public class EosTransferEventBuilder extends ActionEventBuilder<EosTransferEvent
 
     @Override
     public EosTransferEvent build(String address, ObjectNode data) {
-        MaxSupply maxSupply = parser.parse(data.get("quantity").textValue());
+        MaxSupply maxSupply = parser.parseMaxSupply(data.get("quantity").textValue());
         return new EosTransferEvent(
                 definition,
                 data.get("from").textValue(),

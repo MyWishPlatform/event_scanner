@@ -2,12 +2,12 @@ package io.mywish.eos.blockchain.builders;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
-import io.mywish.eos.blockchain.model.EosActionDefinition;
+import io.mywish.eos.blockchain.model.EosActionAccountDefinition;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CreateAccountEventBuilder extends ActionEventBuilder<CreateAccountEvent> {
-    private final static EosActionDefinition DEFINITION = new EosActionDefinition(
+    private final static EosActionAccountDefinition DEFINITION = new EosActionAccountDefinition(
             "newaccount",
             "eosio"
     );
@@ -26,7 +26,7 @@ public class CreateAccountEventBuilder extends ActionEventBuilder<CreateAccountE
     }
 
     @Override
-    public EosActionDefinition getDefinition() {
+    public EosActionAccountDefinition getDefinition() {
         return DEFINITION;
     }
 }

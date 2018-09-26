@@ -4,10 +4,10 @@ import io.mywish.blockchain.ContractEventDefinition;
 import lombok.Getter;
 
 @Getter
-public class EosActionDefinition extends ContractEventDefinition {
+public class EosActionAccountDefinition extends ContractEventDefinition {
     private final String account;
 
-    public EosActionDefinition(String name, String account) {
+    public EosActionAccountDefinition(String name, String account) {
         super(name);
         this.account = account;
     }

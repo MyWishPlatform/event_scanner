@@ -2,14 +2,14 @@ package io.mywish.eos.blockchain.builders;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.lastwill.eventscan.events.model.SetCodeEvent;
-import io.mywish.eos.blockchain.model.EosActionDefinition;
+import io.mywish.eos.blockchain.model.EosActionAccountDefinition;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @NoArgsConstructor
 public class SetCodeEventBuilder extends ActionEventBuilder<SetCodeEvent> {
-    private final static EosActionDefinition DEFINITION = new EosActionDefinition(
+    private final static EosActionAccountDefinition DEFINITION = new EosActionAccountDefinition(
             "setcode",
             "eosio"
     );
@@ -20,7 +20,7 @@ public class SetCodeEventBuilder extends ActionEventBuilder<SetCodeEvent> {
     }
 
     @Override
-    public EosActionDefinition getDefinition() {
+    public EosActionAccountDefinition getDefinition() {
         return DEFINITION;
     }
 }

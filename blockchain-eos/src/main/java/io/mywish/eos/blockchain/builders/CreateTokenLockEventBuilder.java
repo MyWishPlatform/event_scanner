@@ -15,10 +15,10 @@ import java.util.HashSet;
 
 @Component
 @NoArgsConstructor
-public class CreateTokenEventBuilder extends ActionEventBuilder<CreateTokenEvent> {
+public class CreateTokenLockEventBuilder extends ActionEventBuilder<CreateTokenEvent> {
     private final static ContractEventDefinition DEFINITION = new EosActionFieldsDefinition(
             "create", // it just a stub event name, do not change it!
-            new HashSet<>(Arrays.asList("issuer", "maximum_supply"))
+            new HashSet<>(Arrays.asList("issuer", "maximum_supply", "lock"))
     );
 
     @Autowired

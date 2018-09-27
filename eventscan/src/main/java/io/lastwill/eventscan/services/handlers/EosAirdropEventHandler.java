@@ -49,6 +49,9 @@ public class EosAirdropEventHandler {
         }
 
         List<WrapperTransaction> transactions = event.getTransactionsByAddress().get(airdropAccount);
+        if (transactions == null) {
+            return;
+        }
 
         for (WrapperTransaction transaction : transactions) {
             if (transaction.getOutputs().stream().noneMatch(output -> airdropAccount.equalsIgnoreCase(output.getAddress()))) {

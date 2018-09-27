@@ -11,14 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.HashSet;
 
 @Component
 @NoArgsConstructor
 public class CreateTokenEventBuilder extends ActionEventBuilder<CreateTokenEvent> {
     private final static ContractEventDefinition DEFINITION = new EosActionFieldsDefinition(
             "create", // it just a stub event name, do not change it!
-            new HashSet<>(Arrays.asList("issuer", "maximum_supply"))
+            Arrays.asList("issuer", "maximum_supply")
     );
 
     @Autowired

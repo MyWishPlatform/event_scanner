@@ -18,7 +18,7 @@ import java.util.HashSet;
 public class CreateTokenLockEventBuilder extends ActionEventBuilder<CreateTokenEvent> {
     private final static ContractEventDefinition DEFINITION = new EosActionFieldsDefinition(
             "create", // it just a stub event name, do not change it!
-            new HashSet<>(Arrays.asList("issuer", "maximum_supply", "lock"))
+            Arrays.asList("issuer", "maximum_supply", "lock")
     );
 
     @Autowired

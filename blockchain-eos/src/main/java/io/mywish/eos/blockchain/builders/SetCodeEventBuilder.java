@@ -1,7 +1,7 @@
 package io.mywish.eos.blockchain.builders;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.lastwill.eventscan.events.model.SetCodeEvent;
+import io.lastwill.eventscan.events.model.contract.eos.SetCodeEvent;
 import io.mywish.eos.blockchain.model.EosActionAccountDefinition;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;

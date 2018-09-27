@@ -1,7 +1,7 @@
 package io.mywish.eos.blockchain.builders;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.lastwill.eventscan.events.model.CreateTokenEvent;
+import io.lastwill.eventscan.events.model.contract.eos.CreateTokenEvent;
 import io.mywish.blockchain.ContractEventDefinition;
 import io.mywish.eos.blockchain.helper.EosStructureParser;
 import io.mywish.eos.blockchain.model.EosActionFieldsDefinition;

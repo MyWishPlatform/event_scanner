@@ -2,6 +2,7 @@ package io.mywish.bot.integration.services;
 
 import io.lastwill.eventscan.events.model.*;
 import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
+import io.lastwill.eventscan.events.model.contract.eos.CreateTokenEvent;
 import io.lastwill.eventscan.events.model.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.events.model.utility.PendingStuckEvent;
 import io.lastwill.eventscan.model.*;

@@ -1,7 +1,11 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.model.*;
+import io.lastwill.eventscan.events.model.contract.AirdropEvent;
 import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
+import io.lastwill.eventscan.events.model.contract.eos.CreateAirdropEvent;
+import io.lastwill.eventscan.events.model.contract.eos.CreateTokenEvent;
+import io.lastwill.eventscan.events.model.contract.eos.SetCodeEvent;
 import io.lastwill.eventscan.messages.AccountCreatedNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
 import io.lastwill.eventscan.messages.TokenCreatedNotify;
@@ -39,11 +43,6 @@ public class EosActionsMonitor {
 
     @Autowired
     private EventPublisher eventPublisher;
-
-//    @Value("${io.lastwill.eventscan.service.eos-monitor.create-token-name.testnet}")
-//    private String createTokenActionNameTestnet;
-//    @Value("${io.lastwill.eventscan.service.eos-minitor.create-token-name.mainnet}")
-//    private String createTokenActionNameMainnet;
 
     @EventListener
     private void onNewBlockEvent(final NewBlockEvent event) {

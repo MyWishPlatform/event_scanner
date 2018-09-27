@@ -49,4 +49,16 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
             @Param("addresses") Collection<String> addresses,
             @Param("network") NetworkType networkType
     );
+
+    @Query("select c from ProductAirdropEos c " +
+            "where c.network.type = :network " +
+            "and c.adminAddress = :adminAddress " +
+            "and c.tokenAddress = :tokenAddress " +
+            "and c.tokenShortName = :tokenShortName")
+    List<ProductAirdropEos> findAirdropByEos(
+            @Param("adminAddress") String adminAddress,
+            @Param("tokenAddress") String tokenAddress,
+            @Param("tokenShortName") String tokenShortName,
+            @Param("network") NetworkType networkType
+    );
 }

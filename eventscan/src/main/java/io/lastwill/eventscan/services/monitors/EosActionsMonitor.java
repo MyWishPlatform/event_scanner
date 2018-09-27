@@ -1,7 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.model.*;
-import io.lastwill.eventscan.events.model.contract.AirdropEvent;
 import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
 import io.lastwill.eventscan.events.model.contract.eos.CreateAirdropEvent;
 import io.lastwill.eventscan.events.model.contract.eos.CreateTokenEvent;
@@ -108,6 +107,7 @@ public class EosActionsMonitor {
                                                     contract,
                                                     wrapperTransaction,
                                                     event.getBlock(),
+                                                    contractEvent.getAddress(),
                                                     receipt.isSuccess()
                                             )
                                     );

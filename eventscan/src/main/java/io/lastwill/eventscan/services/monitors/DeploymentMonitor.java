@@ -77,7 +77,9 @@ public class DeploymentMonitor {
                                 event.getNetworkType(),
                                 contract,
                                 transaction,
-                                event.getBlock(), transactionReceipt.isSuccess())
+                                event.getBlock(),
+                                transaction.getCreates(),
+                                transactionReceipt.isSuccess())
                         );
                     })
                     .exceptionally(throwable -> {

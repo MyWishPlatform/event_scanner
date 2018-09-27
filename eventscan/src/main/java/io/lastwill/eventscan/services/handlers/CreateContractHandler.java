@@ -22,7 +22,7 @@ public class CreateContractHandler {
                 new ContractDeployedNotify(
                         event.getContract().getId(),
                         PaymentStatus.COMMITTED,
-                        event.getTransaction().getCreates(),
+                        event.getAddress(),
                         event.getTransaction().getHash(),
                         event.isSuccess()
                 )

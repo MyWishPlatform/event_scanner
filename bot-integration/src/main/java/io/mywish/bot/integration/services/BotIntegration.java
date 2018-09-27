@@ -69,7 +69,7 @@ public class BotIntegration {
                     type,
                     contract.getId(),
                     toCurrency(CryptoCurrency.ETH, product.getCost()),
-                    contract.getAddress(),
+                    contractCreatedEvent.getAddress(),
                     addressLink
             );
         }

@@ -29,6 +29,6 @@ public class EosStructureParser {
         int decimals = Integer.parseInt(parts[0]);
         String strSymbol = parts[1];
 
-        return new Symbol(symbol, decimals);
+        return new Symbol(strSymbol, decimals);
     }
 }

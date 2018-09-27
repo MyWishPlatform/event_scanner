@@ -33,8 +33,8 @@ public class AirdropEventBuilder extends ActionEventBuilder<AirdropEvent> {
                 DEFINITION,
                 address,
                 node.get("issuer").textValue(),
-                symbol.getSymbol(),
                 node.get("token_contract").textValue(),
+                symbol.getSymbol(),
                 StreamSupport.stream(node.get("addresses").spliterator(), false)
                         .map(JsonNode::textValue)
                         .collect(Collectors.toList()),

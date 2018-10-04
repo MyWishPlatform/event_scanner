@@ -11,14 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.HashSet;
 
 @Component
 @NoArgsConstructor
 public class CreateAirdropEventBuilder extends ActionEventBuilder<CreateAirdropEvent> {
     private final static ContractEventDefinition DEFINITION = new EosActionFieldsDefinition(
             "create", // it just a stub event name, do not change it!
-            Arrays.asList("issuer", "token_contract", "symbol")
+            Arrays.asList("pk", "issuer", "token_contract", "symbol", "drops")
     );
 
     @Autowired
@@ -30,10 +29,12 @@ public class CreateAirdropEventBuilder extends ActionEventBuilder<CreateAirdropE
         return new CreateAirdropEvent(
                 DEFINITION,
                 address,
+                node.get("pk").longValue(),
                 node.get("issuer").textValue(),
                 symbol.getSymbol(),
                 node.get("token_contract").textValue(),
-                symbol.getDecimals()
+                symbol.getDecimals(),
+                node.get("drops").longValue()
         );
     }
 

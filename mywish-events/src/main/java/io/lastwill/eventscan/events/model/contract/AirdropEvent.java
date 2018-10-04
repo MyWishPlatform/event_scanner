@@ -11,18 +11,13 @@ import java.util.List;
 @ToString
 @Getter
 public class AirdropEvent extends ContractEvent {
-    private final String adminAddress;
-    private final String tokenAddress;
-    private final String tokenSymbol;
-
+    private final long pk;
     private final List<String> addresses;
     private final List<BigInteger> values;
 
-    public AirdropEvent(ContractEventDefinition definition, String address, String adminAddress, String tokenAddress, String tokenSymbol, List<String> addresses, List<BigInteger> values) {
+    public AirdropEvent(ContractEventDefinition definition, String address, long pk, List<String> addresses, List<BigInteger> values) {
         super(definition, address);
-        this.adminAddress = adminAddress;
-        this.tokenAddress = tokenAddress;
-        this.tokenSymbol = tokenSymbol;
+        this.pk = pk;
         this.addresses = addresses;
         this.values = values;
     }

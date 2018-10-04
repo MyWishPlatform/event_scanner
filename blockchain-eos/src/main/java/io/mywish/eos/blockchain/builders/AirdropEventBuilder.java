@@ -20,7 +20,7 @@ import java.util.stream.StreamSupport;
 public class AirdropEventBuilder extends ActionEventBuilder<AirdropEvent> {
     private final static ContractEventDefinition DEFINITION = new EosActionFieldsDefinition(
             "drop", // it just a stub event name, do not change it!
-            Arrays.asList("issuer", "token_contract", "symbol", "addresses", "amounts")
+            Arrays.asList("pk", "addresses", "amounts")
     );
 
     @Autowired
@@ -28,13 +28,10 @@ public class AirdropEventBuilder extends ActionEventBuilder<AirdropEvent> {
 
     @Override
     public AirdropEvent build(String address, ObjectNode node) {
-        Symbol symbol = eosStructureParser.parseSymbol(node.get("symbol").textValue());
         return new AirdropEvent(
                 DEFINITION,
                 address,
-                node.get("issuer").textValue(),
-                node.get("token_contract").textValue(),
-                symbol.getSymbol(),
+                node.get("pk").longValue(),
                 StreamSupport.stream(node.get("addresses").spliterator(), false)
                         .map(JsonNode::textValue)
                         .collect(Collectors.toList()),

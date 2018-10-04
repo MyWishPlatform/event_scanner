@@ -82,37 +82,30 @@ public class EosAirdropEventHandler {
                                 .mapToObj(index -> new AirdropEntry(airdropEvent.getAddresses().get(index), airdropEvent.getValues().get(index)))
                                 .collect(Collectors.toList());
 
-                        List<ProductAirdropEos> airdrops = productRepository.findAirdropByEos(
-                                airdropEvent.getAdminAddress(),
-                                airdropEvent.getTokenAddress(),
-                                airdropEvent.getTokenSymbol(),
-                                event.getNetworkType()
-                        );
+                        ProductAirdropEos productAirdropEos = (ProductAirdropEos) productRepository.findOne((int) airdropEvent.getPk());
 
-                        if (airdrops.isEmpty()) {
+                        if (productAirdropEos == null) {
                             log.warn("There were no one airdrop product found for event {}.", airdropEvent);
                             return;
                         }
 
-                        airdrops.forEach(productAirdropEos -> {
-                            List<Contract> contracts = contractRepository.findByProduct(productAirdropEos);
-                            if (contracts.isEmpty()) {
-                                log.warn("There were no one contract found for airdrop {}.", productAirdropEos);
-                                return;
-                            }
+                        List<Contract> contracts = contractRepository.findByProduct(productAirdropEos);
+                        if (contracts.isEmpty()) {
+                            log.warn("There were no one contract found for airdrop {}.", productAirdropEos);
+                            return;
+                        }
 
-                            contracts.forEach(contract -> {
-                                externalNotifier.send(
-                                        event.getNetworkType(),
-                                        new AirdropNotify(
-                                                contract.getId(),
-                                                PaymentStatus.COMMITTED,
-                                                transaction.getHash(),
-                                                airdropEntries
-                                        )
-                                );
-                            });
-                        });
+                        contracts.forEach(contract -> {
+                            externalNotifier.send(
+                                    event.getNetworkType(),
+                                    new AirdropNotify(
+                                            contract.getId(),
+                                            PaymentStatus.COMMITTED,
+                                            transaction.getHash(),
+                                            airdropEntries
+                                    )
+                            );
+                        });;
                     });
         }
     }

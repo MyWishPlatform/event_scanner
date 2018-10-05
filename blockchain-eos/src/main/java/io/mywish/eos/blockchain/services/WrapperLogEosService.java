@@ -71,6 +71,9 @@ public class WrapperLogEosService {
     }
 
     private ActionEventBuilder findBuilder(WrapperOutputEos output) {
+        if (!output.getActionArguments().isObject()) {
+            return null;
+        }
         String fullKey = buildFullKey(output);
         ActionEventBuilder builder = byCumulativeKey.get(fullKey);
         if (builder != null) {

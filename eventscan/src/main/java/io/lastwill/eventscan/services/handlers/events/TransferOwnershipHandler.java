@@ -5,7 +5,7 @@ import io.lastwill.eventscan.messages.OwnershipTransferredNotify;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.model.NetworkType;
-import io.mywish.wrapper.WrapperTransactionReceipt;
+import io.mywish.blockchain.WrapperTransactionReceipt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

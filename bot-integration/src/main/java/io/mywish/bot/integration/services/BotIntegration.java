@@ -2,11 +2,12 @@ package io.mywish.bot.integration.services;
 
 import io.lastwill.eventscan.events.model.*;
 import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
+import io.lastwill.eventscan.events.model.contract.eos.CreateTokenEvent;
 import io.lastwill.eventscan.events.model.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.events.model.utility.PendingStuckEvent;
 import io.lastwill.eventscan.model.*;
 import io.mywish.bot.service.MyWishBot;
-import io.mywish.wrapper.ContractEvent;
+import io.mywish.blockchain.ContractEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,7 +69,7 @@ public class BotIntegration {
                     type,
                     contract.getId(),
                     toCurrency(CryptoCurrency.ETH, product.getCost()),
-                    contract.getAddress(),
+                    contractCreatedEvent.getAddress(),
                     addressLink
             );
         }
@@ -188,7 +189,7 @@ public class BotIntegration {
                 final String accountRef = explorerProvider.getOrStub(event.getNetworkType())
                         .buildToAddress(createTokenEvent.getIssuer());
                 bot.sendToAll(
-                        network + ": token [" + createTokenEvent.getSupply() + "](" + tokenRef + ") create by [" + createTokenEvent.getIssuer() + "](" + accountRef + ").",
+                        network + ": token [" + createTokenEvent.getSymbol() + "](" + tokenRef + ") create by [" + createTokenEvent.getIssuer() + "](" + accountRef + ").",
                         true
                 );
             }
@@ -210,10 +211,12 @@ public class BotIntegration {
                 hundreds = amount.divide(BigInteger.valueOf(100000000L));
                 break;
             }
+            case WISH:
             case ETH: {
                 hundreds = amount.divide(BigInteger.valueOf(10000000000000000L));
                 break;
             }
+            case EOSISH:
             case EOS: {
                 hundreds = amount.divide(BigInteger.valueOf(100L));
                 break;

@@ -31,7 +31,8 @@ public class ContractCreationMonitor {
             ProductCrowdsale productCrowdsale = (ProductCrowdsale) contract.getProduct();
             jouleRegistrationRepository.save(new JouleRegistration(
                     contract,
-                    LocalDateTime.ofInstant(productCrowdsale.getCheckDate(), ZoneOffset.UTC)));
+                    LocalDateTime.ofInstant(productCrowdsale.getCheckDate(), ZoneOffset.UTC)
+            ));
         }
     }
 }

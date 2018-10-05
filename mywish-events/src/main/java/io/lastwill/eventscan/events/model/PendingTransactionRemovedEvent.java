@@ -1,19 +1,16 @@
 package io.lastwill.eventscan.events.model;
 
 import io.lastwill.eventscan.model.NetworkType;
-import io.mywish.wrapper.WrapperTransaction;
+import io.mywish.blockchain.WrapperTransaction;
 import lombok.Getter;
-
-import javax.annotation.Nullable;
 
 @Getter
 public class PendingTransactionRemovedEvent extends BaseEvent {
     private final WrapperTransaction transaction;
     private final Reason reason;
-    @Nullable
     private final Long blockNumber;
 
-    public PendingTransactionRemovedEvent(NetworkType networkType, WrapperTransaction transaction, Reason reason, @Nullable Long blockNumber) {
+    public PendingTransactionRemovedEvent(NetworkType networkType, WrapperTransaction transaction, Reason reason, Long blockNumber) {
         super(networkType);
         this.transaction = transaction;
         this.reason = reason;

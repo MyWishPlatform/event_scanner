@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.services;
 
-import io.mywish.wrapper.WrapperTransaction;
-import io.mywish.wrapper.WrapperTransactionReceipt;
+import io.mywish.blockchain.WrapperTransaction;
+import io.mywish.blockchain.WrapperTransactionReceipt;
 import io.lastwill.eventscan.model.NetworkType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

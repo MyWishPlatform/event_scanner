@@ -6,8 +6,8 @@ import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.NetworkProvider;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.services.EventPublisher;
-import io.mywish.wrapper.WrapperNetwork;
-import io.mywish.wrapper.WrapperTransaction;
+import io.mywish.blockchain.WrapperNetwork;
+import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +77,9 @@ public class DeploymentMonitor {
                                 event.getNetworkType(),
                                 contract,
                                 transaction,
-                                event.getBlock(), transactionReceipt.isSuccess())
+                                event.getBlock(),
+                                transaction.getCreates(),
+                                transactionReceipt.isSuccess())
                         );
                     })
                     .exceptionally(throwable -> {

@@ -4,7 +4,7 @@ import io.lastwill.eventscan.events.model.TransactionUnlockedEvent;
 import io.lastwill.eventscan.repositories.AddressLockRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.services.EventPublisher;
-import io.mywish.wrapper.WrapperTransactionReceipt;
+import io.mywish.blockchain.WrapperTransactionReceipt;
 import io.mywish.scanner.model.NewBlockEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

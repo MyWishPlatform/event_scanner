@@ -7,5 +7,6 @@ public enum  CryptoCurrency {
     RSK,
     NEO,
     GAS,
-    EOS
+    EOS,
+    EOSISH
 }

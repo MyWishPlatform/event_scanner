@@ -1,9 +1,9 @@
 package io.mywish.scanner.services;
 
 import io.mywish.scanner.model.NewPendingTransactionsEvent;
-import io.mywish.wrapper.WrapperBlock;
-import io.mywish.wrapper.WrapperNetwork;
-import io.mywish.wrapper.WrapperTransaction;
+import io.mywish.blockchain.WrapperBlock;
+import io.mywish.blockchain.WrapperNetwork;
+import io.mywish.blockchain.WrapperTransaction;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

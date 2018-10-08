@@ -18,13 +18,11 @@ public class ScannerModule {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-    @ConditionalOnBean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
     @Bean
     public PendingTransactionService pendingTransactionServiceMain() {
         return new PendingTransactionService(NetworkType.ETHEREUM_MAINNET);
     }
 
-    @ConditionalOnBean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
     @Bean
     public PendingTransactionService pendingTransactionServiceRopsten() {
         return new PendingTransactionService(NetworkType.ETHEREUM_ROPSTEN);

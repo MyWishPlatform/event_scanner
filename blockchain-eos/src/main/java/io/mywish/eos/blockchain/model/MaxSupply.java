@@ -21,6 +21,6 @@ public class MaxSupply {
     }
 
     public BigInteger getIntegerValue() {
-        return value.multiply(new BigDecimal(decimals)).toBigInteger();
+        return BigDecimal.TEN.pow(decimals).multiply(value).toBigInteger();
     }
 }

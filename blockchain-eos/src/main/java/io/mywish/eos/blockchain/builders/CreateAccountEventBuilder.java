@@ -17,11 +17,21 @@ public class CreateAccountEventBuilder extends ActionEventBuilder<CreateAccountE
 
     @Override
     public CreateAccountEvent build(String address, ObjectNode objectNode) {
+        String newAccountName;
+        if (objectNode.has("name")) {
+            newAccountName = objectNode.get("name").textValue();
+        }
+        else if (objectNode.has("newact")) {
+            newAccountName = objectNode.get("newact").textValue();
+        }
+        else {
+            throw new IllegalStateException("Event parameters does not contain not neme or newact values.");
+        }
         return new CreateAccountEvent(
                 DEFINITION,
                 address,
                 objectNode.get("creator").textValue(),
-                objectNode.get("name").textValue()
+                newAccountName
         );
     }
 

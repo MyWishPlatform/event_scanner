@@ -34,6 +34,7 @@
         <module>blockchain-eos</module>
         <module>blockchain-neo</module>
         <module>blockchain-btc</module>
+        <module>mywish-airdrop</module>
     </modules>
 
     <properties>

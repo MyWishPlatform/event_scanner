@@ -1,6 +1,7 @@
 package io.mywish.eos.blockchain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.lastwill.eventscan.events.EventModule;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.eos.blockchain.services.EosNetwork;
 import io.mywish.eos.blockchain.services.EosScanner;
@@ -14,11 +15,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import java.net.URI;
 
 @Configuration
 @ComponentScan
+@Import(EventModule.class)
 public class EosBCModule {
     @ConditionalOnProperty(name = {"etherscanner.eos.rpc-url.testnet", "etherscanner.eos.tcp-url.testnet"})
     @Bean(name = NetworkType.EOS_TESTNET_VALUE)

@@ -56,12 +56,12 @@ public class EosScanner extends Scanner {
         block.getTransactions().forEach(tx -> {
             tx.getInputs()
                     .forEach(address -> {
-                        addressTransactions.set(address, tx);
+                        addressTransactions.add(address, tx);
                     });
 
             tx.getOutputs()
                     .forEach(wrapperOutput -> {
-                        addressTransactions.set(wrapperOutput.getAddress(), tx);
+                        addressTransactions.add(wrapperOutput.getAddress(), tx);
                     });
         });
         eventPublisher.publish(new NewBlockEvent(network.getType(), block, addressTransactions));

@@ -1,7 +1,7 @@
 package io.mywish.airdrop.services;
 
-import io.mywish.airdrop.model.EosishAirdropEntry;
-import io.mywish.airdrop.repositories.EosishAirdropEntryRepository;
+import io.mywish.airdrop.model.WishAirdropEntry;
+import io.mywish.airdrop.repositories.WishAirdropEntryRepository;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.topiacoin.eosrpcadapter.Chain;
@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 @Component
 public class EosishAirdropService {
     @Autowired
-    private EosishAirdropEntryRepository repository;
+    private WishAirdropEntryRepository repository;
 
     @Autowired
     private EosAdapter eosAdapter;
@@ -89,16 +89,16 @@ public class EosishAirdropService {
     }
 
     @Transactional
-    public List<EosishAirdropEntry> findFist(int limit) {
-        try (Stream<EosishAirdropEntry> stream = repository.findFirstNotProcessed()) {
+    public List<WishAirdropEntry> findFist(int limit) {
+        try (Stream<WishAirdropEntry> stream = repository.findFirstNotProcessed()) {
             return stream
                     .limit(limit)
                     .collect(Collectors.toList());
         }
     }
 
-    public void update(List<EosishAirdropEntry> entries) throws ChainException, WalletException {
-        for (EosishAirdropEntry entry : entries) {
+    public void update(List<WishAirdropEntry> entries) throws ChainException, WalletException {
+        for (WishAirdropEntry entry : entries) {
             if (repository.process(entry) == 0) {
                 log.info("Skip entry {}, already is in process.", entry.getId());
                 continue;

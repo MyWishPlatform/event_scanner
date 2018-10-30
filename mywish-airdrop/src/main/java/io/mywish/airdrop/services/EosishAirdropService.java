@@ -15,6 +15,7 @@ import io.topiacoin.eosrpcadapter.Wallet;
 import io.topiacoin.eosrpcadapter.exceptions.ChainException;
 import io.topiacoin.eosrpcadapter.exceptions.WalletException;
 import io.topiacoin.eosrpcadapter.messages.*;
+import javafx.scene.effect.Light;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -148,6 +149,10 @@ public class EosishAirdropService {
                 throw e;
             }
             String hash = sendAction(action);
+            if (hash == null) {
+                log.error("Sending failed.");
+                continue;
+            }
 
             getRepository(entry.getClass()).txSent(entry, hash, eosish, LocalDateTime.now(ZoneOffset.UTC));
         }
@@ -264,6 +269,10 @@ public class EosishAirdropService {
                         log.error("Sleep was interrupted.", e);
                     }
                     continue;
+                }
+                else if (ex.getMessage().contains("assertion failure with message")) {
+                    log.warn("Skip this error.");
+                    return null;
                 }
                 throw ex;
             }

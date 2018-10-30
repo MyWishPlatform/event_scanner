@@ -1,7 +1,6 @@
 package io.mywish.airdrop.repositories;
 
 import io.mywish.airdrop.model.AirdropEntry;
-import io.mywish.airdrop.model.WishAirdropEntry;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -29,14 +28,14 @@ public interface AirdropEntryRepository<T extends AirdropEntry> extends CrudRepo
     @Transactional
     @Modifying
     @Query("update #{#entityName} e set e.inProcessing = true where e = :airdrop and e.inProcessing = false ")
-    int process(@Param("airdrop") T airdropEntry);
+    int process(@Param("airdrop") AirdropEntry airdropEntry);
 
     @Transactional
     @Modifying
     @Query("update #{#entityName} e set e.txHash = :txHash, e.eosishAmount = :eosAmount, e.sentAt = :sentAt " +
             "where e = :airdrop and e.inProcessing = true ")
     int txSent(
-            @Param("airdrop") WishAirdropEntry airdropEntry,
+            @Param("airdrop") AirdropEntry airdropEntry,
             @Param("txHash") String txHash,
             @Param("eosAmount") BigDecimal eosAmount,
             @Param("sentAt") LocalDateTime sentAt
@@ -47,7 +46,7 @@ public interface AirdropEntryRepository<T extends AirdropEntry> extends CrudRepo
     @Query("update #{#entityName} e set e.blockNumber = :blockNumber " +
             "where e = :airdrop and e.inProcessing = true ")
     int txInBlock(
-            @Param("airdrop") WishAirdropEntry airdropEntry,
+            @Param("airdrop") AirdropEntry airdropEntry,
             @Param("blockNumber") long blockNumber
     );
 }

@@ -1,6 +1,10 @@
 package io.mywish.airdrop.services;
 
+import io.mywish.airdrop.model.AirdropEntry;
+import io.mywish.airdrop.model.BountyAirdropEntry;
 import io.mywish.airdrop.model.WishAirdropEntry;
+import io.mywish.airdrop.repositories.AirdropEntryRepository;
+import io.mywish.airdrop.repositories.BountyAirdropEntryRepository;
 import io.mywish.airdrop.repositories.WishAirdropEntryRepository;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
@@ -24,7 +28,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,7 +40,9 @@ import java.util.stream.Stream;
 @Component
 public class EosishAirdropService {
     @Autowired
-    private WishAirdropEntryRepository repository;
+    private WishAirdropEntryRepository wishRepository;
+    @Autowired
+    private BountyAirdropEntryRepository bountyRepository;
 
     @Autowired
     private EosAdapter eosAdapter;
@@ -78,51 +87,83 @@ public class EosishAirdropService {
                 .stream()
                 .map(WrapperTransaction::getHash)
                 .peek(log::info)
-                .map(repository::findByTxHash)
-                .map(List::stream)
+                .map(this::findByTxHash)
                 .flatMap(Function.identity())
                 .peek(airdropEntry -> log.info("{}", airdropEntry))
                 .forEach(airdropEntry -> {
-                    repository.txInBlock(airdropEntry, event.getBlock().getNumber());
+                    getRepository(airdropEntry.getClass()).txInBlock(airdropEntry, event.getBlock().getNumber());
                     log.info("Entry {} in block {}.", airdropEntry.getId(), event.getBlock().getNumber());
                 });
     }
 
     @Transactional
-    public List<WishAirdropEntry> findFist(int limit) {
-        try (Stream<WishAirdropEntry> stream = repository.findFirstNotProcessed()) {
+    public List<AirdropEntry> findFistWish(int limit) {
+        try (Stream<WishAirdropEntry> stream = getRepository(WishAirdropEntry.class).findFirstNotProcessed()) {
             return stream
                     .limit(limit)
                     .collect(Collectors.toList());
         }
     }
 
-    public void update(List<WishAirdropEntry> entries) throws ChainException, WalletException {
-        for (WishAirdropEntry entry : entries) {
-            if (repository.process(entry) == 0) {
+    @Transactional
+    public List<AirdropEntry> findFistBounty(int limit) {
+        try (Stream<BountyAirdropEntry> stream = getRepository(BountyAirdropEntry.class).findFirstNotProcessed()) {
+            return stream
+                    .limit(limit)
+                    .collect(Collectors.toList());
+        }
+    }
+
+    public void update(List<AirdropEntry> entries) throws ChainException, WalletException {
+        for (int i = 0; i < entries.size(); i++) {
+            AirdropEntry entry = entries.get(i);
+            if (getRepository(entry.getClass()).process(entry) == 0) {
                 log.info("Skip entry {}, already is in process.", entry.getId());
                 continue;
             }
-            BigDecimal wish = new BigDecimal(entry.getWishAmount());
-            DecimalFormat decimalFormat = new DecimalFormat(symbolFormat);
-            BigDecimal eosish = wish.divide(BigDecimal.TEN.pow(18), 4, RoundingMode.HALF_UP);
+            BigDecimal eosish = getEosishAmount(entry);
 
+            DecimalFormat decimalFormat = new DecimalFormat(symbolFormat);
+            log.info("Ready to send {} eosish ({}). {}/{} done.", eosish, decimalFormat.format(eosish), i, entries.size());
             Transaction.Action action = null;
             try {
                 action = buildAction(entry.getEosAddress(), decimalFormat.format(eosish));
-//                break;
             }
             catch (Exception e) {
-//                if (e.getMessage().contains("invalid_action_args_exception")) {
-//                    continue;
-//                }
-                log.error("Error on creating action.", e);
+                log.error("Error on creating action. {}/{} done.", e, i, entries.size());
                 throw e;
             }
             String hash = sendAction(action);
 
-            repository.txSent(entry, hash, eosish, LocalDateTime.now(ZoneOffset.UTC));
+            getRepository(entry.getClass()).txSent(entry, hash, eosish, LocalDateTime.now(ZoneOffset.UTC));
         }
+    }
+
+    protected Stream<? extends AirdropEntry> findByTxHash(String txHash) {
+        return Stream.of(wishRepository, bountyRepository)
+                .map(repository -> repository.findByTxHash(txHash))
+                .flatMap(List::stream);
+    }
+
+    protected <T extends AirdropEntry, R extends AirdropEntryRepository<T>> R getRepository(Class<T> entryClass) {
+        if (entryClass == BountyAirdropEntry.class) {
+            return (R) bountyRepository;
+        }
+        else if (entryClass == WishAirdropEntry.class) {
+            return (R) wishRepository;
+        }
+        throw new UnsupportedOperationException("Airdrop " + entryClass.getSimpleName() + " is not supported.");
+    }
+
+    protected BigDecimal getEosishAmount(AirdropEntry airdropEntry) {
+        if (airdropEntry instanceof WishAirdropEntry) {
+            BigDecimal wish = new BigDecimal(((WishAirdropEntry) airdropEntry).getWishAmount());
+            return wish.divide(BigDecimal.TEN.pow(18), 4, RoundingMode.HALF_UP);
+        }
+        else if (airdropEntry instanceof BountyAirdropEntry) {
+            return ((BountyAirdropEntry) airdropEntry).getBonusAmount();
+        }
+        throw new UnsupportedOperationException("Airdrop " + airdropEntry.getClass().getSimpleName() + " is not supported.");
     }
 
     private Transaction.Action buildAction(String to, String quantity) throws ChainException {
@@ -143,7 +184,7 @@ public class EosishAirdropService {
     }
 
     private String sendAction(Transaction.Action action) throws WalletException, ChainException {
-        String expiration = LocalDateTime.now(ZoneOffset.UTC).plus(1, ChronoUnit.HOURS).format(
+        String expiration = LocalDateTime.now(ZoneOffset.UTC).plus(10, ChronoUnit.MINUTES).format(
                 DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
         );
 
@@ -169,6 +210,7 @@ public class EosishAirdropService {
         ChainException last = null;
         for (int i = 0; i < 30; i++) {
             try {
+                log.info("Sending try {}.", i);
                 Transaction.Response response = chainApi.pushTransaction(signedTransaction);
                 log.info("Response: {}", response);
                 return response.transaction_id;

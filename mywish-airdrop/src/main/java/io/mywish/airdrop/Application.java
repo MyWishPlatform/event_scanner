@@ -90,8 +90,10 @@ public class Application implements CommandLineRunner {
                 case bounty:
                     entries = eosishAirdropService.findFistBounty(limit);
                     break;
-                default:
                 case eos:
+                    entries = eosishAirdropService.findFistEos(limit);
+                    break;
+                default:
                     throw new UnsupportedOperationException(type + " not supported now");
             }
             log.info("Found {} entries to update.", entries.size());

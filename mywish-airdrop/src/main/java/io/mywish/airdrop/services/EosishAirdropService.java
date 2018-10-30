@@ -2,9 +2,11 @@ package io.mywish.airdrop.services;
 
 import io.mywish.airdrop.model.AirdropEntry;
 import io.mywish.airdrop.model.BountyAirdropEntry;
+import io.mywish.airdrop.model.EosAirdropEntry;
 import io.mywish.airdrop.model.WishAirdropEntry;
 import io.mywish.airdrop.repositories.AirdropEntryRepository;
 import io.mywish.airdrop.repositories.BountyAirdropEntryRepository;
+import io.mywish.airdrop.repositories.EosAirdropEntryRepository;
 import io.mywish.airdrop.repositories.WishAirdropEntryRepository;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
@@ -43,6 +45,8 @@ public class EosishAirdropService {
     private WishAirdropEntryRepository wishRepository;
     @Autowired
     private BountyAirdropEntryRepository bountyRepository;
+    @Autowired
+    private EosAirdropEntryRepository eosRepository;
 
     @Autowired
     private EosAdapter eosAdapter;
@@ -114,6 +118,15 @@ public class EosishAirdropService {
         }
     }
 
+    @Transactional
+    public List<AirdropEntry> findFistEos(int limit) {
+        try (Stream<EosAirdropEntry> stream = getRepository(EosAirdropEntry.class).findFirstNotProcessed()) {
+            return stream
+                    .limit(limit)
+                    .collect(Collectors.toList());
+        }
+    }
+
     public void update(List<AirdropEntry> entries) throws ChainException, WalletException {
         for (int i = 0; i < entries.size(); i++) {
             AirdropEntry entry = entries.get(i);
@@ -139,8 +152,8 @@ public class EosishAirdropService {
         }
     }
 
-    protected Stream<? extends AirdropEntry> findByTxHash(String txHash) {
-        return Stream.of(wishRepository, bountyRepository)
+    protected Stream<? extends AirdropEntry> findByTxHash(final String txHash) {
+        return Stream.of(wishRepository, bountyRepository, eosRepository)
                 .map(repository -> repository.findByTxHash(txHash))
                 .flatMap(List::stream);
     }
@@ -151,6 +164,9 @@ public class EosishAirdropService {
         }
         else if (entryClass == WishAirdropEntry.class) {
             return (R) wishRepository;
+        }
+        else if (entryClass == EosAirdropEntry.class) {
+            return (R) eosRepository;
         }
         throw new UnsupportedOperationException("Airdrop " + entryClass.getSimpleName() + " is not supported.");
     }
@@ -202,11 +218,22 @@ public class EosishAirdropService {
                 null
         );
 
-        SignedTransaction signedTransaction = walletApi.signTransaction(
-                transaction,
-                Collections.singletonList(publicKey),
-                chainInfo.chain_id
-        );
+        SignedTransaction signedTransaction = null;
+        for (int i = 0; i < 10; i ++) {
+            try {
+                signedTransaction = walletApi.signTransaction(
+                        transaction,
+                        Collections.singletonList(publicKey),
+                        chainInfo.chain_id
+                );
+            }
+            catch (WalletException e) {
+                log.warn("Sing failed. Try again {} time.", i, e);
+            }
+        }
+        if (signedTransaction == null) {
+            throw new WalletException("Singe transaction failed multiple times.");
+        }
         ChainException last = null;
         for (int i = 0; i < 30; i++) {
             try {

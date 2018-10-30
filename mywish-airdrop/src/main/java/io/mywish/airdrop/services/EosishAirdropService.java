@@ -48,6 +48,7 @@ public class EosishAirdropService {
     @Autowired
     private EosAirdropEntryRepository eosRepository;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private EosAdapter eosAdapter;
     @Value("${io.mywish.airdrop.private-key}")
@@ -203,27 +204,27 @@ public class EosishAirdropService {
     }
 
     private String sendAction(Transaction.Action action) throws WalletException, ChainException {
-        String expiration = LocalDateTime.now(ZoneOffset.UTC).plus(10, ChronoUnit.MINUTES).format(
-                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-        );
-
-        Transaction transaction = new Transaction(
-                expiration,
-                chainInfo.last_irreversible_block_num,
-                blockInfo.ref_block_prefix,
-                0,
-                0,
-                0,
-                null,
-                Collections.singletonList(action),
-                null,
-                null,
-                null
-        );
-
         SignedTransaction signedTransaction = null;
         for (int i = 0; i < 10; i ++) {
             try {
+                String expiration = LocalDateTime.now(ZoneOffset.UTC).plus(10, ChronoUnit.MINUTES).format(
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+                );
+
+                Transaction transaction = new Transaction(
+                        expiration,
+                        chainInfo.last_irreversible_block_num,
+                        blockInfo.ref_block_prefix,
+                        0,
+                        0,
+                        0,
+                        null,
+                        Collections.singletonList(action),
+                        null,
+                        null,
+                        null
+                );
+
                 signedTransaction = walletApi.signTransaction(
                         transaction,
                         Collections.singletonList(publicKey),
@@ -232,6 +233,12 @@ public class EosishAirdropService {
             }
             catch (WalletException e) {
                 log.warn("Sing failed. Try again {} time.", i, e);
+                try {
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException e2) {
+                    log.error("Sleep was interrupted.", e2);
+                }
             }
         }
         if (signedTransaction == null) {

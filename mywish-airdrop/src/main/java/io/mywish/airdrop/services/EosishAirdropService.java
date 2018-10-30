@@ -179,6 +179,9 @@ public class EosishAirdropService {
         else if (airdropEntry instanceof BountyAirdropEntry) {
             return ((BountyAirdropEntry) airdropEntry).getBonusAmount();
         }
+        else if (airdropEntry instanceof EosAirdropEntry) {
+            return ((EosAirdropEntry) airdropEntry).getEosAmount().divide(BigDecimal.valueOf(50), 4, RoundingMode.HALF_UP);
+        }
         throw new UnsupportedOperationException("Airdrop " + airdropEntry.getClass().getSimpleName() + " is not supported.");
     }
 

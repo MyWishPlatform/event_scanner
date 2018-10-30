@@ -246,6 +246,13 @@ public class EosishAirdropService {
                 last = ex;
                 log.error("Send failed.", ex);
                 if (ex.getMessage().contains("tx_cpu_usage_exceeded")) {
+                    try {
+                        log.warn("tx_cpu_usage_exceeded, wait 1 sec.");
+                        Thread.sleep(1000);
+                    }
+                    catch (InterruptedException e) {
+                        log.error("Sleep was interrupted.", e);
+                    }
                     continue;
                 }
                 throw ex;

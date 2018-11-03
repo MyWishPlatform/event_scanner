@@ -87,7 +87,7 @@ public class BotIntegration {
                     .buildToTransaction(event.getTransaction().getHash());
             bot.onBalance(
                     network,
-                    userProfile.getUser().getId(),
+                    userProfile.getUser().getEmail(),
                     toCurrency(event.getCurrency(), event.getAmount()),
                     txLink
             );

@@ -137,11 +137,11 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
     }
 
-    public void onBalance(String network, Integer id, String cost, final String txLink) {
+    public void onBalance(String network, String account, String cost, final String txLink) {
         final String message = new StringBuilder()
                 .append(network)
                 .append(": payment received from user ")
-                .append(id)
+                .append(account)
                 .append(", [")
                 .append(cost)
                 .append("](https://")

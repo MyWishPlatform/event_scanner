@@ -62,6 +62,7 @@ public class EosBCModule {
     }
 
     @ConditionalOnBean(name = NetworkType.EOS_MAINNET_VALUE)
+    @ConditionalOnProperty(name = "etherscanner.eos.pending")
     @Bean
     public EosScanner eosScannerMain(
             final @Qualifier(NetworkType.EOS_MAINNET_VALUE) EosNetwork network,
@@ -70,11 +71,13 @@ public class EosBCModule {
     ) {
         return new EosScanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, lastBlock)
+                new LastBlockPersister(network.getType(), dir, lastBlock),
+                false
         );
     }
 
     @ConditionalOnBean(name = NetworkType.EOS_TESTNET_VALUE)
+    @ConditionalOnProperty(name = "etherscanner.eos.pending")
     @Bean
     public EosScanner eosScannerTest(
             final @Qualifier(NetworkType.EOS_TESTNET_VALUE) EosNetwork network,
@@ -83,7 +86,36 @@ public class EosBCModule {
     ) {
         return new EosScanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, lastBlock)
+                new LastBlockPersister(network.getType(), dir, lastBlock),
+                false
+        );
+    }
+
+    @ConditionalOnBean(name = NetworkType.EOS_MAINNET_VALUE)
+    @Bean
+    public EosScanner eosPendingScannerMain(
+            final @Qualifier(NetworkType.EOS_MAINNET_VALUE) EosNetwork network,
+            final @Value("${etherscanner.start-block-dir}") String dir,
+            final @Value("${etherscanner.eos.last-block.mainnet:#{null}}") Long lastBlock
+    ) {
+        return new EosScanner(
+                network,
+                new LastBlockPersister(network.getType(), dir, lastBlock),
+                true
+        );
+    }
+
+    @ConditionalOnBean(name = NetworkType.EOS_TESTNET_VALUE)
+    @Bean
+    public EosScanner eosPendingScannerTest(
+            final @Qualifier(NetworkType.EOS_TESTNET_VALUE) EosNetwork network,
+            final @Value("${etherscanner.start-block-dir}") String dir,
+            final @Value("${etherscanner.eos.last-block.testnet:#{null}}") Long lastBlock
+    ) {
+        return new EosScanner(
+                network,
+                new LastBlockPersister(network.getType(), dir, lastBlock),
+                true
         );
     }
 

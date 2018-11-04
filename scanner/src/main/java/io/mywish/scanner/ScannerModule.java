@@ -25,4 +25,14 @@ public class ScannerModule {
     public PendingTransactionService pendingTransactionServiceRopsten() {
         return new PendingTransactionService(NetworkType.ETHEREUM_ROPSTEN);
     }
+
+    @Bean
+    public PendingTransactionService pendingTransactionServiceEosMain() {
+        return new PendingTransactionService(NetworkType.EOS_MAINNET);
+    }
+
+    @Bean
+    public PendingTransactionService pendingTransactionServiceEosTestnet() {
+        return new PendingTransactionService(NetworkType.EOS_TESTNET);
+    }
 }

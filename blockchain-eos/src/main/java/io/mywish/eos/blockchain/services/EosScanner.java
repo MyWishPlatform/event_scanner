@@ -69,6 +69,9 @@ public class EosScanner extends Scanner {
     @PostConstruct
     @Override
     protected void open() {
+        if (isPending) {
+
+        }
         lastBlockPersister.open();
     }
 

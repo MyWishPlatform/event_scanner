@@ -6,7 +6,8 @@ import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.eos.blockchain.services.EosNetwork;
 import io.mywish.eos.blockchain.services.EosScanner;
 import io.mywish.eoscli4j.service.EosClientImpl;
-import io.mywish.scanner.services.LastBlockPersister;
+import io.mywish.scanner.services.LastBlockFilePersister;
+import io.mywish.scanner.services.LastBlockMemoryPersister;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,7 +72,7 @@ public class EosBCModule {
     ) {
         return new EosScanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, lastBlock),
+                new LastBlockFilePersister(network.getType(), dir, lastBlock),
                 false
         );
     }
@@ -86,7 +87,7 @@ public class EosBCModule {
     ) {
         return new EosScanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, lastBlock),
+                new LastBlockFilePersister(network.getType(), dir, lastBlock),
                 false
         );
     }
@@ -95,12 +96,11 @@ public class EosBCModule {
     @Bean
     public EosScanner eosPendingScannerMain(
             final @Qualifier(NetworkType.EOS_MAINNET_VALUE) EosNetwork network,
-            final @Value("${etherscanner.start-block-dir}") String dir,
             final @Value("${etherscanner.eos.last-block.mainnet:#{null}}") Long lastBlock
     ) {
         return new EosScanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, lastBlock),
+                new LastBlockMemoryPersister(lastBlock),
                 true
         );
     }
@@ -109,12 +109,11 @@ public class EosBCModule {
     @Bean
     public EosScanner eosPendingScannerTest(
             final @Qualifier(NetworkType.EOS_TESTNET_VALUE) EosNetwork network,
-            final @Value("${etherscanner.start-block-dir}") String dir,
             final @Value("${etherscanner.eos.last-block.testnet:#{null}}") Long lastBlock
     ) {
         return new EosScanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, lastBlock),
+                new LastBlockMemoryPersister(lastBlock),
                 true
         );
     }

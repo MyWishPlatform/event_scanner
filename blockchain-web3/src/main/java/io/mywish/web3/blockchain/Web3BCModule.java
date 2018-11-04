@@ -1,7 +1,7 @@
 package io.mywish.web3.blockchain;
 
 import io.lastwill.eventscan.model.NetworkType;
-import io.mywish.scanner.services.LastBlockPersister;
+import io.mywish.scanner.services.LastBlockFilePersister;
 import io.mywish.web3.blockchain.parity.Web3jEx;
 import io.mywish.web3.blockchain.service.Web3Network;
 import io.mywish.web3.blockchain.service.Web3Scanner;
@@ -71,7 +71,7 @@ public class Web3BCModule {
     ) {
         return new Web3Scanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, null),
+                new LastBlockFilePersister(network.getType(), dir, null),
                 pollingInterval,
                 commitmentChainLength
         );
@@ -87,7 +87,7 @@ public class Web3BCModule {
     ) {
         return new Web3Scanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, null),
+                new LastBlockFilePersister(network.getType(), dir, null),
                 pollingInterval,
                 commitmentChainLength
         );
@@ -103,7 +103,7 @@ public class Web3BCModule {
     ) {
         return new Web3Scanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, null),
+                new LastBlockFilePersister(network.getType(), dir, null),
                 pollingInterval,
                 commitmentChainLength
         );
@@ -119,7 +119,7 @@ public class Web3BCModule {
     ) {
         return new Web3Scanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, null),
+                new LastBlockFilePersister(network.getType(), dir, null),
                 pollingInterval,
                 commitmentChainLength
         );

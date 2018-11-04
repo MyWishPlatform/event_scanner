@@ -4,7 +4,7 @@ import com.neemre.btcdcli4j.core.client.BtcdClientImpl;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.btc.blockchain.services.BtcNetwork;
 import io.mywish.btc.blockchain.services.BtcScanner;
-import io.mywish.scanner.services.LastBlockPersister;
+import io.mywish.scanner.services.LastBlockFilePersister;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.TestNet3Params;
@@ -87,7 +87,7 @@ public class BtcBCModule {
     ) {
         return new BtcScanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, lastBlock),
+                new LastBlockFilePersister(network.getType(), dir, lastBlock),
                 pollingInterval,
                 commitmentChainLength
         );
@@ -104,7 +104,7 @@ public class BtcBCModule {
     ) {
         return new BtcScanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, lastBlock),
+                new LastBlockFilePersister(network.getType(), dir, lastBlock),
                 pollingInterval,
                 commitmentChainLength
         );

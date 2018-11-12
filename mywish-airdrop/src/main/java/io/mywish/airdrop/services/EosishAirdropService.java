@@ -138,6 +138,16 @@ public class EosishAirdropService {
             }
             BigDecimal eosish = getEosishAmount(entry);
 
+            if (entry.getEosishAmount() != null && eosish.compareTo(entry.getEosishAmount()) <= 0) {
+                log.info("No need to pay: payed {}, but need {}. Skip.", eosish, entry.getEosishAmount());
+                continue;
+            }
+
+            if (entry.getEosishAmount() != null) {
+                eosish = eosish.subtract(entry.getEosishAmount());
+                log.info("Some already payed {}, but rest is {}.", entry.getEosishAmount(), eosish);
+            }
+
             DecimalFormat decimalFormat = new DecimalFormat(symbolFormat);
             log.info("Ready to send {} eosish ({}). {}/{} done.", eosish, decimalFormat.format(eosish), i, entries.size());
             Transaction.Action action = null;

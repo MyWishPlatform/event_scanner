@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.mywish.airdrop.model.AirdropEntry;
 import io.mywish.airdrop.services.EosAdapter;
 import io.mywish.airdrop.services.EosishAirdropService;
+import io.mywish.airdrop.services.WishTransferFetcher;
 import io.mywish.scanner.ScannerModule;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -36,10 +37,13 @@ public class Application implements CommandLineRunner {
     public enum AirdropType {
         bounty,
         wish,
-        eos
+        eos,
+        fetch
     }
     @Autowired
     private EosishAirdropService eosishAirdropService;
+    @Autowired
+    private WishTransferFetcher wishTransferFetcher;
 
     @Value("${limit:#{null}}")
     private Integer limit;
@@ -93,6 +97,8 @@ public class Application implements CommandLineRunner {
                 case eos:
                     entries = eosishAirdropService.findFistEos(limit);
                     break;
+                case fetch:
+                    wishTransferFetcher.fetch(4397737, 6526408);
                 default:
                     throw new UnsupportedOperationException(type + " not supported now");
             }

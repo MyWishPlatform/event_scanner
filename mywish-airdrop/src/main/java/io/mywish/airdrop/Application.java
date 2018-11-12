@@ -121,7 +121,7 @@ public class Application implements CommandLineRunner {
                 .setDefaultRequestConfig(
                         RequestConfig.custom()
                                 .setConnectTimeout(5000)
-                                .setSocketTimeout(1500)
+                                .setSocketTimeout(5000)
                                 .setConnectionRequestTimeout(5000)
                                 .build()
                 )

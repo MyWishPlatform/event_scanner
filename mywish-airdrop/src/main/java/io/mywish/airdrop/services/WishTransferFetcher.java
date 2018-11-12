@@ -41,8 +41,8 @@ public class WishTransferFetcher {
         if (fromBlock > toBlock) {
             throw new IllegalArgumentException("fromBlock must be less then toBlock");
         }
-        for (long i = fromBlock; i < toBlock + PORTION; i += PORTION) {
-            List<WishTransfer> transfers = fetchPortion(i, Math.min(i + PORTION, toBlock))
+        for (long i = fromBlock + PORTION; i < toBlock + PORTION; i += PORTION) {
+            List<WishTransfer> transfers = fetchPortion(i - PORTION, Math.min(i, toBlock))
                     .stream()
                     .map(this::convert)
                     .collect(Collectors.toList());

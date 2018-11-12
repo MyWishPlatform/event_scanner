@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Import;
 
 import java.net.URL;
 import java.security.Security;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -98,7 +99,9 @@ public class Application implements CommandLineRunner {
                     entries = eosishAirdropService.findFistEos(limit);
                     break;
                 case fetch:
+                    entries = Collections.emptyList();
                     wishTransferFetcher.fetch(4397737, 6526408);
+                    break;
                 default:
                     throw new UnsupportedOperationException(type + " not supported now");
             }

@@ -73,8 +73,8 @@ public class WishTransferFetcher {
     private WishTransfer convert(LogEntry logEntry) {
         String from = toAddress(logEntry.getTopics().get(1));
         String to = toAddress(logEntry.getTopics().get(2));
-        BigInteger amount = new BigInteger(DatatypeConverter.parseHexBinary(logEntry.getData()));
-        long block = new BigInteger(DatatypeConverter.parseHexBinary(logEntry.getBlockNumber())).longValue();
+        BigInteger amount = new BigInteger(DatatypeConverter.parseHexBinary(logEntry.getData().substring(2)));
+        long block = new BigInteger(DatatypeConverter.parseHexBinary(logEntry.getBlockNumber().substring(2))).longValue();
         String txHash = logEntry.getTransactionHash();
         return new WishTransfer(null, from, to, amount, txHash, block);
     }

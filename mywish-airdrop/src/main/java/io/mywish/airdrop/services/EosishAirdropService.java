@@ -138,14 +138,14 @@ public class EosishAirdropService {
             }
             BigDecimal eosish = getEosishAmount(entry);
 
-            if (entry.getEosishAmount() != null && eosish.compareTo(entry.getEosishAmount()) <= 0) {
-                log.info("No need to pay: payed {}, but need {}. Skip.", eosish, entry.getEosishAmount());
-                continue;
-            }
-
             if (entry.getEosishAmount() != null) {
                 eosish = eosish.subtract(entry.getEosishAmount());
                 log.info("Some already payed {}, but rest is {}.", entry.getEosishAmount(), eosish);
+            }
+
+            if (eosish.compareTo(BigDecimal.ZERO) <= 0) {
+                log.info("No need to pay: payed {}, but need {}. Skip.", eosish, entry.getEosishAmount());
+                continue;
             }
 
             DecimalFormat decimalFormat = new DecimalFormat(symbolFormat);

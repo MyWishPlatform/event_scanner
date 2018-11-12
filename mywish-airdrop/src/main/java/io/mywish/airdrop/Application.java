@@ -120,9 +120,9 @@ public class Application implements CommandLineRunner {
                 .setMaxConnTotal(200)
                 .setDefaultRequestConfig(
                         RequestConfig.custom()
-                                .setConnectTimeout(1000)
-                                .setSocketTimeout(500)
-                                .setConnectionRequestTimeout(1000)
+                                .setConnectTimeout(5000)
+                                .setSocketTimeout(1500)
+                                .setConnectionRequestTimeout(5000)
                                 .build()
                 )
                 .setConnectionManagerShared(true)

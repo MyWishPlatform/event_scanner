@@ -51,7 +51,7 @@ public class WishTransferFetcher {
     }
 
     private List<LogEntry> fetchPortion(long fromBlock, long toBlock) throws IOException {
-
+        log.info("Portion {} to {}.", fromBlock, toBlock);
         HttpResponse response = httpClient.execute(new HttpGet(
                 "https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock="
                         + fromBlock
@@ -61,6 +61,7 @@ public class WishTransferFetcher {
                         + "&apikey=" + apiKey));
         LogsResult result = objectMapper.readValue(response.getEntity().getContent(), LogsResult.class);
         if (result.getResult().size() == 1000) {
+            log.info("To many rows, take partially.");
             List<LogEntry> more = new ArrayList<>(2000);
             long diff = toBlock - fromBlock;
             more.addAll(fetchPortion(fromBlock, fromBlock + diff / 2));

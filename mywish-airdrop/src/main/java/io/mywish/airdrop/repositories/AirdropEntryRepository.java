@@ -32,7 +32,7 @@ public interface AirdropEntryRepository<T extends AirdropEntry> extends CrudRepo
 
     @Transactional
     @Modifying
-    @Query("update #{#entityName} e set e.txHash = :txHash, e.eosishAmount = :eosAmount, e.sentAt = :sentAt " +
+    @Query("update #{#entityName} e set e.txHash = :txHash, e.eosishAmount = e.eosishAmount + :eosAmount, e.sentAt = :sentAt " +
             "where e = :airdrop and e.inProcessing = true ")
     int txSent(
             @Param("airdrop") AirdropEntry airdropEntry,

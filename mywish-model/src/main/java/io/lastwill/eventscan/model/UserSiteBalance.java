@@ -21,7 +21,7 @@ public class UserSiteBalance {
     private String btcAddress;
     private String memo;
     @ManyToOne
-    @JoinColumn(name = "site_id", referencedColumnName = "id")
+    @JoinColumn(name = "subsite_id", referencedColumnName = "id")
     private Site site;
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")

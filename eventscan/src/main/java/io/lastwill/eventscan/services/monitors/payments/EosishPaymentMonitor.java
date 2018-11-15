@@ -5,7 +5,9 @@ import io.lastwill.eventscan.events.model.contract.eos.EosTransferEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.UserProfile;
+import io.lastwill.eventscan.model.UserSiteBalance;
 import io.lastwill.eventscan.repositories.UserProfileRepository;
+import io.lastwill.eventscan.repositories.UserSiteBalanceRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.blockchain.WrapperOutput;
 import io.mywish.blockchain.WrapperTransaction;
@@ -37,6 +39,9 @@ public class EosishPaymentMonitor {
 
     @Autowired
     private UserProfileRepository userProfileRepository;
+
+    @Autowired
+    private UserSiteBalanceRepository userSiteBalanceRepository;
 
     @Autowired
     private EventPublisher eventPublisher;
@@ -84,8 +89,8 @@ public class EosishPaymentMonitor {
                         .filter(eosTransferEvent -> tokeSymbol.equalsIgnoreCase(eosTransferEvent.getSymbol()))
                         .forEach(transferEvent -> {
                             String memo = new String(transferEvent.getData(), StandardCharsets.US_ASCII);
-                            UserProfile userProfile = userProfileRepository.findByMemo(memo);
-                            if (userProfile == null) {
+                            UserSiteBalance userSiteBalance = userSiteBalanceRepository.findByMemo(memo);
+                            if (userSiteBalance == null) {
                                 String from = transaction.isSingleInput() ? transaction.getSingleInputAddress() : "?unknown";
                                 log.warn("Transfer received, but with wrong memo {} from {}.", memo, from);
                                 return;
@@ -97,7 +102,7 @@ public class EosishPaymentMonitor {
                                     transferEvent.getTokens(),
                                     CryptoCurrency.EOSISH,
                                     receipt.isSuccess(),
-                                    userProfile
+                                    userSiteBalance
                             ));
                         });
             }

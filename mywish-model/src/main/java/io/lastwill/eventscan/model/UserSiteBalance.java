@@ -1,6 +1,8 @@
 package io.lastwill.eventscan.model;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
@@ -10,6 +12,7 @@ import java.time.ZonedDateTime;
 @Entity
 @Table(name = "profile_usersitebalance")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserSiteBalance {
     @Id
     private int id;

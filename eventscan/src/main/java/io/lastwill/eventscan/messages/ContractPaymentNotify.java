@@ -14,7 +14,7 @@ public class ContractPaymentNotify extends PaymentNotify {
     private final int outputIndex;
 
     public ContractPaymentNotify(BigInteger amount, PaymentStatus status, String txHash, int outputIndex, Product product) {
-        super(product.getUserId(), amount, status, txHash, CryptoCurrency.BTC, true);
+        super(product.getUserId(), amount, status, txHash, CryptoCurrency.BTC, true, null);
         this.outputIndex = outputIndex;
         this.contractId = product.getId();
     }

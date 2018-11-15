@@ -10,10 +10,10 @@ import java.util.Collection;
 import java.util.List;
 
 public interface UserSiteBalanceRepository extends CrudRepository<UserSiteBalance, Integer> {
-    @Query("select c from UserProfile c where lower(c.internalAddress) in :addresses")
+    @Query("select c from UserSiteBalance c where c.ethAddress in :addresses")
     List<UserSiteBalance> findByAddressesList(@Param("addresses") Collection<String> addresses);
 
-    @Query("select c from UserProfile c where lower(c.internalAddress) = :address")
+    @Query("select c from UserSiteBalance c where c.ethAddress = :address")
     UserSiteBalance findByInternalAddress(@Param("address") String internalAddress);
 
     @Query("select c from UserSiteBalance c where c.memo = :memo")

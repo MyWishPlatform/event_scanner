@@ -22,13 +22,13 @@ public class BalanceEventDispatcher {
             externalNotifier.send(
                     event.getNetworkType(),
                     new PaymentNotify(
-                            event.getUserProfile().getUser().getId(),
+                            event.getUserSiteBalance().getUser().getId(),
                             event.getAmount(),
                             PaymentStatus.COMMITTED,
                             event.getTransaction().getHash(),
                             event.getCurrency(),
-                            event.isSuccess()
-                    )
+                            event.isSuccess(),
+                            event.getUserSiteBalance().getSite().getId())
             );
         }
         catch (Throwable e) {

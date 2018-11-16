@@ -81,13 +81,13 @@ public class BotIntegration {
     @EventListener
     private void onOwnerBalanceChanged(final UserPaymentEvent event) {
         try {
-            final UserProfile userProfile = event.getUserProfile();
+            final UserSiteBalance userSiteBalance = event.getUserSiteBalance();
             final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
             final String txLink = explorerProvider.getOrStub(event.getNetworkType())
                     .buildToTransaction(event.getTransaction().getHash());
             bot.onBalance(
                     network,
-                    userProfile.getUser().getId(),
+                    userSiteBalance.getUser().getEmail(),
                     toCurrency(event.getCurrency(), event.getAmount()),
                     txLink
             );

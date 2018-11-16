@@ -1,5 +1,7 @@
 package io.lastwill.eventscan.services.monitors.payments;
 
+import io.lastwill.eventscan.model.UserSiteBalance;
+import io.lastwill.eventscan.repositories.UserSiteBalanceRepository;
 import io.mywish.blockchain.WrapperTransaction;
 import io.lastwill.eventscan.events.model.UserPaymentEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
@@ -24,7 +26,7 @@ public class EthPaymentMonitor {
     private EventPublisher eventPublisher;
 
     @Autowired
-    private UserProfileRepository userProfileRepository;
+    private UserSiteBalanceRepository userSiteBalanceRepository;
 
     @Autowired
     private TransactionProvider transactionProvider;
@@ -41,19 +43,19 @@ public class EthPaymentMonitor {
             return;
         }
 
-        List<UserProfile> userProfiles = userProfileRepository.findByAddressesList(addresses);
-        for (UserProfile userProfile : userProfiles) {
+        List<UserSiteBalance> userSiteBalances = userSiteBalanceRepository.findByAddressesList(addresses);
+        for (UserSiteBalance userSiteBalance : userSiteBalances) {
             final List<WrapperTransaction> transactions = event.getTransactionsByAddress().get(
-                    userProfile.getInternalAddress().toLowerCase()
+                    userSiteBalance.getEthAddress().toLowerCase()
             );
 
             if (transactions == null) {
-                log.error("User {} received from DB, but was not found in transaction list (block {}).", userProfile, event.getBlock().getNumber());
+                log.error("User {} received from DB, but was not found in transaction list (block {}).", userSiteBalance, event.getBlock().getNumber());
                 continue;
             }
 
             transactions.forEach(transaction -> {
-                if (!userProfile.getInternalAddress().equalsIgnoreCase(transaction.getOutputs().get(0).getAddress())) {
+                if (!userSiteBalance.getEthAddress().equalsIgnoreCase(transaction.getOutputs().get(0).getAddress())) {
                     log.debug("Found transaction out from internal address. Skip it.");
                     return;
                 }
@@ -62,10 +64,10 @@ public class EthPaymentMonitor {
                             eventPublisher.publish(new UserPaymentEvent(
                                     event.getNetworkType(),
                                     transaction,
-                                    getAmountFor(userProfile.getInternalAddress(), transaction),
+                                    getAmountFor(userSiteBalance.getEthAddress(), transaction),
                                     CryptoCurrency.ETH,
                                     receipt.isSuccess(),
-                                    userProfile));
+                                    userSiteBalance));
                         })
                         .exceptionally(throwable -> {
                             log.error("UserPaymentEvent handling failed.", throwable);

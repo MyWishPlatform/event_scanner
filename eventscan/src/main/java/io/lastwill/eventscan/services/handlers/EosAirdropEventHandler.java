@@ -1,12 +1,11 @@
 package io.lastwill.eventscan.services.handlers;
 
+import io.lastwill.eventscan.events.model.PendingTransactionAddedEvent;
+import io.lastwill.eventscan.events.model.PendingTransactionRemovedEvent;
 import io.lastwill.eventscan.events.model.contract.AirdropEvent;
 import io.lastwill.eventscan.messages.AirdropNotify;
 import io.lastwill.eventscan.messages.PaymentStatus;
-import io.lastwill.eventscan.model.AirdropEntry;
-import io.lastwill.eventscan.model.Contract;
-import io.lastwill.eventscan.model.NetworkProviderType;
-import io.lastwill.eventscan.model.ProductAirdropEos;
+import io.lastwill.eventscan.model.*;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;
@@ -67,6 +66,50 @@ public class EosAirdropEventHandler {
                 continue;
             }
 
+            handleTransaction(transactionReceipt, event.getNetworkType(), PaymentStatus.COMMITTED);
+        }
+    }
+
+    @EventListener
+    public void onNewPendingTransaction(PendingTransactionAddedEvent event) {
+        if (event.getNetworkType().getNetworkProviderType() != NetworkProviderType.EOS) {
+            return;
+        }
+
+        WrapperTransactionReceipt transactionReceipt;
+        try {
+            transactionReceipt = transactionProvider.getTransactionReceipt(event.getNetworkType(), event.getTransaction());
+        }
+        catch (Exception e) {
+            log.warn("Error on getting tx receipt.", e);
+            return;
+        }
+
+        handleTransaction(transactionReceipt, event.getNetworkType(), PaymentStatus.PENDING);
+    }
+
+    @EventListener
+    public void onNewRejectedTransaction(PendingTransactionRemovedEvent event) {
+        if (event.getNetworkType().getNetworkProviderType() != NetworkProviderType.EOS) {
+            return;
+        }
+        if (event.getReason() != PendingTransactionRemovedEvent.Reason.TIMEOUT) {
+            return;
+        }
+
+        WrapperTransactionReceipt transactionReceipt;
+        try {
+            transactionReceipt = transactionProvider.getTransactionReceipt(event.getNetworkType(), event.getTransaction());
+        }
+        catch (Exception e) {
+            log.warn("Error on getting tx receipt.", e);
+            return;
+        }
+
+        handleTransaction(transactionReceipt, event.getNetworkType(), PaymentStatus.REJECTED);
+    }
+
+    private void handleTransaction(final WrapperTransactionReceipt transactionReceipt, final NetworkType networkType, final PaymentStatus paymentStatus) {
             transactionReceipt
                     .getLogs()
                     .stream()
@@ -97,16 +140,15 @@ public class EosAirdropEventHandler {
 
                         contracts.forEach(contract -> {
                             externalNotifier.send(
-                                    event.getNetworkType(),
+                                    networkType,
                                     new AirdropNotify(
                                             contract.getId(),
-                                            PaymentStatus.COMMITTED,
-                                            transaction.getHash(),
+                                            paymentStatus,
+                                            transactionReceipt.getTransactionHash(),
                                             airdropEntries
                                     )
                             );
                         });;
                     });
-        }
     }
 }

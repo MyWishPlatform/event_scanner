@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <!--<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
+        <!--<encoder>-->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+        <!--</encoder>-->
+    <!--</appender>-->
+
+    <logger name="io.lastwill" level="debug" />
+    <logger name="io.mywish.btc.blockchain.services.BtcScanner" level="DEBUG" />
+    <!--<logger name="org.apache.http" level="DEBUG" />-->
+    <logger name="org.bitcoinj" level="DEBUG" />
+    <!--<logger name="org.apache.http.wire" level="DEBUG" />-->
+    <!--<logger name="org.apache.http" level="DEBUG" />-->
+    <!--<logger name="org.hibernate.type" level="TRACE" />-->
+
+    <!--<root level="info">-->
+        <!--<appender-ref ref="STDOUT" />-->
+    <!--</root>-->
+
+</configuration>

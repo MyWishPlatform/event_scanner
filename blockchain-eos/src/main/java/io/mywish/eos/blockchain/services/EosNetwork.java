@@ -6,6 +6,7 @@ import io.mywish.blockchain.WrapperNetwork;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.blockchain.WrapperTransactionReceipt;
 import io.mywish.eoscli4j.EosClient;
+import io.mywish.eoscli4j.model.BlockReliability;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -70,7 +71,7 @@ public class EosNetwork extends WrapperNetwork {
         void callback(WrapperBlock block);
     }
 
-    public void subscribe(Long lastBlock, EosBlockCallback callback) throws Exception {
+    public void subscribe(Long lastBlock, EosBlockCallback callback, BlockReliability blockReliability) throws Exception {
         final AtomicInteger counter = new AtomicInteger(0);
         eosClient.subscribe(lastBlock, eosBlock -> {
             if (counter.incrementAndGet() == 10) {
@@ -79,7 +80,7 @@ public class EosNetwork extends WrapperNetwork {
             }
             callback.callback(blockBuilder.build(eosBlock));
             return continueSubscription.get();
-        });
+        }, blockReliability);
     }
 
     @PreDestroy

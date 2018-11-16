@@ -4,7 +4,9 @@ import io.lastwill.eventscan.events.model.UserPaymentEvent;
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.UserProfile;
+import io.lastwill.eventscan.model.UserSiteBalance;
 import io.lastwill.eventscan.repositories.UserProfileRepository;
+import io.lastwill.eventscan.repositories.UserSiteBalanceRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.services.EventPublisher;
@@ -26,6 +28,8 @@ import java.util.Set;
 public class WishPaymentMonitor {
     @Autowired
     private UserProfileRepository userProfileRepository;
+    @Autowired
+    private UserSiteBalanceRepository  userSiteBalanceRepository;
     @Autowired
     private EventPublisher eventPublisher;
     @Autowired
@@ -71,8 +75,8 @@ public class WishPaymentMonitor {
                                 String transferTo = eventValue.getTo();
                                 BigInteger amount = eventValue.getTokens();
 
-                                    UserProfile userProfile = userProfileRepository.findByInternalAddress(transferTo);
-                                    if (userProfile == null) {
+                                    UserSiteBalance userSiteBalance = userSiteBalanceRepository.findByInternalAddress(transferTo);
+                                    if (userSiteBalance == null) {
                                         return;
                                     }
                                     eventPublisher.publish(new UserPaymentEvent(
@@ -81,7 +85,7 @@ public class WishPaymentMonitor {
                                             amount,
                                             CryptoCurrency.WISH,
                                             true,
-                                            userProfile));
+                                            userSiteBalance));
                                 }))
                                 .exceptionally(throwable -> {
                                     log.error("Error on getting receipt for handling WISH payment.", throwable);

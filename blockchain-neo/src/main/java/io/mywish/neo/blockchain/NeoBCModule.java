@@ -5,7 +5,7 @@ import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.neo.blockchain.services.NeoNetwork;
 import io.mywish.neo.blockchain.services.NeoScanner;
 import io.mywish.neocli4j.NeoClientImpl;
-import io.mywish.scanner.services.LastBlockPersister;
+import io.mywish.scanner.services.LastBlockFilePersister;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,7 +66,7 @@ public class NeoBCModule {
     ) {
         return new NeoScanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, lastBlock),
+                new LastBlockFilePersister(network.getType(), dir, lastBlock),
                 pollingInterval,
                 commitmentChainLength
         );
@@ -83,7 +83,7 @@ public class NeoBCModule {
     ) {
         return new NeoScanner(
                 network,
-                new LastBlockPersister(network.getType(), dir, lastBlock),
+                new LastBlockFilePersister(network.getType(), dir, lastBlock),
                 pollingInterval,
                 commitmentChainLength
         );

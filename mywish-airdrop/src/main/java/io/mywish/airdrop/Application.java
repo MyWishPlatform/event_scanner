@@ -3,8 +3,10 @@ package io.mywish.airdrop;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.mywish.airdrop.model.AirdropEntry;
 import io.mywish.airdrop.services.EosAdapter;
 import io.mywish.airdrop.services.EosishAirdropService;
+import io.mywish.airdrop.services.WishTransferFetcher;
 import io.mywish.scanner.ScannerModule;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -23,17 +25,32 @@ import org.springframework.context.annotation.Import;
 
 import java.net.URL;
 import java.security.Security;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @EntityScan
 @SpringBootApplication
 @Import({ScannerModule.class, })
 public class Application implements CommandLineRunner {
+    public enum AirdropType {
+        bounty,
+        wish,
+        eos,
+        fetch
+    }
     @Autowired
     private EosishAirdropService eosishAirdropService;
+    @Autowired
+    private WishTransferFetcher wishTransferFetcher;
 
     @Value("${limit:#{null}}")
     private Integer limit;
+
+    @Value("${type:#{null}}")
+    private AirdropType type;
 
     public static void main(String[] args) {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
@@ -64,9 +81,31 @@ public class Application implements CommandLineRunner {
             System.exit(-1);
             return;
         }
+        if (type == null) {
+            log.error("Use --type with one of {} values.", EnumSet.allOf(AirdropType.class).stream().map(Enum::toString).collect(Collectors.joining(", ")));
+            System.exit(-1);
+            return;
+        }
         try {
-
-            val entries = eosishAirdropService.findFist(limit);
+            List<AirdropEntry> entries;
+            switch (type) {
+                case wish:
+                    entries = eosishAirdropService.findFistWish(limit);
+                    break;
+                case bounty:
+                    entries = eosishAirdropService.findFistBounty(limit);
+                    break;
+                case eos:
+                    entries = eosishAirdropService.findFistEos(limit);
+                    break;
+                case fetch:
+                    entries = Collections.emptyList();
+                    wishTransferFetcher.fetch(4397737, 6526408);
+                    break;
+                default:
+                    throw new UnsupportedOperationException(type + " not supported now");
+            }
+            log.info("Found {} entries to update.", entries.size());
             eosishAirdropService.update(entries);
         }
         catch (Exception e) {
@@ -84,9 +123,9 @@ public class Application implements CommandLineRunner {
                 .setMaxConnTotal(200)
                 .setDefaultRequestConfig(
                         RequestConfig.custom()
-                                .setConnectTimeout(10000)
+                                .setConnectTimeout(5000)
                                 .setSocketTimeout(5000)
-                                .setConnectionRequestTimeout(10000)
+                                .setConnectionRequestTimeout(5000)
                                 .build()
                 )
                 .setConnectionManagerShared(true)

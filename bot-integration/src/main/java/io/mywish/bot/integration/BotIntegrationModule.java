@@ -2,10 +2,7 @@ package io.mywish.bot.integration;
 
 import io.mywish.bot.BotModule;
 import io.mywish.bot.integration.services.BotIntegration;
-import io.mywish.bot.integration.services.impl.BlockchainInfoExplorer;
-import io.mywish.bot.integration.services.impl.EtherescanExplorer;
-import io.mywish.bot.integration.services.impl.AntchainExplorer;
-import io.mywish.bot.integration.services.impl.RskExplorer;
+import io.mywish.bot.integration.services.impl.*;
 import io.mywish.bot.service.MyWishBot;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.*;
@@ -46,13 +43,8 @@ public class BotIntegrationModule {
     }
 
     @Bean
-    public AntchainExplorer antchainExplorerTestnet() {
-        return new AntchainExplorer(true);
-    }
-
-    @Bean
-    public AntchainExplorer antchainExplorer() {
-        return new AntchainExplorer(false);
+    public NeoscanExplorer neoscanExplorerTestnet() {
+        return new NeoscanExplorer(true);
     }
 
     @Bean

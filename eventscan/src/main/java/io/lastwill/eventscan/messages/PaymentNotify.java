@@ -13,13 +13,15 @@ public class PaymentNotify extends BaseNotify {
     private final BigInteger amount;
     private final CryptoCurrency currency;
     private final boolean isSuccess;
+    private final Integer siteId;
 
-    public PaymentNotify(int userId, BigInteger amount, PaymentStatus status, String txHash, CryptoCurrency currency, boolean isSuccess) {
+    public PaymentNotify(int userId, BigInteger amount, PaymentStatus status, String txHash, CryptoCurrency currency, boolean isSuccess, Integer siteId) {
         super(status, txHash);
         this.userId = userId;
         this.amount = amount;
         this.currency = currency;
         this.isSuccess = isSuccess;
+        this.siteId = siteId;
     }
 
     @Override

@@ -2,10 +2,9 @@ package io.mywish.eoscli4j.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mywish.eoscli4j.BlockCallback;
 import io.mywish.eoscli4j.EosClient;
+import io.mywish.eoscli4j.model.BlockReliability;
 import io.mywish.eoscli4j.model.request.BalanceRequest;
 import io.mywish.eoscli4j.model.request.BlockRequest;
 import io.mywish.eoscli4j.model.request.Request;
@@ -14,7 +13,6 @@ import io.mywish.eoscli4j.model.response.BlockResponse;
 import io.mywish.eoscli4j.model.response.ChainInfoResponse;
 import io.mywish.eoscli4j.model.response.Error;
 import io.mywish.eoscli4j.model.response.Response;
-import io.mywish.eoscli4j.service.TcpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -30,6 +28,8 @@ import java.nio.charset.Charset;
 
 @Slf4j
 public class EosClientImpl implements EosClient {
+    private final static String IRREVERSIBLE_PREFIX = "s";
+    private final static String REVERSIBLE_PREFIX = "n";
     private final HttpClient client;
     private final URI rpc;
     private final ObjectMapper objectMapper;
@@ -99,11 +99,22 @@ public class EosClientImpl implements EosClient {
     }
 
     @Override
-    public void subscribe(Long lastBlock, BlockCallback callback) throws Exception {
+    public void subscribe(Long lastBlock, BlockCallback callback, BlockReliability blockReliability) throws Exception {
         TcpClient tcpClient = new TcpClient(tcpHost, tcpPort, 60000);
+        final String prefix;
+        switch (blockReliability) {
+            case REVERSIBLE:
+                prefix = REVERSIBLE_PREFIX;
+                break;
+            case IRREVERSIBLE:
+                prefix = IRREVERSIBLE_PREFIX;
+                break;
+            default:
+                throw new UnsupportedOperationException("Block reliability " + blockReliability + " is not supported.");
+        }
 
         String lastBlockNo = lastBlock == null ? "0" : String.valueOf(lastBlock);
-        tcpClient.write("s" + lastBlockNo + "\n");
+        tcpClient.write(prefix + lastBlockNo + "\n");
         log.info("Subscribed from {} block.", lastBlockNo);
 
         while (true) {

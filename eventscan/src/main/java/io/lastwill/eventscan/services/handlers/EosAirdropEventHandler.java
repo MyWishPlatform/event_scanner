@@ -76,6 +76,10 @@ public class EosAirdropEventHandler {
             return;
         }
 
+        if (event.getTransaction().getOutputs().stream().noneMatch(output -> airdropAccount.equalsIgnoreCase(output.getAddress()))) {
+            return;
+        }
+
         WrapperTransactionReceipt transactionReceipt;
         try {
             transactionReceipt = transactionProvider.getTransactionReceipt(event.getNetworkType(), event.getTransaction());

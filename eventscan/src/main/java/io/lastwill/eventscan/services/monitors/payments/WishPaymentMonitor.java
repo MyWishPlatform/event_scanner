@@ -3,7 +3,6 @@ package io.lastwill.eventscan.services.monitors.payments;
 import io.lastwill.eventscan.events.model.UserPaymentEvent;
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
-import io.lastwill.eventscan.model.UserProfile;
 import io.lastwill.eventscan.model.UserSiteBalance;
 import io.lastwill.eventscan.repositories.UserProfileRepository;
 import io.lastwill.eventscan.repositories.UserSiteBalanceRepository;
@@ -75,7 +74,7 @@ public class WishPaymentMonitor {
                                 String transferTo = eventValue.getTo();
                                 BigInteger amount = eventValue.getTokens();
 
-                                    UserSiteBalance userSiteBalance = userSiteBalanceRepository.findByInternalAddress(transferTo);
+                                    UserSiteBalance userSiteBalance = userSiteBalanceRepository.findByEthAddress(transferTo);
                                     if (userSiteBalance == null) {
                                         return;
                                     }

@@ -52,6 +52,10 @@ public class MQExternalNotifier implements ExternalNotifier {
     private String queueNameEosMainnet;
     @Value("${io.lastwill.eventscan.backend-mq.queue.eos-testnet}")
     private String queueNameEosTestnet;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.btc-mainnet}")
+    private String queueNameBtcMainnet;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.btc-testnet}")
+    private String queueNameBtcTestnet;
 
     private Map<NetworkType, String> queueByNetwork = new HashMap<>();
 
@@ -80,6 +84,9 @@ public class MQExternalNotifier implements ExternalNotifier {
 
         queueByNetwork.put(NetworkType.EOS_TESTNET, queueNameEosTestnet);
         queueByNetwork.put(NetworkType.EOS_MAINNET, queueNameEosMainnet);
+
+        queueByNetwork.put(NetworkType.BTC_MAINNET, queueNameBtcTestnet);
+        queueByNetwork.put(NetworkType.BTC_TESTNET_3, queueNameBtcMainnet);
 
         connection = factory.newConnection();
         channel = connection.createChannel();

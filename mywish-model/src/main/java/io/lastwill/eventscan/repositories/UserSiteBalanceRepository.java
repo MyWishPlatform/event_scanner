@@ -11,10 +11,13 @@ import java.util.List;
 
 public interface UserSiteBalanceRepository extends CrudRepository<UserSiteBalance, Integer> {
     @Query("select c from UserSiteBalance c where c.ethAddress in :addresses")
-    List<UserSiteBalance> findByAddressesList(@Param("addresses") Collection<String> addresses);
+    List<UserSiteBalance> findByEthAddressesList(@Param("addresses") Collection<String> addresses);
+
+    @Query("select c from UserSiteBalance c where c.btcAddress in :addresses")
+    List<UserSiteBalance> findByBtcAddressesList(@Param("addresses") Collection<String> addresses);
 
     @Query("select c from UserSiteBalance c where c.ethAddress = :address")
-    UserSiteBalance findByInternalAddress(@Param("address") String internalAddress);
+    UserSiteBalance findByEthAddress(@Param("address") String internalAddress);
 
     @Query("select c from UserSiteBalance c where c.memo = :memo")
     UserSiteBalance findByMemo(@Param("memo") String memo);

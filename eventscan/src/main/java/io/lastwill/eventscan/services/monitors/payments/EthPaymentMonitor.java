@@ -5,8 +5,6 @@ import io.lastwill.eventscan.repositories.UserSiteBalanceRepository;
 import io.mywish.blockchain.WrapperTransaction;
 import io.lastwill.eventscan.events.model.UserPaymentEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
-import io.lastwill.eventscan.model.UserProfile;
-import io.lastwill.eventscan.repositories.UserProfileRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.scanner.model.NewBlockEvent;
@@ -43,7 +41,7 @@ public class EthPaymentMonitor {
             return;
         }
 
-        List<UserSiteBalance> userSiteBalances = userSiteBalanceRepository.findByAddressesList(addresses);
+        List<UserSiteBalance> userSiteBalances = userSiteBalanceRepository.findByEthAddressesList(addresses);
         for (UserSiteBalance userSiteBalance : userSiteBalances) {
             final List<WrapperTransaction> transactions = event.getTransactionsByAddress().get(
                     userSiteBalance.getEthAddress().toLowerCase()

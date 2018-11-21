@@ -21,6 +21,14 @@ import java.net.URI;
 @ComponentScan
 @Configuration
 public class BtcBCModule {
+    /**
+     * Solution for test purposes only.
+     * When we scan mainnet blocks we build addresses in mainnet format. And is not the same like testnet address.
+     * This flag is solve the issue.
+     */
+    @Value("${etherscanner.bitcoin.treat-testnet-as-mainnet:false}")
+    private boolean treatTestnetAsMainnet;
+
     @ConditionalOnProperty("etherscanner.bitcoin.rpc-url.mainnet")
     @Bean(name = NetworkType.BTC_MAINNET_VALUE)
     public BtcNetwork btcNetMain(
@@ -45,7 +53,7 @@ public class BtcBCModule {
                         user,
                         password
                 ),
-                new MainNetParams()
+                treatTestnetAsMainnet ? new TestNet3Params() : new MainNetParams()
         );
     }
 

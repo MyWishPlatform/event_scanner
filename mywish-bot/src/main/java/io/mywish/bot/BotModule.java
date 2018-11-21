@@ -1,5 +1,8 @@
 package io.mywish.bot;
 
+import io.mywish.bot.service.ChatDbPersister;
+import io.mywish.bot.service.ChatFilePersister;
+import io.mywish.bot.service.ChatPersister;
 import io.mywish.bot.service.MyWishBot;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
@@ -42,5 +45,17 @@ public class BotModule {
             );
         }
         return new MyWishBot(botOptions);
+    }
+
+    @ConditionalOnProperty(name = "io.mywish.bot.db-persister", havingValue = "true")
+    @Bean
+    public ChatPersister chatPersister() {
+        return new ChatDbPersister();
+    }
+
+    @ConditionalOnProperty(name = "io.mywish.bot.db-persister", havingValue = "false", matchIfMissing = true)
+    @Bean
+    public ChatPersister chatFilePersister() {
+        return new ChatFilePersister();
     }
 }

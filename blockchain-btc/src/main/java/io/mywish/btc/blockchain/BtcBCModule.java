@@ -87,52 +87,34 @@ public class BtcBCModule {
                 new TestNet3Params());
     }
 
-    @ConditionalOnProperty(value = "etherscanner.bitcoin.db-block-persister", havingValue = "true")
     @ConditionalOnBean(name = NetworkType.BTC_MAINNET_VALUE)
     @Bean("mainnetBitcoinLastBlockPersister")
     public LastBlockPersister btcMainnetLastBlockPersister(
+            final @Value("${etherscanner.bitcoin.db-block-persister:#{false}}") boolean isDbPersister,
             final @Qualifier(NetworkType.BTC_MAINNET_VALUE) BtcNetwork network,
             final LastBlockRepository lastBlockRepository,
-            final @Value("${etherscanner.bitcoin.last-block.mainnet:#{null}}") Long lastBlock
-
-    ) {
-        return new LastBlockDbPersister(network.getType(), lastBlockRepository, lastBlock);
-    }
-
-    @ConditionalOnProperty(value = "etherscanner.bitcoin.db-block-persister", havingValue = "false", matchIfMissing = true)
-    @ConditionalOnBean(name = NetworkType.BTC_MAINNET_VALUE)
-    @Bean("mainnetBitcoinLastBlockPersister")
-    public LastBlockPersister btcMainnetLastBlockPersister(
-            final @Qualifier(NetworkType.BTC_MAINNET_VALUE) BtcNetwork network,
             final @Value("${etherscanner.start-block-dir}") String dir,
             final @Value("${etherscanner.bitcoin.last-block.mainnet:#{null}}") Long lastBlock
 
     ) {
-        return new LastBlockFilePersister(network.getType(), dir, lastBlock);
+        return isDbPersister
+                ? new LastBlockDbPersister(network.getType(), lastBlockRepository, lastBlock)
+                : new LastBlockFilePersister(network.getType(), dir, lastBlock);
     }
 
-    @ConditionalOnProperty(value = "etherscanner.bitcoin.db-block-persister", havingValue = "true")
     @ConditionalOnBean(name = NetworkType.BTC_TESTNET_3_VALUE)
     @Bean("testnetBitcoinLastBlockPersister")
     public LastBlockPersister btcTestnetLastBlockPersister(
+            final @Value("${etherscanner.bitcoin.db-block-persister:#{false}}") boolean isDbPersister,
             final @Qualifier(NetworkType.BTC_TESTNET_3_VALUE) BtcNetwork network,
             final LastBlockRepository lastBlockRepository,
-            final @Value("${etherscanner.bitcoin.last-block.testnet:#{null}}") Long lastBlock
-
-    ) {
-        return new LastBlockDbPersister(network.getType(), lastBlockRepository, lastBlock);
-    }
-
-    @ConditionalOnProperty(value = "etherscanner.bitcoin.db-block-persister", havingValue = "false", matchIfMissing = true)
-    @ConditionalOnBean(name = NetworkType.BTC_TESTNET_3_VALUE)
-    @Bean("testnetBitcoinLastBlockPersister")
-    public LastBlockPersister btcTestnetLastBlockPersister(
-            final @Qualifier(NetworkType.BTC_TESTNET_3_VALUE) BtcNetwork network,
             final @Value("${etherscanner.start-block-dir}") String dir,
             final @Value("${etherscanner.bitcoin.last-block.testnet:#{null}}") Long lastBlock
 
     ) {
-        return new LastBlockFilePersister(network.getType(), dir, lastBlock);
+        return isDbPersister
+                ? new LastBlockDbPersister(network.getType(), lastBlockRepository, lastBlock)
+                : new LastBlockFilePersister(network.getType(), dir, lastBlock);
     }
 
     @ConditionalOnBean(name = NetworkType.BTC_MAINNET_VALUE)

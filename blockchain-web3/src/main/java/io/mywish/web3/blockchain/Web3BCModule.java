@@ -64,84 +64,56 @@ public class Web3BCModule {
                 0);
     }
 
-    @ConditionalOnProperty(value = "etherscanner.eth.db-block-persister", havingValue = "true")
     @ConditionalOnBean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
     @Bean("mainnetEthLastBlockPersister")
     public LastBlockPersister ethMainnetLastBlockPersister(
+            final @Value("${etherscanner.eth.db-block-persister:#{false}}") boolean isDbPersister,
             final @Qualifier(NetworkType.ETHEREUM_MAINNET_VALUE) Web3Network network,
-            final LastBlockRepository lastBlockRepository
-    ) {
-        return new LastBlockDbPersister(network.getType(), lastBlockRepository, null);
-    }
-
-    @ConditionalOnProperty(value = "etherscanner.eth.db-block-persister", havingValue = "false", matchIfMissing = true)
-    @ConditionalOnBean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
-    @Bean("mainnetEthLastBlockPersister")
-    public LastBlockPersister ethMainnetLastBlockPersister(
-            final @Qualifier(NetworkType.ETHEREUM_MAINNET_VALUE) Web3Network network,
+            final LastBlockRepository lastBlockRepository,
             final @Value("${etherscanner.start-block-dir}") String dir
     ) {
-        return new LastBlockFilePersister(network.getType(), dir, null);
+        return isDbPersister
+                ? new LastBlockDbPersister(network.getType(), lastBlockRepository, null)
+                : new LastBlockFilePersister(network.getType(), dir, null);
     }
 
-    @ConditionalOnProperty(value = "etherscanner.eth.db-block-persister", havingValue = "true")
     @ConditionalOnBean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
     @Bean("ropstenEthLastBlockPersister")
     public LastBlockPersister ethRopstenLastBlockPersister(
+            final @Value("${etherscanner.eth.db-block-persister:#{false}}") boolean isDbPersister,
             final @Qualifier(NetworkType.ETHEREUM_ROPSTEN_VALUE) Web3Network network,
-            final LastBlockRepository lastBlockRepository
-    ) {
-        return new LastBlockDbPersister(network.getType(), lastBlockRepository, null);
-    }
-
-    @ConditionalOnProperty(value = "etherscanner.eth.db-block-persister", havingValue = "false", matchIfMissing = true)
-    @ConditionalOnBean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
-    @Bean("ropstenEthLastBlockPersister")
-    public LastBlockPersister ethRopstenLastBlockPersister(
-            final @Qualifier(NetworkType.ETHEREUM_ROPSTEN_VALUE) Web3Network network,
+            final LastBlockRepository lastBlockRepository,
             final @Value("${etherscanner.start-block-dir}") String dir
     ) {
-        return new LastBlockFilePersister(network.getType(), dir, null);
+        return isDbPersister
+                ? new LastBlockDbPersister(network.getType(), lastBlockRepository, null)
+                : new LastBlockFilePersister(network.getType(), dir, null);
     }
 
-    @ConditionalOnProperty(value = "etherscanner.rsk.db-block-persister", havingValue = "true")
     @ConditionalOnBean(name = NetworkType.RSK_MAINNET_VALUE)
     @Bean("mainnetRskLastBlockPersister")
     public LastBlockPersister rskMainnetLastBlockPersister(
+            final @Value("${etherscanner.rsk.db-block-persister:#{false}}") boolean isDbPersister,
             final @Qualifier(NetworkType.RSK_MAINNET_VALUE) Web3Network network,
-            final LastBlockRepository lastBlockRepository
-    ) {
-        return new LastBlockDbPersister(network.getType(), lastBlockRepository, null);
-    }
-
-    @ConditionalOnProperty(value = "etherscanner.rsk.db-block-persister", havingValue = "false", matchIfMissing = true)
-    @ConditionalOnBean(name = NetworkType.RSK_MAINNET_VALUE)
-    @Bean("mainnetRskLastBlockPersister")
-    public LastBlockPersister rskMainnetLastBlockPersister(
-            final @Qualifier(NetworkType.RSK_MAINNET_VALUE) Web3Network network,
+            final LastBlockRepository lastBlockRepository,
             final @Value("${etherscanner.start-block-dir}") String dir
     ) {
-        return new LastBlockFilePersister(network.getType(), dir, null);
+        return isDbPersister
+                ? new LastBlockDbPersister(network.getType(), lastBlockRepository, null)
+                : new LastBlockFilePersister(network.getType(), dir, null);
     }
 
-    @ConditionalOnProperty(value = "etherscanner.rsk.db-block-persister", havingValue = "true")
     @ConditionalOnBean(name = NetworkType.RSK_TESTNET_VALUE)
     @Bean("testnetRskLastBlockPersister")
     public LastBlockPersister rskTestnetLastBlockPersister(
+            final @Value("${etherscanner.rsk.db-block-persister:#{false}}") boolean isDbPersister,
             final @Qualifier(NetworkType.RSK_TESTNET_VALUE) Web3Network network,
-            final LastBlockRepository lastBlockRepository
-    ) {
-        return new LastBlockDbPersister(network.getType(), lastBlockRepository, null);
-    }
-
-    @ConditionalOnProperty(value = "etherscanner.rsk.db-block-persister", havingValue = "false", matchIfMissing = true)
-    @ConditionalOnBean(name = NetworkType.RSK_TESTNET_VALUE)
-    @Bean("testnetRskLastBlockPersister")
-    public LastBlockPersister rskTestnetLastBlockPersister(
-            final @Qualifier(NetworkType.RSK_TESTNET_VALUE) Web3Network network,
+            final LastBlockRepository lastBlockRepository,
             final @Value("${etherscanner.start-block-dir}") String dir
     ) {
-        return new LastBlockFilePersister(network.getType(), dir, null);
+        return isDbPersister
+                ? new LastBlockDbPersister(network.getType(), lastBlockRepository, null)
+                : new LastBlockFilePersister(network.getType(), dir, null);
     }
 
     @ConditionalOnBean(name = NetworkType.ETHEREUM_MAINNET_VALUE)

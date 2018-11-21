@@ -2,10 +2,13 @@ package io.mywish.neo.blockchain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.lastwill.eventscan.model.NetworkType;
+import io.lastwill.eventscan.repositories.LastBlockRepository;
 import io.mywish.neo.blockchain.services.NeoNetwork;
 import io.mywish.neo.blockchain.services.NeoScanner;
 import io.mywish.neocli4j.NeoClientImpl;
+import io.mywish.scanner.services.LastBlockDbPersister;
 import io.mywish.scanner.services.LastBlockFilePersister;
+import io.mywish.scanner.services.LastBlockPersister;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,19 +57,61 @@ public class NeoBCModule {
         );
     }
 
+    @ConditionalOnProperty(value = "etherscanner.neo.db-block-persister", havingValue = "true")
+    @ConditionalOnBean(name = NetworkType.NEO_MAINNET_VALUE)
+    @Bean("mainnetNeoLastBlockPersister")
+    public LastBlockPersister neoMainnetLastBlockPersister(
+            final @Qualifier(NetworkType.NEO_MAINNET_VALUE) NeoNetwork network,
+            final LastBlockRepository lastBlockRepository,
+            final @Value("${etherscanner.neo.last-block.mainnet:#{null}}") Long lastBlock
+    ) {
+        return new LastBlockDbPersister(network.getType(), lastBlockRepository, lastBlock);
+    }
+
+    @ConditionalOnProperty(value = "etherscanner.neo.db-block-persister", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnBean(name = NetworkType.NEO_MAINNET_VALUE)
+    @Bean("mainnetNeoLastBlockPersister")
+    public LastBlockPersister neoMainnetLastBlockPersister(
+            final @Qualifier(NetworkType.NEO_MAINNET_VALUE) NeoNetwork network,
+            final @Value("${etherscanner.start-block-dir}") String dir,
+            final @Value("${etherscanner.neo.last-block.mainnet:#{null}}") Long lastBlock
+    ) {
+        return new LastBlockFilePersister(network.getType(), dir, lastBlock);
+    }
+
+    @ConditionalOnProperty(value = "etherscanner.neo.db-block-persister", havingValue = "true")
+    @ConditionalOnBean(name = NetworkType.NEO_TESTNET_VALUE)
+    @Bean("testnetNeoLastBlockPersister")
+    public LastBlockPersister neoTestnetLastBlockPersister(
+            final @Qualifier(NetworkType.NEO_TESTNET_VALUE) NeoNetwork network,
+            final LastBlockRepository lastBlockRepository,
+            final @Value("${etherscanner.neo.last-block.testnet:#{null}}") Long lastBlock
+    ) {
+        return new LastBlockDbPersister(network.getType(), lastBlockRepository, lastBlock);
+    }
+
+    @ConditionalOnProperty(value = "etherscanner.neo.db-block-persister", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnBean(name = NetworkType.NEO_TESTNET_VALUE)
+    @Bean("testnetNeoLastBlockPersister")
+    public LastBlockPersister neoTestnetLastBlockPersister(
+            final @Qualifier(NetworkType.NEO_TESTNET_VALUE) NeoNetwork network,
+            final @Value("${etherscanner.start-block-dir}") String dir,
+            final @Value("${etherscanner.neo.last-block.testnet:#{null}}") Long lastBlock
+    ) {
+        return new LastBlockFilePersister(network.getType(), dir, lastBlock);
+    }
 
     @ConditionalOnBean(name = NetworkType.NEO_MAINNET_VALUE)
     @Bean
     public NeoScanner neoScannerMain(
             final @Qualifier(NetworkType.NEO_MAINNET_VALUE) NeoNetwork network,
-            final @Value("${etherscanner.start-block-dir}") String dir,
-            final @Value("${etherscanner.neo.last-block.mainnet:#{null}}") Long lastBlock,
+            final @Qualifier("mainnetNeoLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.neo.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.neo.commit-chain-length}") Integer commitmentChainLength
     ) {
         return new NeoScanner(
                 network,
-                new LastBlockFilePersister(network.getType(), dir, lastBlock),
+                lastBlockPersister,
                 pollingInterval,
                 commitmentChainLength
         );
@@ -76,14 +121,13 @@ public class NeoBCModule {
     @Bean
     public NeoScanner neoScannerTest(
             final @Qualifier(NetworkType.NEO_TESTNET_VALUE) NeoNetwork network,
-            final @Value("${etherscanner.start-block-dir}") String dir,
-            final @Value("${etherscanner.neo.last-block.testnet:#{null}}") Long lastBlock,
+            final @Qualifier("testnetNeoLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.neo.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.neo.commit-chain-length}") Integer commitmentChainLength
     ) {
         return new NeoScanner(
                 network,
-                new LastBlockFilePersister(network.getType(), dir, lastBlock),
+                lastBlockPersister,
                 pollingInterval,
                 commitmentChainLength
         );

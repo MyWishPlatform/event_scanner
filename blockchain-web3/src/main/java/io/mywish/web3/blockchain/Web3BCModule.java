@@ -1,7 +1,10 @@
 package io.mywish.web3.blockchain;
 
 import io.lastwill.eventscan.model.NetworkType;
+import io.lastwill.eventscan.repositories.LastBlockRepository;
+import io.mywish.scanner.services.LastBlockDbPersister;
 import io.mywish.scanner.services.LastBlockFilePersister;
+import io.mywish.scanner.services.LastBlockPersister;
 import io.mywish.web3.blockchain.parity.Web3jEx;
 import io.mywish.web3.blockchain.service.Web3Network;
 import io.mywish.web3.blockchain.service.Web3Scanner;
@@ -61,17 +64,97 @@ public class Web3BCModule {
                 0);
     }
 
+    @ConditionalOnProperty(value = "etherscanner.eth.db-block-persister", havingValue = "true")
+    @ConditionalOnBean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
+    @Bean("mainnetEthLastBlockPersister")
+    public LastBlockPersister ethMainnetLastBlockPersister(
+            final @Qualifier(NetworkType.ETHEREUM_MAINNET_VALUE) Web3Network network,
+            final LastBlockRepository lastBlockRepository
+    ) {
+        return new LastBlockDbPersister(network.getType(), lastBlockRepository, null);
+    }
+
+    @ConditionalOnProperty(value = "etherscanner.eth.db-block-persister", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnBean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
+    @Bean("mainnetEthLastBlockPersister")
+    public LastBlockPersister ethMainnetLastBlockPersister(
+            final @Qualifier(NetworkType.ETHEREUM_MAINNET_VALUE) Web3Network network,
+            final @Value("${etherscanner.start-block-dir}") String dir
+    ) {
+        return new LastBlockFilePersister(network.getType(), dir, null);
+    }
+
+    @ConditionalOnProperty(value = "etherscanner.eth.db-block-persister", havingValue = "true")
+    @ConditionalOnBean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
+    @Bean("ropstenEthLastBlockPersister")
+    public LastBlockPersister ethRopstenLastBlockPersister(
+            final @Qualifier(NetworkType.ETHEREUM_ROPSTEN_VALUE) Web3Network network,
+            final LastBlockRepository lastBlockRepository
+    ) {
+        return new LastBlockDbPersister(network.getType(), lastBlockRepository, null);
+    }
+
+    @ConditionalOnProperty(value = "etherscanner.eth.db-block-persister", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnBean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
+    @Bean("ropstenEthLastBlockPersister")
+    public LastBlockPersister ethRopstenLastBlockPersister(
+            final @Qualifier(NetworkType.ETHEREUM_ROPSTEN_VALUE) Web3Network network,
+            final @Value("${etherscanner.start-block-dir}") String dir
+    ) {
+        return new LastBlockFilePersister(network.getType(), dir, null);
+    }
+
+    @ConditionalOnProperty(value = "etherscanner.rsk.db-block-persister", havingValue = "true")
+    @ConditionalOnBean(name = NetworkType.RSK_MAINNET_VALUE)
+    @Bean("mainnetRskLastBlockPersister")
+    public LastBlockPersister rskMainnetLastBlockPersister(
+            final @Qualifier(NetworkType.RSK_MAINNET_VALUE) Web3Network network,
+            final LastBlockRepository lastBlockRepository
+    ) {
+        return new LastBlockDbPersister(network.getType(), lastBlockRepository, null);
+    }
+
+    @ConditionalOnProperty(value = "etherscanner.rsk.db-block-persister", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnBean(name = NetworkType.RSK_MAINNET_VALUE)
+    @Bean("mainnetRskLastBlockPersister")
+    public LastBlockPersister rskMainnetLastBlockPersister(
+            final @Qualifier(NetworkType.RSK_MAINNET_VALUE) Web3Network network,
+            final @Value("${etherscanner.start-block-dir}") String dir
+    ) {
+        return new LastBlockFilePersister(network.getType(), dir, null);
+    }
+
+    @ConditionalOnProperty(value = "etherscanner.rsk.db-block-persister", havingValue = "true")
+    @ConditionalOnBean(name = NetworkType.RSK_TESTNET_VALUE)
+    @Bean("testnetRskLastBlockPersister")
+    public LastBlockPersister rskTestnetLastBlockPersister(
+            final @Qualifier(NetworkType.RSK_TESTNET_VALUE) Web3Network network,
+            final LastBlockRepository lastBlockRepository
+    ) {
+        return new LastBlockDbPersister(network.getType(), lastBlockRepository, null);
+    }
+
+    @ConditionalOnProperty(value = "etherscanner.rsk.db-block-persister", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnBean(name = NetworkType.RSK_TESTNET_VALUE)
+    @Bean("testnetRskLastBlockPersister")
+    public LastBlockPersister rskTestnetLastBlockPersister(
+            final @Qualifier(NetworkType.RSK_TESTNET_VALUE) Web3Network network,
+            final @Value("${etherscanner.start-block-dir}") String dir
+    ) {
+        return new LastBlockFilePersister(network.getType(), dir, null);
+    }
+
     @ConditionalOnBean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
     @Bean
     public Web3Scanner ethScannerMain(
             final @Qualifier(NetworkType.ETHEREUM_MAINNET_VALUE) Web3Network network,
-            final @Value("${etherscanner.start-block-dir}") String dir,
+            final @Qualifier("mainnetEthLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
         return new Web3Scanner(
                 network,
-                new LastBlockFilePersister(network.getType(), dir, null),
+                lastBlockPersister,
                 pollingInterval,
                 commitmentChainLength
         );
@@ -81,13 +164,13 @@ public class Web3BCModule {
     @Bean
     public Web3Scanner ethScannerRopsten(
             final @Qualifier(NetworkType.ETHEREUM_ROPSTEN_VALUE) Web3Network network,
-            final @Value("${etherscanner.start-block-dir}") String dir,
+            final @Qualifier("ropstenEthLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
         return new Web3Scanner(
                 network,
-                new LastBlockFilePersister(network.getType(), dir, null),
+                lastBlockPersister,
                 pollingInterval,
                 commitmentChainLength
         );
@@ -97,13 +180,13 @@ public class Web3BCModule {
     @Bean
     public Web3Scanner rskScannerMain(
             final @Qualifier(NetworkType.RSK_MAINNET_VALUE) Web3Network network,
-            final @Value("${etherscanner.start-block-dir}") String dir,
+            final @Qualifier("mainnetRskLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
         return new Web3Scanner(
                 network,
-                new LastBlockFilePersister(network.getType(), dir, null),
+                lastBlockPersister,
                 pollingInterval,
                 commitmentChainLength
         );
@@ -113,13 +196,13 @@ public class Web3BCModule {
     @Bean
     public Web3Scanner rskScannerTest(
             final @Qualifier(NetworkType.RSK_TESTNET_VALUE) Web3Network network,
-            final @Value("${etherscanner.start-block-dir}") String dir,
+            final @Qualifier("testnetRskLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
         return new Web3Scanner(
                 network,
-                new LastBlockFilePersister(network.getType(), dir, null),
+                lastBlockPersister,
                 pollingInterval,
                 commitmentChainLength
         );

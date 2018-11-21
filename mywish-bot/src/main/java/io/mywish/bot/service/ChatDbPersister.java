@@ -5,12 +5,18 @@ import io.lastwill.eventscan.repositories.SubscribedChatRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.PostConstruct;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class ChatDbPersister implements ChatPersister {
     @Autowired
     private SubscribedChatRepository chatRepository;
+
+    @PostConstruct
+    protected void init() {
+        log.info("Loaded {} chats.", getCount());
+    }
 
     @Override
     public boolean tryAdd(long chatId) {

@@ -19,7 +19,7 @@ public class LastBlock {
     @Column(name = "block_number", nullable = false)
     private Long blockNumber;
 
-    public LastBlock() {
+    protected LastBlock() {
     }
 
     public LastBlock(NetworkType network, Long blockNumber) {

@@ -66,10 +66,10 @@ public class EosBCModule {
     }
 
     @ConditionalOnBean(name = NetworkType.EOS_MAINNET_VALUE)
-    @Bean("mainnetEosLastBlockPersister")
+    @Bean
     public LastBlockPersister eosMainnetLastBlockPersister(
             final @Value("${etherscanner.eos.db-block-persister:#{false}}") boolean isDbPersister,
-            final @Qualifier(NetworkType.EOS_MAINNET_VALUE) EosNetwork network,
+            final EosNetwork network,
             final LastBlockRepository lastBlockRepository,
             final @Value("${etherscanner.start-block-dir}") String dir,
             final @Value("${etherscanner.eos.last-block.testnet:#{null}}") Long lastBlock
@@ -80,10 +80,10 @@ public class EosBCModule {
     }
 
     @ConditionalOnBean(name = NetworkType.EOS_TESTNET_VALUE)
-    @Bean("testnetEosLastBlockPersister")
+    @Bean
     public LastBlockPersister eosTestnetLastBlockPersister(
             final @Value("${etherscanner.eos.db-block-persister:#{false}}") boolean isDbPersister,
-            final @Qualifier(NetworkType.EOS_TESTNET_VALUE) EosNetwork network,
+            final EosNetwork network,
             final LastBlockRepository lastBlockRepository,
             final @Value("${etherscanner.start-block-dir}") String dir,
             final @Value("${etherscanner.eos.last-block.testnet:#{null}}") Long lastBlock
@@ -97,8 +97,8 @@ public class EosBCModule {
     @ConditionalOnProperty(name = "etherscanner.eos.pending")
     @Bean
     public EosScanner eosScannerMain(
-            final @Qualifier(NetworkType.EOS_MAINNET_VALUE) EosNetwork network,
-            final @Qualifier("mainnetEosLastBlockPersister") LastBlockPersister lastBlockPersister
+            final EosNetwork network,
+            final @Qualifier("eosMainnetLastBlockPersister") LastBlockPersister lastBlockPersister
     ) {
         return new EosScanner(
                 network,
@@ -111,8 +111,8 @@ public class EosBCModule {
     @ConditionalOnProperty(name = "etherscanner.eos.pending")
     @Bean
     public EosScanner eosScannerTest(
-            final @Qualifier(NetworkType.EOS_TESTNET_VALUE) EosNetwork network,
-            final @Qualifier("testnetEosLastBlockPersister") LastBlockPersister lastBlockPersister
+            final EosNetwork network,
+            final @Qualifier("eosTestnetLastBlockPersister") LastBlockPersister lastBlockPersister
     ) {
         return new EosScanner(
                 network,
@@ -124,7 +124,7 @@ public class EosBCModule {
     @ConditionalOnBean(name = NetworkType.EOS_MAINNET_VALUE)
     @Bean
     public EosScanner eosPendingScannerMain(
-            final @Qualifier(NetworkType.EOS_MAINNET_VALUE) EosNetwork network,
+            final EosNetwork network,
             final @Value("${etherscanner.eos.last-block.mainnet:#{null}}") Long lastBlock
     ) {
         return new EosScanner(
@@ -137,7 +137,7 @@ public class EosBCModule {
     @ConditionalOnBean(name = NetworkType.EOS_TESTNET_VALUE)
     @Bean
     public EosScanner eosPendingScannerTest(
-            final @Qualifier(NetworkType.EOS_TESTNET_VALUE) EosNetwork network,
+            final EosNetwork network,
             final @Value("${etherscanner.eos.last-block.testnet:#{null}}") Long lastBlock
     ) {
         return new EosScanner(

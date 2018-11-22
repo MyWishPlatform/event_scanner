@@ -58,10 +58,10 @@ public class NeoBCModule {
     }
 
     @ConditionalOnBean(name = NetworkType.NEO_MAINNET_VALUE)
-    @Bean("mainnetNeoLastBlockPersister")
+    @Bean
     public LastBlockPersister neoMainnetLastBlockPersister(
             final @Value("${etherscanner.neo.db-block-persister:#{false}}") boolean isDbPersister,
-            final @Qualifier(NetworkType.NEO_MAINNET_VALUE) NeoNetwork network,
+            final NeoNetwork network,
             final LastBlockRepository lastBlockRepository,
             final @Value("${etherscanner.start-block-dir}") String dir,
             final @Value("${etherscanner.neo.last-block.mainnet:#{null}}") Long lastBlock
@@ -72,10 +72,10 @@ public class NeoBCModule {
     }
 
     @ConditionalOnBean(name = NetworkType.NEO_TESTNET_VALUE)
-    @Bean("testnetNeoLastBlockPersister")
+    @Bean
     public LastBlockPersister neoTestnetLastBlockPersister(
             final @Value("${etherscanner.neo.db-block-persister:#{false}}") boolean isDbPersister,
-            final @Qualifier(NetworkType.NEO_TESTNET_VALUE) NeoNetwork network,
+            final NeoNetwork network,
             final LastBlockRepository lastBlockRepository,
             final @Value("${etherscanner.start-block-dir}") String dir,
             final @Value("${etherscanner.neo.last-block.testnet:#{null}}") Long lastBlock
@@ -88,8 +88,8 @@ public class NeoBCModule {
     @ConditionalOnBean(name = NetworkType.NEO_MAINNET_VALUE)
     @Bean
     public NeoScanner neoScannerMain(
-            final @Qualifier(NetworkType.NEO_MAINNET_VALUE) NeoNetwork network,
-            final @Qualifier("mainnetNeoLastBlockPersister") LastBlockPersister lastBlockPersister,
+            final NeoNetwork network,
+            final @Qualifier("neoMainnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.neo.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.neo.commit-chain-length}") Integer commitmentChainLength
     ) {
@@ -104,8 +104,8 @@ public class NeoBCModule {
     @ConditionalOnBean(name = NetworkType.NEO_TESTNET_VALUE)
     @Bean
     public NeoScanner neoScannerTest(
-            final @Qualifier(NetworkType.NEO_TESTNET_VALUE) NeoNetwork network,
-            final @Qualifier("testnetNeoLastBlockPersister") LastBlockPersister lastBlockPersister,
+            final NeoNetwork network,
+            final @Qualifier("neoTestnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.neo.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.neo.commit-chain-length}") Integer commitmentChainLength
     ) {

@@ -14,6 +14,6 @@ public interface LastBlockRepository extends CrudRepository<LastBlock, Long> {
 
     @Modifying
     @Transactional
-    @Query("update LastBlock lastBlock set lastBlock.network = :network, lastBlock.blockNumber = :blockNumber where lastBlock.network = :network")
+    @Query("update LastBlock lastBlock set lastBlock.blockNumber = :blockNumber where lastBlock.network = :network")
     void updateLastBlock(@Param("network") NetworkType network, @Param("blockNumber") Long blockNumber);
 }

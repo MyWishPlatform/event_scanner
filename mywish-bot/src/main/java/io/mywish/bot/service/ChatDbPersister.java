@@ -19,7 +19,7 @@ public class ChatDbPersister implements ChatPersister {
     }
 
     @Override
-    public boolean tryAdd(long chatId) {
+    public synchronized boolean tryAdd(long chatId) {
         if (chatRepository.existsByChatId(chatId)) {
             return false;
         }

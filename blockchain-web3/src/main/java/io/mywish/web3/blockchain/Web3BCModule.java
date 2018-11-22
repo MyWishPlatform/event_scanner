@@ -65,7 +65,7 @@ public class Web3BCModule {
     }
 
     @ConditionalOnBean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
-    @Bean("mainnetEthLastBlockPersister")
+    @Bean
     public LastBlockPersister ethMainnetLastBlockPersister(
             final @Value("${etherscanner.eth.db-block-persister:#{false}}") boolean isDbPersister,
             final @Qualifier(NetworkType.ETHEREUM_MAINNET_VALUE) Web3Network network,
@@ -78,7 +78,7 @@ public class Web3BCModule {
     }
 
     @ConditionalOnBean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
-    @Bean("ropstenEthLastBlockPersister")
+    @Bean
     public LastBlockPersister ethRopstenLastBlockPersister(
             final @Value("${etherscanner.eth.db-block-persister:#{false}}") boolean isDbPersister,
             final @Qualifier(NetworkType.ETHEREUM_ROPSTEN_VALUE) Web3Network network,
@@ -91,7 +91,7 @@ public class Web3BCModule {
     }
 
     @ConditionalOnBean(name = NetworkType.RSK_MAINNET_VALUE)
-    @Bean("mainnetRskLastBlockPersister")
+    @Bean
     public LastBlockPersister rskMainnetLastBlockPersister(
             final @Value("${etherscanner.rsk.db-block-persister:#{false}}") boolean isDbPersister,
             final @Qualifier(NetworkType.RSK_MAINNET_VALUE) Web3Network network,
@@ -104,7 +104,7 @@ public class Web3BCModule {
     }
 
     @ConditionalOnBean(name = NetworkType.RSK_TESTNET_VALUE)
-    @Bean("testnetRskLastBlockPersister")
+    @Bean
     public LastBlockPersister rskTestnetLastBlockPersister(
             final @Value("${etherscanner.rsk.db-block-persister:#{false}}") boolean isDbPersister,
             final @Qualifier(NetworkType.RSK_TESTNET_VALUE) Web3Network network,
@@ -120,7 +120,7 @@ public class Web3BCModule {
     @Bean
     public Web3Scanner ethScannerMain(
             final @Qualifier(NetworkType.ETHEREUM_MAINNET_VALUE) Web3Network network,
-            final @Qualifier("mainnetEthLastBlockPersister") LastBlockPersister lastBlockPersister,
+            final @Qualifier("ethMainnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
@@ -136,7 +136,7 @@ public class Web3BCModule {
     @Bean
     public Web3Scanner ethScannerRopsten(
             final @Qualifier(NetworkType.ETHEREUM_ROPSTEN_VALUE) Web3Network network,
-            final @Qualifier("ropstenEthLastBlockPersister") LastBlockPersister lastBlockPersister,
+            final @Qualifier("ethRopstenLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
@@ -152,7 +152,7 @@ public class Web3BCModule {
     @Bean
     public Web3Scanner rskScannerMain(
             final @Qualifier(NetworkType.RSK_MAINNET_VALUE) Web3Network network,
-            final @Qualifier("mainnetRskLastBlockPersister") LastBlockPersister lastBlockPersister,
+            final @Qualifier("rskMainnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
@@ -168,7 +168,7 @@ public class Web3BCModule {
     @Bean
     public Web3Scanner rskScannerTest(
             final @Qualifier(NetworkType.RSK_TESTNET_VALUE) Web3Network network,
-            final @Qualifier("testnetRskLastBlockPersister") LastBlockPersister lastBlockPersister,
+            final @Qualifier("rskTestnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {

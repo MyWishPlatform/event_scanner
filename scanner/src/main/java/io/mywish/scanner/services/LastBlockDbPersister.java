@@ -27,11 +27,7 @@ public class LastBlockDbPersister implements LastBlockPersister {
         if (lastBlockNumber != null) {
             saveLastBlock(lastBlockNumber);
         } else {
-            try {
-                lastBlockNumber = lastBlockRepository.getLastBlockForNetwork(networkType);
-            } catch (Throwable e) {
-                log.warn("Impossible to read last block from database.", e);
-            }
+            lastBlockNumber = lastBlockRepository.getLastBlockForNetwork(networkType);
         }
     }
 

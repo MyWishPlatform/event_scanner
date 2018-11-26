@@ -17,6 +17,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.net.URI;
 
@@ -57,32 +58,44 @@ public class NeoBCModule {
         );
     }
 
-    @ConditionalOnBean(name = NetworkType.NEO_MAINNET_VALUE)
-    @Bean
-    public LastBlockPersister neoMainnetLastBlockPersister(
-            final @Value("${etherscanner.neo.db-block-persister:#{false}}") boolean isDbPersister,
-            final NeoNetwork network,
-            final LastBlockRepository lastBlockRepository,
-            final @Value("${etherscanner.start-block-dir}") String dir,
-            final @Value("${etherscanner.neo.last-block.mainnet:#{null}}") Long lastBlock
-    ) {
-        return isDbPersister
-                ? new LastBlockDbPersister(network.getType(), lastBlockRepository, lastBlock)
-                : new LastBlockFilePersister(network.getType(), dir, lastBlock);
+    @Profile("neo-db-persister")
+    @Configuration
+    public class DbPersisterConfiguration {
+        @Bean
+        public LastBlockPersister neoMainnetLastBlockPersister(
+                LastBlockRepository lastBlockRepository,
+                final @Value("${etherscanner.neo.last-block.mainnet:#{null}}") Long lastBlock
+        ) {
+            return new LastBlockDbPersister(NetworkType.NEO_MAINNET, lastBlockRepository, lastBlock);
+        }
+
+        @Bean
+        public LastBlockPersister neoTestnetLastBlockPersister(
+                LastBlockRepository lastBlockRepository,
+                final @Value("${etherscanner.neo.last-block.testnet:#{null}}") Long lastBlock
+        ) {
+            return new LastBlockDbPersister(NetworkType.NEO_TESTNET, lastBlockRepository, lastBlock);
+        }
     }
 
-    @ConditionalOnBean(name = NetworkType.NEO_TESTNET_VALUE)
-    @Bean
-    public LastBlockPersister neoTestnetLastBlockPersister(
-            final @Value("${etherscanner.neo.db-block-persister:#{false}}") boolean isDbPersister,
-            final NeoNetwork network,
-            final LastBlockRepository lastBlockRepository,
-            final @Value("${etherscanner.start-block-dir}") String dir,
-            final @Value("${etherscanner.neo.last-block.testnet:#{null}}") Long lastBlock
-    ) {
-        return isDbPersister
-                ? new LastBlockDbPersister(network.getType(), lastBlockRepository, lastBlock)
-                : new LastBlockFilePersister(network.getType(), dir, lastBlock);
+    @Profile("!neo-db-persister")
+    @Configuration
+    public class FilePersisterConfiguration {
+        @Bean
+        public LastBlockPersister neoMainnetLastBlockPersister(
+                final @Value("${etherscanner.start-block-dir}") String dir,
+                final @Value("${etherscanner.neo.last-block.mainnet:#{null}}") Long lastBlock
+        ) {
+            return new LastBlockFilePersister(NetworkType.NEO_MAINNET, dir, lastBlock);
+        }
+
+        @Bean
+        public LastBlockPersister neoTestnetLastBlockPersister(
+                final @Value("${etherscanner.start-block-dir}") String dir,
+                final @Value("${etherscanner.neo.last-block.testnet:#{null}}") Long lastBlock
+        ) {
+            return new LastBlockFilePersister(NetworkType.NEO_TESTNET, dir, lastBlock);
+        }
     }
 
     @ConditionalOnBean(name = NetworkType.NEO_MAINNET_VALUE)

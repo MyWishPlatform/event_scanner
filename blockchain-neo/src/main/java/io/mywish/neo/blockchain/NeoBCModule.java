@@ -101,7 +101,7 @@ public class NeoBCModule {
     @ConditionalOnBean(name = NetworkType.NEO_MAINNET_VALUE)
     @Bean
     public NeoScanner neoScannerMain(
-            final NeoNetwork network,
+            final @Qualifier(NetworkType.NEO_MAINNET_VALUE) NeoNetwork network,
             final @Qualifier("neoMainnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.neo.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.neo.commit-chain-length}") Integer commitmentChainLength
@@ -117,7 +117,7 @@ public class NeoBCModule {
     @ConditionalOnBean(name = NetworkType.NEO_TESTNET_VALUE)
     @Bean
     public NeoScanner neoScannerTest(
-            final NeoNetwork network,
+            final @Qualifier(NetworkType.NEO_TESTNET_VALUE) NeoNetwork network,
             final @Qualifier("neoTestnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.neo.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.neo.commit-chain-length}") Integer commitmentChainLength

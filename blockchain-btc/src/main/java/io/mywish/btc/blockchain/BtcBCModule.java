@@ -131,7 +131,7 @@ public class BtcBCModule {
     @ConditionalOnBean(name = NetworkType.BTC_MAINNET_VALUE)
     @Bean
     public BtcScanner btcScannerMain(
-            final BtcNetwork network,
+            final @Qualifier(NetworkType.BTC_MAINNET_VALUE) BtcNetwork network,
             final @Qualifier("btcMainnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.bitcoin.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.bitcoin.commit-chain-length}") Integer commitmentChainLength
@@ -147,7 +147,7 @@ public class BtcBCModule {
     @ConditionalOnBean(name = NetworkType.BTC_TESTNET_3_VALUE)
     @Bean
     public BtcScanner btcScannerTest(
-            final BtcNetwork network,
+            final @Qualifier(NetworkType.BTC_TESTNET_3_VALUE) BtcNetwork network,
             final @Qualifier("btcTestnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.bitcoin.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.bitcoin.commit-chain-length}") Integer commitmentChainLength

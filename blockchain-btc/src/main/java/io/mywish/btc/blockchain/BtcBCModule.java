@@ -2,9 +2,12 @@ package io.mywish.btc.blockchain;
 
 import com.neemre.btcdcli4j.core.client.BtcdClientImpl;
 import io.lastwill.eventscan.model.NetworkType;
+import io.lastwill.eventscan.repositories.LastBlockRepository;
 import io.mywish.btc.blockchain.services.BtcNetwork;
 import io.mywish.btc.blockchain.services.BtcScanner;
+import io.mywish.scanner.services.LastBlockDbPersister;
 import io.mywish.scanner.services.LastBlockFilePersister;
+import io.mywish.scanner.services.LastBlockPersister;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.TestNet3Params;
@@ -15,6 +18,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.net.URI;
 
@@ -84,18 +88,57 @@ public class BtcBCModule {
                 new TestNet3Params());
     }
 
+    @Profile("btc-db-persister")
+    @Configuration
+    public class DbPersisterConfiguration {
+        @Bean
+        public LastBlockPersister btcMainnetLastBlockPersister(
+                LastBlockRepository lastBlockRepository,
+                final @Value("${etherscanner.bitcoin.last-block.mainnet:#{null}}") Long lastBlock
+        ) {
+            return new LastBlockDbPersister(NetworkType.BTC_MAINNET, lastBlockRepository, lastBlock);
+        }
+
+        @Bean
+        public LastBlockPersister btcTestnetLastBlockPersister(
+                LastBlockRepository lastBlockRepository,
+                final @Value("${etherscanner.bitcoin.last-block.testnet:#{null}}") Long lastBlock
+        ) {
+            return new LastBlockDbPersister(NetworkType.BTC_TESTNET_3, lastBlockRepository, lastBlock);
+        }
+    }
+
+    @Profile("!btc-db-persister")
+    @Configuration
+    public class FilePersisterConfiguration {
+        @Bean
+        public LastBlockPersister btcMainnetLastBlockPersister(
+                final @Value("${etherscanner.start-block-dir}") String dir,
+                final @Value("${etherscanner.bitcoin.last-block.mainnet:#{null}}") Long lastBlock
+        ) {
+            return new LastBlockFilePersister(NetworkType.BTC_MAINNET, dir, lastBlock);
+        }
+
+        @Bean
+        public LastBlockPersister btcTestnetLastBlockPersister(
+                final @Value("${etherscanner.start-block-dir}") String dir,
+                final @Value("${etherscanner.bitcoin.last-block.testnet:#{null}}") Long lastBlock
+        ) {
+            return new LastBlockFilePersister(NetworkType.BTC_TESTNET_3, dir, lastBlock);
+        }
+    }
+
     @ConditionalOnBean(name = NetworkType.BTC_MAINNET_VALUE)
     @Bean
     public BtcScanner btcScannerMain(
             final @Qualifier(NetworkType.BTC_MAINNET_VALUE) BtcNetwork network,
-            final @Value("${etherscanner.start-block-dir}") String dir,
-            final @Value("${etherscanner.bitcoin.last-block.mainnet:#{null}}") Long lastBlock,
+            final @Qualifier("btcMainnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.bitcoin.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.bitcoin.commit-chain-length}") Integer commitmentChainLength
     ) {
         return new BtcScanner(
                 network,
-                new LastBlockFilePersister(network.getType(), dir, lastBlock),
+                lastBlockPersister,
                 pollingInterval,
                 commitmentChainLength
         );
@@ -105,14 +148,13 @@ public class BtcBCModule {
     @Bean
     public BtcScanner btcScannerTest(
             final @Qualifier(NetworkType.BTC_TESTNET_3_VALUE) BtcNetwork network,
-            final @Value("${etherscanner.start-block-dir}") String dir,
-            final @Value("${etherscanner.bitcoin.last-block.testnet:#{null}}") Long lastBlock,
+            final @Qualifier("btcTestnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.bitcoin.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.bitcoin.commit-chain-length}") Integer commitmentChainLength
     ) {
         return new BtcScanner(
                 network,
-                new LastBlockFilePersister(network.getType(), dir, lastBlock),
+                lastBlockPersister,
                 pollingInterval,
                 commitmentChainLength
         );

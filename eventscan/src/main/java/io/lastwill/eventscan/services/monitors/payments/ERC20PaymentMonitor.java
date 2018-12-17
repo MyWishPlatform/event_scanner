@@ -34,10 +34,10 @@ public class ERC20PaymentMonitor {
     @Autowired
     private TransactionProvider transactionProvider;
 
-    @Value("${io.lastwill.eventscan.contract.token-address}")
+    @Value("${io.lastwill.eventscan.contract.token-address.wish}")
     private String tokenAddressWish;
 
-    @Value("${io.lastwill.eventscan.contract.token-address}")
+    @Value("${io.lastwill.eventscan.contract.token-address.bnb}")
     private String tokenAddressBnb;
 
     private final Map<String, CryptoCurrency> addressToCurrency = new HashMap<>();

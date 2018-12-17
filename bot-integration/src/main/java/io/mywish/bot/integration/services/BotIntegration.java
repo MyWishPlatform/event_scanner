@@ -211,6 +211,7 @@ public class BotIntegration {
                 hundreds = amount.divide(BigInteger.valueOf(100000000L));
                 break;
             }
+            case BNB:
             case WISH:
             case ETH: {
                 hundreds = amount.divide(BigInteger.valueOf(10000000000000000L));

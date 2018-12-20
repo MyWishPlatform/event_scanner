@@ -13,6 +13,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BlockResponse extends Response {
     @Getter
+    @JsonProperty("blockID")
     private final String blockId;
     @JsonProperty("block_header")
     private final BlockHeader blockHeader;

@@ -224,6 +224,10 @@ public class BotIntegration {
                 hundreds = amount.divide(BigInteger.valueOf(100L));
                 break;
             }
+            case TRX: {
+                hundreds = amount.divide(BigInteger.valueOf(10000L));
+                break;
+            }
             default:
                 hundreds = amount;
         }

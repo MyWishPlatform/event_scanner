@@ -42,7 +42,7 @@ public class LastBlockDbPersister implements LastBlockPersister {
 
     @Override
     public synchronized void saveLastBlock(long blockNumber) {
-        if (lastBlockNumber == null) {
+        if (lastBlockRepository.getLastBlockForNetwork(networkType) == null) {
             lastBlockRepository.save(new LastBlock(networkType, blockNumber));
         } else {
             lastBlockRepository.updateLastBlock(networkType, blockNumber);

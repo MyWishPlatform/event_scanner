@@ -4,13 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mywish.troncli4j.TronClient;
 import io.mywish.troncli4j.model.EventResult;
+import io.mywish.troncli4j.model.request.AccountRequest;
 import io.mywish.troncli4j.model.request.BlockByIdRequest;
 import io.mywish.troncli4j.model.request.BlockByNumRequest;
 import io.mywish.troncli4j.model.request.Request;
-import io.mywish.troncli4j.model.response.BlockResponse;
+import io.mywish.troncli4j.model.response.*;
 import io.mywish.troncli4j.model.response.Error;
-import io.mywish.troncli4j.model.response.NodeInfoResponse;
-import io.mywish.troncli4j.model.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -30,13 +29,9 @@ public class TronClientImpl implements TronClient {
     private final HttpClient client;
     private final URI rpc;
     private final ObjectMapper objectMapper;
-    private final String tcpHost;
-    private final int tcpPort;
     private Charset UTF8;
 
-    public TronClientImpl(URI tcpUrl, HttpClient client, URI rpc, ObjectMapper objectMapper) throws Exception {
-        this.tcpHost = tcpUrl.getHost();
-        this.tcpPort = tcpUrl.getPort();
+    public TronClientImpl(HttpClient client, URI rpc, ObjectMapper objectMapper) throws Exception {
         this.client = client;
         this.rpc = rpc;
         this.objectMapper = objectMapper;
@@ -105,10 +100,10 @@ public class TronClientImpl implements TronClient {
                 doRequest("/event/transaction/" + txId), EventResult[].class));
     }
 
-//    @Override
-//    public BalanceResponse getBalance(String code, String account) throws Exception {
-//        JsonNode node = doRequest("/v1/chain/get_currency_balance", new BalanceRequest(code, account));
-//        String[] unformatted = node.get(0).textValue().split(" ")[0].split("\\.");
-//        return new BalanceResponse(new BigInteger(unformatted[0] + unformatted[1]), unformatted[1].length());
-//    }
+    @Override
+    public AccountResponse getAccount(String hexAddress) throws Exception {
+        return objectMapper.treeToValue(
+                doRequest("/wallet/getaccount", new AccountRequest(hexAddress)),
+                AccountResponse.class);
+    }
 }

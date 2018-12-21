@@ -1,6 +1,7 @@
 package io.mywish.troncli4j;
 
 import io.mywish.troncli4j.model.EventResult;
+import io.mywish.troncli4j.model.response.AccountResponse;
 import io.mywish.troncli4j.model.response.BlockResponse;
 import io.mywish.troncli4j.model.response.NodeInfoResponse;
 
@@ -17,5 +18,5 @@ public interface TronClient {
 
     List<EventResult> getEventResult(String txId) throws Exception;
 
-//    BalanceResponse getBalance(String code, String account) throws Exception;
+    AccountResponse getAccount(String hexAddress) throws Exception;
 }

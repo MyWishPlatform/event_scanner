@@ -35,6 +35,7 @@
         <module>blockchain-eos</module>
         <module>blockchain-neo</module>
         <module>blockchain-btc</module>
+        <module>blockchain-tron</module>
         <module>mywish-airdrop</module>
     </modules>
 

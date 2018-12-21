@@ -16,5 +16,5 @@ public abstract class TronEventBuilder<T extends ContractEvent> extends Contract
         throw new UnsupportedOperationException("Use other method with other signature.");
     }
 
-    public abstract T build(String address, EventResult eventResult);
+    public abstract T build(String address, EventResult event);
 }

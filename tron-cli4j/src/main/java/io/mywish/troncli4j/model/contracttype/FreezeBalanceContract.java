@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 public class FreezeBalanceContract extends ContractType {
     @JsonProperty("frozen_balance")
     private Long frozenBalance;
-    @JsonProperty("frozen_balance")
+    @JsonProperty("frozen_duration")
     private Long frozenDuration;
     private ResourceCode resource;
 }

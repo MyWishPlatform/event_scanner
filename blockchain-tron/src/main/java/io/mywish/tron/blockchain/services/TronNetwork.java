@@ -21,9 +21,9 @@ public class TronNetwork extends WrapperNetwork {
     @Autowired
     private WrapperTransactionReceiptTronService transactionReceiptBuilder;
 
-    public TronNetwork(NetworkType type, TronClient neoClient) {
+    public TronNetwork(NetworkType type, TronClient tronClient) {
         super(type);
-        this.tronClient = neoClient;
+        this.tronClient = tronClient;
     }
 
     @Override

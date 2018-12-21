@@ -24,7 +24,7 @@ public class WrapperLogTronService {
     @PostConstruct
     protected void init() throws Exception {
         for (TronEventBuilder<?> eventBuilder : builders) {
-            if (eventBuilder.getNetworkProviderType() != NetworkProviderType.EOS) {
+            if (eventBuilder.getNetworkProviderType() != NetworkProviderType.TRON) {
                 return;
             }
             String key = eventBuilder.getDefinition().getName();

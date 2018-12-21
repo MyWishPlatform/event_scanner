@@ -48,6 +48,16 @@ public class BotIntegrationModule {
     }
 
     @Bean
+    public TronscanExplorer tronscanExplorerTestnet() {
+        return new TronscanExplorer(true);
+    }
+
+    @Bean
+    public TronscanExplorer tronscanExplorer() {
+        return new TronscanExplorer(false);
+    }
+
+    @Bean
     @ConditionalOnBean(MyWishBot.class)
     public BotIntegration botIntegration() {
         return new BotIntegration();

@@ -4,5 +4,6 @@ public enum  NetworkProviderType {
     WEB3,
     EOS,
     NEO,
-    BTC
+    BTC,
+    TRON,
 }

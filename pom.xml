@@ -29,11 +29,13 @@
         <module>bot-integration</module>
         <module>neo-cli4j</module>
         <module>eos-cli4j</module>
+        <module>tron-cli4j</module>
         <module>blockchain</module>
         <module>blockchain-web3</module>
         <module>blockchain-eos</module>
         <module>blockchain-neo</module>
         <module>blockchain-btc</module>
+        <module>blockchain-tron</module>
         <module>mywish-airdrop</module>
     </modules>
 

@@ -7,6 +7,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import io.lastwill.eventscan.events.EventModule;
 import io.mywish.scanner.ScannerModule;
 import okhttp3.OkHttpClient;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -56,6 +57,7 @@ public class Application {
                                 .setConnectTimeout(connectionTimeout)
                                 .setSocketTimeout(socketTimeout)
                                 .setConnectionRequestTimeout(getConnectionTimeout)
+                                .setCookieSpec(CookieSpecs.STANDARD)
                                 .build()
                 )
                 .setConnectionManagerShared(true)

@@ -27,11 +27,16 @@ public class WrapperTransactionTronService implements WrapperTransactionService<
 
         boolean contractCreation = contractWrapper.getType().equals(ContractType.Type.CreateSmartContract);
 
+        List<String> contracts = transaction.getContractAddress() == null
+                ? Collections.emptyList()
+                : Collections.singletonList(transaction.getContractAddress());
+
         WrapperTransactionTron res = new WrapperTransactionTron(
                 hash,
                 inputs,
                 outputs,
                 contractCreation,
+                contracts,
                 transaction.getStatus()
         );
 

@@ -21,7 +21,7 @@ public class WrapperTransactionReceiptTronService {
     private WrapperLogTronService logBuilder;
 
     public WrapperTransactionReceipt build(WrapperTransactionTron transaction, List<EventResult> events) {
-        List<String> contracts = Collections.emptyList();
+        List<String> contracts = transaction.getContracts();
 
         List<ContractEvent> logs = events
                 .stream()

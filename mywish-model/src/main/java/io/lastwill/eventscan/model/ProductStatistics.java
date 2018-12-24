@@ -23,6 +23,7 @@ public class ProductStatistics {
         put(12, "EOS ICO");
         put(13, "EOS Airdrop");
         put(14, "EOS Ext Token");
+        put(15, "TRON Token");
     }};
 
     private final Integer contractType;

@@ -1,17 +1,17 @@
 package io.mywish.tron.blockchain.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.mywish.blockchain.WrapperOutput;
-import io.mywish.troncli4j.model.contracttype.ContractType;
 import lombok.Getter;
 
 import java.math.BigInteger;
 
 @Getter
 public class WrapperOutputTron extends WrapperOutput {
-    private final ContractType contract;
+    private final JsonNode contract;
 
-    public WrapperOutputTron(String parentTransaction, ContractType contract) {
-        super(parentTransaction, 0, contract.getOwnerAddress(), BigInteger.ZERO, new byte[0]);
+    public WrapperOutputTron(String parentTransaction, String address, JsonNode contract) {
+        super(parentTransaction, 0, address, BigInteger.ZERO, new byte[0]);
         this.contract = contract;
     }
 }

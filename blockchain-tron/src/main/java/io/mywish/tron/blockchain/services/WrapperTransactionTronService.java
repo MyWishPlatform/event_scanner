@@ -1,5 +1,6 @@
 package io.mywish.tron.blockchain.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.mywish.blockchain.WrapperOutput;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.blockchain.service.WrapperTransactionService;
@@ -7,7 +8,6 @@ import io.mywish.tron.blockchain.model.WrapperOutputTron;
 import io.mywish.tron.blockchain.model.WrapperTransactionTron;
 import io.mywish.troncli4j.model.Transaction;
 import io.mywish.troncli4j.model.contracttype.ContractType;
-import io.mywish.troncli4j.model.contracttype.CreateSmartContract;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -19,10 +19,11 @@ public class WrapperTransactionTronService implements WrapperTransactionService<
     public WrapperTransaction build(Transaction transaction) {
         String hash = transaction.getTxId();
         Transaction.Contract contractWrapper = transaction.getRawData().getContract().get(0);
-        ContractType contract = contractWrapper.getParameter().getValue();
+        JsonNode contract = contractWrapper.getParameter().getValue();
 
-        List<String> inputs = Collections.singletonList(contract.getOwnerAddress());
-        List<WrapperOutput> outputs = Collections.singletonList(new WrapperOutputTron(hash, contract));
+        String ownerAddress = contract.get("owner_address").asText();
+        List<String> inputs = Collections.singletonList(ownerAddress);
+        List<WrapperOutput> outputs = Collections.singletonList(new WrapperOutputTron(hash, ownerAddress, contract));
 
         boolean contractCreation = contractWrapper.getType().equals(ContractType.Type.CreateSmartContract);
 
@@ -35,8 +36,7 @@ public class WrapperTransactionTronService implements WrapperTransactionService<
         );
 
         if (contractCreation) {
-            CreateSmartContract createSmartContract = (CreateSmartContract) contract;
-            res.setCreates(createSmartContract.getNewContract().getContractAddress());
+            res.setCreates(transaction.getContractAddress());
         }
 
         return res;

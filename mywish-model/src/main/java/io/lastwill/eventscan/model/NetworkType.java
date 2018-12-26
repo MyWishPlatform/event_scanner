@@ -18,6 +18,8 @@ public enum NetworkType {
     NEO_TESTNET(NetworkProviderType.NEO),
     EOS_MAINNET(NetworkProviderType.EOS),
     EOS_TESTNET(NetworkProviderType.EOS),
+    TRON_MAINNET(NetworkProviderType.TRON),
+    TRON_TESTNET(NetworkProviderType.TRON),
     ;
     public final static String ETHEREUM_MAINNET_VALUE = "ETHEREUM_MAINNET";
     public final static String ETHEREUM_ROPSTEN_VALUE = "ETHEREUM_ROPSTEN";
@@ -29,6 +31,8 @@ public enum NetworkType {
     public final static String NEO_TESTNET_VALUE = "NEO_TESTNET";
     public final static String EOS_MAINNET_VALUE = "EOS_MAINNET";
     public final static String EOS_TESTNET_VALUE = "EOS_TESTNET";
+    public final static String TRON_MAINNET_VALUE = "TRON_MAINNET";
+    public final static String TRON_TESTNET_VALUE = "TRON_TESTNET";
 
     private final static EnumSet<NetworkType> namedEvents = EnumSet.of(NEO_MAINNET, NEO_TESTNET);
 

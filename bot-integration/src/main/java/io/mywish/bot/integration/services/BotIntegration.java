@@ -47,6 +47,8 @@ public class BotIntegration {
         put(NetworkType.NEO_TESTNET, "tNEO");
         put(NetworkType.EOS_TESTNET, "tEOS");
         put(NetworkType.EOS_MAINNET, "EOS");
+        put(NetworkType.TRON_TESTNET, "tTRON");
+        put(NetworkType.TRON_MAINNET, "TRON");
     }};
 
     private final String defaultNetwork = "unknown";
@@ -220,6 +222,10 @@ public class BotIntegration {
             case EOSISH:
             case EOS: {
                 hundreds = amount.divide(BigInteger.valueOf(100L));
+                break;
+            }
+            case TRX: {
+                hundreds = amount.divide(BigInteger.valueOf(10000L));
                 break;
             }
             default:

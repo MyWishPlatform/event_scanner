@@ -25,7 +25,7 @@ public class WrapperTransactionReceiptTronService {
 
         List<ContractEvent> logs = events
                 .stream()
-                .map(this::buildEvent)
+                .map(event -> buildEvent(transaction, event))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
@@ -39,9 +39,9 @@ public class WrapperTransactionReceiptTronService {
         );
     }
 
-    private ContractEvent buildEvent(EventResult event) {
+    private ContractEvent buildEvent(WrapperTransactionTron transaction, EventResult event) {
         try {
-            return logBuilder.build(event);
+            return logBuilder.build(transaction, event);
         } catch (Exception e) {
             log.warn("Impossible to build event from Tron event {}, contract {}.", event.getEventName(), event.getContractAddress(), e);
             return null;

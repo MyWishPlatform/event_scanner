@@ -3,6 +3,7 @@ package io.mywish.tron.blockchain.services;
 import io.lastwill.eventscan.model.NetworkProviderType;
 import io.mywish.blockchain.ContractEvent;
 import io.mywish.tron.blockchain.builders.TronEventBuilder;
+import io.mywish.tron.blockchain.model.WrapperTransactionTron;
 import io.mywish.troncli4j.model.EventResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +38,13 @@ public class WrapperLogTronService {
         }
     }
 
-    public ContractEvent build(EventResult event) {
+    public ContractEvent build(WrapperTransactionTron transaction, EventResult event) {
         TronEventBuilder<?> builder = buildersByName.get(event.getEventName());
         if (builder == null) {
             log.warn("There is no builder for Tron event {}.", event.getEventName());
             return null;
         }
 
-        return builder.build(event.getContractAddress(), event);
+        return builder.build(transaction.getSingleOutputAddress(), event);
     }
 }

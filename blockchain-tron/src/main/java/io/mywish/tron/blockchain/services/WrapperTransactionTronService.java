@@ -23,7 +23,12 @@ public class WrapperTransactionTronService implements WrapperTransactionService<
 
         String ownerAddress = contract.get("owner_address").asText();
         List<String> inputs = Collections.singletonList(ownerAddress);
-        List<WrapperOutput> outputs = Collections.singletonList(new WrapperOutputTron(hash, ownerAddress, contract));
+
+        String outputAddress = ownerAddress;
+        if (contractWrapper.getType().equals(ContractType.Type.TriggerSmartContract)) {
+            outputAddress = contract.get("contract_address").asText();
+        }
+        List<WrapperOutput> outputs = Collections.singletonList(new WrapperOutputTron(hash, outputAddress, contract));
 
         boolean contractCreation = contractWrapper.getType().equals(ContractType.Type.CreateSmartContract);
 

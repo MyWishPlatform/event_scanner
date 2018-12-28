@@ -1,6 +1,7 @@
 package io.mywish.bot.integration.services.impl;
 
 import io.lastwill.eventscan.model.NetworkType;
+import io.mywish.bot.integration.services.AddressConverter;
 import io.mywish.bot.integration.services.BlockchainExplorer;
 import lombok.Getter;
 
@@ -10,7 +11,7 @@ public class TronscanExplorer implements BlockchainExplorer {
     private final String host;
 
     public TronscanExplorer(boolean testnet) {
-        this.host = testnet ? "shasta.tronscan.org" : "tronscan.org";
+        this.host = testnet ? "tronscan.mywish.io" : "tronscan.org";
         this.networkType = testnet ? NetworkType.TRON_TESTNET : NetworkType.TRON_MAINNET;
     }
 
@@ -20,7 +21,7 @@ public class TronscanExplorer implements BlockchainExplorer {
 
     @Override
     public String buildToAddress(String address) {
-        return build("address", address);
+        return build("address", AddressConverter.toTronPubKeyFrom(address));
     }
 
     @Override

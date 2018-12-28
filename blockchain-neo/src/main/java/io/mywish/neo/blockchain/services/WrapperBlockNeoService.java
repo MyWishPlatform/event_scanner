@@ -7,6 +7,7 @@ import io.mywish.blockchain.service.WrapperBlockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,7 @@ public class WrapperBlockNeoService implements WrapperBlockService<Block> {
     public WrapperBlock build(Block block) {
         String hash = block.getHash();
         Long number = block.getNumber();
-        Long timestamp = block.getTimestamp();
+        Instant timestamp = Instant.ofEpochSecond(block.getTimestamp());
         List<WrapperTransaction> transactions = block
                 .getTransactions()
                 .stream()

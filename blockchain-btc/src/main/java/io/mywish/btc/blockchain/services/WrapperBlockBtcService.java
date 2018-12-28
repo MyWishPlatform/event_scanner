@@ -7,6 +7,7 @@ import org.bitcoinj.core.NetworkParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,7 @@ public class WrapperBlockBtcService {
 
     public WrapperBlock build(Block block, Long height, NetworkParameters networkParameters) {
         String hash = block.getHashAsString();
-        Long timestamp = block.getTimeSeconds();
+        Instant timestamp = Instant.ofEpochSecond(block.getTimeSeconds());
         List<WrapperTransaction> transactions = block
                 .getTransactions()
                 .stream()

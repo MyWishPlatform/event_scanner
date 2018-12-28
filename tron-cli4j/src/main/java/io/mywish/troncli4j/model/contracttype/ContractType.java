@@ -39,5 +39,6 @@ public abstract class ContractType {
         ExchangeInjectContract,
         ExchangeWithdrawContract,
         ExchangeTransactionContract,
+        UpdateEnergyLimitContract,
     }
 }

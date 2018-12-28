@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,7 @@ public class WrapperBlockWeb3Service implements WrapperBlockService<EthBlock.Blo
     public WrapperBlock build(EthBlock.Block block) {
         String hash = block.getHash();
         Long number = block.getNumber().longValue();
-        Long timestamp = block.getTimestamp().longValue();
+        Instant timestamp = Instant.ofEpochSecond(block.getTimestamp().longValue());
         List<WrapperTransaction> transactions = block
                 .getTransactions()
                 .stream()

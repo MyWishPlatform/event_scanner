@@ -7,6 +7,7 @@ import io.mywish.troncli4j.model.response.BlockResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,7 @@ public class WrapperBlockTronService implements WrapperBlockService<BlockRespons
         String hash = block.getBlockId();
         BlockResponse.RawData header = block.getBlockHeader();
         Long number = header.getNumber();
-        Long timestamp = header.getTimestamp();
+        Instant timestamp = Instant.ofEpochMilli(header.getTimestamp());
         List<WrapperTransaction> transactions = block
                 .getTransactions()
                 .stream()

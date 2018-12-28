@@ -24,6 +24,7 @@ public class ProductStatistics {
         put(13, "EOS Airdrop");
         put(14, "EOS Ext Token");
         put(15, "TRON Token");
+        put(16, "TRON Game Asset");
     }};
 
     private final Integer contractType;

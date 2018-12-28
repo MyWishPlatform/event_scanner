@@ -43,7 +43,7 @@ public class NetworkStuckMonitor {
                 event.getNetworkType(),
                 new LastEvent(
                         LocalDateTime.now(ZoneOffset.UTC),
-                        Instant.ofEpochSecond(event.getBlock().getTimestamp()),
+                        event.getBlock().getTimestamp(),
                         event.getBlock().getNumber()
                 )
         );
@@ -70,7 +70,7 @@ public class NetworkStuckMonitor {
     }
 
     @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}")
-    protected void checkEth() {
+    protected void checkRestNetworks() {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         lastBlockEvents.keySet()
                 .stream()

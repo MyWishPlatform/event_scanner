@@ -7,6 +7,7 @@ import io.mywish.eoscli4j.model.response.BlockResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +21,7 @@ public class WrapperBlockEosService implements WrapperBlockService<BlockResponse
     public WrapperBlock build(BlockResponse block) {
         String hash = block.getId();
         Long number = block.getBlockNum();
-        Long timestamp = block.getTimestamp().toEpochSecond(ZoneOffset.UTC);
+        Instant timestamp = block.getTimestamp().toInstant(ZoneOffset.UTC);
         List<WrapperTransaction> transactions = block
                 .getTransactions()
                 .stream()

@@ -9,9 +9,7 @@ import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressR
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.events.model.contract.investmentPool.*;
 import io.lastwill.eventscan.messages.*;
-import io.lastwill.eventscan.model.AirdropEntry;
-import io.lastwill.eventscan.model.ProductAirdrop;
-import io.lastwill.eventscan.model.ProductInvestmentPool;
+import io.lastwill.eventscan.model.*;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.BalanceProvider;
 import io.lastwill.eventscan.services.ExternalNotifier;
@@ -45,7 +43,8 @@ public class ContractEventHandler {
     @EventListener
     private void eventsHandler(final ContractEventsEvent event) {
         // catch airdrop events
-        if (event.getContract().getProduct() instanceof ProductAirdrop) {
+        Product product = event.getContract().getProduct();
+        if (product instanceof ProductAirdrop || product instanceof ProductAirdropTron) {
             List<AirdropEntry> airdropAddresses = event.getEvents()
                     .stream()
                     .filter(contractEvent -> contractEvent instanceof TransferEvent)

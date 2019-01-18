@@ -6,6 +6,7 @@ import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.LastBlockRepository;
 import io.mywish.eos.blockchain.services.EosNetwork;
 import io.mywish.eos.blockchain.services.EosScanner;
+import io.mywish.eos.blockchain.services.EosScannerPolling;
 import io.mywish.eoscli4j.service.EosClientImpl;
 import io.mywish.scanner.services.LastBlockDbPersister;
 import io.mywish.scanner.services.LastBlockFilePersister;
@@ -102,58 +103,142 @@ public class EosBCModule {
         }
     }
 
-    @ConditionalOnBean(name = NetworkType.EOS_MAINNET_VALUE)
-    @ConditionalOnProperty(name = "etherscanner.eos.pending")
-    @Bean
-    public EosScanner eosScannerMain(
-            final @Qualifier(NetworkType.EOS_MAINNET_VALUE) EosNetwork network,
-            final @Qualifier("eosMainnetLastBlockPersister") LastBlockPersister lastBlockPersister
-    ) {
-        return new EosScanner(
-                network,
-                lastBlockPersister,
-                false
-        );
+    @Profile("eos-subscription-mainnet")
+    @Configuration
+    public static class SubscriptionMainnetConfig {
+        @ConditionalOnBean(name = NetworkType.EOS_MAINNET_VALUE)
+        @ConditionalOnProperty(name = "etherscanner.eos.pending")
+        @Bean
+        public EosScanner eosScannerMain(
+                final @Qualifier(NetworkType.EOS_MAINNET_VALUE) EosNetwork network,
+                final @Qualifier("eosMainnetLastBlockPersister") LastBlockPersister lastBlockPersister
+        ) {
+            return new EosScanner(
+                    network,
+                    lastBlockPersister,
+                    false
+            );
+        }
+
+        @ConditionalOnBean(name = NetworkType.EOS_MAINNET_VALUE)
+        @Bean
+        public EosScanner eosPendingScannerMain(
+                final @Qualifier(NetworkType.EOS_MAINNET_VALUE) EosNetwork network,
+                final @Value("${etherscanner.eos.last-block.mainnet:#{null}}") Long lastBlock
+        ) {
+            return new EosScanner(
+                    network,
+                    new LastBlockMemoryPersister(lastBlock),
+                    true
+            );
+        }
     }
 
-    @ConditionalOnBean(name = NetworkType.EOS_TESTNET_VALUE)
-    @ConditionalOnProperty(name = "etherscanner.eos.pending")
-    @Bean
-    public EosScanner eosScannerTest(
-            final @Qualifier(NetworkType.EOS_TESTNET_VALUE) EosNetwork network,
-            final @Qualifier("eosTestnetLastBlockPersister") LastBlockPersister lastBlockPersister
-    ) {
-        return new EosScanner(
-                network,
-                lastBlockPersister,
-                false
-        );
+    @Profile("!eos-subscription-mainnet")
+    public static class PollingMainnetConfig {
+        @ConditionalOnBean(name = NetworkType.EOS_MAINNET_VALUE)
+        @ConditionalOnProperty(name = "etherscanner.eos.pending")
+        @Bean
+        public EosScannerPolling eosScannerPollingMain(
+                final @Qualifier(NetworkType.EOS_MAINNET_VALUE) EosNetwork network,
+                final @Qualifier("eosMainnetLastBlockPersister") LastBlockPersister lastBlockPersister,
+                final @Value("${etherscanner.tron.polling-interval-ms:500}") Long pollingInterval,
+                final @Value("${etherscanner.tron.commit-chain-length:5}") Integer commitmentChainLength
+        ) {
+            return new EosScannerPolling(
+                    network,
+                    lastBlockPersister,
+                    pollingInterval,
+                    commitmentChainLength,
+                    false
+            );
+        }
+
+        @ConditionalOnBean(name = NetworkType.EOS_MAINNET_VALUE)
+        @ConditionalOnProperty(name = "etherscanner.eos.subscription")
+        @Bean
+        public EosScannerPolling eosPendingScannerPollingMain(
+                final @Qualifier(NetworkType.EOS_MAINNET_VALUE) EosNetwork network,
+                final @Value("${etherscanner.eos.last-block.mainnet:#{null}}") Long lastBlock,
+                final @Value("${etherscanner.tron.polling-interval-ms:500}") Long pollingInterval,
+                final @Value("${etherscanner.tron.commit-chain-length:5}") Integer commitmentChainLength
+        ) {
+            return new EosScannerPolling(
+                    network,
+                    new LastBlockMemoryPersister(lastBlock),
+                    pollingInterval,
+                    commitmentChainLength,
+                    true
+            );
+        }
     }
 
-    @ConditionalOnBean(name = NetworkType.EOS_MAINNET_VALUE)
-    @Bean
-    public EosScanner eosPendingScannerMain(
-            final @Qualifier(NetworkType.EOS_MAINNET_VALUE) EosNetwork network,
-            final @Value("${etherscanner.eos.last-block.mainnet:#{null}}") Long lastBlock
-    ) {
-        return new EosScanner(
-                network,
-                new LastBlockMemoryPersister(lastBlock),
-                true
-        );
+    @Profile("eos-subscription-testnet")
+    public static class SubscriptionTestnetConfig {
+        @ConditionalOnBean(name = NetworkType.EOS_TESTNET_VALUE)
+        @ConditionalOnProperty(name = "etherscanner.eos.pending")
+        @Bean
+        public EosScanner eosScannerTest(
+                final @Qualifier(NetworkType.EOS_TESTNET_VALUE) EosNetwork network,
+                final @Qualifier("eosTestnetLastBlockPersister") LastBlockPersister lastBlockPersister
+        ) {
+            return new EosScanner(
+                    network,
+                    lastBlockPersister,
+                    false
+            );
+        }
+
+        @ConditionalOnBean(name = NetworkType.EOS_TESTNET_VALUE)
+        @Bean
+        public EosScanner eosPendingScannerTest(
+                final @Qualifier(NetworkType.EOS_TESTNET_VALUE) EosNetwork network,
+                final @Value("${etherscanner.eos.last-block.testnet:#{null}}") Long lastBlock
+        ) {
+            return new EosScanner(
+                    network,
+                    new LastBlockMemoryPersister(lastBlock),
+                    true
+            );
+        }
     }
 
-    @ConditionalOnBean(name = NetworkType.EOS_TESTNET_VALUE)
-    @Bean
-    public EosScanner eosPendingScannerTest(
-            final @Qualifier(NetworkType.EOS_TESTNET_VALUE) EosNetwork network,
-            final @Value("${etherscanner.eos.last-block.testnet:#{null}}") Long lastBlock
-    ) {
-        return new EosScanner(
-                network,
-                new LastBlockMemoryPersister(lastBlock),
-                true
-        );
-    }
+    @Profile("!eos-subscription-testnet")
+    public static class PollingTestnetConfig {
+        @ConditionalOnBean(name = NetworkType.EOS_TESTNET_VALUE)
+        @ConditionalOnProperty(name = {"etherscanner.eos.pending", "etherscanner.eos.subscription"})
+        @Bean
+        public EosScannerPolling eosScannerPollingTest(
+                final @Qualifier(NetworkType.EOS_TESTNET_VALUE) EosNetwork network,
+                final @Qualifier("eosTestnetLastBlockPersister") LastBlockPersister lastBlockPersister,
+                final @Value("${etherscanner.tron.polling-interval-ms:500}") Long pollingInterval,
+                final @Value("${etherscanner.tron.commit-chain-length:5}") Integer commitmentChainLength
+        ) {
+            return new EosScannerPolling(
+                    network,
+                    lastBlockPersister,
+                    pollingInterval,
+                    commitmentChainLength,
+                    false
+            );
+        }
 
+        @ConditionalOnBean(name = NetworkType.EOS_TESTNET_VALUE)
+        @ConditionalOnProperty(name = "etherscanner.eos.subscription")
+        @Bean
+        public EosScannerPolling eosPendingScannerPollingTest(
+                final @Qualifier(NetworkType.EOS_TESTNET_VALUE) EosNetwork network,
+                final @Value("${etherscanner.eos.last-block.testnet:#{null}}") Long lastBlock,
+                final @Value("${etherscanner.tron.polling-interval-ms:500}") Long pollingInterval,
+                final @Value("${etherscanner.tron.commit-chain-length:5}") Integer commitmentChainLength
+        ) {
+            return new EosScannerPolling(
+                    network,
+                    new LastBlockMemoryPersister(lastBlock),
+                    pollingInterval,
+                    commitmentChainLength,
+                    true
+            );
+        }
+    }
 }

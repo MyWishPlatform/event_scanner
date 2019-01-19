@@ -12,9 +12,11 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class EosScannerPolling extends ScannerPolling {
+    private final AtomicInteger blockCounter = new AtomicInteger(0);
     private final boolean isPending;
 
     public EosScannerPolling(final EosNetwork network, final LastBlockPersister lastBlockPersister, long pollingInterval, int commitmentChainLength, final boolean isPending) {
@@ -24,6 +26,15 @@ public class EosScannerPolling extends ScannerPolling {
 
     @Override
     protected void processBlock(WrapperBlock block) {
+        if (blockCounter.incrementAndGet() == 10) {
+            log.info("{}: 10 blocks received, the last {} ({})",
+                    network.getType() + (isPending ? " (pending)" : ""),
+                    block.getNumber(),
+                    block.getHash());
+
+            blockCounter.set(0);
+        }
+
         BaseEvent event = isPending ? createPendingEvent(block) : createBlockEvent(block);
         eventPublisher.publish(event);
     }

@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.mywish.blockchain.WrapperOutput;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.blockchain.service.WrapperTransactionService;
-import io.mywish.tron.blockchain.model.WrapperOutputTron;
 import io.mywish.tron.blockchain.model.WrapperTransactionTron;
 import io.mywish.troncli4j.model.Transaction;
 import io.mywish.troncli4j.model.contracttype.ContractType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -15,6 +15,9 @@ import java.util.List;
 
 @Component
 public class WrapperTransactionTronService implements WrapperTransactionService<Transaction> {
+    @Autowired
+    private WrapperOutputTronService outputBuilder;
+
     @Override
     public WrapperTransaction build(Transaction transaction) {
         String hash = transaction.getTxId();
@@ -24,11 +27,7 @@ public class WrapperTransactionTronService implements WrapperTransactionService<
         String ownerAddress = contract.get("owner_address").asText();
         List<String> inputs = Collections.singletonList(ownerAddress);
 
-        String outputAddress = ownerAddress;
-        if (contractWrapper.getType().equals(ContractType.Type.TriggerSmartContract)) {
-            outputAddress = contract.get("contract_address").asText();
-        }
-        List<WrapperOutput> outputs = Collections.singletonList(new WrapperOutputTron(hash, outputAddress, contract));
+        List<WrapperOutput> outputs = Collections.singletonList(outputBuilder.build(transaction));
 
         boolean contractCreation = contractWrapper.getType().equals(ContractType.Type.CreateSmartContract);
 

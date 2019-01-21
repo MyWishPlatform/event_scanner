@@ -34,7 +34,7 @@ public class EosNetwork extends WrapperNetwork {
 
     @Override
     public Long getLastBlock() throws Exception {
-        return eosClient.getChainInfo().getHeadBlockNum();
+        return eosClient.getChainInfo().getLastIrreversibleBlockNum();
     }
 
     @Override

@@ -7,4 +7,6 @@ import lombok.Getter;
 public class ChainInfoResponse extends Response {
     @JsonProperty("head_block_num")
     private Long headBlockNum;
+    @JsonProperty("last_irreversible_block_num")
+    private Long lastIrreversibleBlockNum;
 }

@@ -1,6 +1,5 @@
 package io.lastwill.eventscan.services.monitors;
 
-import io.lastwill.eventscan.events.model.PendingTransactionAddedEvent;
 import io.lastwill.eventscan.events.model.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.events.model.utility.PendingStuckEvent;
 import io.lastwill.eventscan.model.NetworkType;
@@ -20,6 +19,7 @@ import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 @Component
 public class NetworkStuckMonitor {
@@ -69,19 +69,15 @@ public class NetworkStuckMonitor {
         return Collections.unmodifiableMap(this.lastPendingTxEvents);
     }
 
-    @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}")
-    protected void checkRestNetworks() {
+    private void checkNetwork(Predicate<? super NetworkType> filterCondition, long interval) {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         lastBlockEvents.keySet()
                 .stream()
-                .filter(networkType -> networkType != NetworkType.BTC_MAINNET
-                        && networkType != NetworkType.BTC_TESTNET_3
-                        && networkType != NetworkType.EOS_MAINNET
-                        && networkType != NetworkType.EOS_TESTNET)
+                .filter(filterCondition)
                 .forEach(networkType -> {
                     LastEvent lastEvent = lastBlockEvents.get(networkType);
                     // last block + interval is in future
-                    if (lastEvent.receivedTime.plusSeconds(ethInterval / 1000).isAfter(now)) {
+                    if (lastEvent.receivedTime.plusSeconds(interval / 1000).isAfter(now)) {
                         return;
                     }
 
@@ -94,54 +90,27 @@ public class NetworkStuckMonitor {
                             )
                     );
                 });
+    }
+
+    @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.eth}")
+    protected void checkRestNetworks() {
+        checkNetwork(networkType -> networkType != NetworkType.BTC_MAINNET
+                        && networkType != NetworkType.BTC_TESTNET_3
+                        && networkType != NetworkType.EOS_MAINNET
+                        && networkType != NetworkType.EOS_TESTNET,
+                ethInterval);
     }
 
     @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.eos}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.eos}")
     protected void checkEos() {
-        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-        lastBlockEvents.keySet()
-                .stream()
-                .filter(networkType -> networkType == NetworkType.EOS_TESTNET || networkType == NetworkType.EOS_MAINNET)
-                .forEach(networkType -> {
-                    LastEvent lastEvent = lastBlockEvents.get(networkType);
-                    // last block + interval is in future
-                    if (lastEvent.receivedTime.plusSeconds(eosInterval / 1000).isAfter(now)) {
-                        return;
-                    }
-
-                    eventPublisher.publish(
-                            new NetworkStuckEvent(
-                                    networkType,
-                                    lastEvent.receivedTime,
-                                    lastEvent.timestamp,
-                                    lastEvent.blockNo
-                            )
-                    );
-                });
+        checkNetwork(networkType -> networkType == NetworkType.EOS_TESTNET || networkType == NetworkType.EOS_MAINNET,
+                eosInterval);
     }
 
     @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.btc}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.btc}")
     protected void checkBtc() {
-        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-        lastBlockEvents.keySet()
-                .stream()
-                .filter(networkType -> networkType == NetworkType.BTC_MAINNET || networkType == NetworkType.BTC_TESTNET_3)
-                .forEach(networkType -> {
-                    LastEvent lastEvent = lastBlockEvents.get(networkType);
-                    // last block + interval is in future
-                    if (lastEvent.receivedTime.plusSeconds(btcInterval / 1000).isAfter(now)) {
-                        return;
-                    }
-
-                    eventPublisher.publish(
-                            new NetworkStuckEvent(
-                                    networkType,
-                                    lastEvent.receivedTime,
-                                    lastEvent.timestamp,
-                                    lastEvent.blockNo
-                            )
-                    );
-                });
+        checkNetwork(networkType -> networkType == NetworkType.BTC_MAINNET || networkType == NetworkType.BTC_TESTNET_3,
+                btcInterval);
     }
 
 //    @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.pending}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.pending}")

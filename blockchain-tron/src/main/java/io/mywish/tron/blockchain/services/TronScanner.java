@@ -10,16 +10,22 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class TronScanner extends ScannerPolling {
+    private final AtomicInteger counter = new AtomicInteger(0);
+
     public TronScanner(TronNetwork network, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength) {
         super(network, lastBlockPersister, pollingInterval, commitmentChainLength);
     }
 
     @Override
     protected void processBlock(WrapperBlock block) {
-        log.info("{}: new block received {} ({})", network.getType(), block.getNumber(), block.getHash());
+        if (counter.incrementAndGet() == 10) {
+            log.info("{}: 10 blocks received, the last {} ({})", network.getType(), block.getNumber(), block.getHash());
+            counter.set(0);
+        }
 
         MultiValueMap<String, WrapperTransaction> addressTransactions = CollectionUtils.toMultiValueMap(new HashMap<>());
 

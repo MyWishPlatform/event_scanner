@@ -19,9 +19,8 @@ import java.util.List;
 import java.util.Set;
 
 @Slf4j
-//@Component
+@Component
 public class TronPaymentMonitor {
-    /*
     @Autowired
     private EventPublisher eventPublisher;
 
@@ -85,5 +84,4 @@ public class TronPaymentMonitor {
         return result;
     }
 
-    */
 }

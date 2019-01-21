@@ -18,7 +18,7 @@ public class UserSiteBalance {
     private int id;
     private BigInteger balance;
     private String ethAddress;
-//    private String tronAddress;
+    private String tronAddress;
     private String btcAddress;
     private String memo;
     @ManyToOne

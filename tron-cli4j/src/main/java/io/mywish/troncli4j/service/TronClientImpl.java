@@ -69,7 +69,7 @@ public class TronClientImpl implements TronClient {
     @Override
     public NodeInfoResponse getNodeInfo() throws Exception {
         return objectMapper.treeToValue(
-                doRequest("/wallet/getnodeinfo", null),
+                doRequest("/eventnode/wallet/getnodeinfo", null),
                 NodeInfoResponse.class
         );
     }
@@ -80,19 +80,13 @@ public class TronClientImpl implements TronClient {
 
     @Override
     public BlockResponse getBlock(String id) throws Exception {
-        return parseBlock(doRequest("/wallet/getblockbyid", new BlockByIdRequest(id)));
+        return parseBlock(doRequest("/eventnode/wallet/getblockbyid", new BlockByIdRequest(id)));
     }
 
     @Override
     public BlockResponse getBlock(Long number) throws Exception {
-        return parseBlock(doRequest("/wallet/getblockbynum", new BlockByNumRequest(number)));
+        return parseBlock(doRequest("/eventnode/wallet/getblockbynum", new BlockByNumRequest(number)));
     }
-
-//    @Override
-//    public List<EventResult> getEventResult(String base58ContractAddress, String event, Long blockNum) throws Exception {
-//        String url = String.join("/", "/event" + base58ContractAddress, event, blockNum.toString());
-//        return Arrays.asList(objectMapper.treeToValue(doRequest(url), EventResult[].class));
-//    }
 
     @Override
     public List<EventResult> getEventResult(String txId) throws Exception {
@@ -103,7 +97,7 @@ public class TronClientImpl implements TronClient {
     @Override
     public AccountResponse getAccount(String hexAddress) throws Exception {
         return objectMapper.treeToValue(
-                doRequest("/wallet/getaccount", new AccountRequest(hexAddress)),
+                doRequest("/eventnode/wallet/getaccount", new AccountRequest(hexAddress)),
                 AccountResponse.class);
     }
 }

@@ -14,8 +14,6 @@ public interface TronClient {
 
     BlockResponse getBlock(Long number) throws Exception;
 
-//    List<EventResult> getEventResult(String base58ContractAddress, String event, Long blockNum) throws Exception;
-
     List<EventResult> getEventResult(String txId) throws Exception;
 
     AccountResponse getAccount(String hexAddress) throws Exception;

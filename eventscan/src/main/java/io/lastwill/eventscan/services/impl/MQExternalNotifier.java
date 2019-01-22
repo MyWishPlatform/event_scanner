@@ -86,14 +86,14 @@ public class MQExternalNotifier implements ExternalNotifier {
         queueByNetwork.put(NetworkType.NEO_MAINNET, queueNameNeo);
         queueByNetwork.put(NetworkType.NEO_TESTNET, queueNameNeoTest);
 
-        queueByNetwork.put(NetworkType.EOS_TESTNET, queueNameEosTestnet);
         queueByNetwork.put(NetworkType.EOS_MAINNET, queueNameEosMainnet);
+        queueByNetwork.put(NetworkType.EOS_TESTNET, queueNameEosTestnet);
 
         queueByNetwork.put(NetworkType.BTC_MAINNET, queueNameBtcMainnet);
         queueByNetwork.put(NetworkType.BTC_TESTNET_3, queueNameBtcTestnet);
 
         queueByNetwork.put(NetworkType.TRON_MAINNET, queueNameTronMainnet);
-        queueByNetwork.put(NetworkType.TRON_TESTNET, queueNameBtcMainnet);
+        queueByNetwork.put(NetworkType.TRON_TESTNET, queueNameTronTestnet);
 
         connection = factory.newConnection();
         channel = connection.createChannel();

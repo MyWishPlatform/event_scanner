@@ -7,6 +7,7 @@ import io.mywish.bot.service.BotCommand;
 import io.mywish.bot.service.ChatContext;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.*;
@@ -14,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class BotCommandNetworks implements BotCommand {
@@ -23,6 +25,9 @@ public class BotCommandNetworks implements BotCommand {
     private final String usage = "";
     @Getter
     private final String description = "Information about latest blocks in each network";
+
+    @Value("${io.lastwill.eventscan.network-speed.interval}")
+    private int speedInterval;
 
     @Autowired
     private NetworkStuckMonitor networkStuckMonitor;
@@ -38,8 +43,6 @@ public class BotCommandNetworks implements BotCommand {
         List<String> messages = new ArrayList<>();
         Map<NetworkType, NetworkStuckMonitor.LastEvent> lastEvents = networkStuckMonitor.getLastBlockEvents();
         Map<NetworkType, NetworkStuckMonitor.LastEvent> lastPendingTxEvents = networkStuckMonitor.getLastPendingTxEvents();
-        Map<NetworkType, Long> speeds = networkSpeedMonitor.getSpeeds();
-        Instant speedTime = networkSpeedMonitor.getNow();
         for (NetworkType network : NetworkType.values()) {
             NetworkStuckMonitor.LastEvent lastEvent = lastEvents.get(network);
             if (lastEvent == null) {
@@ -60,13 +63,9 @@ public class BotCommandNetworks implements BotCommand {
                     ? "\n\tPending time: " + lastPendingTime
                     : "";
 
-            Long speed = speeds.getOrDefault(network, 0L);
-            String zonedSpeedTime = speedTime != null
-                    ? ZonedDateTime.ofInstant(speedTime, zone).format(dateFormatter)
-                    : null;
-            String speedStr = speedTime != null
-                    ? "\n\tSpeed: " + speed + " (for " + zonedSpeedTime + ")"
-                    : "";
+            double speed = networkSpeedMonitor.getSpeed(network, TimeUnit.MINUTES);
+            String speedStr = String.format("\n\tSpeed: %.2f blocks/minute (%.2f s)",
+                    speed, (double) speedInterval / 1000);
 
             messages.add(network.name() +
                     lastBlockStr +

@@ -64,8 +64,8 @@ public class BotCommandNetworks implements BotCommand {
                     : "";
 
             double speed = networkSpeedMonitor.getSpeed(network, TimeUnit.MINUTES);
-            String speedStr = String.format("\n\tSpeed: %.2f blocks/minute (%.2f s)",
-                    speed, (double) speedInterval / 1000);
+            String speedStr = String.format("\n\tSpeed: %.2f blocks/minute (%.2f m)",
+                    speed, (double) speedInterval / 1000 / 60 );
 
             messages.add(network.name() +
                     lastBlockStr +

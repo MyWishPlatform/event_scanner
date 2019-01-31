@@ -43,6 +43,10 @@ public class NetworkStuckMonitor {
     private long ethInterval;
     @Value("${io.lastwill.eventscan.network-stuck.interval.eos}")
     private long eosInterval;
+    @Value("${io.lastwill.eventscan.network-stuck.interval.neo}")
+    private long neoInterval;
+    @Value("${io.lastwill.eventscan.network-stuck.interval.tron}")
+    private long tronInterval;
     @Value("${io.lastwill.eventscan.network-stuck.interval.pending}")
     private long pendingInterval;
     @Value("${io.lastwill.eventscan.network-stuck.interval.max-notification}")
@@ -61,12 +65,12 @@ public class NetworkStuckMonitor {
         checkFrequencies.put(NetworkType.RSK_TESTNET, ethInterval);
         checkFrequencies.put(NetworkType.RSK_FEDERATION_MAINNET, ethInterval);
         checkFrequencies.put(NetworkType.RSK_FEDERATION_TESTNET, ethInterval);
-        checkFrequencies.put(NetworkType.NEO_MAINNET, ethInterval);
-        checkFrequencies.put(NetworkType.NEO_TESTNET, ethInterval);
+        checkFrequencies.put(NetworkType.NEO_MAINNET, neoInterval);
+        checkFrequencies.put(NetworkType.NEO_TESTNET, neoInterval);
         checkFrequencies.put(NetworkType.EOS_MAINNET, eosInterval);
         checkFrequencies.put(NetworkType.EOS_TESTNET, eosInterval);
-        checkFrequencies.put(NetworkType.TRON_MAINNET, eosInterval);
-        checkFrequencies.put(NetworkType.TRON_TESTNET, eosInterval);
+        checkFrequencies.put(NetworkType.TRON_MAINNET, tronInterval);
+        checkFrequencies.put(NetworkType.TRON_TESTNET, tronInterval);
 
         notifyFrequencies.putAll(checkFrequencies);
 

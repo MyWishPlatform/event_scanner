@@ -10,8 +10,8 @@ import java.math.BigInteger;
 public class WrapperOutputTron extends WrapperOutput {
     private final JsonNode contract;
 
-    public WrapperOutputTron(String parentTransaction, String address, JsonNode contract) {
-        super(parentTransaction, 0, address, BigInteger.ZERO, new byte[0]);
+    public WrapperOutputTron(String parentTransaction, String address, BigInteger value, JsonNode contract) {
+        super(parentTransaction, 0, address, value, new byte[0]);
         this.contract = contract;
     }
 }

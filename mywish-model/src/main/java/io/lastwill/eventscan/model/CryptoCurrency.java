@@ -11,4 +11,5 @@ public enum  CryptoCurrency {
     EOSISH,
     BNB,
     TRX,
+    TRONISH,
 }

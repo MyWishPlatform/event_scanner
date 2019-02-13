@@ -8,8 +8,8 @@ import io.mywish.troncli4j.model.request.AccountRequest;
 import io.mywish.troncli4j.model.request.BlockByIdRequest;
 import io.mywish.troncli4j.model.request.BlockByNumRequest;
 import io.mywish.troncli4j.model.request.Request;
-import io.mywish.troncli4j.model.response.*;
 import io.mywish.troncli4j.model.response.Error;
+import io.mywish.troncli4j.model.response.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -27,19 +27,21 @@ import java.util.List;
 @Slf4j
 public class TronClientImpl implements TronClient {
     private final HttpClient client;
-    private final URI rpc;
+    private final URI fullNodeRpc;
+    private final URI eventNodeRpc;
     private final ObjectMapper objectMapper;
     private Charset UTF8;
 
-    public TronClientImpl(HttpClient client, URI rpc, ObjectMapper objectMapper) throws Exception {
+    public TronClientImpl(HttpClient client, URI fullNodeRpc, URI eventNodeRpc, ObjectMapper objectMapper) throws Exception {
         this.client = client;
-        this.rpc = rpc;
+        this.fullNodeRpc = fullNodeRpc;
+        this.eventNodeRpc = eventNodeRpc;
         this.objectMapper = objectMapper;
         this.UTF8 = Charset.forName("UTF-8");
     }
 
     private <T extends Request> JsonNode doRequest(final String endpoint, final T request) throws Exception {
-        HttpPost httpPost = new HttpPost(rpc + endpoint);
+        HttpPost httpPost = new HttpPost(endpoint);
         String json = request == null ? "" : objectMapper.writeValueAsString(request);
         httpPost.setEntity(new StringEntity(json));
         HttpResponse httpResponse = this.client.execute(httpPost);
@@ -54,7 +56,7 @@ public class TronClientImpl implements TronClient {
     }
 
     private JsonNode doRequest(final String endpoint) throws Exception {
-        HttpGet httpGet = new HttpGet(rpc + endpoint);
+        HttpGet httpGet = new HttpGet(endpoint);
         HttpResponse httpResponse = this.client.execute(httpGet);
         HttpEntity entity = httpResponse.getEntity();
         String responseBody = EntityUtils.toString(entity, UTF8);
@@ -69,7 +71,7 @@ public class TronClientImpl implements TronClient {
     @Override
     public NodeInfoResponse getNodeInfo() throws Exception {
         return objectMapper.treeToValue(
-                doRequest("/eventnode/wallet/getnodeinfo", null),
+                doRequest(fullNodeRpc + "/wallet/getnodeinfo", null),
                 NodeInfoResponse.class
         );
     }
@@ -80,24 +82,24 @@ public class TronClientImpl implements TronClient {
 
     @Override
     public BlockResponse getBlock(String id) throws Exception {
-        return parseBlock(doRequest("/eventnode/wallet/getblockbyid", new BlockByIdRequest(id)));
+        return parseBlock(doRequest(fullNodeRpc + "/wallet/getblockbyid", new BlockByIdRequest(id)));
     }
 
     @Override
     public BlockResponse getBlock(Long number) throws Exception {
-        return parseBlock(doRequest("/eventnode/wallet/getblockbynum", new BlockByNumRequest(number)));
+        return parseBlock(doRequest(fullNodeRpc + "/wallet/getblockbynum", new BlockByNumRequest(number)));
     }
 
     @Override
     public List<EventResult> getEventResult(String txId) throws Exception {
         return Arrays.asList(objectMapper.treeToValue(
-                doRequest("/event/transaction/" + txId), EventResult[].class));
+                doRequest(eventNodeRpc + "/event/transaction/" + txId), EventResult[].class));
     }
 
     @Override
     public AccountResponse getAccount(String hexAddress) throws Exception {
         return objectMapper.treeToValue(
-                doRequest("/eventnode/wallet/getaccount", new AccountRequest(hexAddress)),
+                doRequest(fullNodeRpc + "/wallet/getaccount", new AccountRequest(hexAddress)),
                 AccountResponse.class);
     }
 }

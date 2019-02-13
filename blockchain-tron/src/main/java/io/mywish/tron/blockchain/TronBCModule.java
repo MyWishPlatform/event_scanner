@@ -24,35 +24,39 @@ import java.net.URI;
 @Configuration
 @ComponentScan
 public class TronBCModule {
-    @ConditionalOnProperty("etherscanner.tron.rpc-url.testnet")
+    @ConditionalOnProperty({"etherscanner.tron.full-rpc-url.testnet", "etherscanner.tron.event-rpc-url.testnet"})
     @Bean(name = NetworkType.TRON_TESTNET_VALUE)
     public TronNetwork tronNetTest(
             final CloseableHttpClient closeableHttpClient,
             final ObjectMapper objectMapper,
-            final @Value("${etherscanner.tron.rpc-url.testnet}") URI rpc
+            final @Value("${etherscanner.tron.full-rpc-url.testnet}") URI fullNodeRpc,
+            final @Value("${etherscanner.tron.event-rpc-url.testnet}") URI eventNodeRpc
     ) throws Exception {
         return new TronNetwork(
                 NetworkType.TRON_TESTNET,
                 new TronClientImpl(
                         closeableHttpClient,
-                        rpc,
+                        fullNodeRpc,
+                        eventNodeRpc,
                         objectMapper
                 )
         );
     }
 
-    @ConditionalOnProperty("etherscanner.tron.rpc-url.mainnet")
+    @ConditionalOnProperty({"etherscanner.tron.full-rpc-url.mainnet", "etherscanner.tron.event-rpc-url.mainnet"})
     @Bean(name = NetworkType.TRON_MAINNET_VALUE)
     public TronNetwork tronNetMain(
             final CloseableHttpClient closeableHttpClient,
             final ObjectMapper objectMapper,
-            final @Value("${etherscanner.tron.rpc-url.mainnet}") URI rpc
+            final @Value("${etherscanner.tron.full-rpc-url.mainnet}") URI fullNodeRpc,
+            final @Value("${etherscanner.tron.event-rpc-url.mainnet}") URI eventNodeRpc
     ) throws Exception {
         return new TronNetwork(
                 NetworkType.TRON_MAINNET,
                 new TronClientImpl(
                         closeableHttpClient,
-                        rpc,
+                        fullNodeRpc,
+                        eventNodeRpc,
                         objectMapper
                 )
         );

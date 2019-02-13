@@ -19,10 +19,12 @@ public class WrapperOutputTronService implements WrapperOutputService<Transactio
         JsonNode contract = contractWrapper.getParameter().getValue();
 
         String outputAddress;
-        BigInteger value;
+        BigInteger value = BigInteger.ZERO;
         if (contractType.equals(ContractType.Type.TriggerSmartContract)) {
             outputAddress = contract.get("contract_address").asText();
-            value = contract.get("call_value").bigIntegerValue();
+            if (contract.has("call_value")) {
+                value = contract.get("call_value").bigIntegerValue();
+            }
         }
         else if (contractType.equals(ContractType.Type.TransferContract)) {
             outputAddress = contract.get("to_address").asText();
@@ -30,7 +32,6 @@ public class WrapperOutputTronService implements WrapperOutputService<Transactio
         }
         else {
             outputAddress = contract.get("owner_address").asText();
-            value = BigInteger.ZERO;
         }
 
         return new WrapperOutputTron(

@@ -35,20 +35,8 @@ public class TronScanner extends ScannerPolling {
         }
         block.getTransactions()
                 .forEach(transaction -> {
-                    transaction.getOutputs().forEach(output -> {
-                        addressTransactions.add(
-                                output.getAddress(),
-                                transaction
-                        );
-                        transaction
-                                .getOutputs()
-                                .forEach(contract ->
-                                        addressTransactions.add(
-                                                output.getAddress(),
-                                                transaction
-                                        )
-                                );
-                    });
+                    transaction.getInputs().forEach(input -> addressTransactions.add(input, transaction));
+                    transaction.getOutputs().forEach(output -> addressTransactions.add(output.getAddress(), transaction));
 //                    eventPublisher.publish(new NewTransactionEvent(networkType, block, output));
                 });
         eventPublisher.publish(new NewBlockEvent(network.getType(), block, addressTransactions));

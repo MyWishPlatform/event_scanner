@@ -142,14 +142,14 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(network)
                 .append(": payment received from user ")
                 .append(account)
-                .append(", [")
-                .append(cost)
-                .append("](https://")
+                .append(", <a href=\"https://")
                 .append(txLink)
-                .append(").")
+                .append("\">")
+                .append(cost)
+                .append("</a>.")
                 .toString();
 
-        sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
+        sendToAllChats(new SendMessage().setText(message).enableHtml(true));
     }
 
     public void onFGWBalanceChanged(String network, String delta, String balance, String link, long blockNo, String blockLink) {

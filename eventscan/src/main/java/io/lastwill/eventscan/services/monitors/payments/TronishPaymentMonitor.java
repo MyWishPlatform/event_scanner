@@ -21,8 +21,9 @@ import java.util.List;
 import java.util.Set;
 
 @Slf4j
-@Component
+//@Component
 public class TronishPaymentMonitor {
+    /*
     @Autowired
     private UserSiteBalanceRepository userSiteBalanceRepository;
     @Autowired
@@ -86,4 +87,5 @@ public class TronishPaymentMonitor {
         }
 
     }
+    */
 }

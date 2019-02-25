@@ -16,7 +16,7 @@ public class TronscanExplorer implements BlockchainExplorer {
     }
 
     private String build(String argType, String arg) {
-        return "https://" + host + "/#/" + argType + "/" + arg;
+        return host + "/#/" + argType + "/" + arg;
     }
 
     @Override

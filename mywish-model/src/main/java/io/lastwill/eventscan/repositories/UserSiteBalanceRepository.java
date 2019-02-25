@@ -1,6 +1,5 @@
 package io.lastwill.eventscan.repositories;
 
-import io.lastwill.eventscan.model.UserProfile;
 import io.lastwill.eventscan.model.UserSiteBalance;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -16,8 +15,14 @@ public interface UserSiteBalanceRepository extends CrudRepository<UserSiteBalanc
     @Query("select c from UserSiteBalance c where c.btcAddress in :addresses")
     List<UserSiteBalance> findByBtcAddressesList(@Param("addresses") Collection<String> addresses);
 
+//    @Query("select c from UserSiteBalance c where c.tronAddress in :addresses")
+//    List<UserSiteBalance> findByTronAddressesList(@Param("addresses") Collection<String> addresses);
+
     @Query("select c from UserSiteBalance c where c.ethAddress = :address")
     UserSiteBalance findByEthAddress(@Param("address") String internalAddress);
+
+//    @Query("select c from UserSiteBalance c where c.tronAddress = :address")
+//    UserSiteBalance findByTronAddress(@Param("address") String internalAddress);
 
     @Query("select c from UserSiteBalance c where c.memo = :memo")
     UserSiteBalance findByMemo(@Param("memo") String memo);

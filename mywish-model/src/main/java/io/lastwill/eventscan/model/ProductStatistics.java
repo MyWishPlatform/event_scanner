@@ -27,6 +27,7 @@ public class ProductStatistics {
         put(16, "TRON Game Asset");
         put(17, "TRON Airdrop");
         put(18, "TRON LostKey");
+        put(19, "LostKey Tokens");
     }};
 
     private final Integer contractType;

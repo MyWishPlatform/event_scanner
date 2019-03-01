@@ -65,8 +65,8 @@ public class Web3BCModule {
                 0);
     }
 
-    @Profile("eth-db-persister")
     @Configuration
+    @ConditionalOnProperty("etherscanner.ethereum.db-persister")
     public class EthDbPersisterConfiguration {
         @Bean
         public LastBlockPersister ethMainnetLastBlockPersister(
@@ -77,20 +77,20 @@ public class Web3BCModule {
 
         @Bean
         public LastBlockPersister ethRopstenLastBlockPersister(
-                final @Value("${etherscanner.start-block-dir}") String dir
+                LastBlockRepository lastBlockRepository
         ) {
-            return new LastBlockFilePersister(NetworkType.ETHEREUM_ROPSTEN, dir, null);
+            return new LastBlockDbPersister(NetworkType.ETHEREUM_ROPSTEN, lastBlockRepository, null);
         }
     }
 
-    @Profile("!eth-db-persister")
     @Configuration
+    @ConditionalOnProperty(value = "etherscanner.ethereum.db-persister", havingValue = "false", matchIfMissing = true)
     public class EthFilePersisterConfiguration {
         @Bean
         public LastBlockPersister ethMainnetLastBlockPersister(
-                LastBlockRepository lastBlockRepository
+                final @Value("${etherscanner.start-block-dir}") String dir
         ) {
-            return new LastBlockDbPersister(NetworkType.ETHEREUM_MAINNET, lastBlockRepository, null);
+            return new LastBlockFilePersister(NetworkType.ETHEREUM_MAINNET, dir, null);
         }
 
         @Bean
@@ -101,8 +101,8 @@ public class Web3BCModule {
         }
     }
 
-    @Profile("rsk-db-persister")
     @Configuration
+    @ConditionalOnProperty("etherscanner.rsk.db-persister")
     public class RskDbPersisterConfiguration {
         @Bean
         public LastBlockPersister rskMainnetLastBlockPersister(
@@ -113,20 +113,20 @@ public class Web3BCModule {
 
         @Bean
         public LastBlockPersister rskTestnetLastBlockPersister(
-                final @Value("${etherscanner.start-block-dir}") String dir
+                LastBlockRepository lastBlockRepository
         ) {
-            return new LastBlockFilePersister(NetworkType.RSK_TESTNET, dir, null);
+            return new LastBlockDbPersister(NetworkType.RSK_TESTNET, lastBlockRepository, null);
         }
     }
 
-    @Profile("!rsk-db-persister")
     @Configuration
+    @ConditionalOnProperty(value = "etherscanner.rsk.db-persister", havingValue = "false", matchIfMissing = true)
     public class RskFilePersisterConfiguration {
         @Bean
         public LastBlockPersister rskMainnetLastBlockPersister(
-                LastBlockRepository lastBlockRepository
+                final @Value("${etherscanner.start-block-dir}") String dir
         ) {
-            return new LastBlockDbPersister(NetworkType.RSK_MAINNET, lastBlockRepository, null);
+            return new LastBlockFilePersister(NetworkType.RSK_MAINNET, dir, null);
         }
 
         @Bean

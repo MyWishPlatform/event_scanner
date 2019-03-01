@@ -64,8 +64,8 @@ public class EosBCModule {
         );
     }
 
-    @Profile("eos-db-persister")
     @Configuration
+    @ConditionalOnProperty("etherscanner.eos.db-persister")
     public static class DbPersisterConfiguration {
         @Bean
         public LastBlockPersister eosMainnetLastBlockPersister(
@@ -84,8 +84,8 @@ public class EosBCModule {
         }
     }
 
-    @Profile("!eos-db-persister")
     @Configuration
+    @ConditionalOnProperty(value = "etherscanner.eos.db-persister", havingValue = "false", matchIfMissing = true)
     public static class FilePersisterConfiguration {
         @Bean
         public LastBlockPersister eosMainnetLastBlockPersister(

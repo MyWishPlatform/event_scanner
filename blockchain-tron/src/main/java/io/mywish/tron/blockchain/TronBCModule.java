@@ -94,8 +94,8 @@ public class TronBCModule {
         );
     }
 
-    @Profile("tron-db-persister")
     @Configuration
+    @ConditionalOnProperty("etherscanner.tron.db-persister")
     public static class DbPersisterConfiguration {
         @Bean
         public LastBlockPersister tronMainnetLastBlockPersister(
@@ -114,8 +114,8 @@ public class TronBCModule {
         }
     }
 
-    @Profile("!tron-db-persister")
     @Configuration
+    @ConditionalOnProperty(value = "etherscanner.tron.db-persister", havingValue = "false", matchIfMissing = true)
     public static class FilePersisterConfiguration {
         @Bean
         public LastBlockPersister tronMainnetLastBlockPersister(

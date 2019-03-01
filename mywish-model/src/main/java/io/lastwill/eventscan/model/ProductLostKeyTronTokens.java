@@ -12,7 +12,7 @@ import javax.persistence.Table;
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("18")
 @Getter
-public class ProductLostKeyTron extends ProductToken {
+public class ProductLostKeyTronTokens extends ProductLostKeyWallet {
     @Override
     public int getContractType() {
         return 18;

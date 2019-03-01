@@ -18,7 +18,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import java.net.URI;
 
@@ -88,8 +87,8 @@ public class BtcBCModule {
                 new TestNet3Params());
     }
 
-    @Profile("btc-db-persister")
     @Configuration
+    @ConditionalOnProperty("etherscanner.bitcoin.db-persister")
     public class DbPersisterConfiguration {
         @Bean
         public LastBlockPersister btcMainnetLastBlockPersister(
@@ -108,8 +107,8 @@ public class BtcBCModule {
         }
     }
 
-    @Profile("!btc-db-persister")
     @Configuration
+    @ConditionalOnProperty(value = "etherscanner.bitcoin.db-persister", havingValue = "false", matchIfMissing = true)
     public class FilePersisterConfiguration {
         @Bean
         public LastBlockPersister btcMainnetLastBlockPersister(

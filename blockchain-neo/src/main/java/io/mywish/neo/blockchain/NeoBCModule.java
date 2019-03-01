@@ -17,7 +17,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import java.net.URI;
 
@@ -58,8 +57,8 @@ public class NeoBCModule {
         );
     }
 
-    @Profile("neo-db-persister")
     @Configuration
+    @ConditionalOnProperty("etherscanner.neo.db-persister")
     public class DbPersisterConfiguration {
         @Bean
         public LastBlockPersister neoMainnetLastBlockPersister(
@@ -78,8 +77,8 @@ public class NeoBCModule {
         }
     }
 
-    @Profile("!neo-db-persister")
     @Configuration
+    @ConditionalOnProperty(value = "etherscanner.neo.db-persister", havingValue = "false", matchIfMissing = true)
     public class FilePersisterConfiguration {
         @Bean
         public LastBlockPersister neoMainnetLastBlockPersister(

@@ -8,13 +8,13 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "contracts_contractdetailstronlostkey")
+@Table(name = "contracts_contractdetailslostkeytokens")
 @PrimaryKeyJoinColumn(name = "contract_id")
-@DiscriminatorValue("18")
+@DiscriminatorValue("19")
 @Getter
-public class ProductLostKeyTron extends ProductToken {
+public class ProductLostKeyTokens extends ProductLostKeyWallet{
     @Override
     public int getContractType() {
-        return 18;
+        return 19;
     }
 }

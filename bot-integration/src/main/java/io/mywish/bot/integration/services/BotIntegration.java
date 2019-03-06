@@ -6,14 +6,16 @@ import io.lastwill.eventscan.events.model.contract.eos.CreateTokenEvent;
 import io.lastwill.eventscan.events.model.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.events.model.utility.PendingStuckEvent;
 import io.lastwill.eventscan.model.*;
-import io.mywish.bot.service.MyWishBot;
 import io.mywish.blockchain.ContractEvent;
+import io.mywish.bot.service.MyWishBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -74,8 +76,7 @@ public class BotIntegration {
                     contractCreatedEvent.getAddress(),
                     addressLink
             );
-        }
-        else {
+        } else {
             bot.onContractFailed(network, product.getId(), type, contract.getId(), txLink);
         }
     }
@@ -93,8 +94,7 @@ public class BotIntegration {
                     toCurrency(event.getCurrency(), event.getAmount()),
                     txLink
             );
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error on sending payment info to the bot.", e);
         }
     }
@@ -183,8 +183,7 @@ public class BotIntegration {
                         network + ": account [" + ((CreateAccountEvent) contractEvent).getCreated() + "](" + accountRef + ") created.",
                         true
                 );
-            }
-            else  if (contractEvent instanceof CreateTokenEvent) {
+            } else if (contractEvent instanceof CreateTokenEvent) {
                 CreateTokenEvent createTokenEvent = (CreateTokenEvent) contractEvent;
                 final String tokenRef = explorerProvider.getOrStub(event.getNetworkType())
                         .buildToAddress(createTokenEvent.getAddress());
@@ -198,54 +197,16 @@ public class BotIntegration {
         }
     }
 
+    @SuppressWarnings("BigDecimalMethodWithoutRoundingCalled")
     private static String toCurrency(CryptoCurrency currency, BigInteger amount) {
-        BigInteger hundreds = null;
-        switch (currency) {
-            case NEO: {
-                hundreds = amount.multiply(BigInteger.valueOf(100L));
-                break;
-            }
-            case GAS: {
-                hundreds = amount.divide(BigInteger.valueOf(1000000L));
-                break;
-            }
-            case BTC: {
-                hundreds = amount.divide(BigInteger.valueOf(100000000L));
-                break;
-            }
-            case BNB:
-            case WISH:
-            case ETH: {
-                hundreds = amount.divide(BigInteger.valueOf(10000000000000000L));
-                break;
-            }
-            case EOSISH:
-            case EOS: {
-                hundreds = amount.divide(BigInteger.valueOf(100L));
-                break;
-            }
-            case TRONISH:
-            case TRX: {
-                hundreds = amount.divide(BigInteger.valueOf(10000L));
-                break;
-            }
-            default:
-                hundreds = amount;
-        }
-        BigInteger[] parts = hundreds.divideAndRemainder(BigInteger.valueOf(100));
-        BigInteger eth = parts[0];
-        int rem = parts[1].intValue();
-        String sRem;
-        if (rem == 0) {
-            sRem = "";
-        }
-        else if (rem < 10) {
-            sRem = ".0" + rem;
-        }
-        else {
-            sRem = "." + rem;
-        }
-        return eth + sRem + " " + currency;
+        BigDecimal bdAmount = new BigDecimal(amount)
+                .divide(BigDecimal.TEN.pow(currency.getDecimals()));
+
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(currency.getDecimals());
+        df.setMinimumFractionDigits(0);
+
+        return df.format(bdAmount) + " " + currency;
     }
 
     private String formatToLocal(LocalDateTime localDateTime) {

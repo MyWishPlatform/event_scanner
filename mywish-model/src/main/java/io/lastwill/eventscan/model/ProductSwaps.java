@@ -12,14 +12,16 @@ import java.time.ZonedDateTime;
 @DiscriminatorValue("20")
 @Getter
 public class ProductSwaps extends Product {
-    @Column(name = "owner_token_address")
-    private String ownerTokenAddress;
-    @Column(name = "owner_token_value")
-    private BigInteger ownerTokenValue;
-    @Column(name = "investor_token_address")
-    private String investorTokenAddress;
-    @Column(name = "investor_token_value")
-    private BigInteger investorTokenValue;
+    @Column(name = "owner_address")
+    private String ownerAddress;
+    @Column(name = "base_address")
+    private String baseAddress;
+    @Column(name = "base_limit")
+    private BigInteger baseLimit;
+    @Column(name = "quote_address")
+    private String quoteAddress;
+    @Column(name = "quote_limit")
+    private BigInteger quoteLimit;
     @Column(name = "active_to")
     private ZonedDateTime activeTo;
 

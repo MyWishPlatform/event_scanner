@@ -15,7 +15,8 @@ public enum CryptoCurrency {
     EOSISH(4),
     BNB(18),
     TRX(6),
-    TRONISH(6);
+    TRONISH(6),
+    USDT(6);
 
     @Getter
     private final int decimals;

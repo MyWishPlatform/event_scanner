@@ -27,9 +27,11 @@ public class ChatContext {
         String text = message.getText();
         try {
             for (int start = 0, lastNewlineOffset; start < text.length(); start = start + lastNewlineOffset + 1) {
-                lastNewlineOffset = text
+                lastNewlineOffset = text.contains("\n")
+                        ? text
                         .substring(start, Math.min(start + MAX_MESSAGE_LENGTH + 1, text.length()))
-                        .lastIndexOf('\n');
+                        .lastIndexOf('\n')
+                        : MAX_MESSAGE_LENGTH;
                 String shortMessage = text
                         .substring(start, Math.min(start + lastNewlineOffset + 1, text.length()))
                         .trim();

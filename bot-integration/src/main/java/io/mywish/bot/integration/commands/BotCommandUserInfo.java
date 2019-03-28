@@ -49,7 +49,10 @@ public class BotCommandUserInfo implements BotCommand {
         List<User> users = new ArrayList<>();
         try {
             Integer id = Integer.parseInt(idOrEmail);
-            users.add(userRepository.findOne(id));
+            User user = userRepository.findOne(id);
+            if (user != null) {
+                users.add(user);
+            }
         } catch (NumberFormatException ignored) {
             users.addAll(userRepository.findAllByEmail(idOrEmail));
         }

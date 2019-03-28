@@ -38,7 +38,6 @@ public class ChatContext {
                 if (!shortMessage.isEmpty()) {
                     sender.execute(message.setText(shortMessage).setChatId(chatId));
                 }
-                start = start + lastNewlineOffset + 1;
             }
         } catch (TelegramApiException e) {
             log.error("Error on sending message in chat {}", chatId, e);

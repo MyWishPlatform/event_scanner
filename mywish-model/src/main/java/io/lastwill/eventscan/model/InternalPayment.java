@@ -21,8 +21,7 @@ public class InternalPayment {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-    @Enumerated(EnumType.STRING)
-    private CryptoCurrency originalCurrency;
+    private String originalCurrency;
     private String originalDelta;
     @ManyToOne
     @JoinColumn(name = "site_id", referencedColumnName = "id")

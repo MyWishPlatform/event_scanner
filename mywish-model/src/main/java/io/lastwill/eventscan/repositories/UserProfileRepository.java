@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.repositories;
 
+import io.lastwill.eventscan.model.User;
 import io.lastwill.eventscan.model.UserProfile;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -17,4 +18,6 @@ public interface UserProfileRepository extends CrudRepository<UserProfile, Integ
 
     @Query("select c from UserProfile c where c.memo = :memo")
     UserProfile findByMemo(@Param("memo") String memo);
+
+    UserProfile findByUser(@Param("user") User user);
 }

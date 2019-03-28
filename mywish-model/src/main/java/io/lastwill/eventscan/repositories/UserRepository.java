@@ -10,4 +10,6 @@ import java.util.List;
 public interface UserRepository extends CrudRepository<User, Integer> {
     @Query(name = "User.userStatistics")
     List<UserStatistics> getUserStatistics();
+
+    List<User> findAllByEmail(String email);
 }

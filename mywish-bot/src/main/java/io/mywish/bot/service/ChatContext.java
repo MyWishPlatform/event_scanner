@@ -26,14 +26,14 @@ public class ChatContext {
     public void sendMessage(SendMessage message) {
         String text = message.getText();
         try {
-            for (int start = 0, lastNewlineOffset; start < text.length(); start = start + lastNewlineOffset + 1) {
-                lastNewlineOffset = text.contains("\n")
-                        ? text
-                        .substring(start, Math.min(start + MAX_MESSAGE_LENGTH + 1, text.length()))
-                        .lastIndexOf('\n')
+            for (int start = 0, offset; start < text.length(); start = start + offset + 1) {
+                String maxLengthSubstr = text.substring(start, Math.min(start + MAX_MESSAGE_LENGTH + 1, text.length()));
+                int newlineIdx = maxLengthSubstr.lastIndexOf("\n");
+                offset = (newlineIdx != -1) && (start + MAX_MESSAGE_LENGTH < text.length())
+                        ? newlineIdx
                         : MAX_MESSAGE_LENGTH;
                 String shortMessage = text
-                        .substring(start, Math.min(start + lastNewlineOffset + 1, text.length()))
+                        .substring(start, Math.min(start + offset + 1, text.length()))
                         .trim();
                 if (!shortMessage.isEmpty()) {
                     sender.execute(message.setText(shortMessage).setChatId(chatId));

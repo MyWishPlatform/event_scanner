@@ -58,6 +58,16 @@ public class BotIntegrationModule {
     }
 
     @Bean
+    public BloksExplorer bloksExplorerTestnet() {
+        return new BloksExplorer(true);
+    }
+
+    @Bean
+    public BloksExplorer bloksExplorer() {
+        return new BloksExplorer(false);
+    }
+
+    @Bean
     @ConditionalOnBean(MyWishBot.class)
     public BotIntegration botIntegration() {
         return new BotIntegration();

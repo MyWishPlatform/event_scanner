@@ -2,17 +2,14 @@ package io.mywish.eos.blockchain.services;
 
 import io.lastwill.eventscan.events.model.BaseEvent;
 import io.mywish.blockchain.WrapperBlock;
-import io.mywish.blockchain.WrapperTransaction;
-import io.mywish.scanner.model.NewBlockEvent;
-import io.mywish.scanner.model.NewPendingTransactionsEvent;
 import io.mywish.scanner.services.LastBlockPersister;
 import io.mywish.scanner.services.ScannerPolling;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
 
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static io.mywish.eos.blockchain.util.NewBlockEventUtil.createBlockEvent;
+import static io.mywish.eos.blockchain.util.NewBlockEventUtil.createPendingEvent;
 
 @Slf4j
 public class EosScannerPolling extends ScannerPolling {
@@ -35,27 +32,9 @@ public class EosScannerPolling extends ScannerPolling {
             blockCounter.set(0);
         }
 
-        BaseEvent event = isPending ? createPendingEvent(block) : createBlockEvent(block);
+        BaseEvent event = isPending
+                ? createPendingEvent(network, block)
+                : createBlockEvent(network, block);
         eventPublisher.publish(event);
-    }
-
-    private NewBlockEvent createBlockEvent(WrapperBlock block) {
-        MultiValueMap<String, WrapperTransaction> addressTransactions = CollectionUtils.toMultiValueMap(new HashMap<>());
-
-        block.getTransactions().forEach(tx -> {
-            tx.getInputs()
-                    .forEach(address -> addressTransactions.add(address, tx));
-
-            tx.getOutputs()
-                    .forEach(wrapperOutput -> addressTransactions.add(wrapperOutput.getAddress(), tx));
-        });
-        return new NewBlockEvent(network.getType(), block, addressTransactions);
-    }
-
-    private NewPendingTransactionsEvent createPendingEvent(WrapperBlock block) {
-        return new NewPendingTransactionsEvent(
-                network.getType(),
-                block.getTransactions()
-        );
     }
 }

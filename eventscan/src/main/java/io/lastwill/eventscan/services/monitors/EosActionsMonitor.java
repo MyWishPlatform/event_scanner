@@ -1,6 +1,7 @@
 package io.lastwill.eventscan.services.monitors;
 
-import io.lastwill.eventscan.events.model.*;
+import io.lastwill.eventscan.events.model.ContractCreatedEvent;
+import io.lastwill.eventscan.events.model.ContractEventsEvent;
 import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
 import io.lastwill.eventscan.events.model.contract.eos.CreateAirdropEvent;
 import io.lastwill.eventscan.events.model.contract.eos.CreateTokenEvent;
@@ -12,11 +13,11 @@ import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.ContractRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.services.TransactionProvider;
-import io.mywish.scanner.model.NewBlockEvent;
-import io.mywish.scanner.services.EventPublisher;
 import io.mywish.blockchain.ContractEvent;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.blockchain.WrapperTransactionReceipt;
+import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -69,8 +70,7 @@ public class EosActionsMonitor {
                     WrapperTransactionReceipt receipt;
                     try {
                         receipt = transactionProvider.getTransactionReceipt(event.getNetworkType(), wrapperTransaction);
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         log.error("Error on getting transaction receipt for tx {}.", wrapperTransaction.getHash(), e);
                         return;
                     }
@@ -88,8 +88,7 @@ public class EosActionsMonitor {
                                                     createAccountEvent.getCreated()
                                             ));
                                     contractEvents.add(contractEvent);
-                                }
-                                else if (contractEvent instanceof CreateTokenEvent) {
+                                } else if (contractEvent instanceof CreateTokenEvent) {
                                     CreateTokenEvent createTokenEvent = (CreateTokenEvent) contractEvent;
                                     externalNotifier.send(event.getNetworkType(),
                                             new TokenCreatedNotify(
@@ -99,8 +98,7 @@ public class EosActionsMonitor {
                                                     createTokenEvent.getAddress()
                                             ));
                                     contractEvents.add(contractEvent);
-                                }
-                                else if (contractEvent instanceof SetCodeEvent || contractEvent instanceof CreateAirdropEvent) {
+                                } else if (contractEvent instanceof SetCodeEvent || contractEvent instanceof CreateAirdropEvent) {
                                     eventPublisher.publish(
                                             new ContractCreatedEvent(
                                                     event.getNetworkType(),
@@ -126,6 +124,5 @@ public class EosActionsMonitor {
                             event.getBlock()
                     ));
                 });
-
     }
 }

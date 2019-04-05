@@ -61,4 +61,6 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
             @Param("tokenShortName") String tokenShortName,
             @Param("network") NetworkType networkType
     );
+
+    List<Product> findAllByUserId(@Param("userId") Integer userId);
 }

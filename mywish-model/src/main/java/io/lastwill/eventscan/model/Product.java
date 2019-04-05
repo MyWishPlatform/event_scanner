@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import javax.persistence.*;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "contracts_contract")
@@ -44,6 +45,7 @@ public abstract class Product {
     private BigInteger cost;
     @Column(nullable = false)
     private int userId;
+    private LocalDateTime createdDate;
     public abstract int getContractType();
     public abstract BigInteger getCheckGasLimit();
 }

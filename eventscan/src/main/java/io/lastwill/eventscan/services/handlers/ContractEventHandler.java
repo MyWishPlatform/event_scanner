@@ -8,6 +8,8 @@ import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressA
 import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressRemovedEvent;
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.events.model.contract.investmentPool.*;
+import io.lastwill.eventscan.events.model.contract.swaps.CancelEvent;
+import io.lastwill.eventscan.events.model.contract.swaps.SwapEvent;
 import io.lastwill.eventscan.messages.*;
 import io.lastwill.eventscan.model.*;
 import io.lastwill.eventscan.repositories.ProductRepository;
@@ -241,6 +243,24 @@ public class ContractEventHandler {
                                 PaymentStatus.COMMITTED,
                                 event.getTransaction().getHash(),
                                 ((ClaimRefundEvent) contractEvent).getAmount()
+                        )
+                );
+            } else if (contractEvent instanceof SwapEvent && product instanceof ProductSwaps) {
+                externalNotifier.send(
+                        event.getNetworkType(),
+                        new FinalizedNotify(
+                                event.getContract().getId(),
+                                PaymentStatus.COMMITTED,
+                                event.getTransaction().getHash()
+                        )
+                );
+            } else if (contractEvent instanceof CancelEvent && product instanceof ProductSwaps) {
+                externalNotifier.send(
+                        event.getNetworkType(),
+                        new CancelledNotify(
+                                event.getContract().getId(),
+                                PaymentStatus.COMMITTED,
+                                event.getTransaction().getHash()
                         )
                 );
             }

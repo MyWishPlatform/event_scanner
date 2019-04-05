@@ -2,9 +2,7 @@ package io.mywish.bot.integration.services.impl;
 
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.bot.integration.services.BlockchainExplorer;
-import org.springframework.stereotype.Component;
 
-@Component
 public class EosflareExplorer implements BlockchainExplorer {
     @Override
     public String buildToAddress(String address) {

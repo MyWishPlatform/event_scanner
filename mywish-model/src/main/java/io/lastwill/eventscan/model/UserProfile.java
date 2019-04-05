@@ -17,4 +17,9 @@ public class UserProfile {
     private User user;
     private String internalAddress;
     private String memo;
+    private String totpKey;
+    private Boolean useTotp;
+    private Boolean isSocial;
+    private String lang;
+    private Long lastUsedTotp;
 }

@@ -6,4 +6,5 @@ public enum  NetworkProviderType {
     NEO,
     BTC,
     TRON,
+    WAVES,
 }

@@ -6,14 +6,11 @@ import javax.persistence.*;
 import java.math.BigInteger;
 
 @Entity
-@Table(name = "contracts_contractdetailswavessto")
+@Table(name = "contracts_contractdetailssto")
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("21")
 @Getter
 public class ProductStoWaves extends Product {
-//    @Column(name = "stop_date")
-    private String assetId;
-
     @Override
     public int getContractType() {
         return 21;
@@ -23,9 +20,4 @@ public class ProductStoWaves extends Product {
     public BigInteger getCheckGasLimit() {
         return BigInteger.ZERO;
     }
-
-//    @Override
-//    public Instant getCheckDate() {
-//        return Instant.ofEpochSecond(finishTimestamp);
-//    }
 }

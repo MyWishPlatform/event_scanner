@@ -25,7 +25,7 @@ public class NewBlockEventUtil {
                     tx.getInputs().stream(),
                     tx.getOutputs().stream()
                             .map(WrapperOutput::getAddress))
-                    .filter(address -> contains(addressTransactions, address, tx))
+                    .filter(address -> !contains(addressTransactions, address, tx))
                     .forEach(address -> addressTransactions.add(address, tx));
         });
         return new NewBlockEvent(network.getType(), block, addressTransactions);

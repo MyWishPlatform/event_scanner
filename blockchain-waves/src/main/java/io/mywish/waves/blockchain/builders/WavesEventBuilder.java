@@ -1,6 +1,5 @@
 package io.mywish.waves.blockchain.builders;
 
-import com.sun.istack.internal.Nullable;
 import com.wavesplatform.wavesj.Transaction;
 import io.lastwill.eventscan.model.NetworkProviderType;
 import io.mywish.blockchain.ContractEvent;
@@ -18,7 +17,6 @@ public abstract class WavesEventBuilder<T extends ContractEvent> extends Contrac
         throw new UnsupportedOperationException("Use other method with other signature.");
     }
 
-    @Nullable
     public abstract List<ContractEvent> build(Transaction transaction);
 
     @Override

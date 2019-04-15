@@ -1,8 +1,10 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.model.TransactionUnlockedEvent;
+import io.lastwill.eventscan.model.NetworkProviderType;
 import io.lastwill.eventscan.repositories.AddressLockRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
+import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.scanner.services.EventPublisher;
 import io.mywish.blockchain.WrapperTransactionReceipt;
 import io.mywish.scanner.model.NewBlockEvent;
@@ -11,8 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.util.AbstractMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,6 +34,10 @@ public class LockMonitor {
 
     @EventListener
     private void onNewBlock(final NewBlockEvent event) {
+        if (event.getNetworkType().getNetworkProviderType() == NetworkProviderType.WAVES) {
+            return;
+        }
+
         Set<String> addresses = event.getTransactionsByAddress()
                 .entrySet()
                 .stream()

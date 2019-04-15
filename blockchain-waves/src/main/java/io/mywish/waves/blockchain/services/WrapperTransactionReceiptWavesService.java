@@ -17,7 +17,10 @@ public class WrapperTransactionReceiptWavesService {
     private WrapperLogWavesService logBuilder;
 
     public WrapperTransactionReceipt build(WrapperTransactionWaves wrapperTransaction) {
-        List<String> contracts = Collections.emptyList();
+        List<String> contracts = wrapperTransaction.isContractCreation()
+                ? wrapperTransaction.getInputs()
+                :Collections.emptyList();
+
         List<ContractEvent> logs = logBuilder.build(wrapperTransaction);
 
         return new WrapperTransactionReceipt(

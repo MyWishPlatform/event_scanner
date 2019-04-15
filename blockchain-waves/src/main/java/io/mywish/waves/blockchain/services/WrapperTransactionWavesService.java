@@ -3,7 +3,6 @@ package io.mywish.waves.blockchain.services;
 import com.wavesplatform.wavesj.Transaction;
 import com.wavesplatform.wavesj.transactions.SetScriptTransaction;
 import io.mywish.blockchain.WrapperOutput;
-import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.blockchain.service.WrapperTransactionService;
 import io.mywish.waves.blockchain.model.WrapperTransactionWaves;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +21,19 @@ public class WrapperTransactionWavesService implements WrapperTransactionService
         List<String> inputs = Collections.singletonList(transaction.getSenderPublicKey().getAddress());
         List<WrapperOutput> outputs = Collections.singletonList(outputBuilder.build(transaction));
 
-        return new WrapperTransactionWaves(
+        boolean contractCreation = transaction instanceof SetScriptTransaction;
+        WrapperTransactionWaves res = new WrapperTransactionWaves(
                 transaction.getId().getBase58String(),
                 inputs,
                 outputs,
-                false,
+                contractCreation,
                 transaction
         );
+
+        if (contractCreation) {
+            res.setCreates(transaction.getSenderPublicKey().getAddress());
+        }
+
+        return res;
     }
 }

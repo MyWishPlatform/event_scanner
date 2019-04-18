@@ -63,4 +63,12 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
     );
 
     List<Product> findAllByUserId(@Param("userId") Integer userId);
+
+    @Query("select c from ProductSwaps2 c " +
+            "where c.network.type = :network " +
+            "and c.orderId = :orderId")
+    ProductSwaps2 findByOrderId(
+            @Param("orderId") String orderId,
+            @Param("network") NetworkType network
+    );
 }

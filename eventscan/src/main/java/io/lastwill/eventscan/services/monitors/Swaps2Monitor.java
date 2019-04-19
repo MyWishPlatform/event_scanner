@@ -68,27 +68,27 @@ public class Swaps2Monitor {
                                 .filter(contractEvent -> contractEvent instanceof Swaps2BaseEvent)
                                 .map(contractEvent -> (Swaps2BaseEvent) contractEvent)
                                 .filter(contractEvent -> productRepository
-                                        .findByOrderId(contractEvent.getId(), event.getNetworkType()) != null)
+                                        .findByOrderId("0x" + contractEvent.getId(), event.getNetworkType()) != null)
                                 .map(contractEvent -> {
                                     if (contractEvent instanceof OrderCreatedEvent) {
                                         return new OrderCreatedNotify(
                                                 tx.getHash(),
                                                 receipt.isSuccess(),
-                                                receipt.getContracts().get(0),
+                                                networkToSwapsAddresses.get(event.getNetworkType()),
                                                 contractEvent.getId()
                                         );
                                     } else if (contractEvent instanceof CancelEvent) {
                                         return new CancelledNotify(
                                                 tx.getHash(),
                                                 receipt.isSuccess(),
-                                                receipt.getContracts().get(0),
+                                                networkToSwapsAddresses.get(event.getNetworkType()),
                                                 contractEvent.getId()
                                         );
                                     } else if (contractEvent instanceof SwapEvent) {
                                         return new FinalizedNotify(
                                                 tx.getHash(),
                                                 receipt.isSuccess(),
-                                                receipt.getContracts().get(0),
+                                                networkToSwapsAddresses.get(event.getNetworkType()),
                                                 contractEvent.getId()
                                         );
                                     }

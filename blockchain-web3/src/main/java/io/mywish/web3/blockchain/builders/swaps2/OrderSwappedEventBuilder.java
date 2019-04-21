@@ -22,7 +22,7 @@ public class OrderSwappedEventBuilder extends Web3ContractEventBuilder<SwapEvent
             "OrderSwapped",
             Arrays.asList(
                     WrapperType.create(Bytes32.class, false),
-                    WrapperType.create(Address.class, true)
+                    WrapperType.create(Address.class, false)
             )
     );
 
@@ -30,7 +30,7 @@ public class OrderSwappedEventBuilder extends Web3ContractEventBuilder<SwapEvent
     public SwapEvent build(String address, List<Object> values) {
         return new SwapEvent(
                 definition,
-                TypeEncoder.encode((Bytes32) values.get(0)),
+                "0x" + TypeEncoder.encode(new Bytes32((byte[]) values.get(0))),
                 (String) values.get(1),
                 address
         );

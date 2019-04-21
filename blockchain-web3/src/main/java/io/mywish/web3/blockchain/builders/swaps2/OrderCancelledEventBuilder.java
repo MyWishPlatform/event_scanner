@@ -26,7 +26,7 @@ public class OrderCancelledEventBuilder extends Web3ContractEventBuilder<CancelE
     public CancelEvent build(String address, List<Object> values) {
         return new CancelEvent(
                 definition,
-                TypeEncoder.encode((Bytes32) values.get(0)),
+                "0x" + TypeEncoder.encode(new Bytes32((byte[]) values.get(0))),
                 address
         );
     }

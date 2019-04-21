@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
+import io.lastwill.eventscan.events.model.SwapsOrderCreatedEvent;
 import io.lastwill.eventscan.events.model.contract.swaps2.CancelEvent;
 import io.lastwill.eventscan.events.model.contract.swaps2.OrderCreatedEvent;
 import io.lastwill.eventscan.events.model.contract.swaps2.SwapEvent;
@@ -8,10 +9,12 @@ import io.lastwill.eventscan.messages.swaps2.CancelledNotify;
 import io.lastwill.eventscan.messages.swaps2.FinalizedNotify;
 import io.lastwill.eventscan.messages.swaps2.OrderCreatedNotify;
 import io.lastwill.eventscan.model.NetworkType;
+import io.lastwill.eventscan.model.ProductSwaps2;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +32,9 @@ import java.util.Objects;
 public class Swaps2Monitor {
     @Autowired
     private ExternalNotifier externalNotifier;
+
+    @Autowired
+    private EventPublisher eventPublisher;
 
     @Autowired
     private ProductRepository productRepository;
@@ -68,7 +74,17 @@ public class Swaps2Monitor {
                                 .filter(contractEvent -> contractEvent instanceof Swaps2BaseEvent)
                                 .map(contractEvent -> (Swaps2BaseEvent) contractEvent)
                                 .filter(contractEvent -> productRepository
-                                        .findByOrderId("0x" + contractEvent.getId(), event.getNetworkType()) != null)
+                                        .findByOrderId(contractEvent.getId(), event.getNetworkType()) != null)
+                                .peek(contractEvent -> {
+                                    if (contractEvent instanceof OrderCreatedEvent) {
+                                        ProductSwaps2 swaps2 = productRepository.findByOrderId(
+                                                contractEvent.getId(), event.getNetworkType());
+                                        eventPublisher.publish(new SwapsOrderCreatedEvent(
+                                                event.getNetworkType(),
+                                                swaps2,
+                                                tx));
+                                    }
+                                })
                                 .map(contractEvent -> {
                                     if (contractEvent instanceof OrderCreatedEvent) {
                                         return new OrderCreatedNotify(

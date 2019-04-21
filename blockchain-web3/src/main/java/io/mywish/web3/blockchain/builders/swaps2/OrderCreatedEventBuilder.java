@@ -11,7 +11,6 @@ import org.web3j.abi.TypeEncoder;
 import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.Uint;
 import org.web3j.abi.datatypes.generated.Bytes32;
-import org.web3j.abi.datatypes.generated.Uint256;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -28,12 +27,12 @@ public class OrderCreatedEventBuilder extends Web3ContractEventBuilder<OrderCrea
                     WrapperType.create(Address.class, false),
                     WrapperType.create(Address.class, false),
                     WrapperType.create(Address.class, false),
-                    WrapperType.create(Uint256.class, false),
-                    WrapperType.create(Uint256.class, false),
-                    WrapperType.create(Uint256.class, false),
+                    WrapperType.create(Uint.class, false),
+                    WrapperType.create(Uint.class, false),
+                    WrapperType.create(Uint.class, false),
                     WrapperType.create(Address.class, false),
-                    WrapperType.create(Uint256.class, false),
-                    WrapperType.create(Uint256.class, false)
+                    WrapperType.create(Uint.class, false),
+                    WrapperType.create(Uint.class, false)
             )
     );
 
@@ -41,7 +40,7 @@ public class OrderCreatedEventBuilder extends Web3ContractEventBuilder<OrderCrea
     public OrderCreatedEvent build(String address, List<Object> values) {
         return new OrderCreatedEvent(
                 definition,
-                TypeEncoder.encode(new Bytes32((byte[]) values.get(0))),
+                "0x" + TypeEncoder.encode(new Bytes32((byte[]) values.get(0))),
                 (String) values.get(1),
                 (String) values.get(2),
                 (String) values.get(3),

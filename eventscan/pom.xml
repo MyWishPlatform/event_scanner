@@ -22,9 +22,9 @@
 
     <dependencies>
         <!--<dependency>-->
-            <!--<groupId>${project.groupId}</groupId>-->
-            <!--<artifactId>ethereum-rpl</artifactId>-->
-            <!--<version>${project.version}</version>-->
+        <!--<groupId>${project.groupId}</groupId>-->
+        <!--<artifactId>ethereum-rpl</artifactId>-->
+        <!--<version>${project.version}</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -90,16 +90,22 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>blockchain-binance</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>bot-integration</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>${project.groupId}</groupId>-->
-            <!--<artifactId>joule</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<scope>runtime</scope>-->
+        <!--<groupId>${project.groupId}</groupId>-->
+        <!--<artifactId>joule</artifactId>-->
+        <!--<version>${project.version}</version>-->
+        <!--<scope>runtime</scope>-->
         <!--</dependency>-->
 
         <dependency>

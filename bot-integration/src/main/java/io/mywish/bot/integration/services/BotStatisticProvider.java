@@ -39,6 +39,8 @@ public class BotStatisticProvider implements InformationProvider {
         put(NetworkType.EOS_TESTNET, "EOS Testnet");
         put(NetworkType.TRON_MAINNET, "TRON");
         put(NetworkType.TRON_TESTNET, "TRON Testnet");
+        put(NetworkType.BINANCE_MAINNET, "Binance");
+        put(NetworkType.BINANCE_TESTNET, "Binance Testnet");
     }};
 
     @Override

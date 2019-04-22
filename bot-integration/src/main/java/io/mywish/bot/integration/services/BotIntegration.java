@@ -82,6 +82,17 @@ public class BotIntegration {
     }
 
     @EventListener
+    private void onSwapsOrderCreated(final SwapsOrderCreatedEvent event) {
+        ProductSwaps2 product = event.getProduct();
+        String network = networkName.getOrDefault(product.getNetwork().getType(), defaultNetwork);
+        String txHash = event.getTransaction().getHash();
+        String txLink = explorerProvider.getOrStub(product.getNetwork().getType())
+                .buildToTransaction(txHash);
+
+        bot.onSwapsOrder(network, product.getId(), txHash, txLink);
+    }
+
+    @EventListener
     private void onOwnerBalanceChanged(final UserPaymentEvent event) {
         try {
             final UserSiteBalance userSiteBalance = event.getUserSiteBalance();

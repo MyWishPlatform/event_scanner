@@ -119,6 +119,20 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
     }
 
+    public void onSwapsOrder(String network, Integer productId, String transactionHash, String txLink) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": new SWAPS2 Order (")
+                .append(productId)
+                .append(") was created, see on [")
+                .append(transactionHash)
+                .append("](")
+                .append(txLink)
+                .append(").")
+                .toString();
+
+        sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
+    }
 
     public void onContractFailed(String network, Integer productId, String productType, Integer id, final String txLink) {
         final String message = new StringBuilder()

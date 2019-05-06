@@ -21,8 +21,14 @@ public class WrapperOutputWavesService implements WrapperOutputService<Transacti
             value = BigInteger.ZERO;
         }
 
+        String hash = null;
+        try {
+            hash = transaction.getId().getBase58String();
+        } catch (NoSuchMethodError ignored) {
+        }
+
         return new WrapperOutputWaves(
-                transaction.getId().getBase58String(),
+                hash,
                 transaction.getSenderPublicKey().getAddress(),
                 value,
                 transaction

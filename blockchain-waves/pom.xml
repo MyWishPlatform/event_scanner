@@ -12,7 +12,7 @@
     <artifactId>blockchain-waves</artifactId>
 
     <properties>
-        <waves.version>0.13.1</waves.version>
+        <waves.version>0.14</waves.version>
     </properties>
 
     <dependencies>

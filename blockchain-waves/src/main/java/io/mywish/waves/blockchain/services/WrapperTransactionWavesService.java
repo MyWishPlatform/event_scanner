@@ -22,8 +22,14 @@ public class WrapperTransactionWavesService implements WrapperTransactionService
         List<WrapperOutput> outputs = Collections.singletonList(outputBuilder.build(transaction));
 
         boolean contractCreation = transaction instanceof SetScriptTransaction;
+        String hash = null;
+        try {
+            hash = transaction.getId().getBase58String();
+        } catch (NoSuchMethodError ignored) {
+        }
+
         WrapperTransactionWaves res = new WrapperTransactionWaves(
-                transaction.getId().getBase58String(),
+                hash,
                 inputs,
                 outputs,
                 contractCreation,

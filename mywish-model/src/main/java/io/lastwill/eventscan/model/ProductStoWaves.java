@@ -6,14 +6,14 @@ import javax.persistence.*;
 import java.math.BigInteger;
 
 @Entity
-@Table(name = "contracts_contractdetailssto")
+@Table(name = "contracts_contractdetailswavessto")
 @PrimaryKeyJoinColumn(name = "contract_id")
-@DiscriminatorValue("21")
+@DiscriminatorValue("22")
 @Getter
 public class ProductStoWaves extends Product {
     @Override
     public int getContractType() {
-        return 21;
+        return 22;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package io.mywish.waves.blockchain.services;
 
-import com.wavesplatform.wavesj.Transaction;
-import com.wavesplatform.wavesj.transactions.SetScriptTransaction;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.mywish.blockchain.WrapperOutput;
 import io.mywish.blockchain.service.WrapperTransactionService;
 import io.mywish.waves.blockchain.model.WrapperTransactionWaves;
@@ -12,32 +11,27 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class WrapperTransactionWavesService implements WrapperTransactionService<Transaction> {
+public class WrapperTransactionWavesService implements WrapperTransactionService<JsonNode> {
     @Autowired
     private WrapperOutputWavesService outputBuilder;
 
     @Override
-    public WrapperTransactionWaves build(Transaction transaction) {
-        List<String> inputs = Collections.singletonList(transaction.getSenderPublicKey().getAddress());
+    public WrapperTransactionWaves build(JsonNode transaction) {
+        List<String> inputs = Collections.singletonList(transaction.get("sender").asText());
         List<WrapperOutput> outputs = Collections.singletonList(outputBuilder.build(transaction));
 
-        boolean contractCreation = transaction instanceof SetScriptTransaction;
-        String hash = null;
-        try {
-            hash = transaction.getId().getBase58String();
-        } catch (NoSuchMethodError ignored) {
-        }
+        boolean contractCreation = transaction.get("type").asInt() == 13;
+        String hash = transaction.get("id").asText();
 
         WrapperTransactionWaves res = new WrapperTransactionWaves(
                 hash,
                 inputs,
                 outputs,
-                contractCreation,
-                transaction
+                contractCreation
         );
 
         if (contractCreation) {
-            res.setCreates(transaction.getSenderPublicKey().getAddress());
+            res.setCreates(inputs.get(0));
         }
 
         return res;

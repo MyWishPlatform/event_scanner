@@ -1,19 +1,19 @@
 package io.mywish.waves.blockchain.services;
 
-import com.wavesplatform.wavesj.Node;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.blockchain.WrapperBlock;
 import io.mywish.blockchain.WrapperNetwork;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.blockchain.WrapperTransactionReceipt;
 import io.mywish.waves.blockchain.model.WrapperTransactionWaves;
+import io.mywish.wavescli4j.WavesClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigInteger;
 import java.util.List;
 
 public class WavesNetwork extends WrapperNetwork {
-    final private Node wavesNode;
+    final private WavesClient wavesClient;
 
     @Autowired
     private WrapperBlockWavesService blockBuilder;
@@ -21,29 +21,29 @@ public class WavesNetwork extends WrapperNetwork {
     @Autowired
     private WrapperTransactionReceiptWavesService transactionReceiptBuilder;
 
-    public WavesNetwork(NetworkType type, Node wavesNode) {
+    public WavesNetwork(NetworkType type, WavesClient wabesClient) {
         super(type);
-        this.wavesNode = wavesNode;
+        this.wavesClient = wabesClient;
     }
 
     @Override
     public Long getLastBlock() throws Exception {
-        return (long) wavesNode.getHeight();
+        return wavesClient.getHeight().getHeight();
     }
 
     @Override
     public WrapperBlock getBlock(String hash) throws Exception {
-        return blockBuilder.build(wavesNode.getBlock(hash));
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public WrapperBlock getBlock(Long number) throws Exception {
-        return blockBuilder.build(wavesNode.getBlock(number.intValue()));
+        return blockBuilder.build(wavesClient.getBlock(number));
     }
 
     @Override
     public BigInteger getBalance(String address, Long blockNo) throws Exception {
-        return BigInteger.valueOf(wavesNode.getBalance(address));
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -1,9 +1,9 @@
 package io.mywish.waves.blockchain.services;
 
-import com.wavesplatform.wavesj.Block;
 import io.mywish.blockchain.WrapperBlock;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.blockchain.service.WrapperBlockService;
+import io.mywish.wavescli4j.model.Block;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +19,7 @@ public class WrapperBlockWavesService implements WrapperBlockService<Block> {
     @Override
     public WrapperBlock build(Block block) {
         String hash = block.getSignature();
-        Long number = (long) block.getHeight();
+        Long number = block.getHeight();
         Instant timestamp = Instant.ofEpochMilli(block.getTimestamp());
         List<WrapperTransaction> transactions = block
                 .getTransactions()

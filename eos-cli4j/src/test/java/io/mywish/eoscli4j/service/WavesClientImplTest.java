@@ -22,7 +22,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class EosClientImplTest {
+public class WavesClientImplTest {
     private ObjectMapper objectMapper;
     private AbiParser abiParser;
 

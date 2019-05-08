@@ -30,6 +30,7 @@
         <module>neo-cli4j</module>
         <module>eos-cli4j</module>
         <module>tron-cli4j</module>
+        <module>waves-cli4j</module>
         <module>blockchain</module>
         <module>blockchain-web3</module>
         <module>blockchain-eos</module>

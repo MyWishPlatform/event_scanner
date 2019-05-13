@@ -72,7 +72,7 @@ public class BotIntegration {
                     product.getId(),
                     type,
                     contract.getId(),
-                    toCurrency(CryptoCurrency.ETH, product.getCost()),
+                    toCurrency(CryptoCurrency.USD, product.getCost()),
                     contractCreatedEvent.getAddress(),
                     addressLink
             );
@@ -99,9 +99,11 @@ public class BotIntegration {
             final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
             final String txLink = explorerProvider.getOrStub(event.getNetworkType())
                     .buildToTransaction(event.getTransaction().getHash());
+            final String email = userSiteBalance.getUser().getEmail();
+            final String id = Integer.toString(userSiteBalance.getUser().getId());
             bot.onBalance(
                     network,
-                    userSiteBalance.getUser().getEmail(),
+                    email != null ? email : id,
                     toCurrency(event.getCurrency(), event.getAmount()),
                     txLink
             );

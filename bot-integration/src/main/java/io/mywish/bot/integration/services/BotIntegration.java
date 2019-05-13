@@ -51,6 +51,8 @@ public class BotIntegration {
         put(NetworkType.EOS_MAINNET, "EOS");
         put(NetworkType.TRON_TESTNET, "tTRON");
         put(NetworkType.TRON_MAINNET, "TRON");
+        put(NetworkType.WAVES_TESTNET, "tWAVES");
+        put(NetworkType.WAVES_MAINNET, "WAVES");
     }};
 
     private final String defaultNetwork = "unknown";
@@ -64,7 +66,7 @@ public class BotIntegration {
         final String txLink = explorerProvider.getOrStub(product.getNetwork().getType())
                 .buildToTransaction(contractCreatedEvent.getTransaction().getHash());
         final String addressLink = explorerProvider.getOrStub(product.getNetwork().getType())
-                .buildToAddress(contract.getAddress());
+                .buildToAddress(contractCreatedEvent.getAddress());
 
         if (contractCreatedEvent.isSuccess()) {
             bot.onContract(

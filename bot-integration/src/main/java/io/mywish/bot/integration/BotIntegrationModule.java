@@ -68,6 +68,16 @@ public class BotIntegrationModule {
     }
 
     @Bean
+    public WavesExplorer wavesExplorerTestnet() {
+        return new WavesExplorer(true);
+    }
+
+    @Bean
+    public WavesExplorer wavesExplorer() {
+        return new WavesExplorer(false);
+    }
+
+    @Bean
     @ConditionalOnBean(MyWishBot.class)
     public BotIntegration botIntegration() {
         return new BotIntegration();

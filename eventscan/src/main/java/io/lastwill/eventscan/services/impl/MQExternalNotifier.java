@@ -60,6 +60,10 @@ public class MQExternalNotifier implements ExternalNotifier {
     private String queueNameTronMainnet;
     @Value("${io.lastwill.eventscan.backend-mq.queue.tron-testnet}")
     private String queueNameTronTestnet;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.waves-mainnet}")
+    private String queueNameWavesMainnet;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.waves-testnet}")
+    private String queueNameWavesTestnet;
 
     private Map<NetworkType, String> queueByNetwork = new HashMap<>();
 
@@ -94,6 +98,9 @@ public class MQExternalNotifier implements ExternalNotifier {
 
         queueByNetwork.put(NetworkType.TRON_MAINNET, queueNameTronMainnet);
         queueByNetwork.put(NetworkType.TRON_TESTNET, queueNameTronTestnet);
+
+        queueByNetwork.put(NetworkType.WAVES_MAINNET, queueNameWavesMainnet);
+        queueByNetwork.put(NetworkType.WAVES_TESTNET, queueNameWavesTestnet);
 
         connection = factory.newConnection();
         channel = connection.createChannel();

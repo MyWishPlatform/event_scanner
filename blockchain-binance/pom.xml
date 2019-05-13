@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.github.binance-chain</groupId>
             <artifactId>java-sdk</artifactId>
-            <version>8a19abcf9fd84f185c34afda558eaf2ac521f52f</version>
+            <version>f765ba34a2ffe2e2f6668cc10cf9cc539f042c19</version>
         </dependency>
     </dependencies>
 

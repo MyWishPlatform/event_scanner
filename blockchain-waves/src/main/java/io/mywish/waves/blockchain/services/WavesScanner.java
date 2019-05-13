@@ -32,8 +32,8 @@ public class WavesScanner extends ScannerPolling {
         }
         block.getTransactions()
                 .forEach(transaction -> {
-                    transaction.getInputs().forEach(input -> addressTransactions.add(input, transaction));
-                    transaction.getOutputs().forEach(output -> addressTransactions.add(output.getAddress(), transaction));
+                    transaction.getInputs().forEach(input -> addressTransactions.add(input.toLowerCase(), transaction));
+                    transaction.getOutputs().forEach(output -> addressTransactions.add(output.getAddress().toLowerCase(), transaction));
 //                    eventPublisher.publish(new NewTransactionEvent(networkType, block, output));
                 });
         eventPublisher.publish(new NewBlockEvent(network.getType(), block, addressTransactions));

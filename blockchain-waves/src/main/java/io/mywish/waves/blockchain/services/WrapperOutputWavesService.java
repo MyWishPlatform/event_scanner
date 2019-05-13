@@ -12,9 +12,16 @@ import java.math.BigInteger;
 public class WrapperOutputWavesService implements WrapperOutputService<JsonNode> {
     @Override
     public WrapperOutput build(JsonNode transaction) {
+        String address;
+        if (transaction.get("type").asInt() == 16) {
+            address = transaction.get("dApp").asText();
+        } else {
+            address = transaction.get("sender").asText();
+        }
+
         return new WrapperOutputWaves(
                 transaction.get("id").asText(),
-                transaction.get("sender").asText(),
+                address,
                 BigInteger.ZERO,
                 transaction
         );

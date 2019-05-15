@@ -10,6 +10,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class BinanceBlock {
-    private final BlockMeta.Header header;
+    private final BlockMeta blockMeta;
     private final List<Transaction> transactions;
 }

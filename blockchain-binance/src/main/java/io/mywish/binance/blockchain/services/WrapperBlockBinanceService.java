@@ -18,9 +18,9 @@ public class WrapperBlockBinanceService implements WrapperBlockService<BinanceBl
 
     @Override
     public WrapperBlock build(BinanceBlock block) {
-        String hash = block.getHeader().getLastBlockId().getHash();
-        Long number = block.getHeader().getHeight();
-        Instant timestamp = block.getHeader().getTime().toInstant();
+        String hash = block.getBlockMeta().getBlockId().getHash();
+        Long number = block.getBlockMeta().getHeader().getHeight();
+        Instant timestamp = block.getBlockMeta().getHeader().getTime().toInstant();
         List<WrapperTransaction> transactions = block
                 .getTransactions()
                 .stream()

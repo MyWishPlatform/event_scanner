@@ -32,15 +32,15 @@ public class BinanceNetwork extends WrapperNetwork {
 
     @Override
     public WrapperBlock getBlock(String hash) {
-        BlockMeta.Header header = binanceClient.getBlockMetaByHash(hash).getHeader();
-        List<Transaction> transactions = binanceClient.getBlockTransactions(header.getHeight());
-        return blockBuilder.build(new BinanceBlock(header, transactions));
+        BlockMeta meta = binanceClient.getBlockMetaByHash(hash);
+        List<Transaction> transactions = binanceClient.getBlockTransactions(meta.getHeader().getHeight());
+        return blockBuilder.build(new BinanceBlock(meta, transactions));
     }
 
     @Override
     public WrapperBlock getBlock(Long number) {
         return blockBuilder.build(new BinanceBlock(
-                binanceClient.getBlockMetaByHeight(number).getHeader(),
+                binanceClient.getBlockMetaByHeight(number),
                 binanceClient.getBlockTransactions(number)
         ));
     }

@@ -8,10 +8,14 @@ import java.math.BigInteger;
 
 @Getter
 public class WrapperOutputBinance extends WrapperOutput {
-    private final Transaction transaction;
+    private final String from;
+    private final String symbol;
+    private final String memo;
 
-    public WrapperOutputBinance(String parentTransaction, String address, BigInteger value, Transaction transaction) {
-        super(parentTransaction, 0, address, value, new byte[0]);
-        this.transaction = transaction;
+    public WrapperOutputBinance(Transaction tx, String from, String to, String symbol, String amount) {
+        super(tx.getHash(), 0, to, new BigInteger(amount), new byte[0]);
+        this.from = from;
+        this.symbol = symbol;
+        this.memo = tx.getMemo();
     }
 }

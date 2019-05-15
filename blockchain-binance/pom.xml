@@ -34,6 +34,12 @@
             <artifactId>java-sdk</artifactId>
             <version>f765ba34a2ffe2e2f6668cc10cf9cc539f042c19</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.7.1</version>
+        </dependency>
     </dependencies>
 
 </project>

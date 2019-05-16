@@ -32,6 +32,8 @@ public class OrderCreatedEventBuilder extends Web3ContractEventBuilder<OrderCrea
                     WrapperType.create(Uint.class, false),
                     WrapperType.create(Address.class, false),
                     WrapperType.create(Uint.class, false),
+                    WrapperType.create(Uint.class, false),
+                    WrapperType.create(Uint.class, false),
                     WrapperType.create(Uint.class, false)
             )
     );
@@ -50,6 +52,9 @@ public class OrderCreatedEventBuilder extends Web3ContractEventBuilder<OrderCrea
                 (String) values.get(7),
                 (BigInteger) values.get(8),
                 (BigInteger) values.get(9),
+                (String) values.get(10),
+                (BigInteger) values.get(11),
+                (BigInteger) values.get(12),
                 address
         );
     }

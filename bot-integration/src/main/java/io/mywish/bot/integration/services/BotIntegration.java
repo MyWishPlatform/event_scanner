@@ -53,6 +53,8 @@ public class BotIntegration {
         put(NetworkType.TRON_MAINNET, "TRON");
         put(NetworkType.WAVES_TESTNET, "tWAVES");
         put(NetworkType.WAVES_MAINNET, "WAVES");
+        put(NetworkType.BINANCE_TESTNET, "tBNB");
+        put(NetworkType.BINANCE_MAINNET, "BNB");
     }};
 
     private final String defaultNetwork = "unknown";

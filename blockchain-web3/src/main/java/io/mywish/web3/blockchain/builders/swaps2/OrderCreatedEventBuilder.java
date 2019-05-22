@@ -33,6 +33,7 @@ public class OrderCreatedEventBuilder extends Web3ContractEventBuilder<OrderCrea
                     WrapperType.create(Address.class, false),
                     WrapperType.create(Uint.class, false),
                     WrapperType.create(Uint.class, false),
+                    WrapperType.create(Address.class, false),
                     WrapperType.create(Uint.class, false),
                     WrapperType.create(Uint.class, false)
             )

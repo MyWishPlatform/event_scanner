@@ -22,9 +22,9 @@
 
     <dependencies>
         <!--<dependency>-->
-            <!--<groupId>${project.groupId}</groupId>-->
-            <!--<artifactId>ethereum-rpl</artifactId>-->
-            <!--<version>${project.version}</version>-->
+        <!--<groupId>${project.groupId}</groupId>-->
+        <!--<artifactId>ethereum-rpl</artifactId>-->
+        <!--<version>${project.version}</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -49,6 +49,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>blockchain</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>blockchain-binance</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- Runtime -->
@@ -84,16 +89,22 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>blockchain-waves</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>bot-integration</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>${project.groupId}</groupId>-->
-            <!--<artifactId>joule</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<scope>runtime</scope>-->
+        <!--<groupId>${project.groupId}</groupId>-->
+        <!--<artifactId>joule</artifactId>-->
+        <!--<version>${project.version}</version>-->
+        <!--<scope>runtime</scope>-->
         <!--</dependency>-->
 
         <dependency>
@@ -116,6 +127,13 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${okhttp3.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>

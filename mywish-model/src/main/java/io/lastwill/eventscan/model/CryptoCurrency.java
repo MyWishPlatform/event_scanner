@@ -15,6 +15,8 @@ public enum CryptoCurrency {
     BNB(18),
     TRX(6),
     TRONISH(6),
+    BBNB(8),
+    BWISH(8),
     USD(6, "$");
 
     private final int decimals;

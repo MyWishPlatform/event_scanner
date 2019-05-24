@@ -47,6 +47,10 @@ public class NetworkStuckMonitor {
     private long neoInterval;
     @Value("${io.lastwill.eventscan.network-stuck.interval.tron}")
     private long tronInterval;
+    @Value("${io.lastwill.eventscan.network-stuck.interval.waves}")
+    private long wavesInterval;
+    @Value("${io.lastwill.eventscan.network-stuck.interval.binance}")
+    private long binanceInterval;
     @Value("${io.lastwill.eventscan.network-stuck.interval.pending}")
     private long pendingInterval;
     @Value("${io.lastwill.eventscan.network-stuck.interval.max-notification}")
@@ -71,6 +75,10 @@ public class NetworkStuckMonitor {
         checkFrequencies.put(NetworkType.EOS_TESTNET, eosInterval);
         checkFrequencies.put(NetworkType.TRON_MAINNET, tronInterval);
         checkFrequencies.put(NetworkType.TRON_TESTNET, tronInterval);
+        checkFrequencies.put(NetworkType.WAVES_MAINNET, wavesInterval);
+        checkFrequencies.put(NetworkType.WAVES_TESTNET, wavesInterval);
+        checkFrequencies.put(NetworkType.BINANCE_MAINNET, binanceInterval);
+        checkFrequencies.put(NetworkType.BINANCE_TESTNET, binanceInterval);
 
         notifyFrequencies.putAll(checkFrequencies);
 
@@ -147,7 +155,7 @@ public class NetworkStuckMonitor {
                 });
     }
 
-//    @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.pending}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.pending}")
+    //    @Scheduled(fixedDelayString = "${io.lastwill.eventscan.network-stuck.interval.pending}", initialDelayString = "${io.lastwill.eventscan.network-stuck.interval.pending}")
     protected void checkPending() {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         lastPendingTxEvents.keySet()

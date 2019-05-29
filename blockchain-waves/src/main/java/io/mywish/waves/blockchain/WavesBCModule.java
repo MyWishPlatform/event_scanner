@@ -33,6 +33,7 @@ public class WavesBCModule {
         );
     }*/
 
+    /*
     @ConditionalOnProperty("etherscanner.waves.rpc-url.testnet")
     @Bean(name = NetworkType.WAVES_TESTNET_VALUE)
     public WavesNetwork wavesNetTest(
@@ -50,6 +51,7 @@ public class WavesBCModule {
                 )
         );
     }
+     */
 
     /*@ConditionalOnBean(name = NetworkType.WAVES_MAINNET_VALUE)
     @Bean
@@ -67,6 +69,7 @@ public class WavesBCModule {
         );
     }*/
 
+    /*
     @ConditionalOnBean(name = NetworkType.WAVES_TESTNET_VALUE)
     @Bean
     public WavesScanner wavesScannerTest(
@@ -82,6 +85,7 @@ public class WavesBCModule {
                 commitmentChainLength
         );
     }
+     */
 
     @Configuration
     @ConditionalOnProperty("etherscanner.waves.db-persister")
@@ -94,6 +98,7 @@ public class WavesBCModule {
             return new LastBlockDbPersister(NetworkType.WAVES_MAINNET, lastBlockRepository, lastBlock);
         }*/
 
+        /*
         @Bean
         public LastBlockPersister wavesTestnetLastBlockPersister(
                 LastBlockRepository lastBlockRepository,
@@ -101,6 +106,7 @@ public class WavesBCModule {
         ) {
             return new LastBlockDbPersister(NetworkType.WAVES_TESTNET, lastBlockRepository, lastBlock);
         }
+         */
     }
 
     @Configuration
@@ -114,6 +120,7 @@ public class WavesBCModule {
             return new LastBlockFilePersister(NetworkType.WAVES_MAINNET, dir, lastBlock);
         }*/
 
+        /*
         @Bean
         public LastBlockPersister wavesTestnetLastBlockPersister(
                 final @Value("${etherscanner.start-block-dir}") String dir,
@@ -121,5 +128,6 @@ public class WavesBCModule {
         ) {
             return new LastBlockFilePersister(NetworkType.WAVES_TESTNET, dir, lastBlock);
         }
+         */
     }
 }

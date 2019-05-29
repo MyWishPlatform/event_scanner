@@ -1,6 +1,5 @@
 package io.lastwill.eventscan.events.model.contract.swaps2;
 
-import io.mywish.blockchain.ContractEvent;
 import io.mywish.blockchain.ContractEventDefinition;
 import lombok.Getter;
 
@@ -17,6 +16,9 @@ public class OrderCreatedEvent extends Swaps2BaseEvent {
     private final String baseOnlyInvestor;
     private final BigInteger minBaseInvestment;
     private final BigInteger minQuoteInvestment;
+    private final String brokerAddress;
+    private final BigInteger brokerBasePercent;
+    private final BigInteger brokerQuotePercent;
 
     public OrderCreatedEvent(
             ContractEventDefinition definition,
@@ -30,6 +32,9 @@ public class OrderCreatedEvent extends Swaps2BaseEvent {
             String baseOnlyInvestor,
             BigInteger minBaseInvestment,
             BigInteger minQuoteInvestment,
+            String brokerAddress,
+            BigInteger brokerBasePercent,
+            BigInteger brokerQuotePercent,
             String address
     ) {
         super(definition, id, address);
@@ -42,5 +47,8 @@ public class OrderCreatedEvent extends Swaps2BaseEvent {
         this.baseOnlyInvestor = baseOnlyInvestor;
         this.minBaseInvestment = minBaseInvestment;
         this.minQuoteInvestment = minQuoteInvestment;
+        this.brokerAddress = brokerAddress;
+        this.brokerBasePercent = brokerBasePercent;
+        this.brokerQuotePercent = brokerQuotePercent;
     }
 }

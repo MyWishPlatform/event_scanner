@@ -12,7 +12,7 @@ import java.math.BigInteger;
 @DiscriminatorValue("22")
 @Getter
 */
-public class ProductStoWaves/* extends Product*/ {
+public class ProductStoWaves /* extends Product */ {
     /*
     @Override
     public int getContractType() {
@@ -23,5 +23,5 @@ public class ProductStoWaves/* extends Product*/ {
     public BigInteger getCheckGasLimit() {
         return BigInteger.ZERO;
     }
-     */
+    */
 }

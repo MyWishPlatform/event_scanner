@@ -82,7 +82,8 @@ public class Swaps2Monitor {
                                         eventPublisher.publish(new SwapsOrderCreatedEvent(
                                                 event.getNetworkType(),
                                                 swaps2,
-                                                tx));
+                                                tx
+                                        ));
                                     }
                                 })
                                 .map(contractEvent -> {

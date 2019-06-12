@@ -5,6 +5,10 @@ import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
 import io.lastwill.eventscan.events.model.contract.eos.CreateTokenEvent;
 import io.lastwill.eventscan.events.model.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.events.model.utility.PendingStuckEvent;
+import io.lastwill.eventscan.events.model.wishbnbswap.LowBalanceEvent;
+import io.lastwill.eventscan.events.model.wishbnbswap.TokensBurnedEvent;
+import io.lastwill.eventscan.events.model.wishbnbswap.TokensTransferErrorEvent;
+import io.lastwill.eventscan.events.model.wishbnbswap.TokensTransferredEvent;
 import io.lastwill.eventscan.model.*;
 import io.mywish.blockchain.ContractEvent;
 import io.mywish.bot.service.MyWishBot;
@@ -83,6 +87,68 @@ public class BotIntegration {
         } else {
             bot.onContractFailed(network, product.getId(), type, contract.getId(), txLink);
         }
+    }
+
+    @EventListener
+    private void onWishSwapLowBalance(final LowBalanceEvent event) {
+        String bnbAddress = event.getSwapEntry().getLinkEntry().getBnbAddress();
+        String bnbAddressLink = explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET)
+                .buildToAddress(bnbAddress);
+        String ethAddress = event.getSwapEntry().getLinkEntry().getEthAddress();
+        String ethAddressLink = explorerProvider.getOrStub(NetworkType.ETHEREUM_MAINNET)
+                .buildToAddress(ethAddress);
+        String need = toCurrency(event.getCoin(), event.getDecimals(), event.getNeed());
+        String have = toCurrency(event.getCoin(), event.getDecimals(), event.getHave());
+
+        bot.onWishSwapLowBalance(bnbAddress, bnbAddressLink, ethAddress, ethAddressLink, need, have);
+    }
+
+    @EventListener
+    private void onWishSwapBurn(final TokensBurnedEvent event) {
+        String ethAddress = event.getEthAddress();
+        String ethAddressLink = explorerProvider.getOrStub(NetworkType.ETHEREUM_MAINNET)
+                .buildToAddress(ethAddress);
+        String bnbAddress = event.getBnbAddress() != null ? event.getBnbAddress() : "not linked";
+        String bnbAddressLink = event.getBnbAddress() != null
+                ? explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET).buildToAddress(bnbAddress)
+                : "";
+        String amount = toCurrency(event.getCoin(), event.getDecimals(), event.getSwapEntry().getAmount());
+        String burnTx = explorerProvider.getOrStub(NetworkType.ETHEREUM_MAINNET)
+                .buildToTransaction(event.getSwapEntry().getEthTxHash());
+        bot.onWishSwapBurn(ethAddress, ethAddressLink, bnbAddress, bnbAddressLink, amount, burnTx);
+    }
+
+    @EventListener
+    private void onWishSwapTransferError(final TokensTransferErrorEvent event) {
+        String amount = toCurrency(event.getCoin(), event.getDecimals(), event.getWishEntry().getAmount());
+        String bnbTxHash = event.getWishEntry().getBnbTxHash();
+        String bnbTxHashLink = bnbTxHash != null
+                ? explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET).buildToTransaction(bnbTxHash)
+                : "";
+        String bnbAddress = event.getWishEntry().getLinkEntry().getBnbAddress();
+        String bnbAddressLink = bnbAddress != null
+                ? explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET).buildToAddress(bnbAddress)
+                : "";
+        String ethAddress = event.getWishEntry().getLinkEntry().getEthAddress();
+        String ethAddressLink = ethAddress != null
+                ? explorerProvider.getOrStub(NetworkType.ETHEREUM_MAINNET).buildToAddress(ethAddress)
+                : "";
+        bot.onWishSwapTransferError(amount, bnbTxHashLink, bnbAddress, bnbAddressLink, ethAddress, ethAddressLink);
+    }
+
+    @EventListener
+    private void onWishSwapTransfer(final TokensTransferredEvent event) {
+        String amount = toCurrency(event.getCoin(), event.getDecimals(), event.getWishEntry().getAmount());
+        String transferTxLink = explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET)
+                .buildToTransaction(event.getWishEntry().getBnbTxHash());
+        String bnbAddress = event.getWishEntry().getLinkEntry().getBnbAddress();
+        String bnbAddressLink = explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET)
+                .buildToAddress(bnbAddress);
+        String ethAddress = event.getWishEntry().getLinkEntry().getEthAddress();
+        String ethAddressLink = explorerProvider.getOrStub(NetworkType.ETHEREUM_MAINNET)
+                .buildToAddress(ethAddress);
+
+        bot.onWishSwapTransfer(amount, transferTxLink, bnbAddress, bnbAddressLink, ethAddress, ethAddressLink);
     }
 
     @EventListener
@@ -214,13 +280,17 @@ public class BotIntegration {
         }
     }
 
-    @SuppressWarnings("BigDecimalMethodWithoutRoundingCalled")
     private static String toCurrency(CryptoCurrency currency, BigInteger amount) {
+        return toCurrency(currency.toString(), currency.getDecimals(), amount);
+    }
+
+    @SuppressWarnings("BigDecimalMethodWithoutRoundingCalled")
+    private static String toCurrency(String currency, int decimals, BigInteger amount) {
         BigDecimal bdAmount = new BigDecimal(amount)
-                .divide(BigDecimal.TEN.pow(currency.getDecimals()));
+                .divide(BigDecimal.TEN.pow(decimals));
 
         DecimalFormat df = new DecimalFormat();
-        df.setMaximumFractionDigits(currency.getDecimals());
+        df.setMaximumFractionDigits(decimals);
         df.setMinimumFractionDigits(0);
 
         return df.format(bdAmount) + " " + currency;

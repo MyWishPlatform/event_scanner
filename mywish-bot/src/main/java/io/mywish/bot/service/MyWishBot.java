@@ -15,6 +15,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
 import javax.annotation.PostConstruct;
 import java.math.BigInteger;
+import java.text.MessageFormat;
 import java.util.*;
 
 @Slf4j
@@ -96,6 +97,34 @@ public class MyWishBot extends TelegramLongPollingBot {
         if (chatPersister.tryAdd(chatId)) {
             log.info("Bot was added to the chat {}. Now he is in {} chats.", chatId, chatPersister.getCount());
         }
+    }
+
+    public void onWishSwapLowBalance(String bnbAddress, String bnbAddressLink, String ethAddress, String ethAddressLink, String need, String have) {
+        final String message = MessageFormat.format("WISH swap: insufficient funds to send to ({})[{}] (({})[{}]). Need {} but have only {}.",
+                bnbAddress, bnbAddressLink, ethAddress, ethAddressLink, need, have);
+
+        sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
+    }
+
+    public void onWishSwapBurn(String ethAddress, String ethAddressLink, String bnbAddress, String bnbAddressLink, String amount, String burnTx) {
+        final String message = MessageFormat.format("WISH swap: [{}]({}) ([{}]({})) burned ({})[{}].",
+                ethAddress, ethAddressLink, bnbAddress, bnbAddressLink, amount, burnTx);
+
+        sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
+    }
+
+    public void onWishSwapTransferError(String amount, String bnbTxHashLink, String bnbAddress, String bnbAddressLink, String ethAddress, String ethAddressLink) {
+        final String message = MessageFormat.format("WISH swap: ({})[{}] transfer *failed* to ({})[{}] (({})[{}]).",
+                amount, bnbTxHashLink, bnbAddress, bnbAddressLink, ethAddress, ethAddressLink);
+
+        sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
+    }
+
+    public void onWishSwapTransfer(String amount, String transferTxLink, String bnbAddress, String bnbAddressLink, String ethAddress, String ethAddressLink) {
+        final String message = MessageFormat.format("WISH swap: ({})[{}] transferred to ({})[{}] (({})[{}]).",
+                amount, transferTxLink, bnbAddress, bnbAddressLink, ethAddress, ethAddressLink);
+
+        sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
     }
 
     public void onContract(String network, Integer productId, String productType, Integer id, String cost, final String address, String addressLink) {

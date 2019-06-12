@@ -1,6 +1,10 @@
 package io.mywish.binance.blockchain;
 
 import com.binance.dex.api.client.BinanceDexApiClientFactory;
+import com.binance.dex.api.client.BinanceDexApiNodeClient;
+import com.binance.dex.api.client.BinanceDexEnvironment;
+import com.binance.dex.api.client.Wallet;
+import com.binance.dex.api.client.impl.BinanceDexApiNodeClientImpl;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.LastBlockRepository;
 import io.mywish.binance.blockchain.services.BinanceNetwork;
@@ -19,28 +23,31 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan
 public class BinanceBCModule {
-//    @ConditionalOnProperty({"etherscanner.binance.rpc-url.testnet", "etherscanner.binance.hrp.testnet"})
-//    @Bean(name = NetworkType.BINANCE_TESTNET_VALUE)
-//    public BinanceNetwork binanceNetTest(
-//            final @Value("${etherscanner.binance.rpc-url.testnet}") String rpcUrl,
-//            final @Value("${etherscanner.binance.hrp.testnet}") String hrp
-//    ) {
-//        return new BinanceNetwork(
-//                NetworkType.BINANCE_TESTNET,
-//                BinanceDexApiClientFactory.newInstance().newNodeRpcClient(rpcUrl, hrp)
-//        );
-//    }
-
-    @ConditionalOnProperty({"etherscanner.binance.rpc-url.mainnet", "etherscanner.binance.hrp.mainnet"})
-    @Bean(name = NetworkType.BINANCE_MAINNET_VALUE)
-    public BinanceNetwork binanceNetMain(
+    @Bean
+    public BinanceDexEnvironment binanceDexEnvironment(
             final @Value("${etherscanner.binance.rpc-url.mainnet}") String rpcUrl,
             final @Value("${etherscanner.binance.hrp.mainnet}") String hrp
     ) {
-        return new BinanceNetwork(
-                NetworkType.BINANCE_MAINNET,
-                BinanceDexApiClientFactory.newInstance().newNodeRpcClient(rpcUrl, hrp)
-        );
+        return new BinanceDexEnvironment(rpcUrl, "", hrp);
+    }
+
+    @Bean
+    public Wallet binanceWallet(
+            final @Value("${io.lastwill.eventscan.binance.wish-swap.wallet-pk}") String privateKey,
+            BinanceDexEnvironment env
+    ) {
+        return new Wallet(privateKey, env);
+    }
+
+    @Bean
+    public BinanceDexApiNodeClient binanceMainnetClient(BinanceDexEnvironment env) {
+        return BinanceDexApiClientFactory.newInstance().newNodeRpcClient(env.getBaseUrl(), env.getHrp());
+    }
+
+    @ConditionalOnProperty({"etherscanner.binance.rpc-url.mainnet", "etherscanner.binance.hrp.mainnet"})
+    @Bean(name = NetworkType.BINANCE_MAINNET_VALUE)
+    public BinanceNetwork binanceNetMain(final BinanceDexApiNodeClient binanceClient) {
+        return new BinanceNetwork(NetworkType.BINANCE_MAINNET, binanceClient);
     }
 
     @ConditionalOnBean(name = NetworkType.BINANCE_MAINNET_VALUE)
@@ -59,22 +66,6 @@ public class BinanceBCModule {
         );
     }
 
-//    @ConditionalOnBean(name = NetworkType.BINANCE_TESTNET_VALUE)
-//    @Bean
-//    public BinanceScanner binanceScannerTest(
-//            final @Qualifier(NetworkType.BINANCE_TESTNET_VALUE) BinanceNetwork network,
-//            final @Qualifier("binanceTestnetLastBlockPersister") LastBlockPersister lastBlockPersister,
-//            final @Value("${etherscanner.binance.polling-interval-ms}") Long pollingInterval,
-//            final @Value("${etherscanner.binance.commit-chain-length}") Integer commitmentChainLength
-//    ) {
-//        return new BinanceScanner(
-//                network,
-//                lastBlockPersister,
-//                pollingInterval,
-//                commitmentChainLength
-//        );
-//    }
-
     @Configuration
     @ConditionalOnProperty("etherscanner.binance.db-persister")
     public static class DbPersisterConfiguration {
@@ -85,14 +76,6 @@ public class BinanceBCModule {
         ) {
             return new LastBlockDbPersister(NetworkType.BINANCE_MAINNET, lastBlockRepository, lastBlock);
         }
-
-//        @Bean
-//        public LastBlockPersister binanceTestnetLastBlockPersister(
-//                LastBlockRepository lastBlockRepository,
-//                final @Value("${etherscanner.binance.last-block.testnet:#{null}}") Long lastBlock
-//        ) {
-//            return new LastBlockDbPersister(NetworkType.BINANCE_TESTNET, lastBlockRepository, lastBlock);
-//        }
     }
 
     @Configuration
@@ -105,14 +88,6 @@ public class BinanceBCModule {
         ) {
             return new LastBlockFilePersister(NetworkType.BINANCE_MAINNET, dir, lastBlock);
         }
-
-//        @Bean
-//        public LastBlockPersister binanceTestnetLastBlockPersister(
-//                final @Value("${etherscanner.start-block-dir}") String dir,
-//                final @Value("${etherscanner.binance.last-block.testnet:#{null}}") Long lastBlock
-//        ) {
-//            return new LastBlockFilePersister(NetworkType.BINANCE_TESTNET, dir, lastBlock);
-//        }
     }
 
 }

@@ -24,6 +24,7 @@ import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
@@ -98,7 +99,9 @@ public class WishBnbSwapMonitor {
                                 .map(event -> (BnbWishPutEvent) event)
                                 .map(putEvent -> {
                                     String eth = putEvent.getEth().toLowerCase();
-                                    String bnb = putEvent.getBnb().toLowerCase();
+                                    byte[] input = transaction.getOutputs().get(0).getRawOutputScript();
+                                    byte[] bnbBytes = Arrays.copyOfRange(input, input.length - 64, input.length);
+                                    String bnb = new String(bnbBytes).trim();
 
                                     if (linkRepository.existsByEthAddress(eth)) {
                                         log.warn("\"{} : {}\" already linked.", eth, bnb);

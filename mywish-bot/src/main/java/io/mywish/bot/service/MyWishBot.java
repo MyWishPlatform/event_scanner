@@ -99,9 +99,18 @@ public class MyWishBot extends TelegramLongPollingBot {
         }
     }
 
-    public void onWishSwapLowBalance(String bnbAddress, String bnbAddressLink, String ethAddress, String ethAddressLink, String need, String have) {
-        final String message = MessageFormat.format("WISH swap: insufficient funds to send to ({})[{}] (({})[{}]). Need {} but have only {}.",
-                bnbAddress, bnbAddressLink, ethAddress, ethAddressLink, need, have);
+    public void onWishSwapLowBalance(String fromAddress,
+                                     String fromAddressLink,
+                                     String toAddress,
+                                     String toAddressLink,
+                                     String ethAddress,
+                                     String ethAddressLink,
+                                     String need,
+                                     String have) {
+        final String message = MessageFormat.format("WISH swap: insufficient funds to send to ({})[{}] (({})[{}]). " +
+                        "Need {} but have only {}. " +
+                        "Please replenish ({})[{}].",
+                toAddress, toAddressLink, ethAddress, ethAddressLink, need, have, fromAddress, fromAddressLink);
 
         sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
     }

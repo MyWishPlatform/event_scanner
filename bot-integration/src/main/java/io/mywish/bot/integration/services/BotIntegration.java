@@ -91,16 +91,19 @@ public class BotIntegration {
 
     @EventListener
     private void onWishSwapLowBalance(final LowBalanceEvent event) {
-        String bnbAddress = event.getSwapEntry().getLinkEntry().getBnbAddress();
-        String bnbAddressLink = explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET)
-                .buildToAddress(bnbAddress);
+        String fromAddress = event.getFromAddress();
+        String fromAddressLink = explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET)
+                .buildToAddress(fromAddress);
+        String toAddress = event.getSwapEntry().getLinkEntry().getBnbAddress();
+        String toAddressLink = explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET)
+                .buildToAddress(toAddress);
         String ethAddress = event.getSwapEntry().getLinkEntry().getEthAddress();
         String ethAddressLink = explorerProvider.getOrStub(NetworkType.ETHEREUM_MAINNET)
                 .buildToAddress(ethAddress);
         String need = toCurrency(event.getCoin(), event.getDecimals(), event.getNeed());
         String have = toCurrency(event.getCoin(), event.getDecimals(), event.getHave());
 
-        bot.onWishSwapLowBalance(bnbAddress, bnbAddressLink, ethAddress, ethAddressLink, need, have);
+        bot.onWishSwapLowBalance(fromAddress, fromAddressLink, toAddress, toAddressLink, ethAddress, ethAddressLink, need, have);
     }
 
     @EventListener

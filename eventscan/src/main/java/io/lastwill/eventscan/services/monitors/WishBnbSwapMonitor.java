@@ -185,7 +185,8 @@ public class WishBnbSwapMonitor {
                                                 CryptoCurrency.BBNB.getDecimals(),
                                                 swapEntry,
                                                 TRANSFER_FEE,
-                                                bnbBalance
+                                                bnbBalance,
+                                                binanceWallet.getAddress()
                                         ));
                                         return null;
                                     }
@@ -201,7 +202,8 @@ public class WishBnbSwapMonitor {
                                                 CryptoCurrency.BWISH.getDecimals(),
                                                 swapEntry,
                                                 swapEntry.getAmount(),
-                                                wishBalance
+                                                wishBalance,
+                                                binanceWallet.getAddress()
                                         ));
                                         return null;
                                     }

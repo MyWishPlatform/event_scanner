@@ -91,6 +91,8 @@ public class BotIntegration {
 
     @EventListener
     private void onWishSwapLowBalance(final LowBalanceEvent event) {
+        Long linkId = event.getSwapEntry().getLinkEntry().getId();
+        Long swapId = event.getSwapEntry().getId();
         String fromAddress = event.getFromAddress();
         String fromAddressLink = explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET)
                 .buildToAddress(fromAddress);
@@ -103,11 +105,13 @@ public class BotIntegration {
         String need = toCurrency(event.getCoin(), event.getDecimals(), event.getNeed());
         String have = toCurrency(event.getCoin(), event.getDecimals(), event.getHave());
 
-        bot.onWishSwapLowBalance(fromAddress, fromAddressLink, toAddress, toAddressLink, ethAddress, ethAddressLink, need, have);
+        bot.onWishSwapLowBalance(linkId, swapId, fromAddress, fromAddressLink, toAddress, toAddressLink, ethAddress, ethAddressLink, need, have);
     }
 
     @EventListener
     private void onWishSwapBurn(final TokensBurnedEvent event) {
+        Long linkId = event.getSwapEntry().getLinkEntry().getId();
+        Long swapId = event.getSwapEntry().getId();
         String ethAddress = event.getEthAddress();
         String ethAddressLink = explorerProvider.getOrStub(NetworkType.ETHEREUM_MAINNET)
                 .buildToAddress(ethAddress);
@@ -118,11 +122,13 @@ public class BotIntegration {
         String amount = toCurrency(event.getCoin(), event.getDecimals(), event.getSwapEntry().getAmount());
         String burnTx = explorerProvider.getOrStub(NetworkType.ETHEREUM_MAINNET)
                 .buildToTransaction(event.getSwapEntry().getEthTxHash());
-        bot.onWishSwapBurn(ethAddress, ethAddressLink, bnbAddress, bnbAddressLink, amount, burnTx);
+        bot.onWishSwapBurn(linkId, swapId, ethAddress, ethAddressLink, bnbAddress, bnbAddressLink, amount, burnTx);
     }
 
     @EventListener
     private void onWishSwapTransferError(final TokensTransferErrorEvent event) {
+        Long linkId = event.getWishEntry().getLinkEntry().getId();
+        Long swapId = event.getWishEntry().getId();
         String amount = toCurrency(event.getCoin(), event.getDecimals(), event.getWishEntry().getAmount());
         String bnbTxHash = event.getWishEntry().getBnbTxHash();
         String bnbTxHashLink = bnbTxHash != null
@@ -136,11 +142,13 @@ public class BotIntegration {
         String ethAddressLink = ethAddress != null
                 ? explorerProvider.getOrStub(NetworkType.ETHEREUM_MAINNET).buildToAddress(ethAddress)
                 : "";
-        bot.onWishSwapTransferError(amount, bnbTxHashLink, bnbAddress, bnbAddressLink, ethAddress, ethAddressLink);
+        bot.onWishSwapTransferError(linkId, swapId, amount, bnbTxHashLink, bnbAddress, bnbAddressLink, ethAddress, ethAddressLink);
     }
 
     @EventListener
     private void onWishSwapTransfer(final TokensTransferredEvent event) {
+        Long linkId = event.getWishEntry().getLinkEntry().getId();
+        Long swapId = event.getWishEntry().getId();
         String amount = toCurrency(event.getCoin(), event.getDecimals(), event.getWishEntry().getAmount());
         String transferTxLink = explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET)
                 .buildToTransaction(event.getWishEntry().getBnbTxHash());
@@ -151,7 +159,7 @@ public class BotIntegration {
         String ethAddressLink = explorerProvider.getOrStub(NetworkType.ETHEREUM_MAINNET)
                 .buildToAddress(ethAddress);
 
-        bot.onWishSwapTransfer(amount, transferTxLink, bnbAddress, bnbAddressLink, ethAddress, ethAddressLink);
+        bot.onWishSwapTransfer(linkId, swapId, amount, transferTxLink, bnbAddress, bnbAddressLink, ethAddress, ethAddressLink);
     }
 
     @EventListener

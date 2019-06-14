@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -277,8 +278,16 @@ public class WishBnbSwapMonitor {
         return transfer;
     }
 
+    @SuppressWarnings("BigDecimalMethodWithoutRoundingCalled")
     private String toString(BigInteger bnbWishAmount) {
-        return new BigDecimal(bnbWishAmount, CryptoCurrency.BWISH.getDecimals()).toString();
+        BigDecimal bdAmount = new BigDecimal(bnbWishAmount)
+                .divide(BigDecimal.TEN.pow(CryptoCurrency.BWISH.getDecimals()));
+
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(CryptoCurrency.BWISH.getDecimals());
+        df.setMinimumFractionDigits(0);
+
+        return df.format(bdAmount);
     }
 
     private BigInteger convertEthWishToBnbWish(BigInteger amount) {

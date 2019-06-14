@@ -1,4 +1,4 @@
-package io.lastwill.eventscan.services.monitors;
+package io.lastwill.eventscan.services.monitors.wishbnbswap;
 
 import com.binance.dex.api.client.BinanceDexApiNodeClient;
 import com.binance.dex.api.client.BinanceDexConstants;
@@ -8,7 +8,6 @@ import com.binance.dex.api.client.domain.Balance;
 import com.binance.dex.api.client.domain.TransactionMetadata;
 import com.binance.dex.api.client.domain.broadcast.TransactionOption;
 import com.binance.dex.api.client.domain.broadcast.Transfer;
-import io.lastwill.eventscan.events.model.contract.BnbWishPutEvent;
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.events.model.wishbnbswap.LowBalanceEvent;
 import io.lastwill.eventscan.events.model.wishbnbswap.TokensBurnedEvent;
@@ -24,7 +23,6 @@ import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.model.NewBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
@@ -42,7 +40,7 @@ import java.util.Objects;
 
 @Slf4j
 @Component
-public class WishBnbSwapMonitor {
+public class BurnMonitor {
     private static final BigInteger TRANSFER_FEE = BigInteger.valueOf(62500);
 
     @Autowired
@@ -63,9 +61,6 @@ public class WishBnbSwapMonitor {
     @Autowired
     private Wallet binanceWallet;
 
-    @Value("${io.lastwill.eventscan.binance.wish-swap.linker-address}")
-    private String linkerAddress;
-
     @Value("${io.lastwill.eventscan.binance.wish-swap.burner-address}")
     private String burnerAddress;
 
@@ -80,43 +75,6 @@ public class WishBnbSwapMonitor {
 
     @Value("${io.lastwill.eventscan.binance.wish-swap.max-limit:#{null}}")
     private BigInteger wishMaxLimit;
-
-    @EventListener
-    public void onLink(final NewBlockEvent newBlockEvent) {
-        if (newBlockEvent.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {
-            return;
-        }
-
-        newBlockEvent.getTransactionsByAddress()
-                .entrySet()
-                .stream()
-                .filter(entry -> linkerAddress.equalsIgnoreCase(entry.getKey()))
-                .map(Map.Entry::getValue)
-                .flatMap(Collection::stream)
-                .forEach(transaction -> transactionProvider.getTransactionReceiptAsync(newBlockEvent.getNetworkType(), transaction)
-                        .thenAccept(receipt -> receipt.getLogs()
-                                .stream()
-                                .filter(event -> event instanceof BnbWishPutEvent)
-                                .map(event -> (BnbWishPutEvent) event)
-                                .map(putEvent -> {
-                                    String eth = putEvent.getEth().toLowerCase();
-                                    byte[] input = transaction.getOutputs().get(0).getRawOutputScript();
-                                    byte[] bnbBytes = Arrays.copyOfRange(input, input.length - 64, input.length);
-                                    String bnb = new String(bnbBytes).trim();
-
-                                    if (linkRepository.existsByEthAddress(eth)) {
-                                        log.warn("\"{} : {}\" already linked.", eth, bnb);
-                                        return null;
-                                    }
-
-                                    return new WishToBnbLinkEntry(eth, bnb);
-                                })
-                                .filter(Objects::nonNull)
-                                .map(linkRepository::save)
-                                .forEach(linkEntry -> log.info("Linked \"{} : {}\"", linkEntry.getEthAddress(), linkEntry.getBnbAddress()))
-                        )
-                );
-    }
 
     @EventListener
     public void onBurn(final NewBlockEvent newBlockEvent) {

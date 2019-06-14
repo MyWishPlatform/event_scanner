@@ -10,4 +10,7 @@ public interface WishToBnbSwapEntryRepository extends CrudRepository<WishToBnbSw
     @Transactional
     @Query("update WishToBnbSwapEntry e set e.bnbTxHash = :txHash")
     boolean setBnbTxHash(@Param("txHash") String txHash);
+
+    @Query("select e from WishToBnbSwapEntry e where lower(e.ethTxHash) = lower(:ethTxHash)")
+    WishToBnbSwapEntry findByEthTxHash(@Param("ethTxHash") String hash);
 }

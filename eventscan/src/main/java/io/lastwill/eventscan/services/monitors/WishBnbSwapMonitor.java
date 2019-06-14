@@ -148,7 +148,13 @@ public class WishBnbSwapMonitor {
                                         log.warn("\"{}\" not linked", ethAddress);
                                     }
 
-                                    WishToBnbSwapEntry swapEntry = new WishToBnbSwapEntry(
+                                    WishToBnbSwapEntry swapEntry = swapRepository.findByEthTxHash(transaction.getHash());
+                                    if (swapEntry != null) {
+                                        log.warn("Swap entry already in DB: {}", transaction.getHash());
+                                        return null;
+                                    }
+
+                                    swapEntry = new WishToBnbSwapEntry(
                                             linkEntry,
                                             amount,
                                             transaction.getHash()
@@ -167,6 +173,7 @@ public class WishBnbSwapMonitor {
 
                                     return swapEntry;
                                 })
+                                .filter(Objects::nonNull)
                                 .map(swapEntry -> {
                                     if (swapEntry.getLinkEntry() == null) {
                                         return null;

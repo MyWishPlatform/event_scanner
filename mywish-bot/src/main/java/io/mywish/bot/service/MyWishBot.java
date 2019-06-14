@@ -15,7 +15,6 @@ import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
 import javax.annotation.PostConstruct;
 import java.math.BigInteger;
-import java.text.MessageFormat;
 import java.util.*;
 
 @Slf4j
@@ -107,30 +106,30 @@ public class MyWishBot extends TelegramLongPollingBot {
                                      String ethAddressLink,
                                      String need,
                                      String have) {
-        final String message = MessageFormat.format("WISH swap: insufficient funds to send to ({})[{}] (({})[{}]). " +
-                        "Need {} but have only {}. " +
-                        "Please replenish ({})[{}].",
+        final String message = String.format("WISH swap: insufficient funds to send to [%s](%s) ([%s](%s)). " +
+                        "Need %s but have only %s. " +
+                        "Please replenish [%s](%s).",
                 toAddress, toAddressLink, ethAddress, ethAddressLink, need, have, fromAddress, fromAddressLink);
 
         sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
     }
 
     public void onWishSwapBurn(String ethAddress, String ethAddressLink, String bnbAddress, String bnbAddressLink, String amount, String burnTx) {
-        final String message = MessageFormat.format("WISH swap: [{}]({}) ([{}]({})) burned ({})[{}].",
+        final String message = String.format("WISH swap: [%s](%s) ([%s](%s)) burned [%s](%s).",
                 ethAddress, ethAddressLink, bnbAddress, bnbAddressLink, amount, burnTx);
 
         sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
     }
 
     public void onWishSwapTransferError(String amount, String bnbTxHashLink, String bnbAddress, String bnbAddressLink, String ethAddress, String ethAddressLink) {
-        final String message = MessageFormat.format("WISH swap: ({})[{}] transfer *failed* to ({})[{}] (({})[{}]).",
+        final String message = String.format("WISH swap: [%s](%s) transfer *failed* to [%s](%s) ([%s](%s)).",
                 amount, bnbTxHashLink, bnbAddress, bnbAddressLink, ethAddress, ethAddressLink);
 
         sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
     }
 
     public void onWishSwapTransfer(String amount, String transferTxLink, String bnbAddress, String bnbAddressLink, String ethAddress, String ethAddressLink) {
-        final String message = MessageFormat.format("WISH swap: ({})[{}] transferred to ({})[{}] (({})[{}]).",
+        final String message = String.format("WISH swap: [%s](%s) transferred to [%s](%s) ([%s](%s)).",
                 amount, transferTxLink, bnbAddress, bnbAddressLink, ethAddress, ethAddressLink);
 
         sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));

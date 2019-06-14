@@ -158,7 +158,7 @@ public class WishBnbSwapMonitor {
 
                                     eventPublisher.publish(new TokensBurnedEvent(
                                             "WISH",
-                                            CryptoCurrency.WISH.getDecimals(),
+                                            CryptoCurrency.BWISH.getDecimals(),
                                             swapEntry,
                                             ethAddress,
                                             bnbAddress
@@ -168,6 +168,10 @@ public class WishBnbSwapMonitor {
                                 })
                                 .map(swapEntry -> {
                                     if (swapEntry.getLinkEntry() == null) {
+                                        return null;
+                                    }
+
+                                    if (swapEntry.getAmount().equals(BigInteger.ZERO)) {
                                         return null;
                                     }
 
@@ -192,7 +196,7 @@ public class WishBnbSwapMonitor {
                                     }
 
                                     BigInteger wishBalance = getBalance(account, bnbWishSymbol);
-                                    if (wishBalance.compareTo(BigInteger.ZERO) == 0) {
+                                    if (wishBalance.equals(BigInteger.ZERO)) {
                                         return null;
                                     }
 
@@ -220,7 +224,12 @@ public class WishBnbSwapMonitor {
                                                 swapEntry.getAmount()
                                         );
 
-                                        String txHash = results.get(0).getHash();
+                                        TransactionMetadata result = results.get(0);
+                                        if (!result.isOk()) {
+                                            throw new Exception();
+                                        }
+
+                                        String txHash = result.getHash();
                                         swapEntry.setBnbTxHash(txHash);
                                         swapRepository.save(swapEntry);
                                         log.info("Bep-2 tokens transferred: {}", txHash);
@@ -231,7 +240,7 @@ public class WishBnbSwapMonitor {
                                                 swapEntry
                                         ));
                                     } catch (Exception e) {
-                                        log.error("Error when transferring BEP-2 WISH.");
+                                        log.error("Error when transferring BEP-2 WISH.", e);
 
                                         eventPublisher.publish(new TokensTransferErrorEvent(
                                                 bnbWishSymbol,
@@ -264,7 +273,7 @@ public class WishBnbSwapMonitor {
         transfer.setFromAddress(from);
         transfer.setToAddress(to);
         transfer.setCoin(coin);
-        transfer.setAmount(amount.toString());
+        transfer.setAmount(toString(amount));
         return transfer;
     }
 

@@ -149,6 +149,7 @@ public class Bep2WishSender {
         DecimalFormat df = new DecimalFormat();
         df.setMaximumFractionDigits(CryptoCurrency.BWISH.getDecimals());
         df.setMinimumFractionDigits(0);
+        df.setGroupingUsed(false);
 
         return df.format(bdAmount);
     }

@@ -32,7 +32,7 @@ import java.util.Objects;
 @Slf4j
 @Component
 public class Bep2WishSender {
-    private static final BigInteger TRANSFER_FEE = BigInteger.valueOf(62500);
+    private static final BigInteger TRANSFER_FEE = BigInteger.valueOf(37500);
 
     @Autowired
     private EventPublisher eventPublisher;

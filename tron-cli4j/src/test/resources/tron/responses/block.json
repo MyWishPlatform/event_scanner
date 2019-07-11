@@ -15,6 +15,35 @@
     {
       "ret": [
         {
+          "contractRet": "SUCCESS"
+        }
+      ],
+      "signature": [
+        "ea7fa32f3c36a60dfd33277a5e080dc23f9a2deaede4bcf899131611ea8369cf33cf8850beb85a4f46833d022be223a2be81863dc060a04412d74d1f58be9b5d01"
+      ],
+      "txID": "8400a8536be8868f357a6cf527bd17726f52443c8f2ff6b748e00b829c2f4c71",
+      "raw_data": {
+        "contract": [
+          {
+            "parameter": {
+              "value": {
+                "owner_address": "41052430e1250009f5753db04641d01fab57c65677",
+                "contract_address": "413a16eb875e1df9487a7c3f84ece7a109dd610d1a"
+              },
+              "type_url": "type.googleapis.com/protocol.ClearABIContract"
+            },
+            "type": "ClearABIContract"
+          }
+        ],
+        "ref_block_bytes": "b7e4",
+        "ref_block_hash": "2b249d516b18cd65",
+        "expiration": 1562587290000,
+        "timestamp": 1562587231380
+      }
+    },
+    {
+      "ret": [
+        {
           "contractRet": "REVERT"
         }
       ],

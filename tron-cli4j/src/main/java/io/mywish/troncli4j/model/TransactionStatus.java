@@ -15,4 +15,5 @@ public enum TransactionStatus {
     OUT_OF_TIME,
     JVM_STACK_OVER_FLOW,
     UNKNOWN,
+    TRANSFER_FAILED
 }

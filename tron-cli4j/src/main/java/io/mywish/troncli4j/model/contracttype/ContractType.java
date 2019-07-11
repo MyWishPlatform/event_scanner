@@ -40,6 +40,7 @@ public abstract class ContractType {
         ExchangeWithdrawContract,
         ExchangeTransactionContract,
         UpdateEnergyLimitContract,
-        AccountPermissionUpdateContract
+        AccountPermissionUpdateContract,
+        ClearABIContract
     }
 }

@@ -9,16 +9,16 @@ import javax.persistence.*;
 import java.math.BigInteger;
 
 @Entity
-@Table(name = "wish_bnb_swap_swap_entry")
+@Table(name = "eth_bnb_swap_swap_entry")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class WishToBnbSwapEntry {
+public class EthToBnbSwapEntry  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(optional = false)
-    private WishToBnbLinkEntry linkEntry;
+    private EthToBnbLinkEntry linkEntry;
 
     private BigInteger amount;
 
@@ -27,7 +27,7 @@ public class WishToBnbSwapEntry {
     @Setter
     private String bnbTxHash;
 
-    public WishToBnbSwapEntry(WishToBnbLinkEntry linkEntry, BigInteger amount, String ethTxHash) {
+    public EthToBnbSwapEntry(EthToBnbLinkEntry linkEntry, BigInteger amount, String ethTxHash) {
         this.linkEntry = linkEntry;
         this.amount = amount;
         this.ethTxHash = ethTxHash;

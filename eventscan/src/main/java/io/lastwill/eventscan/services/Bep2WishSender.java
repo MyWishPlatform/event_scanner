@@ -12,9 +12,9 @@ import io.lastwill.eventscan.events.model.wishbnbswap.LowBalanceEvent;
 import io.lastwill.eventscan.events.model.wishbnbswap.TokensTransferErrorEvent;
 import io.lastwill.eventscan.events.model.wishbnbswap.TokensTransferredEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
-import io.lastwill.eventscan.model.WishToBnbLinkEntry;
-import io.lastwill.eventscan.model.WishToBnbSwapEntry;
-import io.lastwill.eventscan.repositories.WishToBnbSwapEntryRepository;
+import io.lastwill.eventscan.model.EthToBnbLinkEntry;
+import io.lastwill.eventscan.model.EthToBnbSwapEntry;
+import io.lastwill.eventscan.repositories.EthToBnbSwapEntryRepository;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class Bep2WishSender {
     private BinanceDexApiNodeClient binanceClient;
 
     @Autowired
-    private WishToBnbSwapEntryRepository swapRepository;
+    private EthToBnbSwapEntryRepository swapRepository;
 
     @Autowired
     private Wallet binanceWallet;
@@ -61,7 +61,7 @@ public class Bep2WishSender {
     @Value("${io.lastwill.eventscan.binance.wish-swap.max-limit:#{null}}")
     private BigInteger wishMaxLimit;
 
-    public void send(WishToBnbSwapEntry swapEntry) {
+    public void send(EthToBnbSwapEntry swapEntry) {
         if (swapEntry.getLinkEntry() == null) {
             return;
         }
@@ -107,7 +107,7 @@ public class Bep2WishSender {
             return;
         }
 
-        WishToBnbLinkEntry link = swapEntry.getLinkEntry();
+        EthToBnbLinkEntry link = swapEntry.getLinkEntry();
         try {
             List<TransactionMetadata> results = transfer(
                     link.getEthAddress(),

@@ -1,7 +1,7 @@
 package io.lastwill.eventscan.services.monitors.ethbnbswap;
 
 import io.lastwill.eventscan.events.model.contract.BnbWishPutEvent;
-import io.lastwill.eventscan.events.model.wishbnbswap.LinkerAddressByCoin;
+import io.lastwill.eventscan.events.model.wishbnbswap.AddressByCoin;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.EthToBnbLinkEntry;
 import io.lastwill.eventscan.repositories.EthToBnbLinkEntryRepository;
@@ -26,7 +26,7 @@ public class LinkMonitor {
     private EthToBnbLinkEntryRepository linkRepository;
 
     @Autowired
-    private LinkerAddressByCoin linkerAddressByCoin;
+    private AddressByCoin addressByCoin;
 
 
     @EventListener
@@ -38,7 +38,7 @@ public class LinkMonitor {
         newBlockEvent.getTransactionsByAddress()
                 .entrySet()
                 .stream()
-                .filter(entry -> linkerAddressByCoin.getAddressByCoin().keySet().contains(entry.getKey()))//linkerAddress.equalsIgnoreCase(entry.getKey()))
+                .filter(entry -> addressByCoin.getLinkerAddressByCoin().keySet().contains(entry.getKey()))//linkerAddress.equalsIgnoreCase(entry.getKey()))
                 .map(Map.Entry::getValue)
                 .flatMap(Collection::stream)
                 .forEach(transaction -> transactionProvider.getTransactionReceiptAsync(newBlockEvent.getNetworkType(), transaction)
@@ -48,7 +48,7 @@ public class LinkMonitor {
                                 .map(event -> (BnbWishPutEvent) event)
                                 .map(putEvent -> {
                                     String address = putEvent.getAddress();
-                                    String coin = linkerAddressByCoin.getAddressByCoin().get(address).name();
+                                    String coin = addressByCoin.getLinkerAddressByCoin().get(address).name();
                                     String eth = putEvent.getEth().toLowerCase();
                                     byte[] input = transaction.getOutputs().get(0).getRawOutputScript();
                                     byte[] bnbBytes = Arrays.copyOfRange(input, input.length - 64, input.length);

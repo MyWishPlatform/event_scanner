@@ -2,7 +2,7 @@ package io.lastwill.eventscan.events.model.wishbnbswap;
 
 import io.lastwill.eventscan.events.model.BaseEvent;
 import io.lastwill.eventscan.model.NetworkType;
-import io.lastwill.eventscan.model.WishToBnbSwapEntry;
+import io.lastwill.eventscan.model.EthToBnbSwapEntry;
 import lombok.Getter;
 
 import java.math.BigInteger;
@@ -11,12 +11,12 @@ import java.math.BigInteger;
 public class LowBalanceEvent extends BaseEvent {
     private final String coin;
     private final int decimals;
-    private final WishToBnbSwapEntry swapEntry;
+    private final EthToBnbSwapEntry swapEntry;
     private final BigInteger need;
     private final BigInteger have;
     private final String fromAddress;
 
-    public LowBalanceEvent(String coin, int decimals, WishToBnbSwapEntry swapEntry, BigInteger need, BigInteger have, String fromAddress) {
+    public LowBalanceEvent(String coin, int decimals, EthToBnbSwapEntry swapEntry, BigInteger need, BigInteger have, String fromAddress) {
         super(NetworkType.BINANCE_MAINNET);
         this.coin = coin;
         this.decimals = decimals;

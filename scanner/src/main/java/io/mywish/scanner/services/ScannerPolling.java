@@ -21,7 +21,7 @@ public abstract class ScannerPolling extends Scanner {
     @Getter
     private int commitmentChainLength;
     @Getter
-    private long pollingInterval;
+    private final long pollingInterval;
     @Getter
     private final long reachInterval;
 
@@ -30,59 +30,62 @@ public abstract class ScannerPolling extends Scanner {
     private final Runnable poller = () -> {
         while (!isTerminated.get()) {
             try {
-                long start = System.currentTimeMillis();
-                lastBlockNo = network.getLastBlock();
-                if (log.isDebugEnabled()) {
-                    log.debug("Get actual block no: {} ms.", System.currentTimeMillis() - start);
-                }
-
-                loadNextBlock();
-
-                if (lastBlockNo - nextBlockNo > commitmentChainLength) {
-                    log.debug("Process next block {}/{} immediately.", nextBlockNo, lastBlockNo);
-                    continue;
-                }
-
-                long interval = System.currentTimeMillis() - lastBlockIncrementTimestamp;
-                if (interval > WARN_INTERVAL) {
-                    log.warn("{}: there is no block from {} ms!", network.getType(), interval);
-                }
-                else if (interval > INFO_INTERVAL) {
-                    log.info("{}: there is no block from {} ms.", network.getType(), interval);
-                }
-
-                if (network.isPendingTransactionsSupported()) {
-                    log.debug("Get actual list of pending.");
-                    List<WrapperTransaction> pendingTxs = network.fetchPendingTransactions();
-                    if (!pendingTxs.isEmpty()) {
-                        eventPublisher.publish(new NewPendingTransactionsEvent(
-                                network.getType(),
-                                pendingTxs
-                        ));
-                    }
-                }
-
-                log.debug("All blocks processed, wait new one.");
-                synchronized (sync) {
-                    sync.wait(pollingInterval);
-                }
+                polling();
             }
             catch (InterruptedException e) {
                 log.warn("{}: polling cycle was interrupted.", network.getType(), e);
                 break;
             }
-            catch (Throwable e) {
-                log.error("{}: exception handled in polling cycle. Continue.", network.getType(), e);
-                try {
-                    Thread.sleep(pollingInterval);
-                }
-                catch (InterruptedException e1) {
-                    log.warn("{}: polling cycle was interrupted after error.", network.getType(), e1);
-                    break;
-                }
-            }
         }
     };
+
+    private void polling() throws InterruptedException {
+        try {
+            long start = System.currentTimeMillis();
+            lastBlockNo = network.getLastBlock();
+            if (log.isDebugEnabled()) {
+                log.debug("Get actual block no: {} ms.", System.currentTimeMillis() - start);
+            }
+
+            loadNextBlock();
+
+            if (lastBlockNo - nextBlockNo > commitmentChainLength) {
+                if (reachInterval > 0) {
+                    Thread.sleep(reachInterval);
+                }
+                log.debug("Process next block {}/{} immediately.", nextBlockNo, lastBlockNo);
+                return;
+            }
+
+            long interval = System.currentTimeMillis() - lastBlockIncrementTimestamp;
+            if (interval > WARN_INTERVAL) {
+                log.warn("{}: there is no block from {} ms!", network.getType(), interval);
+            } else if (interval > INFO_INTERVAL) {
+                log.info("{}: there is no block from {} ms.", network.getType(), interval);
+            }
+
+            if (network.isPendingTransactionsSupported()) {
+                log.debug("Get actual list of pending.");
+                List<WrapperTransaction> pendingTxs = network.fetchPendingTransactions();
+                if (!pendingTxs.isEmpty()) {
+                    eventPublisher.publish(new NewPendingTransactionsEvent(
+                            network.getType(),
+                            pendingTxs
+                    ));
+                }
+            }
+
+            log.debug("All blocks processed, wait new one.");
+            synchronized (sync) {
+                sync.wait(pollingInterval);
+            }
+        } catch (InterruptedException e) {
+            throw e;
+        } catch (Throwable e) {
+            log.error("{}: exception handled in polling cycle. Continue.", network.getType(), e);
+            Thread.sleep(pollingInterval);
+        }
+    }
 
     private void loadNextBlock() throws Exception {
         long delta = lastBlockNo - nextBlockNo;
@@ -91,9 +94,6 @@ public abstract class ScannerPolling extends Scanner {
         }
 
         long start = System.currentTimeMillis();
-        if (reachInterval > 0) {
-            Thread.sleep(reachInterval);
-        }
         WrapperBlock block = network.getBlock(nextBlockNo);
         if (log.isDebugEnabled()) {
             log.debug("Get next block: {} ms.", System.currentTimeMillis() - start);

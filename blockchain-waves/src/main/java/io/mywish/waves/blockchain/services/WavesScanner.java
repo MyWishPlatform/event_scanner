@@ -16,6 +16,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class WavesScanner extends ScannerPolling {
     private final AtomicInteger counter = new AtomicInteger(0);
 
+    public WavesScanner(WavesNetwork network, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength, Long defaultInterval) {
+        super(network, lastBlockPersister, pollingInterval, commitmentChainLength, defaultInterval);
+    }
+
     public WavesScanner(WavesNetwork network, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength) {
         super(network, lastBlockPersister, pollingInterval, commitmentChainLength);
     }

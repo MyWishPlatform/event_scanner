@@ -21,9 +21,9 @@ public class WavesNetwork extends WrapperNetwork {
     @Autowired
     private WrapperTransactionReceiptWavesService transactionReceiptBuilder;
 
-    public WavesNetwork(NetworkType type, WavesClient wabesClient) {
+    public WavesNetwork(NetworkType type, WavesClient wavesClient) {
         super(type);
-        this.wavesClient = wabesClient;
+        this.wavesClient = wavesClient;
     }
 
     @Override

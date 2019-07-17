@@ -17,23 +17,29 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import java.net.URISyntaxException;
 
 @Configuration
 @ComponentScan
 public class WavesBCModule {
-    /*@ConditionalOnProperty("etherscanner.waves.rpc-url.mainnet")
+    @ConditionalOnProperty("etherscanner.waves.rpc-url.mainnet")
     @Bean(name = NetworkType.WAVES_MAINNET_VALUE)
     public WavesNetwork wavesNetMain(
             final CloseableHttpClient httpClient,
-            final @Value("${etherscanner.waves.rpc-url.mainnet}") String rpcUrl
+            final @Value("${etherscanner.waves.rpc-url.mainnet}") String rpcUrl,
+            ObjectMapper objectMapper
     ) throws URISyntaxException {
         return new WavesNetwork(
                 NetworkType.WAVES_MAINNET,
-                new Node(rpcUrl, 'W', httpClient)
+               //(WavesClient) new Node(rpcUrl, 'W', httpClient)
+                new WavesClientImpl(
+                        httpClient,
+                        rpcUrl,
+                        objectMapper
+                )
         );
-    }*/
+    }
 
-    /*
     @ConditionalOnProperty("etherscanner.waves.rpc-url.testnet")
     @Bean(name = NetworkType.WAVES_TESTNET_VALUE)
     public WavesNetwork wavesNetTest(
@@ -51,25 +57,25 @@ public class WavesBCModule {
                 )
         );
     }
-     */
 
-    /*@ConditionalOnBean(name = NetworkType.WAVES_MAINNET_VALUE)
+    @ConditionalOnBean(name = NetworkType.WAVES_MAINNET_VALUE)
     @Bean
     public WavesScanner wavesScannerMain(
             final @Qualifier(NetworkType.WAVES_MAINNET_VALUE) WavesNetwork network,
             final @Qualifier("wavesMainnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.waves.polling-interval-ms}") Long pollingInterval,
-            final @Value("${etherscanner.waves.commit-chain-length}") Integer commitmentChainLength
+            final @Value("${etherscanner.waves.commit-chain-length}") Integer commitmentChainLength,
+            final @Value("${etherscanner.waves.default-interval-ms}") Long defaultInterval
     ) {
         return new WavesScanner(
                 network,
                 lastBlockPersister,
                 pollingInterval,
-                commitmentChainLength
+                commitmentChainLength,
+                defaultInterval
         );
-    }*/
+    }
 
-    /*
     @ConditionalOnBean(name = NetworkType.WAVES_TESTNET_VALUE)
     @Bean
     public WavesScanner wavesScannerTest(
@@ -85,20 +91,18 @@ public class WavesBCModule {
                 commitmentChainLength
         );
     }
-     */
 
     @Configuration
     @ConditionalOnProperty("etherscanner.waves.db-persister")
     public static class DbPersisterConfiguration {
-        /*@Bean
+        @Bean
         public LastBlockPersister wavesMainnetLastBlockPersister(
                 LastBlockRepository lastBlockRepository,
                 final @Value("${etherscanner.waves.last-block.mainnet:#{null}}") Long lastBlock
         ) {
             return new LastBlockDbPersister(NetworkType.WAVES_MAINNET, lastBlockRepository, lastBlock);
-        }*/
+        }
 
-        /*
         @Bean
         public LastBlockPersister wavesTestnetLastBlockPersister(
                 LastBlockRepository lastBlockRepository,
@@ -106,21 +110,19 @@ public class WavesBCModule {
         ) {
             return new LastBlockDbPersister(NetworkType.WAVES_TESTNET, lastBlockRepository, lastBlock);
         }
-         */
     }
 
     @Configuration
     @ConditionalOnProperty(value = "etherscanner.waves.db-persister", havingValue = "false", matchIfMissing = true)
     public static class FilePersisterConfiguration {
-        /*@Bean
+        @Bean
         public LastBlockPersister wavesMainnetLastBlockPersister(
                 final @Value("${etherscanner.start-block-dir}") String dir,
                 final @Value("${etherscanner.waves.last-block.mainnet:#{null}}") Long lastBlock
         ) {
             return new LastBlockFilePersister(NetworkType.WAVES_MAINNET, dir, lastBlock);
-        }*/
+        }
 
-        /*
         @Bean
         public LastBlockPersister wavesTestnetLastBlockPersister(
                 final @Value("${etherscanner.start-block-dir}") String dir,
@@ -128,6 +130,5 @@ public class WavesBCModule {
         ) {
             return new LastBlockFilePersister(NetworkType.WAVES_TESTNET, dir, lastBlock);
         }
-         */
     }
 }

@@ -65,14 +65,14 @@ public class WavesBCModule {
             final @Qualifier("wavesMainnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.waves.polling-interval-ms}") Long pollingInterval,
             final @Value("${etherscanner.waves.commit-chain-length}") Integer commitmentChainLength,
-            final @Value("${etherscanner.waves.default-interval-ms}") Long defaultInterval
+            final @Value("${etherscanner.waves.reach-interval-ms}") Long reachInterval
     ) {
         return new WavesScanner(
                 network,
                 lastBlockPersister,
                 pollingInterval,
                 commitmentChainLength,
-                defaultInterval
+                reachInterval
         );
     }
 

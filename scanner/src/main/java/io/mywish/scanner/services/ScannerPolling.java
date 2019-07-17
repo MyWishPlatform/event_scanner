@@ -23,7 +23,7 @@ public abstract class ScannerPolling extends Scanner {
     @Getter
     private long pollingInterval;
     @Getter
-    private long defaultInterval;
+    private final long reachInterval;
 
     protected final AtomicBoolean isTerminated = new AtomicBoolean(false);
 
@@ -91,8 +91,8 @@ public abstract class ScannerPolling extends Scanner {
         }
 
         long start = System.currentTimeMillis();
-        if (defaultInterval > 0) {
-            Thread.sleep(defaultInterval);
+        if (reachInterval > 0) {
+            Thread.sleep(reachInterval);
         }
         WrapperBlock block = network.getBlock(nextBlockNo);
         if (log.isDebugEnabled()) {
@@ -113,15 +113,15 @@ public abstract class ScannerPolling extends Scanner {
         this.setWorker(poller);
         this.commitmentChainLength = commitmentChainLength;
         this.pollingInterval = pollingInterval;
-        this.defaultInterval = 0L;
+        this.reachInterval = 0L;
     }
 
-    public ScannerPolling(WrapperNetwork network, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength, Long defaultInterval) {
+    public ScannerPolling(WrapperNetwork network, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength, Long reachInterval) {
         super(network, lastBlockPersister);
         this.setWorker(poller);
         this.commitmentChainLength = commitmentChainLength;
         this.pollingInterval = pollingInterval;
-        this.defaultInterval = defaultInterval;
+        this.reachInterval = reachInterval;
     }
 
     @PostConstruct

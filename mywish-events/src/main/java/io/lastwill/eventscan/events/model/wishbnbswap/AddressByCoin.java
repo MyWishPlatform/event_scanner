@@ -15,10 +15,10 @@ public class AddressByCoin {
     private String wishLinkAddress;
 
     @Value("${io.lastwill.eventscan.binance.wish-swap.burner-address}")
-    private String wishBurnerAddress;
+    private String ethBurnerAddress;
 
     @Value("${io.lastwill.eventscan.contract.token-address.wish}")
-    private String wishTokenAddress;
+    private String ethTokenAddress;
 
     private Map<String, SwapsCoin> linkerAddressByCoin = new HashMap<>();
     private Map<SwapsCoin, String> burnerAddressByCoin = new HashMap<>();
@@ -30,8 +30,8 @@ public class AddressByCoin {
 
      public AddressByCoin() {
         linkerAddressByCoin.put(wishLinkAddress, SwapsCoin.WISH);
-        burnerAddressByCoin.put(SwapsCoin.WISH, wishBurnerAddress);
-        tokenAddressByCoin.put(wishTokenAddress, SwapsCoin.WISH);
+        burnerAddressByCoin.put(SwapsCoin.WISH, ethBurnerAddress);
+        tokenAddressByCoin.put(ethTokenAddress, SwapsCoin.WISH);
 
     }
 

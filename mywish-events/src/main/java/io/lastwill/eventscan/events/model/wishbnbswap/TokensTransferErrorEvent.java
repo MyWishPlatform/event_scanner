@@ -9,16 +9,16 @@ import lombok.Getter;
 public class TokensTransferErrorEvent extends BaseEvent {
     private final String coin;
     private final int decimals;
-    private final EthToBnbSwapEntry wishEntry;
+    private final EthToBnbSwapEntry ethEntry;
 
     public TokensTransferErrorEvent(
             String coin,
             int decimals,
-            EthToBnbSwapEntry wishEntry
+            EthToBnbSwapEntry ethEntry
     ) {
         super(NetworkType.ETHEREUM_MAINNET);
         this.coin = coin;
         this.decimals = decimals;
-        this.wishEntry = wishEntry;
+        this.ethEntry = ethEntry;
     }
 }

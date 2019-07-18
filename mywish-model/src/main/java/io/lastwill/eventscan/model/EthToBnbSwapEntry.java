@@ -22,9 +22,11 @@ public class EthToBnbSwapEntry  {
 
     private BigInteger amount;
 
+    @Column(name = "eth_tx_hash")
     private String ethTxHash;
 
     @Setter
+    @Column(name = "bnb_tx_hash")
     private String bnbTxHash;
 
     public EthToBnbSwapEntry(EthToBnbLinkEntry linkEntry, BigInteger amount, String ethTxHash) {

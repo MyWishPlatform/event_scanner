@@ -127,18 +127,18 @@ public class BotIntegration {
 
     @EventListener
     private void onWishSwapTransferError(final TokensTransferErrorEvent event) {
-        Long linkId = event.getWishEntry().getLinkEntry().getId();
-        Long swapId = event.getWishEntry().getId();
-        String amount = toCurrency(event.getCoin(), event.getDecimals(), event.getWishEntry().getAmount());
-        String bnbTxHash = event.getWishEntry().getBnbTxHash();
+        Long linkId = event.getEthEntry().getLinkEntry().getId();
+        Long swapId = event.getEthEntry().getId();
+        String amount = toCurrency(event.getCoin(), event.getDecimals(), event.getEthEntry().getAmount());
+        String bnbTxHash = event.getEthEntry().getBnbTxHash();
         String bnbTxHashLink = bnbTxHash != null
                 ? explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET).buildToTransaction(bnbTxHash)
                 : "";
-        String bnbAddress = event.getWishEntry().getLinkEntry().getBnbAddress();
+        String bnbAddress = event.getEthEntry().getLinkEntry().getBnbAddress();
         String bnbAddressLink = bnbAddress != null
                 ? explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET).buildToAddress(bnbAddress)
                 : "";
-        String ethAddress = event.getWishEntry().getLinkEntry().getEthAddress();
+        String ethAddress = event.getEthEntry().getLinkEntry().getEthAddress();
         String ethAddressLink = ethAddress != null
                 ? explorerProvider.getOrStub(NetworkType.ETHEREUM_MAINNET).buildToAddress(ethAddress)
                 : "";
@@ -147,15 +147,15 @@ public class BotIntegration {
 
     @EventListener
     private void onWishSwapTransfer(final TokensTransferredEvent event) {
-        Long linkId = event.getWishEntry().getLinkEntry().getId();
-        Long swapId = event.getWishEntry().getId();
-        String amount = toCurrency(event.getCoin(), event.getDecimals(), event.getWishEntry().getAmount());
+        Long linkId = event.getEthEntry().getLinkEntry().getId();
+        Long swapId = event.getEthEntry().getId();
+        String amount = toCurrency(event.getCoin(), event.getDecimals(), event.getEthEntry().getAmount());
         String transferTxLink = explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET)
-                .buildToTransaction(event.getWishEntry().getBnbTxHash());
-        String bnbAddress = event.getWishEntry().getLinkEntry().getBnbAddress();
+                .buildToTransaction(event.getEthEntry().getBnbTxHash());
+        String bnbAddress = event.getEthEntry().getLinkEntry().getBnbAddress();
         String bnbAddressLink = explorerProvider.getOrStub(NetworkType.BINANCE_MAINNET)
                 .buildToAddress(bnbAddress);
-        String ethAddress = event.getWishEntry().getLinkEntry().getEthAddress();
+        String ethAddress = event.getEthEntry().getLinkEntry().getEthAddress();
         String ethAddressLink = explorerProvider.getOrStub(NetworkType.ETHEREUM_MAINNET)
                 .buildToAddress(ethAddress);
 

@@ -7,8 +7,10 @@ import com.binance.dex.api.client.Wallet;
 import com.binance.dex.api.client.impl.BinanceDexApiNodeClientImpl;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.LastBlockRepository;
+import io.mywish.binance.blockchain.model.WrapperWallet;
 import io.mywish.binance.blockchain.services.BinanceNetwork;
 import io.mywish.binance.blockchain.services.BinanceScanner;
+import io.mywish.binance.blockchain.services.Wallets;
 import io.mywish.scanner.services.LastBlockDbPersister;
 import io.mywish.scanner.services.LastBlockFilePersister;
 import io.mywish.scanner.services.LastBlockPersister;
@@ -19,6 +21,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 @ComponentScan
@@ -32,11 +36,8 @@ public class BinanceBCModule {
     }
 
     @Bean
-    public Wallet binanceWallet(
-            final @Value("${io.lastwill.eventscan.binance.wish-swap.wallet-pk}") String privateKey,
-            BinanceDexEnvironment env
-    ) {
-        return new Wallet(privateKey, env);
+    public Wallets wallets(List<WrapperWallet> wallets) {
+        return new Wallets(wallets);
     }
 
     @Bean

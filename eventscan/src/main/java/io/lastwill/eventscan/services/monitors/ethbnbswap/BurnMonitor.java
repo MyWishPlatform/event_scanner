@@ -1,7 +1,8 @@
 package io.lastwill.eventscan.services.monitors.ethbnbswap;
 
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
-import io.lastwill.eventscan.events.model.wishbnbswap.AddressByCoin;
+import io.lastwill.eventscan.events.model.wishbnbswap.EthBnbProfile;
+import io.lastwill.eventscan.events.model.wishbnbswap.ProfileStorage;
 import io.lastwill.eventscan.events.model.wishbnbswap.TokensBurnedEvent;
 import io.lastwill.eventscan.model.*;
 import io.lastwill.eventscan.repositories.EthToBnbLinkEntryRepository;
@@ -16,8 +17,8 @@ import org.springframework.context.event.EventListener;
 
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 
@@ -38,9 +39,13 @@ public class BurnMonitor {
     private Bep2WishSender wishSender;
 
     @Autowired
-    private AddressByCoin addressByCoin;
+    private ProfileStorage profileStorage;
 
-    private String coin;
+    private EthBnbProfile ethBnbProfile;
+
+    private CryptoCurrency ethCoin;
+
+    private CryptoCurrency bnbCoin;
 
     private String burnerAddress;
 
@@ -55,10 +60,20 @@ public class BurnMonitor {
         newBlockEvent.getTransactionsByAddress()
                 .entrySet()
                 .stream()
-                .filter(entry -> addressByCoin.getTokenAddressByCoin().keySet().contains(entry.getKey()))
+                .filter(entry -> profileStorage.getEthBnbProfiles()
+                        .stream()
+                        .map(EthBnbProfile::getEthTokenAddress)
+                        .collect(Collectors.toList())
+                        .contains(entry.getKey()))
                 .map(entry -> {
-                    coin = addressByCoin.getTokenAddressByCoin().get(entry.getKey()).name();
-                    burnerAddress = addressByCoin.getBurnerAddressByCoin().get(AddressByCoin.SwapsCoin.valueOf(coin));
+                    this.ethBnbProfile = profileStorage.getEthBnbProfiles()
+                            .stream()
+                            .filter(profile -> profile.getEthTokenAddress().equals(entry.getKey()))
+                            .findFirst()
+                            .get();
+                    ethCoin = ethBnbProfile.getEth();
+                    burnerAddress = ethBnbProfile.getEthBurnerAddress();
+                    bnbCoin = ethBnbProfile.getBnb();
                     return entry.getValue();
                 })
                 .flatMap(Collection::stream)
@@ -86,18 +101,18 @@ public class BurnMonitor {
                                         return null;
                                     }
 
-                                    swapEntry = this.generateSwapEntry(
+                                    swapEntry = new EthToBnbSwapEntry(
                                             linkEntry,
                                             amount,
                                             transaction.getHash()
                                     );
                                     swapEntry = swapRepository.save(swapEntry);
 
-                                    log.info("{} burned {} {}", ethAddress, wishSender.toString(amount), coin);
+                                    log.info("{} burned {} {}", ethAddress, wishSender.toString(amount), ethCoin);
 
                                     eventPublisher.publish(new TokensBurnedEvent(
-                                            coin,
-                                            CryptoCurrency.BWISH.getDecimals(),//BWISH
+                                            ethCoin.getSymbol(),
+                                            bnbCoin.getDecimals(),
                                             swapEntry,
                                             ethAddress,
                                             bnbAddress
@@ -112,15 +127,11 @@ public class BurnMonitor {
     }
 
     protected BigInteger convertEthToBnb(BigInteger amount) {
-        int ethWishDecimals = CryptoCurrency.WISH.getDecimals();
-        int bnbWishDecimals = CryptoCurrency.BWISH.getDecimals();
+        int ethWishDecimals = ethCoin.getDecimals();
+        int bnbWishDecimals = bnbCoin.getDecimals();
 
         return amount
                 .multiply(BigInteger.TEN.pow(bnbWishDecimals))
                 .divide(BigInteger.TEN.pow(ethWishDecimals));
-    }
-
-    protected  EthToBnbSwapEntry generateSwapEntry(EthToBnbLinkEntry linkEntry, BigInteger amount, String ethTxHash) {
-        return new EthToBnbSwapEntry(linkEntry, amount, ethTxHash);
     }
 }

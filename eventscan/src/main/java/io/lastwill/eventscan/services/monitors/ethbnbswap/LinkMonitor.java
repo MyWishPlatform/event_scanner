@@ -1,7 +1,8 @@
 package io.lastwill.eventscan.services.monitors.ethbnbswap;
 
 import io.lastwill.eventscan.events.model.contract.BnbWishPutEvent;
-import io.lastwill.eventscan.events.model.wishbnbswap.AddressByCoin;
+import io.lastwill.eventscan.events.model.wishbnbswap.EthBnbProfile;
+import io.lastwill.eventscan.events.model.wishbnbswap.ProfileStorage;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.EthToBnbLinkEntry;
 import io.lastwill.eventscan.repositories.EthToBnbLinkEntryRepository;
@@ -14,6 +15,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -26,7 +28,9 @@ public class LinkMonitor {
     private EthToBnbLinkEntryRepository linkRepository;
 
     @Autowired
-    private AddressByCoin addressByCoin;
+    private ProfileStorage profileStorage;
+
+    private EthBnbProfile ethBnbProfile;
 
 
     @EventListener
@@ -38,8 +42,19 @@ public class LinkMonitor {
         newBlockEvent.getTransactionsByAddress()
                 .entrySet()
                 .stream()
-                .filter(entry -> addressByCoin.getLinkerAddressByCoin().keySet().contains(entry.getKey()))//linkerAddress.equalsIgnoreCase(entry.getKey()))
-                .map(Map.Entry::getValue)
+                .filter(entry -> profileStorage.getEthBnbProfiles()
+                        .stream()
+                        .map(EthBnbProfile::getWishLinkAddress)
+                        .collect(Collectors.toList())
+                        .contains(entry.getKey()))
+                .map(entry -> {
+                    this.ethBnbProfile = profileStorage.getEthBnbProfiles()
+                            .stream()
+                            .filter(profile -> profile.getEthTokenAddress().equals(entry.getKey()))
+                            .findFirst()
+                            .get();
+                    return entry.getValue();
+                })
                 .flatMap(Collection::stream)
                 .forEach(transaction -> transactionProvider.getTransactionReceiptAsync(newBlockEvent.getNetworkType(), transaction)
                         .thenAccept(receipt -> receipt.getLogs()
@@ -47,19 +62,17 @@ public class LinkMonitor {
                                 .filter(event -> event instanceof BnbWishPutEvent)
                                 .map(event -> (BnbWishPutEvent) event)
                                 .map(putEvent -> {
-                                    String address = putEvent.getAddress();
-                                    String coin = addressByCoin.getLinkerAddressByCoin().get(address).name();
                                     String eth = putEvent.getEth().toLowerCase();
                                     byte[] input = transaction.getOutputs().get(0).getRawOutputScript();
                                     byte[] bnbBytes = Arrays.copyOfRange(input, input.length - 64, input.length);
                                     String bnb = new String(bnbBytes).trim();
 
-                                    if (linkRepository.existsByEthAddressAndSymbol(eth, coin)) {
-                                        log.warn("\"{} : {}\" already linked.", eth, bnb);
+                                    if (linkRepository.existsByEthAddressAndSymbol(eth, ethBnbProfile.getEth().getSymbol())) {
+                                        log.warn("\"{} : {} - {}\" already linked.", ethBnbProfile.getEth().getSymbol(), eth, bnb);
                                         return null;
                                     }
 
-                                    return new EthToBnbLinkEntry(coin, eth, bnb);
+                                    return new EthToBnbLinkEntry(ethBnbProfile.getEth().getSymbol(), eth, bnb);
                                 })
                                 .filter(Objects::nonNull)
                                 .map(linkRepository::save)

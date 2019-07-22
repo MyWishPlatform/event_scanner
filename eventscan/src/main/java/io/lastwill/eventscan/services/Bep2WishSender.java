@@ -8,13 +8,12 @@ import com.binance.dex.api.client.domain.Balance;
 import com.binance.dex.api.client.domain.TransactionMetadata;
 import com.binance.dex.api.client.domain.broadcast.TransactionOption;
 import com.binance.dex.api.client.domain.broadcast.Transfer;
-import io.lastwill.eventscan.events.model.wishbnbswap.LowBalanceEvent;
-import io.lastwill.eventscan.events.model.wishbnbswap.TokensTransferErrorEvent;
-import io.lastwill.eventscan.events.model.wishbnbswap.TokensTransferredEvent;
+import io.lastwill.eventscan.events.model.wishbnbswap.*;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.EthToBnbLinkEntry;
 import io.lastwill.eventscan.model.EthToBnbSwapEntry;
 import io.lastwill.eventscan.repositories.EthToBnbSwapEntryRepository;
+import io.mywish.binance.blockchain.services.Wallets;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,22 +43,25 @@ public class Bep2WishSender {
     private EthToBnbSwapEntryRepository swapRepository;
 
     @Autowired
+    private ProfileStorage profileStorage;
+
+    @Autowired
+    private Wallets wallets;
+
+    private EthBnbProfile ethBnbProfile;
+
     private Wallet binanceWallet;
 
-    @Value("${io.lastwill.eventscan.binance.wish-swap.burner-address}")
     private String burnerAddress;
 
-    @Value("${io.lastwill.eventscan.contract.token-address.wish}")
     private String tokenAddressWish;
 
-    @Value("${io.lastwill.eventscan.binance-wish.token-symbol}")
-    private String bnbWishSymbol;
+    private String transferSymbol;
 
-    @Value("${io.lastwill.eventscan.binance.token-symbol}")
     private String bnbSymbol;
 
     @Value("${io.lastwill.eventscan.binance.wish-swap.max-limit:#{null}}")
-    private BigInteger wishMaxLimit;
+    private BigInteger coinMaxLimit;
 
     public void send(EthToBnbSwapEntry swapEntry) {
         if (swapEntry.getLinkEntry() == null) {
@@ -70,10 +72,12 @@ public class Bep2WishSender {
             return;
         }
 
-        if (wishMaxLimit != null) {
-            if (swapEntry.getAmount().compareTo(wishMaxLimit) >= 0) {
+        if (coinMaxLimit != null) {
+            if (swapEntry.getAmount().compareTo(coinMaxLimit) >= 0) {
                 return;
             }
+
+            initSwapToken(swapEntry);
         }
 
         Account account = binanceClient.getAccount(binanceWallet.getAddress());
@@ -90,18 +94,18 @@ public class Bep2WishSender {
             return;
         }
 
-        BigInteger wishBalance = getBalance(account, bnbWishSymbol);
-        if (wishBalance.equals(BigInteger.ZERO)) {
+        BigInteger coinBalance = getBalance(account, transferSymbol);
+        if (coinBalance.equals(BigInteger.ZERO)) {
             return;
         }
 
-        if (wishBalance.compareTo(swapEntry.getAmount()) < 0) {
+        if (coinBalance.compareTo(swapEntry.getAmount()) < 0) {
             eventPublisher.publish(new LowBalanceEvent(
-                    bnbWishSymbol,
-                    CryptoCurrency.BWISH.getDecimals(),
+                    transferSymbol,
+                    ethBnbProfile.getBnb().getDecimals(),
                     swapEntry,
                     swapEntry.getAmount(),
-                    wishBalance,
+                    coinBalance,
                     binanceWallet.getAddress()
             ));
             return;
@@ -126,28 +130,40 @@ public class Bep2WishSender {
             log.info("Bep-2 tokens transferred: {}", txHash);
 
             eventPublisher.publish(new TokensTransferredEvent(
-                    bnbWishSymbol,
-                    CryptoCurrency.BWISH.getDecimals(),
+                    transferSymbol,
+                    ethBnbProfile.getBnb().getDecimals(),
                     swapEntry
             ));
         } catch (Exception e) {
-            log.error("Error when transferring BEP-2 WISH.", e);
+            log.error("Error when transferring BEP-2 {}.", ethBnbProfile.getEth().getSymbol(), e);
 
             eventPublisher.publish(new TokensTransferErrorEvent(
-                    bnbWishSymbol,
-                    CryptoCurrency.BWISH.getDecimals(),
+                    transferSymbol,
+                    ethBnbProfile.getBnb().getDecimals(),
                     swapEntry
             ));
         }
     }
 
+    private void initSwapToken(EthToBnbSwapEntry swapEntry) {
+        this.ethBnbProfile = profileStorage.getEthBnbProfiles()
+                .stream()
+                .filter(profile -> swapEntry.getLinkEntry().getSymbol().equals(profile.getEth().getSymbol()))
+                .findFirst().get();
+        this.burnerAddress = ethBnbProfile.getEthBurnerAddress();
+        this.tokenAddressWish = ethBnbProfile.getEthTokenAddress();
+        this.bnbSymbol = ethBnbProfile.getBnb().getSymbol();
+        this.transferSymbol = ethBnbProfile.getTransferSymbol();
+        this.binanceWallet = wallets.getWalletBySymbol(ethBnbProfile.getBnb());
+    }
+
     @SuppressWarnings("BigDecimalMethodWithoutRoundingCalled")
     public String toString(BigInteger bnbWishAmount) {
         BigDecimal bdAmount = new BigDecimal(bnbWishAmount)
-                .divide(BigDecimal.TEN.pow(CryptoCurrency.BWISH.getDecimals()));
+                .divide(BigDecimal.TEN.pow(ethBnbProfile.getBnb().getDecimals()));
 
         DecimalFormat df = new DecimalFormat();
-        df.setMaximumFractionDigits(CryptoCurrency.BWISH.getDecimals());
+        df.setMaximumFractionDigits(ethBnbProfile.getBnb().getDecimals());
         df.setMinimumFractionDigits(0);
         df.setGroupingUsed(false);
 
@@ -156,7 +172,7 @@ public class Bep2WishSender {
 
     private List<TransactionMetadata> transfer(String ethAddress, String bnbAddress, BigInteger amount)
             throws IOException, NoSuchAlgorithmException {
-        Transfer transferObject = buildTransfer(binanceWallet.getAddress(), bnbAddress, bnbWishSymbol, amount);
+        Transfer transferObject = buildTransfer(binanceWallet.getAddress(), bnbAddress, transferSymbol, amount);
         TransactionOption transactionOption = buildTransactionOption(buildMemo(ethAddress));
         return binanceClient.transfer(transferObject, binanceWallet, transactionOption, false);
     }

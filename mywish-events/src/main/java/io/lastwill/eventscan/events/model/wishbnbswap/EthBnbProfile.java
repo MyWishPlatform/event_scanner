@@ -13,6 +13,8 @@ public abstract class EthBnbProfile {
 
     private String ethTokenAddress;
 
+    private String transferSymbol;
+
     CryptoCurrency eth;
 
     CryptoCurrency bnb;
@@ -22,12 +24,14 @@ public abstract class EthBnbProfile {
     public EthBnbProfile(String wishLinkAddress,
                          String ethBurnerAddress,
                          String ethTokenAddress,
+                         String transferSymbol,
                          CryptoCurrency eth,
                          CryptoCurrency bnb) {
 
         this.wishLinkAddress = wishLinkAddress;
         this.ethBurnerAddress = ethBurnerAddress;
         this.ethTokenAddress = ethTokenAddress;
+        this.transferSymbol = transferSymbol;
         this.eth = eth;
         this.bnb = bnb;
 

@@ -77,7 +77,7 @@ public class Bep2WishSender {
                 return;
             }
 
-            initSwapToken(swapEntry);
+            initSwapToken(swapEntry.getLinkEntry().getSymbol());
         }
 
         Account account = binanceClient.getAccount(binanceWallet.getAddress());
@@ -145,11 +145,8 @@ public class Bep2WishSender {
         }
     }
 
-    private void initSwapToken(EthToBnbSwapEntry swapEntry) {
-        this.ethBnbProfile = profileStorage.getEthBnbProfiles()
-                .stream()
-                .filter(profile -> swapEntry.getLinkEntry().getSymbol().equals(profile.getEth().getSymbol()))
-                .findFirst().get();
+    private void initSwapToken(String ethSymbol) {
+        this.ethBnbProfile = profileStorage.getProfileByEthSymbol(ethSymbol);
         this.burnerAddress = ethBnbProfile.getEthBurnerAddress();
         this.tokenAddressWish = ethBnbProfile.getEthTokenAddress();
         this.bnbSymbol = ethBnbProfile.getBnb().getSymbol();

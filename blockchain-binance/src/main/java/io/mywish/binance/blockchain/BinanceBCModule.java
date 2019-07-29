@@ -3,8 +3,6 @@ package io.mywish.binance.blockchain;
 import com.binance.dex.api.client.BinanceDexApiClientFactory;
 import com.binance.dex.api.client.BinanceDexApiNodeClient;
 import com.binance.dex.api.client.BinanceDexEnvironment;
-import com.binance.dex.api.client.Wallet;
-import com.binance.dex.api.client.impl.BinanceDexApiNodeClientImpl;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.LastBlockRepository;
 import io.mywish.binance.blockchain.model.WrapperWallet;

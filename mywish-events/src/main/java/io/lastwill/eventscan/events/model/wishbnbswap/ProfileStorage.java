@@ -21,4 +21,11 @@ public class ProfileStorage {
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("No matching elements"));
     }
+    public EthBnbProfile getProfileByEthSymbol(String ethSymbol) {
+        return ethBnbProfiles
+                .stream()
+                .filter(e -> e.getEth().getSymbol().equals(ethSymbol))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("No matching elements"));
+    }
 }

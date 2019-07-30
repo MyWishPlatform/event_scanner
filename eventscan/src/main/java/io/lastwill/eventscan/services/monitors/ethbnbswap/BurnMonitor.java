@@ -1,8 +1,8 @@
 package io.lastwill.eventscan.services.monitors.ethbnbswap;
 
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
-import io.lastwill.eventscan.events.model.wishbnbswap.EthBnbProfile;
-import io.lastwill.eventscan.events.model.wishbnbswap.ProfileStorage;
+import io.lastwill.eventscan.model.EthBnbProfile;
+import io.lastwill.eventscan.model.ProfileStorage;
 import io.lastwill.eventscan.events.model.wishbnbswap.TokensBurnedEvent;
 import io.lastwill.eventscan.model.*;
 import io.lastwill.eventscan.repositories.EthToBnbLinkEntryRepository;
@@ -15,14 +15,14 @@ import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
-
+@Component
 public class BurnMonitor {
     @Autowired
     private EventPublisher eventPublisher;
@@ -50,6 +50,7 @@ public class BurnMonitor {
 
     @EventListener
     public void onBurn(final NewBlockEvent newBlockEvent) {
+
         if (newBlockEvent.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {
             return;
         }
@@ -58,22 +59,28 @@ public class BurnMonitor {
         for (Map.Entry<String, List<WrapperTransaction>> entry : entries.entrySet()) {
             initEthToBnbProfile(entry.getKey());
             for (WrapperTransaction transaction : entry.getValue()) {
-                List<TransferEvent> transferEvents = sortTransactionsByEvent(transaction, newBlockEvent);
-                Stream<EthToBnbSwapEntry> swapEntries = publishEvent(transferEvents, transaction);
-                sendToken(swapEntries);
+                List<TransferEvent> transferEvents = new ArrayList<>();
+                transactionProvider.getTransactionReceiptAsync(newBlockEvent.getNetworkType(), transaction)
+                        .thenAccept(receipt -> {
+                            receipt.getLogs()
+                                    .stream()
+                                    .filter(event -> event instanceof TransferEvent)
+                                    .map(event -> (TransferEvent) event)
+                                    .filter(event -> burnerAddress.equalsIgnoreCase(event.getTo()))
+                                    .forEach(transferEvents::add);
+                            List<EthToBnbSwapEntry> swapEntries = publishEvent(transferEvents, transaction);
+                            sendToken(swapEntries);
+                        });
             }
         }
     }
 
     private void initEthToBnbProfile(String ethToBnbTokenAddress) {
-        EthBnbProfile ethBnbProfile = profileStorage.getEthBnbProfiles()
-                .stream()
-                .filter(profile -> profile.getEthTokenAddress().equals(ethToBnbTokenAddress))
-                .findFirst()
-                .get();
+        EthBnbProfile ethBnbProfile = profileStorage.getProfileByEthTokenAddress(ethToBnbTokenAddress);
         ethCoin = ethBnbProfile.getEth();
         burnerAddress = ethBnbProfile.getEthBurnerAddress();
         bnbCoin = ethBnbProfile.getBnb();
+
     }
 
     private Map<String, List<WrapperTransaction>> filterTransactionsByTokenAddress(NewBlockEvent event) {
@@ -88,19 +95,8 @@ public class BurnMonitor {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private List<TransferEvent> sortTransactionsByEvent(WrapperTransaction transaction, NewBlockEvent newBlockEvent) {
-        List<TransferEvent> transferEvents = new ArrayList<>();
-        transactionProvider.getTransactionReceiptAsync(newBlockEvent.getNetworkType(), transaction)
-                .thenAccept(receipt -> receipt.getLogs()
-                        .stream()
-                        .filter(event -> event instanceof TransferEvent)
-                        .map(event -> (TransferEvent) event)
-                        .filter(event -> burnerAddress.equalsIgnoreCase(event.getTo()))
-                        .forEach(transferEvents::add));
-        return transferEvents;
-    }
 
-    private Stream<EthToBnbSwapEntry> publishEvent(List<TransferEvent> events, WrapperTransaction transaction) {
+    private List<EthToBnbSwapEntry> publishEvent(List<TransferEvent> events, WrapperTransaction transaction) {
         return events
                 .stream()
                 .map(transferEvent -> {
@@ -127,21 +123,23 @@ public class BurnMonitor {
                     );
                     swapEntry = swapRepository.save(swapEntry);
 
-                    log.info("{} burned {} {}", ethAddress, wishSender.toString(amount), ethCoin);
+//                    log.info("{} burned {} {}", ethAddress, wishSender.toString(amount), ethCoin);
 
                     eventPublisher.publish(new TokensBurnedEvent(
-                            ethCoin.getSymbol(),
+                            ethCoin.name(),
                             bnbCoin.getDecimals(),
                             swapEntry,
                             ethAddress,
                             bnbAddress
                     ));
+
                     return swapEntry;
-                });
+                }).collect(Collectors.toList());
     }
 
-    private void sendToken(Stream<EthToBnbSwapEntry> swapEntries) {
+    private void sendToken(List<EthToBnbSwapEntry> swapEntries) {
         swapEntries
+                .stream()
                 .filter(Objects::nonNull)
                 .forEach(wishSender::send);
     }

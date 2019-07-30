@@ -1,8 +1,8 @@
 package io.lastwill.eventscan.services.monitors.ethbnbswap;
 
 import io.lastwill.eventscan.events.model.contract.BnbWishPutEvent;
-import io.lastwill.eventscan.events.model.wishbnbswap.EthBnbProfile;
-import io.lastwill.eventscan.events.model.wishbnbswap.ProfileStorage;
+import io.lastwill.eventscan.model.EthBnbProfile;
+import io.lastwill.eventscan.model.ProfileStorage;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.EthToBnbLinkEntry;
 import io.lastwill.eventscan.repositories.EthToBnbLinkEntryRepository;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -36,12 +35,15 @@ public class LinkMonitor {
 
     @EventListener
     public void onLink(final NewBlockEvent newBlockEvent) {
+
         if (newBlockEvent.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {
             return;
         }
+
         Map<String, List<WrapperTransaction>> entries = filterTransactionsByAddress(newBlockEvent);
 
-        if(entries == null) return;
+        if (entries == null || entries.size() == 0) return;
+
         for (Map.Entry<String, List<WrapperTransaction>> entry : entries.entrySet()) {
             try {
                 initEthBnbProfile(entry.getKey());
@@ -50,41 +52,38 @@ public class LinkMonitor {
                 continue;
             }
             for (WrapperTransaction transaction : entry.getValue()) {
-                List<BnbWishPutEvent> events = sortTransactionsByEvent(transaction, newBlockEvent.getNetworkType());
-                Stream <EthToBnbLinkEntry> ethToBnbLinkEntries = getEthToBnbLinkEntries(events, transaction);
-                saveEntries(ethToBnbLinkEntries);
+                List<BnbWishPutEvent> bnbWishPutEvents = new ArrayList<>();
+                transactionProvider.getTransactionReceiptAsync(newBlockEvent.getNetworkType(), transaction)
+                        .thenAccept(receipt -> {
+                            receipt.getLogs()
+                                    .stream()
+                                    .filter(event -> event instanceof BnbWishPutEvent)
+                                    .forEach(event -> bnbWishPutEvents.add((BnbWishPutEvent) event));
+                            List<EthToBnbLinkEntry> ethToBnbLinkEntries = getEthToBnbLinkEntries(bnbWishPutEvents, transaction);
+                            saveLinkEntries(ethToBnbLinkEntries);
+                        });
             }
         }
     }
 
     private Map<String, List<WrapperTransaction>> filterTransactionsByAddress(NewBlockEvent newBlockEvent) {
-
         return newBlockEvent.getTransactionsByAddress()
                 .entrySet()
                 .stream()
                 .filter(entry -> profileStorage.getEthBnbProfiles()
                         .stream()
-                        .map(EthBnbProfile::getWishLinkAddress)
+                        .map(EthBnbProfile::getEthLinkAddress)
                         .collect(Collectors.toList())
                         .contains(entry.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
+
     private void initEthBnbProfile(String ethAddress) {
-        this.ethBnbProfile = profileStorage.getProfileByEthTokenAddress(ethAddress);
+        this.ethBnbProfile = profileStorage.getProfileByEthLinkAddress(ethAddress);
     }
 
-    private List<BnbWishPutEvent> sortTransactionsByEvent(WrapperTransaction transaction, NetworkType type) {
-        List<BnbWishPutEvent> result = new ArrayList<>();
-        transactionProvider.getTransactionReceiptAsync(type, transaction)
-                .thenAccept(receipt -> receipt.getLogs()
-                        .stream()
-                        .filter(event -> event instanceof BnbWishPutEvent)
-                        .forEach(e -> result.add((BnbWishPutEvent) e)));
-        return result;
-    }
-
-    private Stream<EthToBnbLinkEntry> getEthToBnbLinkEntries(List<BnbWishPutEvent> events, WrapperTransaction transaction) {
-            return events
+    private List<EthToBnbLinkEntry> getEthToBnbLinkEntries(List<BnbWishPutEvent> events, WrapperTransaction transaction) {
+        return events
                 .stream()
                 .map(putEvent -> {
                     String eth = putEvent.getEth().toLowerCase();
@@ -92,16 +91,18 @@ public class LinkMonitor {
                     byte[] bnbBytes = Arrays.copyOfRange(input, input.length - 64, input.length);
                     String bnb = new String(bnbBytes).trim();
 
-                    if (linkRepository.existsByEthAddressAndSymbol(eth, ethBnbProfile.getEth().getSymbol())) {
-                        log.warn("\"{} : {} - {}\" already linked.", ethBnbProfile.getEth().getSymbol(), eth, bnb);
+                    if (linkRepository.existsByEthAddressAndSymbol(eth, ethBnbProfile.getEth().name())) {
+                        log.warn("\"{} : {} - {}\" already linked.", ethBnbProfile.getEth().name(), eth, bnb);
                         return null;
                     }
-                    return new EthToBnbLinkEntry(ethBnbProfile.getEth().getSymbol(), eth, bnb);
-                });
+                    return new EthToBnbLinkEntry(ethBnbProfile.getEth().name(), eth, bnb);
+                }).collect(Collectors.toList());
     }
 
-    private void saveEntries(Stream<EthToBnbLinkEntry> entryStream) {
-        entryStream.filter(Objects::nonNull)
+    private void saveLinkEntries(List<EthToBnbLinkEntry> linkEntries) {
+        linkEntries
+                .stream()
+                .filter(Objects::nonNull)
                 .map(linkRepository::save)
                 .forEach(linkEntry -> log.info("Linked \"{} \"{} : {}\"",
                         linkEntry.getSymbol(), linkEntry.getEthAddress(), linkEntry.getBnbAddress()));

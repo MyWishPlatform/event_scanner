@@ -1,6 +1,5 @@
-package io.lastwill.eventscan.events.model.wishbnbswap;
+package io.lastwill.eventscan.model;
 
-import io.lastwill.eventscan.model.CryptoCurrency;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

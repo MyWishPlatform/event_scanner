@@ -1,13 +1,12 @@
-package io.lastwill.eventscan.events.model.wishbnbswap;
+package io.lastwill.eventscan.model;
 
-import io.lastwill.eventscan.model.CryptoCurrency;
 import lombok.Getter;
 
 
 @Getter
 public abstract class EthBnbProfile {
 
-    private String wishLinkAddress;
+    private String ethLinkAddress;
 
     private String ethBurnerAddress;
 
@@ -21,14 +20,14 @@ public abstract class EthBnbProfile {
 
 
 
-    public EthBnbProfile(String wishLinkAddress,
+    public EthBnbProfile(String ethLinkAddress,
                          String ethBurnerAddress,
                          String ethTokenAddress,
                          String transferSymbol,
                          CryptoCurrency eth,
                          CryptoCurrency bnb) {
 
-        this.wishLinkAddress = wishLinkAddress;
+        this.ethLinkAddress = ethLinkAddress;
         this.ethBurnerAddress = ethBurnerAddress;
         this.ethTokenAddress = ethTokenAddress;
         this.transferSymbol = transferSymbol;

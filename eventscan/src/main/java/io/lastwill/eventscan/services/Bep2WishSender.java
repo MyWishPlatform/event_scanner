@@ -9,9 +9,7 @@ import com.binance.dex.api.client.domain.TransactionMetadata;
 import com.binance.dex.api.client.domain.broadcast.TransactionOption;
 import com.binance.dex.api.client.domain.broadcast.Transfer;
 import io.lastwill.eventscan.events.model.wishbnbswap.*;
-import io.lastwill.eventscan.model.CryptoCurrency;
-import io.lastwill.eventscan.model.EthToBnbLinkEntry;
-import io.lastwill.eventscan.model.EthToBnbSwapEntry;
+import io.lastwill.eventscan.model.*;
 import io.lastwill.eventscan.repositories.EthToBnbSwapEntryRepository;
 import io.mywish.binance.blockchain.services.Wallets;
 import io.mywish.scanner.services.EventPublisher;
@@ -135,7 +133,7 @@ public class Bep2WishSender {
                     swapEntry
             ));
         } catch (Exception e) {
-            log.error("Error when transferring BEP-2 {}.", ethBnbProfile.getEth().getSymbol(), e);
+            log.error("Error when transferring BEP-2 {}.", ethBnbProfile.getEth().name(), e);
 
             eventPublisher.publish(new TokensTransferErrorEvent(
                     transferSymbol,
@@ -149,7 +147,7 @@ public class Bep2WishSender {
         this.ethBnbProfile = profileStorage.getProfileByEthSymbol(ethSymbol);
         this.burnerAddress = ethBnbProfile.getEthBurnerAddress();
         this.tokenAddressWish = ethBnbProfile.getEthTokenAddress();
-        this.bnbSymbol = ethBnbProfile.getBnb().getSymbol();
+        this.bnbSymbol = ethBnbProfile.getBnb().name();
         this.transferSymbol = ethBnbProfile.getTransferSymbol();
         this.binanceWallet = wallets.getWalletBySymbol(ethBnbProfile.getBnb());
     }

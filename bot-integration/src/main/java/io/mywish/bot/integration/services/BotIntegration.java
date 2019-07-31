@@ -171,20 +171,14 @@ public class BotIntegration {
         final String blockLink = explorerProvider
                 .getOrStub(event.getNetworkType())
                 .buildToBlock(event.getLastBlockNo());
-        bot.sendToAll(
-                "Network " + network + " *stuck!* Last block was at " + lastBlock + " [" + event.getLastBlockNo() + "](" + blockLink + ").",
-                true
-        );
+        bot.sendToAllWithMarkdown("Network " + network + " *stuck!* Last block was at " + lastBlock + " [" + event.getLastBlockNo() + "](" + blockLink + ").");
     }
 
     @EventListener
     private void onPendingStuck(final PendingStuckEvent event) {
         final String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         String lastBlock = formatToLocal(event.getReceivedTime());
-        bot.sendToAll(
-                "*No pending transactions* for the network " + network + "! Last pending was at " + lastBlock + ", count: " + event.getCount() + ".",
-                true
-        );
+        bot.sendToAllWithMarkdown("*No pending transactions* for the network " + network + "! Last pending was at " + lastBlock + ", count: " + event.getCount() + ".");
     }
 
     @EventListener
@@ -196,20 +190,14 @@ public class BotIntegration {
                 final String accountRef = explorerProvider.getOrStub(event.getNetworkType())
                         .buildToAddress(((CreateAccountEvent) contractEvent).getCreated());
 
-                bot.sendToAll(
-                        network + ": account [" + ((CreateAccountEvent) contractEvent).getCreated() + "](" + accountRef + ") created.",
-                        true
-                );
+                bot.sendToAllWithMarkdown(network + ": account [" + ((CreateAccountEvent) contractEvent).getCreated() + "](" + accountRef + ") created.");
             } else if (contractEvent instanceof CreateTokenEvent) {
                 CreateTokenEvent createTokenEvent = (CreateTokenEvent) contractEvent;
                 final String tokenRef = explorerProvider.getOrStub(event.getNetworkType())
                         .buildToAddress(createTokenEvent.getAddress());
                 final String accountRef = explorerProvider.getOrStub(event.getNetworkType())
                         .buildToAddress(createTokenEvent.getIssuer());
-                bot.sendToAll(
-                        network + ": token [" + createTokenEvent.getSymbol() + "](" + tokenRef + ") create by [" + createTokenEvent.getIssuer() + "](" + accountRef + ").",
-                        true
-                );
+                bot.sendToAllWithMarkdown(network + ": token [" + createTokenEvent.getSymbol() + "](" + tokenRef + ") create by [" + createTokenEvent.getIssuer() + "](" + accountRef + ").");
             }
         }
     }

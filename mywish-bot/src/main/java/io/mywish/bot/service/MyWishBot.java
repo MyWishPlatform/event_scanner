@@ -14,7 +14,6 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
 import javax.annotation.PostConstruct;
-import java.math.BigInteger;
 import java.util.*;
 
 @Slf4j
@@ -28,8 +27,6 @@ public class MyWishBot extends TelegramLongPollingBot {
 
     @Autowired(required = false)
     private InformationProvider informationProvider;
-
-    private final List<BigInteger> investments = new ArrayList<>();
 
     @Autowired
     private List<BotCommand> commands;
@@ -116,7 +113,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(").")
                 .toString();
 
-        sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
+        sendToAllWithMarkdown(message);
     }
 
     public void onSwapsOrder(String network, Integer productId, String transactionHash, String txLink) {
@@ -131,7 +128,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(").")
                 .toString();
 
-        sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
+        sendToAllWithMarkdown(message);
     }
 
     public void onContractFailed(String network, Integer productId, String productType, Integer id, final String txLink) {
@@ -148,7 +145,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(").")
                 .toString();
 
-        sendToAllChats(new SendMessage().enableMarkdown(true).setText(message));
+        sendToAllWithMarkdown(message);
     }
 
     public void onBalance(String network, String account, String cost, final String txLink) {
@@ -163,7 +160,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append("</a>.")
                 .toString();
 
-        sendToAllChats(new SendMessage().setText(message).enableHtml(true));
+        sendToAllWithHtml(message);
     }
 
     public void onFGWBalanceChanged(String network, String delta, String balance, String link, long blockNo, String blockLink) {
@@ -182,7 +179,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(").")
                 .toString();
 
-        sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
+        sendToAllWithMarkdown(message);
     }
 
     public void onBtcPayment(String network, String productType, long productId, String value, final String link) {
@@ -199,7 +196,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(").")
                 .toString();
 
-        sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
+        sendToAllWithMarkdown(message);
     }
 
     public void onNeoPayment(final String network, final String address, final String value, final String link) {
@@ -214,11 +211,30 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(").")
                 .toString();
 
-        sendToAllChats(new SendMessage().setText(message).enableMarkdown(true));
+        sendToAllWithMarkdown(message);
     }
 
-    public void sendToAll(String message, boolean markdown) {
-        sendToAllChats(new SendMessage().setText(message).enableMarkdown(markdown));
+    public void sendToAll(String message) {
+        SendMessage sendMessage = new SendMessage()
+                .setText(message)
+                .disableWebPagePreview();
+        sendToAllChats(sendMessage);
+    }
+
+    public void sendToAllWithMarkdown(String message) {
+        SendMessage sendMessage = new SendMessage()
+                .setText(message)
+                .disableWebPagePreview()
+                .enableMarkdown(true);
+        sendToAllChats(sendMessage);
+    }
+
+    public void sendToAllWithHtml(String message) {
+        SendMessage sendMessage = new SendMessage()
+                .setText(message)
+                .disableWebPagePreview()
+                .enableHtml(true);
+        sendToAllChats(sendMessage);
     }
 
     private void sendToAllChats(SendMessage sendMessage) {

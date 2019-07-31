@@ -108,8 +108,14 @@ public class Web3Network extends WrapperNetwork {
     @Override
     public List<WrapperTransaction> fetchPendingTransactions() throws Exception {
         if (web3j instanceof Web3jEx) {
-            return ((Web3jEx) web3j).parityGetPendingTransactions().send()
-                    .getResult()
+            List<Transaction> result = ((Web3jEx) web3j).parityGetPendingTransactions().send()
+                    .getResult();
+
+            if (result == null) {
+                return Collections.emptyList();
+            }
+
+            return result
                     .stream()
                     .map(transactionBuilder::build)
                     .collect(Collectors.toList());

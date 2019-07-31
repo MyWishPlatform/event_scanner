@@ -7,7 +7,7 @@ import io.lastwill.eventscan.events.model.wishbnbswap.TokensBurnedEvent;
 import io.lastwill.eventscan.model.*;
 import io.lastwill.eventscan.repositories.EthToBnbLinkEntryRepository;
 import io.lastwill.eventscan.repositories.EthToBnbSwapEntryRepository;
-import io.lastwill.eventscan.services.Bep2WishSender;
+import io.lastwill.eventscan.services.Sender;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
@@ -37,7 +37,7 @@ public class BurnMonitor {
     private EthToBnbSwapEntryRepository swapRepository;
 
     @Autowired
-    private Bep2WishSender wishSender;
+    private Sender sender;
 
     @Autowired
     private ProfileStorage profileStorage;
@@ -119,7 +119,7 @@ public class BurnMonitor {
                     swapEntry = swapRepository.save(swapEntry);
                     CryptoCurrency ethCoin = profile.getEth();
                     CryptoCurrency bnbCoin = profile.getBnb();
-                    log.info("{} burned {} {}", ethAddress, wishSender.toString(amount, bnbCoin.getDecimals()), ethCoin);
+                    log.info("{} burned {} {}", ethAddress, sender.toString(amount, bnbCoin.getDecimals()), ethCoin);
 
                     eventPublisher.publish(new TokensBurnedEvent(
                             ethCoin.name(),
@@ -137,7 +137,7 @@ public class BurnMonitor {
         swapEntries
                 .stream()
                 .filter(Objects::nonNull)
-                .forEach(wishSender::send);
+                .forEach(sender::send);
     }
 
     private BigInteger convertEthToBnb(BigInteger amount, EthBnbProfile profile) {

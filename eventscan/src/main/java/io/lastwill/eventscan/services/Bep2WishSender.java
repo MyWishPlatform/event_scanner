@@ -30,7 +30,7 @@ import java.util.Objects;
 
 @Slf4j
 @Component
-public class Bep2WishSender {
+public class Bep2WishSender implements Sender {
     private static final BigInteger TRANSFER_FEE = BigInteger.valueOf(37500);
 
     @Autowired
@@ -52,6 +52,7 @@ public class Bep2WishSender {
     @Value("${io.lastwill.eventscan.binance.wish-swap.max-limit:#{null}}")
     private BigInteger coinMaxLimit;
 
+    @Override
     public void send(EthToBnbSwapEntry swapEntry) {
         if (swapEntry.getLinkEntry() == null) {
             return;

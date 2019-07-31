@@ -42,11 +42,6 @@ public class BurnMonitor {
     @Autowired
     private ProfileStorage profileStorage;
 
-    private CryptoCurrency ethCoin;
-
-    private CryptoCurrency bnbCoin;
-
-    private String burnerAddress;
 
     @EventListener
     public void onBurn(final NewBlockEvent newBlockEvent) {
@@ -55,9 +50,17 @@ public class BurnMonitor {
             return;
         }
         Map<String, List<WrapperTransaction>> entries = filterTransactionsByTokenAddress(newBlockEvent);
-        if (entries == null) return;
+
+        if (entries == null || entries.size() == 0) return;
+
         for (Map.Entry<String, List<WrapperTransaction>> entry : entries.entrySet()) {
-            initEthToBnbProfile(entry.getKey());
+            EthBnbProfile ethBnbProfile;
+            try {
+                ethBnbProfile = profileStorage.getProfileByEthTokenAddress(entry.getKey());
+            } catch (NoSuchElementException ex) {
+                log.error(ex.getMessage());
+                continue;
+            }
             for (WrapperTransaction transaction : entry.getValue()) {
                 List<TransferEvent> transferEvents = new ArrayList<>();
                 transactionProvider.getTransactionReceiptAsync(newBlockEvent.getNetworkType(), transaction)
@@ -66,21 +69,13 @@ public class BurnMonitor {
                                     .stream()
                                     .filter(event -> event instanceof TransferEvent)
                                     .map(event -> (TransferEvent) event)
-                                    .filter(event -> burnerAddress.equalsIgnoreCase(event.getTo()))
+                                    .filter(event -> ethBnbProfile.getEthBurnerAddress().equalsIgnoreCase(event.getTo()))
                                     .forEach(transferEvents::add);
-                            List<EthToBnbSwapEntry> swapEntries = publishEvent(transferEvents, transaction);
+                            List<EthToBnbSwapEntry> swapEntries = publishEvent(transferEvents, transaction, ethBnbProfile);
                             sendToken(swapEntries);
                         });
             }
         }
-    }
-
-    private void initEthToBnbProfile(String ethToBnbTokenAddress) {
-        EthBnbProfile ethBnbProfile = profileStorage.getProfileByEthTokenAddress(ethToBnbTokenAddress);
-        ethCoin = ethBnbProfile.getEth();
-        burnerAddress = ethBnbProfile.getEthBurnerAddress();
-        bnbCoin = ethBnbProfile.getBnb();
-
     }
 
     private Map<String, List<WrapperTransaction>> filterTransactionsByTokenAddress(NewBlockEvent event) {
@@ -96,12 +91,12 @@ public class BurnMonitor {
     }
 
 
-    private List<EthToBnbSwapEntry> publishEvent(List<TransferEvent> events, WrapperTransaction transaction) {
+    private List<EthToBnbSwapEntry> publishEvent(List<TransferEvent> events, WrapperTransaction transaction, EthBnbProfile profile) {
         return events
                 .stream()
                 .map(transferEvent -> {
                     String ethAddress = transferEvent.getFrom().toLowerCase();
-                    BigInteger amount = convertEthToBnb(transferEvent.getTokens());
+                    BigInteger amount = convertEthToBnb(transferEvent.getTokens(), profile);
                     String bnbAddress = null;
 
                     EthToBnbLinkEntry linkEntry = linkRepository.findByEthAddress(ethAddress);
@@ -122,8 +117,9 @@ public class BurnMonitor {
                             transaction.getHash()
                     );
                     swapEntry = swapRepository.save(swapEntry);
-
-//                    log.info("{} burned {} {}", ethAddress, wishSender.toString(amount), ethCoin);
+                    CryptoCurrency ethCoin = profile.getEth();
+                    CryptoCurrency bnbCoin = profile.getBnb();
+                    log.info("{} burned {} {}", ethAddress, wishSender.toString(amount, bnbCoin.getDecimals()), ethCoin);
 
                     eventPublisher.publish(new TokensBurnedEvent(
                             ethCoin.name(),
@@ -144,9 +140,9 @@ public class BurnMonitor {
                 .forEach(wishSender::send);
     }
 
-    protected BigInteger convertEthToBnb(BigInteger amount) {
-        int ethWishDecimals = ethCoin.getDecimals();
-        int bnbWishDecimals = bnbCoin.getDecimals();
+    private BigInteger convertEthToBnb(BigInteger amount, EthBnbProfile profile) {
+        int ethWishDecimals = profile.getEth().getDecimals();
+        int bnbWishDecimals = profile.getBnb().getDecimals();
 
         return amount
                 .multiply(BigInteger.TEN.pow(bnbWishDecimals))

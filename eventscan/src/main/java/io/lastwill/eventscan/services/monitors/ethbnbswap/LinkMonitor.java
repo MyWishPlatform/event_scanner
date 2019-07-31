@@ -31,8 +31,6 @@ public class LinkMonitor {
     @Autowired
     private ProfileStorage profileStorage;
 
-    private EthBnbProfile ethBnbProfile;
-
     @EventListener
     public void onLink(final NewBlockEvent newBlockEvent) {
 
@@ -45,8 +43,9 @@ public class LinkMonitor {
         if (entries == null || entries.size() == 0) return;
 
         for (Map.Entry<String, List<WrapperTransaction>> entry : entries.entrySet()) {
+            EthBnbProfile ethBnbProfile;
             try {
-                initEthBnbProfile(entry.getKey());
+                 ethBnbProfile = profileStorage.getProfileByEthLinkAddress(entry.getKey());
             } catch (NoSuchElementException ex) {
                 log.error(ex.getMessage());
                 continue;
@@ -59,7 +58,7 @@ public class LinkMonitor {
                                     .stream()
                                     .filter(event -> event instanceof BnbWishPutEvent)
                                     .forEach(event -> bnbWishPutEvents.add((BnbWishPutEvent) event));
-                            List<EthToBnbLinkEntry> ethToBnbLinkEntries = getEthToBnbLinkEntries(bnbWishPutEvents, transaction);
+                            List<EthToBnbLinkEntry> ethToBnbLinkEntries = getEthToBnbLinkEntries(bnbWishPutEvents, transaction, ethBnbProfile);
                             saveLinkEntries(ethToBnbLinkEntries);
                         });
             }
@@ -78,11 +77,8 @@ public class LinkMonitor {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private void initEthBnbProfile(String ethAddress) {
-        this.ethBnbProfile = profileStorage.getProfileByEthLinkAddress(ethAddress);
-    }
 
-    private List<EthToBnbLinkEntry> getEthToBnbLinkEntries(List<BnbWishPutEvent> events, WrapperTransaction transaction) {
+    private List<EthToBnbLinkEntry> getEthToBnbLinkEntries(List<BnbWishPutEvent> events, WrapperTransaction transaction, EthBnbProfile ethBnbProfile) {
         return events
                 .stream()
                 .map(putEvent -> {

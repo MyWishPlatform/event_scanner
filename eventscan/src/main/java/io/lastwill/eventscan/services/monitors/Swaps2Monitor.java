@@ -9,8 +9,8 @@ import io.lastwill.eventscan.messages.swaps2.CancelledNotify;
 import io.lastwill.eventscan.messages.swaps2.FinalizedNotify;
 import io.lastwill.eventscan.messages.swaps2.OrderCreatedNotify;
 import io.lastwill.eventscan.model.NetworkType;
-import io.lastwill.eventscan.model.ProductSwaps2;
-import io.lastwill.eventscan.repositories.ProductRepository;
+import io.lastwill.eventscan.model.Swaps2Order;
+import io.lastwill.eventscan.repositories.Swaps2OrderRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.model.NewBlockEvent;
@@ -37,7 +37,7 @@ public class Swaps2Monitor {
     private EventPublisher eventPublisher;
 
     @Autowired
-    private ProductRepository productRepository;
+    private Swaps2OrderRepository orderRepository;
 
     @Autowired
     private TransactionProvider transactionProvider;
@@ -73,15 +73,13 @@ public class Swaps2Monitor {
                                 .stream()
                                 .filter(contractEvent -> contractEvent instanceof Swaps2BaseEvent)
                                 .map(contractEvent -> (Swaps2BaseEvent) contractEvent)
-                                .filter(contractEvent -> productRepository
-                                        .findByOrderId(contractEvent.getId(), event.getNetworkType()) != null)
+                                .filter(contractEvent -> orderRepository.findByOrderId(contractEvent.getId()) != null)
                                 .peek(contractEvent -> {
                                     if (contractEvent instanceof OrderCreatedEvent) {
-                                        ProductSwaps2 swaps2 = productRepository.findByOrderId(
-                                                contractEvent.getId(), event.getNetworkType());
+                                        Swaps2Order order = orderRepository.findByOrderId(contractEvent.getId());
                                         eventPublisher.publish(new SwapsOrderCreatedEvent(
                                                 event.getNetworkType(),
-                                                swaps2,
+                                                order,
                                                 tx
                                         ));
                                     }

@@ -23,7 +23,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 @Slf4j
@@ -46,17 +48,6 @@ public class Bep2WishSender {
     @Autowired
     private Wallets wallets;
 
-    private EthBnbProfile ethBnbProfile;
-
-    private Wallet binanceWallet;
-
-    private String burnerAddress;
-
-    private String tokenAddressWish;
-
-    private String transferSymbol;
-
-    private String bnbSymbol;
 
     @Value("${io.lastwill.eventscan.binance.wish-swap.max-limit:#{null}}")
     private BigInteger coinMaxLimit;
@@ -74,12 +65,15 @@ public class Bep2WishSender {
             if (swapEntry.getAmount().compareTo(coinMaxLimit) >= 0) {
                 return;
             }
-
-            initSwapToken(swapEntry.getLinkEntry().getSymbol());
         }
 
+        EthBnbProfile ethBnbProfile = profileStorage.getProfileByEthSymbol(swapEntry.getLinkEntry().getSymbol());
+        String bnbTestSymbol = ethBnbProfile.getTransferSymbol();
+        String bnbSymbol = ethBnbProfile.getBnb().name();
+        Wallet binanceWallet = wallets.getWalletBySymbol(ethBnbProfile.getBnb());
+
         Account account = binanceClient.getAccount(binanceWallet.getAddress());
-        BigInteger bnbBalance = getBalance(account, bnbSymbol);
+        BigInteger bnbBalance = getBalance(account, bnbTestSymbol);
         if (bnbBalance.compareTo(TRANSFER_FEE) < 0) {
             eventPublisher.publish(new LowBalanceEvent(
                     bnbSymbol,
@@ -91,7 +85,7 @@ public class Bep2WishSender {
             ));
             return;
         }
-
+        String transferSymbol = ethBnbProfile.getTransferSymbol();
         BigInteger coinBalance = getBalance(account, transferSymbol);
         if (coinBalance.equals(BigInteger.ZERO)) {
             return;
@@ -114,7 +108,10 @@ public class Bep2WishSender {
             List<TransactionMetadata> results = transfer(
                     link.getEthAddress(),
                     link.getBnbAddress(),
-                    swapEntry.getAmount()
+                    swapEntry.getAmount(),
+                    ethBnbProfile.getBnb().getDecimals(),
+                    binanceWallet,
+                    transferSymbol
             );
 
             TransactionMetadata result = results.get(0);
@@ -143,31 +140,26 @@ public class Bep2WishSender {
         }
     }
 
-    private void initSwapToken(String ethSymbol) {
-        this.ethBnbProfile = profileStorage.getProfileByEthSymbol(ethSymbol);
-        this.burnerAddress = ethBnbProfile.getEthBurnerAddress();
-        this.tokenAddressWish = ethBnbProfile.getEthTokenAddress();
-        this.bnbSymbol = ethBnbProfile.getBnb().name();
-        this.transferSymbol = ethBnbProfile.getTransferSymbol();
-        this.binanceWallet = wallets.getWalletBySymbol(ethBnbProfile.getBnb());
-    }
-
     @SuppressWarnings("BigDecimalMethodWithoutRoundingCalled")
-    public String toString(BigInteger bnbWishAmount) {
+    public String toString(BigInteger bnbWishAmount, int decimals) {
         BigDecimal bdAmount = new BigDecimal(bnbWishAmount)
-                .divide(BigDecimal.TEN.pow(ethBnbProfile.getBnb().getDecimals()));
+                .divide(BigDecimal.TEN.pow(decimals));
 
         DecimalFormat df = new DecimalFormat();
-        df.setMaximumFractionDigits(ethBnbProfile.getBnb().getDecimals());
+        df.setMaximumFractionDigits(decimals);
         df.setMinimumFractionDigits(0);
         df.setGroupingUsed(false);
+        DecimalFormatSymbols pointFormatSymbol = new DecimalFormatSymbols(Locale.getDefault());
+        pointFormatSymbol.setDecimalSeparator('.');
+        df.setDecimalFormatSymbols(pointFormatSymbol);
 
         return df.format(bdAmount);
     }
 
-    private List<TransactionMetadata> transfer(String ethAddress, String bnbAddress, BigInteger amount)
+    private List<TransactionMetadata> transfer(String ethAddress, String bnbAddress, BigInteger amount,
+                                               int decimals, Wallet binanceWallet, String transferSymbol)
             throws IOException, NoSuchAlgorithmException {
-        Transfer transferObject = buildTransfer(binanceWallet.getAddress(), bnbAddress, transferSymbol, amount);
+        Transfer transferObject = buildTransfer(binanceWallet.getAddress(), bnbAddress, transferSymbol, amount, decimals);
         TransactionOption transactionOption = buildTransactionOption(buildMemo(ethAddress));
         return binanceClient.transfer(transferObject, binanceWallet, transactionOption, false);
     }
@@ -180,12 +172,12 @@ public class Bep2WishSender {
         return new TransactionOption(memo, BinanceDexConstants.BINANCE_DEX_API_CLIENT_JAVA_SOURCE, null);
     }
 
-    private Transfer buildTransfer(String from, String to, String coin, BigInteger amount) {
+    private Transfer buildTransfer(String from, String to, String coin, BigInteger amount, int decimals) {
         Transfer transfer = new Transfer();
         transfer.setFromAddress(from);
         transfer.setToAddress(to);
         transfer.setCoin(coin);
-        transfer.setAmount(toString(amount));
+        transfer.setAmount(toString(amount, decimals));
         return transfer;
     }
 

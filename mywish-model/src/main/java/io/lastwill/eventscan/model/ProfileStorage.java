@@ -19,7 +19,10 @@ public class ProfileStorage {
                 .stream()
                 .filter(e -> e.getEthLinkAddress().equals(linkAddress))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("No matching elements"));
+                .orElseThrow(() -> new NoSuchElementException(
+                        "There is a transaction at address "
+                                + linkAddress
+                                + ", but the profile is not found"));
     }
 
     public EthBnbProfile getProfileByEthTokenAddress(String tokenAddress) {
@@ -27,13 +30,20 @@ public class ProfileStorage {
                 .stream()
                 .filter(e -> e.getEthTokenAddress().equals(tokenAddress))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("No matching elements"));
+                .orElseThrow(() -> new NoSuchElementException(
+                        "There is a transaction at address "
+                                + tokenAddress
+                                + ", but the profile is not found"));
     }
+
     public EthBnbProfile getProfileByEthSymbol(String ethSymbol) {
         return ethBnbProfiles
                 .stream()
                 .filter(e -> e.getEth().name().equals(ethSymbol))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("No matching elements"));
+                .orElseThrow(() -> new NoSuchElementException(
+                        "No matching profiles by "
+                                + ethSymbol
+                                + " ETH symbol"));
     }
 }

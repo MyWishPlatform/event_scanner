@@ -1,6 +1,5 @@
 package io.lastwill.eventscan.model;
 
-import io.lastwill.eventscan.services.TransferStatus;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

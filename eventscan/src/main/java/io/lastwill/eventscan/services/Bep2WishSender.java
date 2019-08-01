@@ -121,7 +121,7 @@ public class Bep2WishSender implements Sender {
                 swapRepository.save(swapEntry);
                 throw new Exception();
             }
-            swapEntry.setTransferStatus(TransferStatus.PROCESS);
+            swapEntry.setTransferStatus(TransferStatus.WAIT_FOR_CONFIRM);
 
             String txHash = result.getHash();
             swapEntry.setBnbTxHash(txHash);
@@ -131,7 +131,8 @@ public class Bep2WishSender implements Sender {
             eventPublisher.publish(new TokensTransferredEvent(
                     transferSymbol,
                     ethBnbProfile.getBnb().getDecimals(),
-                    swapEntry
+                    swapEntry,
+                    binanceWallet.getAddress()
             ));
         } catch (Exception e) {
             log.error("Error when transferring BEP-2 {}.", ethBnbProfile.getEth().name(), e);

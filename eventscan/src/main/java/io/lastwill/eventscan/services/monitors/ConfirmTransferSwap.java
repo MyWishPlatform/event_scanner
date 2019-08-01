@@ -26,11 +26,11 @@ public class ConfirmTransferSwap {
     @Autowired
     EthToBnbSwapEntryRepository repository;
 
-    @EventListener(TokensTransferredEvent.class)
-    public void onConfirm(final TokensTransferredEvent transferredEvent) {
-
-        transferredEvents.add(transferredEvent);
-    }
+//    @EventListener(TokensTransferredEvent.class)
+//    public void onConfirm(final TokensTransferredEvent transferredEvent) {
+//
+//        transferredEvents.add(transferredEvent);
+//    }
 
     @EventListener(NewBlockEvent.class)
     public void checkBlock(final NewBlockEvent newBlockEvent) {

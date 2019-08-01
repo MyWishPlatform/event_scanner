@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.model;
 
+import io.lastwill.eventscan.services.TransferStatus;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,12 @@ public class EthToBnbSwapEntry  {
     @Setter
     @Column(name = "bnb_tx_hash")
     private String bnbTxHash;
+
+    @Setter
+    @Column(name = "transfer_status")
+    @Enumerated(EnumType.STRING)
+    private TransferStatus transferStatus;
+
 
     public EthToBnbSwapEntry(EthToBnbLinkEntry linkEntry, BigInteger amount, String ethTxHash) {
         this.linkEntry = linkEntry;

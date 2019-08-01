@@ -117,8 +117,11 @@ public class Bep2WishSender implements Sender {
 
             TransactionMetadata result = results.get(0);
             if (!result.isOk()) {
+                swapEntry.setTransferStatus(TransferStatus.ERROR);
+                swapRepository.save(swapEntry);
                 throw new Exception();
             }
+            swapEntry.setTransferStatus(TransferStatus.PROCESS);
 
             String txHash = result.getHash();
             swapEntry.setBnbTxHash(txHash);

@@ -36,8 +36,8 @@ public class BurnMonitor {
     @Autowired
     private EthToBnbSwapEntryRepository swapRepository;
 
-    @Autowired
-    private Sender sender;
+//    @Autowired
+//    private Sender sender;
 
     @Autowired
     private ProfileStorage profileStorage;
@@ -72,7 +72,7 @@ public class BurnMonitor {
                                     .filter(event -> ethBnbProfile.getEthBurnerAddress().equalsIgnoreCase(event.getTo()))
                                     .forEach(transferEvents::add);
                             List<EthToBnbSwapEntry> swapEntries = publishEvent(transferEvents, transaction, ethBnbProfile);
-                            sendToken(swapEntries);
+                            sendToken(swapEntries, ethBnbProfile);
                         });
             }
         }
@@ -119,7 +119,7 @@ public class BurnMonitor {
                     swapEntry = swapRepository.save(swapEntry);
                     CryptoCurrency ethCoin = profile.getEth();
                     CryptoCurrency bnbCoin = profile.getBnb();
-                    log.info("{} burned {} {}", ethAddress, sender.toString(amount, bnbCoin.getDecimals()), ethCoin);
+                    log.info("{} burned {} {}", ethAddress, profile.getSender().toString(amount, bnbCoin.getDecimals()), ethCoin);
 
                     eventPublisher.publish(new TokensBurnedEvent(
                             ethCoin.name(),
@@ -133,11 +133,11 @@ public class BurnMonitor {
                 }).collect(Collectors.toList());
     }
 
-    private void sendToken(List<EthToBnbSwapEntry> swapEntries) {
+    private void sendToken(List<EthToBnbSwapEntry> swapEntries, EthBnbProfile profile) {
         swapEntries
                 .stream()
                 .filter(Objects::nonNull)
-                .forEach(sender::send);
+                .forEach(profile.getSender()::send);
     }
 
     private BigInteger convertEthToBnb(BigInteger amount, EthBnbProfile profile) {

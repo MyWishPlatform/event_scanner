@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.model;
 
+import io.lastwill.eventscan.services.Sender;
 import lombok.Getter;
 
 
@@ -14,6 +15,8 @@ public abstract class EthBnbProfile {
 
     private String transferSymbol;
 
+    Sender sender;
+
     CryptoCurrency eth;
 
     CryptoCurrency bnb;
@@ -24,6 +27,7 @@ public abstract class EthBnbProfile {
                          String ethBurnerAddress,
                          String ethTokenAddress,
                          String transferSymbol,
+                         Sender sender,
                          CryptoCurrency eth,
                          CryptoCurrency bnb) {
 
@@ -31,6 +35,7 @@ public abstract class EthBnbProfile {
         this.ethBurnerAddress = ethBurnerAddress;
         this.ethTokenAddress = ethTokenAddress;
         this.transferSymbol = transferSymbol;
+        this.sender = sender;
         this.eth = eth;
         this.bnb = bnb;
 

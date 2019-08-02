@@ -1,6 +1,5 @@
 package io.mywish.waves.blockchain;
 
-/*
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.LastBlockRepository;
@@ -21,9 +20,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan
- */
 public class WavesBCModule {
-    /*
     @ConditionalOnProperty("etherscanner.waves.rpc-url.mainnet")
     @Bean(name = NetworkType.WAVES_MAINNET_VALUE)
     public WavesNetwork wavesNetMain(
@@ -131,5 +128,4 @@ public class WavesBCModule {
             return new LastBlockFilePersister(NetworkType.WAVES_TESTNET, dir, lastBlock);
         }
     }
-     */
 }

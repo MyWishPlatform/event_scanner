@@ -7,7 +7,6 @@ import io.lastwill.eventscan.events.model.wishbnbswap.TokensBurnedEvent;
 import io.lastwill.eventscan.model.*;
 import io.lastwill.eventscan.repositories.EthToBnbLinkEntryRepository;
 import io.lastwill.eventscan.repositories.EthToBnbSwapEntryRepository;
-import io.lastwill.eventscan.services.Sender;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.scanner.model.NewBlockEvent;
@@ -35,9 +34,6 @@ public class BurnMonitor {
 
     @Autowired
     private EthToBnbSwapEntryRepository swapRepository;
-
-//    @Autowired
-//    private Sender sender;
 
     @Autowired
     private ProfileStorage profileStorage;

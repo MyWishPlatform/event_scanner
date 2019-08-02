@@ -31,7 +31,7 @@ public class WrapperLogWavesService {
             }
 
             buildersByName.put(key, eventBuilder);
-            log.info("Add Tron event builder {} => {}.", key, eventBuilder.getClass().getSimpleName());
+            log.info("Add Waves event builder {} => {}.", key, eventBuilder.getClass().getSimpleName());
         }
     }
 
@@ -47,7 +47,7 @@ public class WrapperLogWavesService {
 
         WavesEventBuilder<?> builder = buildersByName.get(functionName);
         if (builder == null) {
-            log.warn("There is no builder for Tron event {}.", functionName);
+            log.warn("There is no builder for Waves event {}.", functionName);
             return null;
         }
 

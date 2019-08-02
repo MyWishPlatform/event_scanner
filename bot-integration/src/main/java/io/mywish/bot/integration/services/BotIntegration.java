@@ -87,13 +87,13 @@ public class BotIntegration {
 
     @EventListener
     private void onSwapsOrderCreated(final SwapsOrderCreatedEvent event) {
-        ProductSwaps2 product = event.getProduct();
-        String network = networkName.getOrDefault(product.getNetwork().getType(), defaultNetwork);
+        Swaps2Order order = event.getOrder();
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         String txHash = event.getTransaction().getHash();
-        String txLink = explorerProvider.getOrStub(product.getNetwork().getType())
+        String txLink = explorerProvider.getOrStub(event.getNetworkType())
                 .buildToTransaction(txHash);
 
-        bot.onSwapsOrder(network, product.getId(), txHash, txLink);
+        bot.onSwapsOrder(network, order.getId(), txHash, txLink);
     }
 
     @EventListener

@@ -1,5 +1,6 @@
 package io.mywish.waves.blockchain;
 
+/*
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.LastBlockRepository;
@@ -17,21 +18,21 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import java.net.URISyntaxException;
 
 @Configuration
 @ComponentScan
+ */
 public class WavesBCModule {
+    /*
     @ConditionalOnProperty("etherscanner.waves.rpc-url.mainnet")
     @Bean(name = NetworkType.WAVES_MAINNET_VALUE)
     public WavesNetwork wavesNetMain(
             final CloseableHttpClient httpClient,
             final @Value("${etherscanner.waves.rpc-url.mainnet}") String rpcUrl,
             ObjectMapper objectMapper
-    ) throws URISyntaxException {
+    ) {
         return new WavesNetwork(
                 NetworkType.WAVES_MAINNET,
-               //(WavesClient) new Node(rpcUrl, 'W', httpClient)
                 new WavesClientImpl(
                         httpClient,
                         rpcUrl,
@@ -49,7 +50,6 @@ public class WavesBCModule {
     ) {
         return new WavesNetwork(
                 NetworkType.WAVES_TESTNET,
-//                new Node(rpcUrl, 'T', httpClient)
                 new WavesClientImpl(
                         httpClient,
                         rpcUrl,
@@ -131,4 +131,5 @@ public class WavesBCModule {
             return new LastBlockFilePersister(NetworkType.WAVES_TESTNET, dir, lastBlock);
         }
     }
+     */
 }

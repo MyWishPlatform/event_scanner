@@ -107,7 +107,7 @@ public class BotIntegration {
             final String id = Integer.toString(userSiteBalance.getUser().getId());
             bot.onBalance(
                     network,
-                    email != null ? email : id,
+                    email != null && !email.isEmpty() ? email : id,
                     toCurrency(event.getCurrency(), event.getAmount()),
                     txLink
             );

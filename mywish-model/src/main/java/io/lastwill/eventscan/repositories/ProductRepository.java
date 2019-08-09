@@ -65,24 +65,38 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
 
     List<Product> findAllByUserId(@Param("userId") Integer userId);
 
-    @Query("select c from ProductToken c where c.createdDate >= :from and c.network.type = :network")
-    List<ProductToken> findEthTokensFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
+    @Query("select c from ProductToken c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.ETHEREUM_MAINNET")
+    List<ProductToken> findEthTokensFromDate(@Param("from") LocalDateTime from);
 
-    @Query("select c from ProductCrowdsale c where c.createdDate >= :from and c.network.type = :network")
-    List<ProductCrowdsale> findEthIcoFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
+    @Query("select c from ProductCrowdsale c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.ETHEREUM_MAINNET")
+    List<ProductCrowdsale> findEthIcoFromDate(@Param("from") LocalDateTime from);
 
-    @Query("select c from ProductTokenEos c where c.createdDate >= :from and c.network.type = :network")
-    List<ProductTokenEos> findEosTokensFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
+    @Query("select c from ProductTokenEos c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.EOS_MAINNET")
+    List<ProductTokenEos> findEosTokensFromDate(@Param("from") LocalDateTime from);
 
-    @Query("select c from ProductTokenExtEos c where c.createdDate >= :from and c.network.type = :network")
-    List<ProductTokenExtEos> findEosTokensExtFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
+    @Query("select c from ProductTokenExtEos c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.EOS_MAINNET")
+    List<ProductTokenExtEos> findEosTokensExtFromDate(@Param("from") LocalDateTime from);
 
-    @Query("select c from ProductCrowdsaleEos c where c.createdDate >= :from and c.network.type = :network")
-    List<ProductCrowdsaleEos> findEosIcoFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
+    @Query("select c from ProductCrowdsaleEos c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.EOS_MAINNET")
+    List<ProductCrowdsaleEos> findEosIcoFromDate(@Param("from") LocalDateTime from);
 
-    @Query("select c from ProductTokenTron c where c.createdDate >= :from and c.network.type = :network")
-    List<ProductTokenTron> findTronTokensFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
+    @Query("select c from ProductTokenTron c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.TRON_MAINNET")
+    List<ProductTokenTron> findTronTokensFromDate(@Param("from") LocalDateTime from);
 
-    @Query("select c from ProductStoWaves c where c.createdDate >= :from and c.network.type = :network")
-    List<ProductStoWaves> findWavesStoFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
+    @Query("select c from ProductStoWaves c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.WAVES_MAINNET")
+    List<ProductStoWaves> findWavesStoFromDate(@Param("from") LocalDateTime from);
 }

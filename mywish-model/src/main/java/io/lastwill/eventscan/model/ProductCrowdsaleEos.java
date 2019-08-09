@@ -11,7 +11,10 @@ import java.time.Instant;
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("12")
 @Getter
-public class ProductCrowdsaleEos extends Product {
+public class ProductCrowdsaleEos extends ProductTokenCommon {
+    @Column(name = "token_short_name")
+    private String symbol;
+
 //    @Column(name = "stop_date")
 //    private int finishTimestamp;
 //    @ManyToOne

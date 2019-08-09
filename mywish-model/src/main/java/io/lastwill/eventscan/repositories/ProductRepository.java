@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -63,4 +64,25 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
     );
 
     List<Product> findAllByUserId(@Param("userId") Integer userId);
+
+    @Query("select c from ProductToken c where c.createdDate >= :from and c.network.type = :network")
+    List<ProductToken> findEthTokensFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
+
+    @Query("select c from ProductCrowdsale c where c.createdDate >= :from and c.network.type = :network")
+    List<ProductCrowdsale> findEthIcoFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
+
+    @Query("select c from ProductTokenEos c where c.createdDate >= :from and c.network.type = :network")
+    List<ProductTokenEos> findEosTokensFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
+
+    @Query("select c from ProductTokenExtEos c where c.createdDate >= :from and c.network.type = :network")
+    List<ProductTokenExtEos> findEosTokensExtFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
+
+    @Query("select c from ProductCrowdsaleEos c where c.createdDate >= :from and c.network.type = :network")
+    List<ProductCrowdsaleEos> findEosIcoFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
+
+    @Query("select c from ProductTokenTron c where c.createdDate >= :from and c.network.type = :network")
+    List<ProductTokenTron> findTronTokensFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
+
+    @Query("select c from ProductStoWaves c where c.createdDate >= :from and c.network.type = :network")
+    List<ProductStoWaves> findWavesStoFromDate(@Param("from") LocalDateTime from, @Param("network") NetworkType network);
 }

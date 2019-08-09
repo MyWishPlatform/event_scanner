@@ -12,6 +12,9 @@ import java.time.Instant;
 @DiscriminatorValue("12")
 @Getter
 public class ProductCrowdsaleEos extends Product {
+    @Column(name = "token_short_name")
+    private String symbol;
+
 //    @Column(name = "stop_date")
 //    private int finishTimestamp;
 //    @ManyToOne

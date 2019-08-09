@@ -13,6 +13,9 @@ import java.time.ZonedDateTime;
 @DiscriminatorValue("4")
 @Getter
 public class ProductCrowdsale extends Product implements ProductSingleCheck {
+    @Column(name = "token_short_name")
+    private String symbol;
+
     @Column(name = "stop_date")
     private int finishTimestamp;
     @ManyToOne

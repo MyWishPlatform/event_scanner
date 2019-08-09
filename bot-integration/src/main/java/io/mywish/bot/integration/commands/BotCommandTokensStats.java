@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 public class BotCommandTokensStats implements BotCommand {
@@ -61,13 +62,7 @@ public class BotCommandTokensStats implements BotCommand {
         products.addAll(productRepository.findTronTokensFromDate(from));
         products.addAll(productRepository.findWavesStoFromDate(from));
 
-        if (products.isEmpty()) {
-            context.sendMessage("No contracts");
-            return;
-        }
-
-        StringBuilder messageBuilder = new StringBuilder();
-        products.stream()
+        products = products.stream()
                 .filter(product -> !Objects.equals(product.getState(), ContractState.CREATED))
                 .filter(product -> !Objects.equals(product.getState(), ContractState.CONFIRMED))
                 .filter(product -> !Objects.equals(product.getState(), ContractState.WAITING_FOR_PAYMENT))
@@ -76,7 +71,15 @@ public class BotCommandTokensStats implements BotCommand {
                 .filter(product -> !Objects.equals(product.getState(), ContractState.WAITING_FOR_ACTIVATION))
                 .filter(product -> !Objects.equals(product.getState(), ContractState.POSTPONED))
                 .sorted(Comparator.comparing(Product::getCreatedDate))
-                .forEach(product -> append(messageBuilder, product));
+                .collect(Collectors.toList());
+
+        if (products.isEmpty()) {
+            context.sendMessage("No contracts");
+            return;
+        }
+
+        StringBuilder messageBuilder = new StringBuilder();
+        products.forEach(product -> append(messageBuilder, product));
 
         context.sendMessage(messageBuilder.toString());
     }

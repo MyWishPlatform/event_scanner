@@ -53,13 +53,13 @@ public class BotCommandTokensStats implements BotCommand {
         LocalDateTime from = LocalDateTime.now().minusDays(daysCount);
 
         List<ProductTokenCommon> products = new ArrayList<>();
-        products.addAll(productRepository.findEthTokensFromDate(from, NetworkType.ETHEREUM_MAINNET));
-        products.addAll(productRepository.findEthIcoFromDate(from, NetworkType.ETHEREUM_MAINNET));
-        products.addAll(productRepository.findEosTokensFromDate(from, NetworkType.EOS_MAINNET));
-        products.addAll(productRepository.findEosTokensExtFromDate(from, NetworkType.EOS_MAINNET));
-        products.addAll(productRepository.findEosIcoFromDate(from, NetworkType.EOS_MAINNET));
-        products.addAll(productRepository.findTronTokensFromDate(from, NetworkType.TRON_MAINNET));
-        products.addAll(productRepository.findWavesStoFromDate(from, NetworkType.WAVES_MAINNET));
+        products.addAll(productRepository.findEthTokensFromDate(from));
+        products.addAll(productRepository.findEthIcoFromDate(from));
+        products.addAll(productRepository.findEosTokensFromDate(from));
+        products.addAll(productRepository.findEosTokensExtFromDate(from));
+        products.addAll(productRepository.findEosIcoFromDate(from));
+        products.addAll(productRepository.findTronTokensFromDate(from));
+        products.addAll(productRepository.findWavesStoFromDate(from));
 
         if (products.isEmpty()) {
             context.sendMessage("No contracts");
@@ -68,6 +68,13 @@ public class BotCommandTokensStats implements BotCommand {
 
         StringBuilder messageBuilder = new StringBuilder();
         products.stream()
+                .filter(product -> !Objects.equals(product.getState(), ContractState.CREATED))
+                .filter(product -> !Objects.equals(product.getState(), ContractState.CONFIRMED))
+                .filter(product -> !Objects.equals(product.getState(), ContractState.WAITING_FOR_PAYMENT))
+                .filter(product -> !Objects.equals(product.getState(), ContractState.WAITING_FOR_DEPLOYMENT))
+                .filter(product -> !Objects.equals(product.getState(), ContractState.WAITING_ACTIVATION))
+                .filter(product -> !Objects.equals(product.getState(), ContractState.WAITING_FOR_ACTIVATION))
+                .filter(product -> !Objects.equals(product.getState(), ContractState.POSTPONED))
                 .sorted(Comparator.comparing(Product::getCreatedDate))
                 .forEach(product -> append(messageBuilder, product));
 
@@ -82,6 +89,7 @@ public class BotCommandTokensStats implements BotCommand {
         appendSymbol(messageBuilder, product);
         appendName(messageBuilder, product);
         appendAddress(messageBuilder, product);
+        appendState(messageBuilder, product);
         appendLineBreak(messageBuilder);
         return messageBuilder;
     }
@@ -157,6 +165,12 @@ public class BotCommandTokensStats implements BotCommand {
         return messageBuilder
                 .append("\naddress: ")
                 .append(contract.getAddress());
+    }
+
+    private StringBuilder appendState(StringBuilder messageBuilder, ProductTokenCommon product) {
+        return messageBuilder
+                .append("\nstate: ")
+                .append(product.getState());
     }
 
     private StringBuilder appendLineBreak(StringBuilder messageBuilder) {

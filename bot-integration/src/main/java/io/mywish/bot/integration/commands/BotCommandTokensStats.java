@@ -19,7 +19,7 @@ public class BotCommandTokensStats implements BotCommand {
     @Getter
     private final String name = "/tokens";
     @Getter
-    private final String usage = "/tokens [days count]";
+    private final String usage = "[days count]";
     @Getter
     private final String description = "Print information about created tokens for last month";
 

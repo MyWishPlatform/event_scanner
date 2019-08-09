@@ -61,6 +61,11 @@ public class BotCommandTokensStats implements BotCommand {
         products.addAll(productRepository.findTronTokensFromDate(from, NetworkType.TRON_MAINNET));
         products.addAll(productRepository.findWavesStoFromDate(from, NetworkType.WAVES_MAINNET));
 
+        if (products.isEmpty()) {
+            context.sendMessage("No contracts");
+            return;
+        }
+
         StringBuilder messageBuilder = new StringBuilder();
         products.stream()
                 .sorted(Comparator.comparing(Product::getCreatedDate))

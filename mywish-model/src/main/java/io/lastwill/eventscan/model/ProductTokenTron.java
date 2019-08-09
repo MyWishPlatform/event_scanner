@@ -9,7 +9,7 @@ import javax.persistence.*;
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("15")
 @Getter
-public class ProductTokenTron extends ProductTokenCommon {
+public class ProductTokenTron extends ProductTokenCommon implements ProductNameable {
     @Column(name = "token_name")
     private String name;
 

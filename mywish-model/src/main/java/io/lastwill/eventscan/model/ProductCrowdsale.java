@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("4")
 @Getter
-public class ProductCrowdsale extends Product implements ProductSingleCheck {
+public class ProductCrowdsale extends ProductTokenCommon implements ProductSingleCheck {
     @Column(name = "token_short_name")
     private String symbol;
 

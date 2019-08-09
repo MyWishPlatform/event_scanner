@@ -10,7 +10,7 @@ import java.math.BigInteger;
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("6")
 @Getter
-public class ProductTokenNeo extends ProductTokenCommon {
+public class ProductTokenNeo extends ProductTokenCommon implements ProductNameable {
     @Column(name = "token_name")
     private String name;
 

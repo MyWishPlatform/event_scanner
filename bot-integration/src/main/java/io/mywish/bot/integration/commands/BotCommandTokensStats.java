@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class BotCommandTokensStats implements BotCommand {
@@ -24,10 +25,15 @@ public class BotCommandTokensStats implements BotCommand {
 
     @Autowired
     private BotUserRepository botUserRepository;
+
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ContractRepository contractRepository;
 
     @Override
     public void execute(ChatContext context, List<String> args) {
@@ -46,53 +52,42 @@ public class BotCommandTokensStats implements BotCommand {
 
         LocalDateTime from = LocalDateTime.now().minusDays(daysCount);
 
-        List<Product> products = new ArrayList<>();
-        products.addAll(productRepository.findEthTokensFromDate(from));
-        products.addAll(productRepository.findEthIcoFromDate(from));
-        products.addAll(productRepository.findEosTokensFromDate(from));
-        products.addAll(productRepository.findEosTokensExtFromDate(from));
-        products.addAll(productRepository.findEosIcoFromDate(from));
-        products.addAll(productRepository.findTronTokensFromDate(from));
-        products.addAll(productRepository.findWavesStoFromDate(from));
+        List<ProductTokenCommon> products = new ArrayList<>();
+        products.addAll(productRepository.findEthTokensFromDate(from, NetworkType.ETHEREUM_MAINNET));
+        products.addAll(productRepository.findEthIcoFromDate(from, NetworkType.ETHEREUM_MAINNET));
+        products.addAll(productRepository.findEosTokensFromDate(from, NetworkType.EOS_MAINNET));
+        products.addAll(productRepository.findEosTokensExtFromDate(from, NetworkType.EOS_MAINNET));
+        products.addAll(productRepository.findEosIcoFromDate(from, NetworkType.EOS_MAINNET));
+        products.addAll(productRepository.findTronTokensFromDate(from, NetworkType.TRON_MAINNET));
+        products.addAll(productRepository.findWavesStoFromDate(from, NetworkType.WAVES_MAINNET));
 
         StringBuilder messageBuilder = new StringBuilder();
         products.stream()
                 .sorted(Comparator.comparing(Product::getCreatedDate))
                 .forEach(product -> append(messageBuilder, product));
+
+        context.sendMessage(messageBuilder.toString());
     }
 
-    private StringBuilder append(StringBuilder messageBuilder, Product product) {
+    private StringBuilder append(StringBuilder messageBuilder, ProductTokenCommon product) {
         appendId(messageBuilder, product);
         appendType(messageBuilder, product);
         appendDate(messageBuilder, product);
         appendEmailOrId(messageBuilder, product);
-
-        if (product instanceof ProductToken) {
-            append(messageBuilder, (ProductToken) product);
-        } else if (product instanceof ProductCrowdsale) {
-            append(messageBuilder, (ProductCrowdsale) product);
-        } else if (product instanceof ProductTokenEos) {
-            append(messageBuilder, (ProductTokenEos) product);
-        } else if (product instanceof ProductTokenExtEos) {
-            append(messageBuilder, (ProductTokenExtEos) product);
-        } else if (product instanceof ProductCrowdsaleEos) {
-            append(messageBuilder, (ProductCrowdsaleEos) product);
-        } else if (product instanceof ProductTokenTron) {
-            append(messageBuilder, (ProductTokenTron) product);
-        } else if (product instanceof ProductStoWaves) {
-            append(messageBuilder, (ProductStoWaves) product);
-        }
-
+        appendSymbol(messageBuilder, product);
+        appendName(messageBuilder, product);
+        appendAddress(messageBuilder, product);
+        appendLineBreak(messageBuilder);
         return messageBuilder;
     }
 
-    private StringBuilder appendId(StringBuilder messageBuilder, Product product) {
+    private StringBuilder appendId(StringBuilder messageBuilder, ProductTokenCommon product) {
         return messageBuilder
                 .append("\nid: ")
                 .append(product.getId());
     }
 
-    private StringBuilder appendType(StringBuilder messageBuilder, Product product) {
+    private StringBuilder appendType(StringBuilder messageBuilder, ProductTokenCommon product) {
         int contractType = product.getContractType();
         String typename = ProductStatistics.PRODUCT_TYPES.getOrDefault(contractType, "unknown");
         return messageBuilder
@@ -103,13 +98,13 @@ public class BotCommandTokensStats implements BotCommand {
                 .append(")");
     }
 
-    private StringBuilder appendDate(StringBuilder messageBuilder, Product product) {
+    private StringBuilder appendDate(StringBuilder messageBuilder, ProductTokenCommon product) {
         return messageBuilder
                 .append("\ndate: ")
                 .append(product.getCreatedDate());
     }
 
-    private StringBuilder appendEmailOrId(StringBuilder messageBuilder, Product product) {
+    private StringBuilder appendEmailOrId(StringBuilder messageBuilder, ProductTokenCommon product) {
         User user = userRepository.findOne(product.getUserId());
         String email = user.getEmail();
         int id = user.getId();
@@ -125,24 +120,41 @@ public class BotCommandTokensStats implements BotCommand {
                 .append(email);
     }
 
-    private void append(StringBuilder messageBuilder, ProductToken product) {
+    private StringBuilder appendSymbol(StringBuilder messageBuilder, ProductTokenCommon product) {
+        return messageBuilder
+                .append("\nsymbol: ")
+                .append(product.getSymbol());
     }
 
-    private void append(StringBuilder messageBuilder, ProductCrowdsale product) {
+    private StringBuilder appendName(StringBuilder messageBuilder, ProductTokenCommon product) {
+        if (product instanceof ProductNameable) {
+            ProductNameable nameable = (ProductNameable) product;
+            return messageBuilder
+                    .append("\nname: ")
+                    .append(nameable.getName());
+        }
+
+        return messageBuilder;
     }
 
-    private void append(StringBuilder messageBuilder, ProductTokenEos product) {
+    private StringBuilder appendAddress(StringBuilder messageBuilder, ProductTokenCommon product) {
+        Contract contract = contractRepository
+                .findByProduct(product)
+                .stream()
+                .filter(c -> Objects.nonNull(c.getTxHash()))
+                .findFirst()
+                .orElse(null);
+
+        if (contract == null) {
+            return messageBuilder;
+        }
+
+        return messageBuilder
+                .append("\naddress: ")
+                .append(contract.getAddress());
     }
 
-    private void append(StringBuilder messageBuilder, ProductTokenExtEos product) {
-    }
-
-    private void append(StringBuilder messageBuilder, ProductCrowdsaleEos product) {
-    }
-
-    private void append(StringBuilder messageBuilder, ProductTokenTron product) {
-    }
-
-    private void append(StringBuilder messageBuilder, ProductStoWaves product) {
+    private StringBuilder appendLineBreak(StringBuilder messageBuilder) {
+        return messageBuilder.append("\n");
     }
 }

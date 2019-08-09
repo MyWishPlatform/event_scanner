@@ -11,7 +11,7 @@ import java.time.Instant;
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("5")
 @Getter
-public class ProductToken extends ProductTokenCommon {
+public class ProductToken extends ProductTokenCommon implements ProductNameable {
     @Column(name = "token_name")
     private String name;
 

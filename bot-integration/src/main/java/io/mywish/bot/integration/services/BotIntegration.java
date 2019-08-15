@@ -93,7 +93,7 @@ public class BotIntegration {
         String txLink = explorerProvider.getOrStub(event.getNetworkType())
                 .buildToTransaction(txHash);
 
-        bot.onSwapsOrder(network, order.getId(), txHash, txLink);
+        bot.onSwapsOrder(network, order.getId(), order.getName(), txHash, txLink);
     }
 
     @EventListener
@@ -102,11 +102,10 @@ public class BotIntegration {
         User user = event.getUser();
         String email = user.getEmail();
         String id = order.getUser().toString();
-        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
 
         bot.onSwapsOrderFromDataBase(
-                network,
                 order.getId(),
+                order.getName(),
                 email != null && !email.isEmpty() ? email : id
         );
     }

@@ -116,11 +116,13 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllWithMarkdown(message);
     }
 
-    public void onSwapsOrder(String network, Integer productId, String transactionHash, String txLink) {
+    public void onSwapsOrder(String network, Integer productId, String name, String transactionHash, String txLink) {
         final String message = new StringBuilder()
                 .append(network)
                 .append(": new SWAPS2 Order (")
                 .append(productId)
+                .append(") (")
+
                 .append(") was created, see on [")
                 .append(transactionHash)
                 .append("](")
@@ -131,10 +133,12 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllWithMarkdown(message);
     }
 
-    public void onSwapsOrderFromDataBase(String network, Integer productId, String userIdOrEmail) {
+    public void onSwapsOrderFromDataBase(Integer productId, String name, String userIdOrEmail) {
         final String message = new StringBuilder()
                 .append("DB: new SWAPS Order (")
                 .append(productId)
+                .append(") (")
+                .append(name)
                 .append(") was created, by user ")
                 .append(userIdOrEmail)
                 .toString();

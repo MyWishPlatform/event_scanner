@@ -19,4 +19,7 @@ public class Swaps2Order {
 
     @Column(name = "user_id")
     private Integer user;
+
+    @Column(name = "name")
+    private String name;
 }

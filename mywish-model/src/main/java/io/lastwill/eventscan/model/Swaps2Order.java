@@ -16,4 +16,7 @@ public class Swaps2Order {
 
     @Column(name = "memo_contract")
     private String orderId;
+
+    @Column(name = "user_id")
+    private Integer user;
 }

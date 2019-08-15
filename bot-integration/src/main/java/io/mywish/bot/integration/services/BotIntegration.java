@@ -97,6 +97,21 @@ public class BotIntegration {
     }
 
     @EventListener
+    private void onSwapsNotificationMQ(final SwapsNotificationMQEvent event) {
+        Swaps2Order order = event.getOrder();
+        User user = event.getUser();
+        String email = user.getEmail();
+        String id = order.getUser().toString();
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+
+        bot.onSwapsOrderFromDataBase(
+                network,
+                order.getId(),
+                email != null && !email.isEmpty() ? email : id
+        );
+    }
+
+    @EventListener
     private void onOwnerBalanceChanged(final UserPaymentEvent event) {
         try {
             final UserSiteBalance userSiteBalance = event.getUserSiteBalance();

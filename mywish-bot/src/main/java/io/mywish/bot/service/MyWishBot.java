@@ -121,8 +121,6 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(network)
                 .append(": new SWAPS2 Order (")
                 .append(productId)
-                .append(") (")
-
                 .append(") was created, see on [")
                 .append(transactionHash)
                 .append("](")

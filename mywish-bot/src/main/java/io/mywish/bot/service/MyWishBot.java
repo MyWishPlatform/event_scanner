@@ -133,9 +133,7 @@ public class MyWishBot extends TelegramLongPollingBot {
 
     public void onSwapsOrderFromDataBase(String network, Integer productId, String userIdOrEmail) {
         final String message = new StringBuilder()
-                .append("DB: ")
-                .append(network)
-                .append(": new SWAPS Order (")
+                .append("DB: new SWAPS Order (")
                 .append(productId)
                 .append(") was created, by user ")
                 .append(userIdOrEmail)

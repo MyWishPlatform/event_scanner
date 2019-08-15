@@ -1,21 +1,32 @@
 package io.lastwill.eventscan.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.*;
 import io.lastwill.eventscan.events.model.SwapsNotificationMQEvent;
 import io.lastwill.eventscan.model.Swap2Json;
 import io.lastwill.eventscan.model.Swaps2Order;
 import io.lastwill.eventscan.repositories.Swaps2OrderRepository;
 import io.lastwill.eventscan.repositories.UserRepository;
-import io.lastwill.eventscan.services.MQListener;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
 
 @Slf4j
-public class SwapsListener implements MQListener {
+public class MQConsumer {
+
+    @Autowired
+    private ConnectionFactory factory;
+
+    @Value("${io.lastwill.eventscan.backend-mq.queue.swaps2}")
+    private String queueName;
+
+    private Channel channel;
 
     @Autowired
     private ObjectMapper mapper;
@@ -29,13 +40,26 @@ public class SwapsListener implements MQListener {
     @Autowired
     private EventPublisher eventPublisher;
 
+    @PostConstruct
+    public void init() throws IOException, TimeoutException {
+        Connection connection = factory.newConnection();
+        channel = connection.createChannel();
 
-    @Override
-    @RabbitListener(queues = "${io.lastwill.eventscan.backend-mq.queue.swaps2}")
-    public void onListen(String queueMessage) {
+        channel.basicConsume(queueName, true, new DefaultConsumer(channel) {
+            @Override
+            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
+                if (!"launch".equalsIgnoreCase(properties.getType())) {
+                    return;
+                }
+                onConvert(new String(body));
+            }
+        });
+    }
+
+    private void onConvert(String queueMessage) {
         Swap2Json swap2Json = null;
         try {
-             swap2Json = mapper.readValue(queueMessage, Swap2Json.class);
+            swap2Json = mapper.readValue(queueMessage, Swap2Json.class);
         } catch (IOException e) {
             log.error("Can't read json value from {}", queueMessage);
             e.printStackTrace();

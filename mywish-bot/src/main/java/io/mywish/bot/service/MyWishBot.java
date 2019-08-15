@@ -141,7 +141,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(userIdOrEmail)
                 .toString();
 
-        sendToAllWithMarkdown(message);
+        sendToAll(message);
     }
 
     public void onContractFailed(String network, Integer productId, String productType, Integer id, final String txLink) {

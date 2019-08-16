@@ -2,11 +2,9 @@ package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.model.SwapsOrderCreatedEvent;
 import io.lastwill.eventscan.events.model.SwapsOrderDepositEvent;
+import io.lastwill.eventscan.events.model.SwapsOrderRefundEvent;
 import io.lastwill.eventscan.events.model.contract.swaps2.*;
-import io.lastwill.eventscan.messages.swaps2.CancelledNotify;
-import io.lastwill.eventscan.messages.swaps2.DepositNotify;
-import io.lastwill.eventscan.messages.swaps2.FinalizedNotify;
-import io.lastwill.eventscan.messages.swaps2.OrderCreatedNotify;
+import io.lastwill.eventscan.messages.swaps2.*;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.Swaps2Order;
@@ -95,6 +93,16 @@ public class Swaps2Monitor {
                                                         depositEvent.getBalance(),
                                                         CryptoCurrency.ETH
                                                 ));
+                                    } else if (contractEvent instanceof RefundEvent) {
+                                        Swaps2Order order = orderRepository.findByOrderId(contractEvent.getId());
+                                        RefundEvent depositEvent = (RefundEvent) contractEvent;
+                                        eventPublisher.publish(
+                                                new SwapsOrderRefundEvent(event.getNetworkType(),
+                                                        order,
+                                                        tx,
+                                                        (RefundEvent)contractEvent,
+                                                        CryptoCurrency.ETH
+                                                ));
                                     }
                                 })
                                 .map(contractEvent -> {
@@ -130,6 +138,13 @@ public class Swaps2Monitor {
                                                 depositEvent.getUser(),
                                                 depositEvent.getAmount(),
                                                 depositEvent.getBalance()
+                                        );
+                                    } else if (contractEvent instanceof RefundEvent) {
+                                        return new RefundNotify(
+                                                tx.getHash(),
+                                                receipt.isSuccess(),
+                                                networkToSwapsAddresses.get(event.getNetworkType()),
+                                                (RefundEvent) contractEvent
                                         );
                                     }
                                     return null;

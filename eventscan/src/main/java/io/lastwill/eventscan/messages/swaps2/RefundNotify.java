@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.messages.swaps2;
 
+import io.lastwill.eventscan.events.model.contract.swaps2.RefundEvent;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -15,15 +16,12 @@ public class RefundNotify extends Swaps2Notify {
     public RefundNotify(String txHash,
                          boolean isSuccess,
                          String address,
-                         String id,
-                         String token,
-                         String user,
-                         BigInteger amount
+                         RefundEvent event
     ) {
-        super(txHash, isSuccess, address, id);
-        this.token = token;
-        this.user = user;
-        this.amount = amount;
+        super(txHash, isSuccess, address, event.getId());
+        this.token = event.getToken();
+        this.user = event.getUser();
+        this.amount = event.getAmount();
     }
 
     @Override

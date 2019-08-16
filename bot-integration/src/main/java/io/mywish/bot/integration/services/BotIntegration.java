@@ -97,6 +97,21 @@ public class BotIntegration {
     }
 
     @EventListener
+    private void onSwapsDeposit(final SwapsOrderDepositEvent event) {
+        Swaps2Order order = event.getOrder();
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        String txHash = event.getTransaction().getHash();
+        String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToTransaction(txHash);
+        String token = event.getToken();
+        String user = event.getUser();
+        String amount = toCurrency(event.getCurrency(),event.getAmount());
+        String balance = toCurrency(event.getCurrency(),event.getBalance());
+
+        bot.onSwapsDeposit(network, order.getId(), order.getName(), txHash, txLink, token, user, amount, balance);
+    }
+
+    @EventListener
     private void onSwapsNotificationMQ(final SwapsNotificationMQEvent event) {
         Swaps2Order order = event.getOrder();
         User user = event.getUser();

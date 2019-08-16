@@ -1,13 +1,13 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.model.SwapsOrderCreatedEvent;
-import io.lastwill.eventscan.events.model.contract.swaps2.CancelEvent;
-import io.lastwill.eventscan.events.model.contract.swaps2.OrderCreatedEvent;
-import io.lastwill.eventscan.events.model.contract.swaps2.SwapEvent;
-import io.lastwill.eventscan.events.model.contract.swaps2.Swaps2BaseEvent;
+import io.lastwill.eventscan.events.model.SwapsOrderDepositEvent;
+import io.lastwill.eventscan.events.model.contract.swaps2.*;
 import io.lastwill.eventscan.messages.swaps2.CancelledNotify;
+import io.lastwill.eventscan.messages.swaps2.DepositNotify;
 import io.lastwill.eventscan.messages.swaps2.FinalizedNotify;
 import io.lastwill.eventscan.messages.swaps2.OrderCreatedNotify;
+import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.Swaps2Order;
 import io.lastwill.eventscan.repositories.Swaps2OrderRepository;
@@ -82,6 +82,19 @@ public class Swaps2Monitor {
                                                 order,
                                                 tx
                                         ));
+                                    } else if (contractEvent instanceof DepositEvent) {
+                                        Swaps2Order order = orderRepository.findByOrderId(contractEvent.getId());
+                                        DepositEvent depositEvent = (DepositEvent) contractEvent;
+                                        eventPublisher.publish(
+                                                new SwapsOrderDepositEvent(event.getNetworkType(),
+                                                        order,
+                                                        tx,
+                                                        depositEvent.getToken(),
+                                                        depositEvent.getUser(),
+                                                        depositEvent.getAmount(),
+                                                        depositEvent.getBalance(),
+                                                        CryptoCurrency.ETH
+                                                ));
                                     }
                                 })
                                 .map(contractEvent -> {
@@ -105,6 +118,18 @@ public class Swaps2Monitor {
                                                 receipt.isSuccess(),
                                                 networkToSwapsAddresses.get(event.getNetworkType()),
                                                 contractEvent.getId()
+                                        );
+                                    } else if (contractEvent instanceof DepositEvent) {
+                                        DepositEvent depositEvent = (DepositEvent) contractEvent;
+                                        return new DepositNotify(
+                                                tx.getHash(),
+                                                receipt.isSuccess(),
+                                                networkToSwapsAddresses.get(event.getNetworkType()),
+                                                contractEvent.getId(),
+                                                depositEvent.getToken(),
+                                                depositEvent.getUser(),
+                                                depositEvent.getAmount(),
+                                                depositEvent.getBalance()
                                         );
                                     }
                                     return null;

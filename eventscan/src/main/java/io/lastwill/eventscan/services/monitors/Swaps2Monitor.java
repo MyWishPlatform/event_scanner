@@ -5,7 +5,6 @@ import io.lastwill.eventscan.events.model.SwapsOrderDepositEvent;
 import io.lastwill.eventscan.events.model.SwapsOrderRefundEvent;
 import io.lastwill.eventscan.events.model.contract.swaps2.*;
 import io.lastwill.eventscan.messages.swaps2.*;
-import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.Swaps2Order;
 import io.lastwill.eventscan.repositories.Swaps2OrderRepository;
@@ -88,22 +87,22 @@ public class Swaps2Monitor {
                                             ));
                                         } else if (contractEvent instanceof DepositEvent) {
                                             eventPublisher.publish(
-                                                    new SwapsOrderDepositEvent(event.getNetworkType(),
+                                                    new SwapsOrderDepositEvent(
+                                                            event.getNetworkType(),
                                                             order,
                                                             tx,
-                                                            (DepositEvent) contractEvent,
-                                                            userRepository.findOne(order.getUser()),
-                                                            CryptoCurrency.ETH
-                                                    ));
+                                                            (DepositEvent) contractEvent
+                                                    )
+                                            );
                                         } else if (contractEvent instanceof RefundEvent) {
                                             eventPublisher.publish(
-                                                    new SwapsOrderRefundEvent(event.getNetworkType(),
+                                                    new SwapsOrderRefundEvent(
+                                                            event.getNetworkType(),
                                                             order,
                                                             tx,
-                                                            (RefundEvent) contractEvent,
-                                                            userRepository.findOne(order.getUser()),
-                                                            CryptoCurrency.ETH
-                                                    ));
+                                                            (RefundEvent) contractEvent
+                                                    )
+                                            );
                                         }
                                     }
                                 })

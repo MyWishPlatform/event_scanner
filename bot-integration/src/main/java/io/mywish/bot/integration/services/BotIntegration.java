@@ -105,11 +105,9 @@ public class BotIntegration {
                 .buildToTransaction(txHash);
         String symbol = getSymbol(order, event.getToken());
         String amount = event.getAmount().toString();
-        String email = event.getUser().getEmail();
-        String id = order.getUser().toString();
-        String userIdOrEmail = email != null && !email.isEmpty() ? email : id;
+        String userAddress = event.getUserAddress();
 
-        bot.onSwapsDeposit(network, order.getId(), txHash, txLink, symbol, amount, userIdOrEmail);
+        bot.onSwapsDeposit(network, order.getId(), txHash, txLink, symbol, amount, userAddress);
     }
 
     @EventListener
@@ -120,12 +118,10 @@ public class BotIntegration {
         String txLink = explorerProvider.getOrStub(event.getNetworkType())
                 .buildToTransaction(txHash);
         String symbol = getSymbol(order, event.getToken());
-        String email = event.getUser().getEmail();
-        String id = order.getUser().toString();
-        String userIdOrEmail = email != null && !email.isEmpty() ? email : id;
+        String userAddress = event.getUserAddress();
         String amount = event.getAmount().toString();
 
-        bot.onSwapsRefund(network, order.getId(), txHash, txLink, symbol, amount, userIdOrEmail);
+        bot.onSwapsRefund(network, order.getId(), txHash, txLink, symbol, amount, userAddress);
     }
 
     @EventListener

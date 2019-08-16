@@ -9,6 +9,7 @@ import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.Swaps2Order;
 import io.lastwill.eventscan.repositories.Swaps2OrderRepository;
+import io.lastwill.eventscan.repositories.UserRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.model.NewBlockEvent;
@@ -28,6 +29,10 @@ import java.util.Objects;
 @Slf4j
 @Component
 public class Swaps2Monitor {
+
+    @Autowired
+    private UserRepository userRepository;
+
     @Autowired
     private ExternalNotifier externalNotifier;
 
@@ -87,16 +92,17 @@ public class Swaps2Monitor {
                                                         order,
                                                         tx,
                                                         (DepositEvent) contractEvent,
+                                                        userRepository.findOne(order.getUser()),
                                                         CryptoCurrency.ETH
                                                 ));
                                     } else if (contractEvent instanceof RefundEvent) {
                                         Swaps2Order order = orderRepository.findByOrderId(contractEvent.getId());
-                                        RefundEvent depositEvent = (RefundEvent) contractEvent;
                                         eventPublisher.publish(
                                                 new SwapsOrderRefundEvent(event.getNetworkType(),
                                                         order,
                                                         tx,
                                                         (RefundEvent)contractEvent,
+                                                        userRepository.findOne(order.getUser()),
                                                         CryptoCurrency.ETH
                                                 ));
                                     }

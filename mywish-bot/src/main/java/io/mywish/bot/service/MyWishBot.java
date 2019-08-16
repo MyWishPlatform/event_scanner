@@ -131,15 +131,15 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllWithMarkdown(message);
     }
 
-    public void onSwapsDeposit(String network, Integer productId, String name, String transactionHash, String txLink,
-                               String token, String user, String amount, String balance) {
+    public void onSwapsDeposit(String network, Integer productId, String transactionHash, String txLink,
+                               String token, String amount, String userIdOrEmail) {
         final String message = new StringBuilder()
                 .append(network)
                 .append(": new SWAPS2 Deposit (")
                 .append(productId)
-                .append(") was created, by User [")
-                .append(user)
-                .append(" , with ")
+                .append(") was created by user ")
+                .append(userIdOrEmail)
+                .append(", with ")
                 .append(token)
                 .append(" token and ")
                 .append(amount)
@@ -153,15 +153,15 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllWithMarkdown(message);
     }
 
-    public void onSwapsRefund(String network, Integer productId, String name, String transactionHash, String txLink,
-                               String token, String user, String amount) {
+    public void onSwapsRefund(String network, Integer productId, String transactionHash, String txLink,
+                               String token, String amount, String userIdOrEmail) {
         final String message = new StringBuilder()
                 .append(network)
                 .append(": new SWAPS2 Refund (")
                 .append(productId)
-                .append(") by User [")
-                .append(user)
-                .append(" , with ")
+                .append(") was created by user ")
+                .append(userIdOrEmail)
+                .append(", with ")
                 .append(token)
                 .append(" token and ")
                 .append(amount)
@@ -181,7 +181,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(productId)
                 .append(") (")
                 .append(name)
-                .append(") was created, by user ")
+                .append(") was created by user ")
                 .append(userIdOrEmail)
                 .toString();
 

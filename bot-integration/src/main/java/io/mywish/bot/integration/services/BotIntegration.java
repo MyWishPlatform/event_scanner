@@ -104,11 +104,12 @@ public class BotIntegration {
         String txLink = explorerProvider.getOrStub(event.getNetworkType())
                 .buildToTransaction(txHash);
         String token = event.getToken();
-        String user = event.getUser();
         String amount = toCurrency(event.getCurrency(),event.getAmount());
-        String balance = toCurrency(event.getCurrency(),event.getBalance());
+        String email = event.getUser().getEmail();
+        String id = order.getUser().toString();
+        String userIdOrEmail = email != null && !email.isEmpty() ? email : id;
 
-        bot.onSwapsDeposit(network, order.getId(), order.getName(), txHash, txLink, token, user, amount, balance);
+        bot.onSwapsDeposit(network, order.getId(), txHash, txLink, token, amount, userIdOrEmail);
     }
 
     @EventListener
@@ -119,10 +120,12 @@ public class BotIntegration {
         String txLink = explorerProvider.getOrStub(event.getNetworkType())
                 .buildToTransaction(txHash);
         String token = event.getToken();
-        String user = event.getUser();
+        String email = event.getUser().getEmail();
+        String id = order.getUser().toString();
+        String userIdOrEmail = email != null && !email.isEmpty() ? email : id;
         String amount = toCurrency(event.getCurrency(),event.getAmount());
 
-        bot.onSwapsRefund(network, order.getId(), order.getName(), txHash, txLink, token, user, amount);
+        bot.onSwapsRefund(network, order.getId(), txHash, txLink, token, amount, userIdOrEmail);
     }
 
     @EventListener

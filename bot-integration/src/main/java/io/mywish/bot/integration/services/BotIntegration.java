@@ -97,6 +97,32 @@ public class BotIntegration {
     }
 
     @EventListener
+    private void onSwapsDeposit(final SwapsOrderDepositEvent event) {
+        Swaps2Order order = event.getOrder();
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        String txHash = event.getTransaction().getHash();
+        String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToTransaction(txHash);
+        String symbol = getSymbol(order, event.getToken());
+        String userAddress = event.getUserAddress();
+
+        bot.onSwapsDeposit(network, order.getId(), txHash, txLink, symbol, userAddress);
+    }
+
+    @EventListener
+    private void onSwapRefund(final SwapsOrderRefundEvent event) {
+        Swaps2Order order = event.getOrder();
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        String txHash = event.getTransaction().getHash();
+        String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToTransaction(txHash);
+        String symbol = getSymbol(order, event.getToken());
+        String userAddress = event.getUserAddress();
+
+        bot.onSwapsRefund(network, order.getId(), txHash, txLink, symbol, userAddress);
+    }
+
+    @EventListener
     private void onSwapsNotificationMQ(final SwapsNotificationMQEvent event) {
         Swaps2Order order = event.getOrder();
         User user = event.getUser();
@@ -234,5 +260,21 @@ public class BotIntegration {
                 this.localZone
         )
                 .format(dateFormatter);
+    }
+
+    private String getSymbol(Swaps2Order order, String token) {
+        String[] symbols = order.getName().split("<>");
+
+        if (symbols.length == 2) {
+            if (token.equalsIgnoreCase(order.getBaseAddress())) {
+                return symbols[0];
+            }
+
+            if (token.equalsIgnoreCase(order.getQuoteAddress())) {
+                return symbols[1];
+            }
+        }
+
+        return token;
     }
 }

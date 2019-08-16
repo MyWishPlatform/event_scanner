@@ -1,16 +1,14 @@
 package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.model.SwapsOrderCreatedEvent;
-import io.lastwill.eventscan.events.model.contract.swaps2.CancelEvent;
-import io.lastwill.eventscan.events.model.contract.swaps2.OrderCreatedEvent;
-import io.lastwill.eventscan.events.model.contract.swaps2.SwapEvent;
-import io.lastwill.eventscan.events.model.contract.swaps2.Swaps2BaseEvent;
-import io.lastwill.eventscan.messages.swaps2.CancelledNotify;
-import io.lastwill.eventscan.messages.swaps2.FinalizedNotify;
-import io.lastwill.eventscan.messages.swaps2.OrderCreatedNotify;
+import io.lastwill.eventscan.events.model.SwapsOrderDepositEvent;
+import io.lastwill.eventscan.events.model.SwapsOrderRefundEvent;
+import io.lastwill.eventscan.events.model.contract.swaps2.*;
+import io.lastwill.eventscan.messages.swaps2.*;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.Swaps2Order;
 import io.lastwill.eventscan.repositories.Swaps2OrderRepository;
+import io.lastwill.eventscan.repositories.UserRepository;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.scanner.model.NewBlockEvent;
@@ -30,6 +28,10 @@ import java.util.Objects;
 @Slf4j
 @Component
 public class Swaps2Monitor {
+
+    @Autowired
+    private UserRepository userRepository;
+
     @Autowired
     private ExternalNotifier externalNotifier;
 
@@ -75,13 +77,33 @@ public class Swaps2Monitor {
                                 .map(contractEvent -> (Swaps2BaseEvent) contractEvent)
                                 .filter(contractEvent -> orderRepository.findByOrderId(contractEvent.getId()) != null)
                                 .peek(contractEvent -> {
-                                    if (contractEvent instanceof OrderCreatedEvent) {
+                                    if (contractEvent instanceof Swaps2BaseEvent) {
                                         Swaps2Order order = orderRepository.findByOrderId(contractEvent.getId());
-                                        eventPublisher.publish(new SwapsOrderCreatedEvent(
-                                                event.getNetworkType(),
-                                                order,
-                                                tx
-                                        ));
+                                        if (contractEvent instanceof OrderCreatedEvent) {
+                                            eventPublisher.publish(new SwapsOrderCreatedEvent(
+                                                    event.getNetworkType(),
+                                                    order,
+                                                    tx
+                                            ));
+                                        } else if (contractEvent instanceof DepositEvent) {
+                                            eventPublisher.publish(
+                                                    new SwapsOrderDepositEvent(
+                                                            event.getNetworkType(),
+                                                            order,
+                                                            tx,
+                                                            (DepositEvent) contractEvent
+                                                    )
+                                            );
+                                        } else if (contractEvent instanceof RefundEvent) {
+                                            eventPublisher.publish(
+                                                    new SwapsOrderRefundEvent(
+                                                            event.getNetworkType(),
+                                                            order,
+                                                            tx,
+                                                            (RefundEvent) contractEvent
+                                                    )
+                                            );
+                                        }
                                     }
                                 })
                                 .map(contractEvent -> {
@@ -105,6 +127,20 @@ public class Swaps2Monitor {
                                                 receipt.isSuccess(),
                                                 networkToSwapsAddresses.get(event.getNetworkType()),
                                                 contractEvent.getId()
+                                        );
+                                    } else if (contractEvent instanceof DepositEvent) {
+                                        return new DepositNotify(
+                                                tx.getHash(),
+                                                receipt.isSuccess(),
+                                                networkToSwapsAddresses.get(event.getNetworkType()),
+                                                (DepositEvent) contractEvent
+                                        );
+                                    } else if (contractEvent instanceof RefundEvent) {
+                                        return new RefundNotify(
+                                                tx.getHash(),
+                                                receipt.isSuccess(),
+                                                networkToSwapsAddresses.get(event.getNetworkType()),
+                                                (RefundEvent) contractEvent
                                         );
                                     }
                                     return null;

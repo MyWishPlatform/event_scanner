@@ -22,4 +22,10 @@ public class Swaps2Order {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "base_address")
+    private String baseAddress;
+
+    @Column(name = "quote_address")
+    private String quoteAddress;
 }

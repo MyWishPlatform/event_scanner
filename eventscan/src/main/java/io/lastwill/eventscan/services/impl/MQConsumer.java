@@ -2,7 +2,7 @@ package io.lastwill.eventscan.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.*;
-import io.lastwill.eventscan.events.model.SwapsNotificationMQEvent;
+import io.lastwill.eventscan.events.model.Swaps2NotificationMQEvent;
 import io.lastwill.eventscan.model.Swap2Json;
 import io.lastwill.eventscan.model.Swaps2Order;
 import io.lastwill.eventscan.repositories.Swaps2OrderRepository;
@@ -71,7 +71,7 @@ public class MQConsumer {
         if (swaps2Order == null) {
             log.warn("Can't find swaps2 order by id = {}", swap2Json.getContractId());
         } else {
-            eventPublisher.publish(new SwapsNotificationMQEvent(swaps2Order, userRepository.findOne(swaps2Order.getUser())));
+            eventPublisher.publish(new Swaps2NotificationMQEvent(swaps2Order, userRepository.findOne(swaps2Order.getUser())));
             log.info("Added new swap2 order from data base {}.", swaps2Order.getOrderId());
         }
     }

@@ -1,6 +1,8 @@
 package io.lastwill.eventscan.services.handlers;
 
 import io.lastwill.eventscan.events.model.ContractEventsEvent;
+import io.lastwill.eventscan.events.model.SwapDepositEvent;
+import io.lastwill.eventscan.events.model.SwapRefundEvent;
 import io.lastwill.eventscan.events.model.contract.*;
 import io.lastwill.eventscan.events.model.contract.crowdsale.FinalizedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.TimesChangedEvent;
@@ -17,10 +19,12 @@ import io.lastwill.eventscan.messages.swaps.DepositSwapNotify;
 import io.lastwill.eventscan.messages.swaps.RefundSwapNotify;
 import io.lastwill.eventscan.model.*;
 import io.lastwill.eventscan.repositories.ProductRepository;
+import io.lastwill.eventscan.repositories.UserRepository;
 import io.lastwill.eventscan.services.BalanceProvider;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.services.handlers.events.TransferOwnershipHandler;
 import io.mywish.blockchain.ContractEvent;
+import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -34,6 +38,12 @@ import java.util.stream.Collectors;
 @Component
 @ConditionalOnBean(ExternalNotifier.class)
 public class ContractEventHandler {
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private EventPublisher eventPublisher;
+
     @Autowired
     private ExternalNotifier externalNotifier;
 
@@ -268,6 +278,7 @@ public class ContractEventHandler {
                         )
                 );
             } else if (contractEvent instanceof DepositSwapEvent) {
+                eventPublisher.publish(new SwapDepositEvent(event.getNetworkType(), event.getTransaction(), (DepositSwapEvent) contractEvent));
                 externalNotifier.send(
                         event.getNetworkType(),
                         new DepositSwapNotify(
@@ -277,6 +288,7 @@ public class ContractEventHandler {
                         )
                 );
             } else if(contractEvent instanceof RefundSwapEvent) {
+                eventPublisher.publish(new SwapRefundEvent(event.getNetworkType(), event.getTransaction(), (RefundSwapEvent) contractEvent));
                 externalNotifier.send(
                         event.getNetworkType(),
                         new RefundSwapNotify(

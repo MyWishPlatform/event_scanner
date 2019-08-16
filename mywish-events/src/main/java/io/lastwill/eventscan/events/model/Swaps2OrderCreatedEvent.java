@@ -6,11 +6,11 @@ import io.mywish.blockchain.WrapperTransaction;
 import lombok.Getter;
 
 @Getter
-public class SwapsOrderCreatedEvent extends BaseEvent {
+public class Swaps2OrderCreatedEvent extends BaseEvent {
     private final Swaps2Order order;
     private final WrapperTransaction transaction;
 
-    public SwapsOrderCreatedEvent(NetworkType networkType, Swaps2Order order, WrapperTransaction transaction) {
+    public Swaps2OrderCreatedEvent(NetworkType networkType, Swaps2Order order, WrapperTransaction transaction) {
         super(networkType);
         this.order = order;
         this.transaction = transaction;

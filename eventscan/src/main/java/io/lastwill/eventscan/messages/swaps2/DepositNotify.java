@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.messages.swaps2;
 
+import io.lastwill.eventscan.events.model.contract.swaps2.DepositEvent;
 import lombok.Getter;
 
 import java.math.BigInteger;
@@ -15,17 +16,13 @@ public class DepositNotify extends Swaps2Notify {
     public DepositNotify(String txHash,
                          boolean isSuccess,
                          String address,
-                         String id,
-                         String token,
-                         String user,
-                         BigInteger amount,
-                         BigInteger balance
+                         DepositEvent event
     ) {
-        super(txHash, isSuccess, address, id);
-        this.token = token;
-        this.user = user;
-        this.amount = amount;
-        this.balance = balance;
+        super(txHash, isSuccess, address, event.getId());
+        this.token = event.getToken();
+        this.user = event.getUser();
+        this.amount = event.getAmount();
+        this.balance = event.getBalance();
     }
 
     @Override

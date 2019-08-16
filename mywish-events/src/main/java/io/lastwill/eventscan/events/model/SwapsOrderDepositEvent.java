@@ -1,5 +1,6 @@
 package io.lastwill.eventscan.events.model;
 
+import io.lastwill.eventscan.events.model.contract.swaps2.DepositEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.Swaps2Order;
@@ -22,19 +23,16 @@ public class SwapsOrderDepositEvent extends BaseEvent {
     public SwapsOrderDepositEvent(NetworkType networkType,
                                   Swaps2Order order,
                                   WrapperTransaction transaction,
-                                  String token,
-                                  String user,
-                                  BigInteger amount,
-                                  BigInteger balance,
+                                  DepositEvent event,
                                   CryptoCurrency cryptoCurrency
     ) {
         super(networkType);
         this.order = order;
         this.transaction = transaction;
-        this.token = token;
-        this.user = user;
-        this.amount = amount;
-        this.balance = balance;
+        this.token = event.getToken();
+        this.user = event.getUser();
+        this.amount = event.getAmount();
+        this.balance = event.getBalance();
         this.currency = cryptoCurrency;
     }
 }

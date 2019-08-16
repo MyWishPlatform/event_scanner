@@ -82,15 +82,11 @@ public class Swaps2Monitor {
                                         ));
                                     } else if (contractEvent instanceof DepositEvent) {
                                         Swaps2Order order = orderRepository.findByOrderId(contractEvent.getId());
-                                        DepositEvent depositEvent = (DepositEvent) contractEvent;
                                         eventPublisher.publish(
                                                 new SwapsOrderDepositEvent(event.getNetworkType(),
                                                         order,
                                                         tx,
-                                                        depositEvent.getToken(),
-                                                        depositEvent.getUser(),
-                                                        depositEvent.getAmount(),
-                                                        depositEvent.getBalance(),
+                                                        (DepositEvent) contractEvent,
                                                         CryptoCurrency.ETH
                                                 ));
                                     } else if (contractEvent instanceof RefundEvent) {
@@ -128,16 +124,11 @@ public class Swaps2Monitor {
                                                 contractEvent.getId()
                                         );
                                     } else if (contractEvent instanceof DepositEvent) {
-                                        DepositEvent depositEvent = (DepositEvent) contractEvent;
                                         return new DepositNotify(
                                                 tx.getHash(),
                                                 receipt.isSuccess(),
                                                 networkToSwapsAddresses.get(event.getNetworkType()),
-                                                contractEvent.getId(),
-                                                depositEvent.getToken(),
-                                                depositEvent.getUser(),
-                                                depositEvent.getAmount(),
-                                                depositEvent.getBalance()
+                                                (DepositEvent) contractEvent
                                         );
                                     } else if (contractEvent instanceof RefundEvent) {
                                         return new RefundNotify(

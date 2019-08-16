@@ -153,6 +153,28 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllWithMarkdown(message);
     }
 
+    public void onSwapsRefund(String network, Integer productId, String name, String transactionHash, String txLink,
+                               String token, String user, String amount) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": new SWAPS2 Refund (")
+                .append(productId)
+                .append(") by User [")
+                .append(user)
+                .append(" , with ")
+                .append(token)
+                .append(" token and ")
+                .append(amount)
+                .append(" amount. See on [")
+                .append(transactionHash)
+                .append("](")
+                .append(txLink)
+                .append(").")
+                .toString();
+
+        sendToAllWithMarkdown(message);
+    }
+
     public void onSwapsOrderFromDataBase(Integer productId, String name, String userIdOrEmail) {
         final String message = new StringBuilder()
                 .append("DB: new SWAPS Order (")

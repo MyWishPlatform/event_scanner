@@ -1,6 +1,5 @@
 package io.mywish.web3.blockchain.builders.swaps2;
 
-import io.lastwill.eventscan.events.model.contract.swaps2.DepositEvent;
 import io.lastwill.eventscan.events.model.contract.swaps2.RefundEvent;
 import io.mywish.web3.blockchain.builders.Web3ContractEventBuilder;
 import io.mywish.web3.blockchain.model.Web3ContractEventDefinition;
@@ -28,7 +27,6 @@ public class OrderRefundEvent extends Web3ContractEventBuilder<RefundEvent> {
                     WrapperType.create(Bytes32.class, false),
                     WrapperType.create(Address.class, false),
                     WrapperType.create(Address.class, false),
-                    WrapperType.create(Uint.class, false),
                     WrapperType.create(Uint.class, false)
             )
     );

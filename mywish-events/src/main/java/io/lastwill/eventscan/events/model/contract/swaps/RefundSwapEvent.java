@@ -7,23 +7,22 @@ import lombok.Getter;
 import java.math.BigInteger;
 
 @Getter
-public class DepositEvent extends ContractEvent {
+public class RefundSwapEvent extends ContractEvent {
     private final String token;
     private final String user;
     private final BigInteger amount;
-    private final BigInteger balance;
 
-    public DepositEvent(ContractEventDefinition definition,
-                        String address,
-                        String token,
-                        String user,
-                        BigInteger amount,
-                        BigInteger balance
+
+    public RefundSwapEvent(ContractEventDefinition definition,
+                           String address,
+                           String token,
+                           String user,
+                           BigInteger amount
     ) {
         super(definition, address);
         this.token = token;
         this.user = user;
         this.amount = amount;
-        this.balance = balance;
+
     }
 }

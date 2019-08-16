@@ -1,6 +1,6 @@
 package io.mywish.web3.blockchain.builders.swaps;
 
-import io.lastwill.eventscan.events.model.contract.swaps.RefundEvent;
+import io.lastwill.eventscan.events.model.contract.swaps.RefundSwapEvent;
 import io.mywish.web3.blockchain.builders.Web3ContractEventBuilder;
 import io.mywish.web3.blockchain.model.Web3ContractEventDefinition;
 import io.mywish.web3.blockchain.model.WrapperType;
@@ -17,7 +17,7 @@ import java.util.List;
 @Getter
 @Component
 @NoArgsConstructor
-public class SwapRefundEventBuilder extends Web3ContractEventBuilder<RefundEvent> {
+public class SwapRefundEventBuilder extends Web3ContractEventBuilder<RefundSwapEvent> {
     private final Web3ContractEventDefinition definition = new Web3ContractEventDefinition(
             "Refund",
             Arrays.asList(
@@ -28,8 +28,8 @@ public class SwapRefundEventBuilder extends Web3ContractEventBuilder<RefundEvent
     );
 
     @Override
-    public RefundEvent build(String address, List<Object> values) {
-        return new RefundEvent(
+    public RefundSwapEvent build(String address, List<Object> values) {
+        return new RefundSwapEvent(
                 definition,
                 address,
                 (String) values.get(0),

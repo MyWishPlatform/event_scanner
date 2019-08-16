@@ -1,6 +1,6 @@
 package io.mywish.web3.blockchain.builders.swaps;
 
-import io.lastwill.eventscan.events.model.contract.swaps.DepositEvent;
+import io.lastwill.eventscan.events.model.contract.swaps.DepositSwapEvent;
 import io.mywish.web3.blockchain.builders.Web3ContractEventBuilder;
 import io.mywish.web3.blockchain.model.Web3ContractEventDefinition;
 import io.mywish.web3.blockchain.model.WrapperType;
@@ -17,7 +17,7 @@ import java.util.List;
 @Getter
 @Component
 @NoArgsConstructor
-public class SwapDepositEventBuilder extends Web3ContractEventBuilder<DepositEvent> {
+public class SwapDepositEventBuilder extends Web3ContractEventBuilder<DepositSwapEvent> {
     private final Web3ContractEventDefinition definition = new Web3ContractEventDefinition(
             "Deposit",
             Arrays.asList(
@@ -29,8 +29,8 @@ public class SwapDepositEventBuilder extends Web3ContractEventBuilder<DepositEve
     );
 
     @Override
-    public DepositEvent build(String address, List<Object> values) {
-        return new DepositEvent(
+    public DepositSwapEvent build(String address, List<Object> values) {
+        return new DepositSwapEvent(
                 definition,
                 address,
                 (String) values.get(0),

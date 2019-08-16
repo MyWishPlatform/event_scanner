@@ -9,8 +9,12 @@ import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressR
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.events.model.contract.investmentPool.*;
 import io.lastwill.eventscan.events.model.contract.swaps.CancelEvent;
+import io.lastwill.eventscan.events.model.contract.swaps.DepositSwapEvent;
+import io.lastwill.eventscan.events.model.contract.swaps.RefundSwapEvent;
 import io.lastwill.eventscan.events.model.contract.swaps.SwapEvent;
 import io.lastwill.eventscan.messages.*;
+import io.lastwill.eventscan.messages.swaps.DepositSwapNotify;
+import io.lastwill.eventscan.messages.swaps.RefundSwapNotify;
 import io.lastwill.eventscan.model.*;
 import io.lastwill.eventscan.repositories.ProductRepository;
 import io.lastwill.eventscan.services.BalanceProvider;
@@ -261,6 +265,24 @@ public class ContractEventHandler {
                                 event.getContract().getId(),
                                 PaymentStatus.COMMITTED,
                                 event.getTransaction().getHash()
+                        )
+                );
+            } else if (contractEvent instanceof DepositSwapEvent) {
+                externalNotifier.send(
+                        event.getNetworkType(),
+                        new DepositSwapNotify(
+                                PaymentStatus.COMMITTED,
+                                event.getTransaction().getHash(),
+                                (DepositSwapEvent) contractEvent
+                        )
+                );
+            } else if(contractEvent instanceof RefundSwapEvent) {
+                externalNotifier.send(
+                        event.getNetworkType(),
+                        new RefundSwapNotify(
+                                PaymentStatus.COMMITTED,
+                                event.getTransaction().getHash(),
+                                (RefundSwapEvent) contractEvent
                         )
                 );
             }

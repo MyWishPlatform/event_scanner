@@ -131,13 +131,55 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllWithMarkdown(message);
     }
 
+    public void onSwapsDeposit(String network, Integer productId, String transactionHash, String txLink,
+                               String symbol, String userIdOrEmail) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": SWAPS2 (")
+                .append(productId)
+                .append(") deposit of ")
+                .append(symbol)
+                .append(" was made by user ")
+                .append(userIdOrEmail)
+                .append(". See on ")
+                .append("<a href=\"")
+                .append(txLink)
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
+                .toString();
+
+        sendToAllWithHtml(message);
+    }
+
+    public void onSwapsRefund(String network, Integer productId, String transactionHash, String txLink,
+                               String symbol, String userIdOrEmail) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": SWAPS2 (")
+                .append(productId)
+                .append(") refund of ")
+                .append(symbol)
+                .append(" was made by user ")
+                .append(userIdOrEmail)
+                .append(". See on ")
+                .append("<a href=\"")
+                .append(txLink)
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
+                .toString();
+
+        sendToAllWithHtml(message);
+    }
+
     public void onSwapsOrderFromDataBase(Integer productId, String name, String userIdOrEmail) {
         final String message = new StringBuilder()
                 .append("DB: new SWAPS Order (")
                 .append(productId)
                 .append(") (")
                 .append(name)
-                .append(") was created, by user ")
+                .append(") was created by user ")
                 .append(userIdOrEmail)
                 .toString();
 

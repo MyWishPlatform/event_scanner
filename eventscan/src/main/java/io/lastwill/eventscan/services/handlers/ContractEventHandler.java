@@ -38,8 +38,6 @@ import java.util.stream.Collectors;
 @Component
 @ConditionalOnBean(ExternalNotifier.class)
 public class ContractEventHandler {
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private EventPublisher eventPublisher;

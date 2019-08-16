@@ -78,33 +78,33 @@ public class Swaps2Monitor {
                                 .map(contractEvent -> (Swaps2BaseEvent) contractEvent)
                                 .filter(contractEvent -> orderRepository.findByOrderId(contractEvent.getId()) != null)
                                 .peek(contractEvent -> {
-                                    if (contractEvent instanceof OrderCreatedEvent) {
+                                    if (contractEvent instanceof Swaps2BaseEvent) {
                                         Swaps2Order order = orderRepository.findByOrderId(contractEvent.getId());
-                                        eventPublisher.publish(new SwapsOrderCreatedEvent(
-                                                event.getNetworkType(),
-                                                order,
-                                                tx
-                                        ));
-                                    } else if (contractEvent instanceof DepositEvent) {
-                                        Swaps2Order order = orderRepository.findByOrderId(contractEvent.getId());
-                                        eventPublisher.publish(
-                                                new SwapsOrderDepositEvent(event.getNetworkType(),
-                                                        order,
-                                                        tx,
-                                                        (DepositEvent) contractEvent,
-                                                        userRepository.findOne(order.getUser()),
-                                                        CryptoCurrency.ETH
-                                                ));
-                                    } else if (contractEvent instanceof RefundEvent) {
-                                        Swaps2Order order = orderRepository.findByOrderId(contractEvent.getId());
-                                        eventPublisher.publish(
-                                                new SwapsOrderRefundEvent(event.getNetworkType(),
-                                                        order,
-                                                        tx,
-                                                        (RefundEvent)contractEvent,
-                                                        userRepository.findOne(order.getUser()),
-                                                        CryptoCurrency.ETH
-                                                ));
+                                        if (contractEvent instanceof OrderCreatedEvent) {
+                                            eventPublisher.publish(new SwapsOrderCreatedEvent(
+                                                    event.getNetworkType(),
+                                                    order,
+                                                    tx
+                                            ));
+                                        } else if (contractEvent instanceof DepositEvent) {
+                                            eventPublisher.publish(
+                                                    new SwapsOrderDepositEvent(event.getNetworkType(),
+                                                            order,
+                                                            tx,
+                                                            (DepositEvent) contractEvent,
+                                                            userRepository.findOne(order.getUser()),
+                                                            CryptoCurrency.ETH
+                                                    ));
+                                        } else if (contractEvent instanceof RefundEvent) {
+                                            eventPublisher.publish(
+                                                    new SwapsOrderRefundEvent(event.getNetworkType(),
+                                                            order,
+                                                            tx,
+                                                            (RefundEvent) contractEvent,
+                                                            userRepository.findOne(order.getUser()),
+                                                            CryptoCurrency.ETH
+                                                    ));
+                                        }
                                     }
                                 })
                                 .map(contractEvent -> {

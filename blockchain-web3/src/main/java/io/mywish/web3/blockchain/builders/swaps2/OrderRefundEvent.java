@@ -20,7 +20,6 @@ import java.util.List;
 @Component
 @NoArgsConstructor
 public class OrderRefundEvent extends Web3ContractEventBuilder<RefundEvent> {
-
     private final Web3ContractEventDefinition definition = new Web3ContractEventDefinition(
             "Refund",
             Arrays.asList(
@@ -38,7 +37,7 @@ public class OrderRefundEvent extends Web3ContractEventBuilder<RefundEvent> {
                 "0x" + TypeEncoder.encode(new Bytes32((byte[]) values.get(0))),
                 (String) values.get(1),
                 (String) values.get(2),
-                (BigInteger) values.get(4),
+                (BigInteger) values.get(3),
                 address
         );
     }

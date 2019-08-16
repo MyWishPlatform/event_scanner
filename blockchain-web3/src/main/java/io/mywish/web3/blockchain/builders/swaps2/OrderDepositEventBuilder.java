@@ -20,7 +20,6 @@ import java.util.List;
 @Component
 @NoArgsConstructor
 public class OrderDepositEventBuilder extends Web3ContractEventBuilder<DepositEvent> {
-
     private final Web3ContractEventDefinition definition = new Web3ContractEventDefinition(
             "Deposit",
             Arrays.asList(
@@ -39,9 +38,9 @@ public class OrderDepositEventBuilder extends Web3ContractEventBuilder<DepositEv
                 "0x" + TypeEncoder.encode(new Bytes32((byte[]) values.get(0))),
                 (String) values.get(1),
                 (String) values.get(2),
+                (BigInteger) values.get(3),
                 (BigInteger) values.get(4),
-                (BigInteger) values.get(5),
                 address
-                );
+        );
     }
 }

@@ -132,18 +132,18 @@ public class MyWishBot extends TelegramLongPollingBot {
     }
 
     public void onSwapsDeposit(String network, Integer productId, String transactionHash, String txLink,
-                               String token, String amount, String userIdOrEmail) {
+                               String symbol, String amount, String userIdOrEmail) {
         final String message = new StringBuilder()
                 .append(network)
-                .append(": SWAPS2 Deposit (")
+                .append(": SWAPS2 (")
                 .append(productId)
-                .append(") was done by user ")
-                .append(userIdOrEmail)
-                .append(", with ")
-                .append(token)
-                .append(" token and ")
+                .append(") deposit of ")
                 .append(amount)
-                .append(" amount. See on ")
+                .append(" ")
+                .append(symbol)
+                .append(" was made by user ")
+                .append(userIdOrEmail)
+                .append(". See on ")
                 .append("<a href=\"")
                 .append(txLink)
                 .append("\">")
@@ -155,18 +155,18 @@ public class MyWishBot extends TelegramLongPollingBot {
     }
 
     public void onSwapsRefund(String network, Integer productId, String transactionHash, String txLink,
-                               String token, String amount, String userIdOrEmail) {
+                               String symbol, String amount, String userIdOrEmail) {
         final String message = new StringBuilder()
                 .append(network)
-                .append(": SWAPS2 Refund (")
+                .append(": SWAPS2 (")
                 .append(productId)
-                .append(") was done by user ")
-                .append(userIdOrEmail)
-                .append(", with ")
-                .append(token)
-                .append(" token and ")
+                .append(") refund of ")
                 .append(amount)
-                .append(" amount. See on ")
+                .append(" ")
+                .append(symbol)
+                .append(" was made by user ")
+                .append(userIdOrEmail)
+                .append(". See on ")
                 .append("<a href=\"")
                 .append(txLink)
                 .append("\">")

@@ -103,13 +103,13 @@ public class BotIntegration {
         String txHash = event.getTransaction().getHash();
         String txLink = explorerProvider.getOrStub(event.getNetworkType())
                 .buildToTransaction(txHash);
-        String token = event.getToken();
-        String amount = toCurrency(event.getCurrency(),event.getAmount());
+        String symbol = getSymbol(order, event.getToken());
+        String amount = event.getAmount().toString();
         String email = event.getUser().getEmail();
         String id = order.getUser().toString();
         String userIdOrEmail = email != null && !email.isEmpty() ? email : id;
 
-        bot.onSwapsDeposit(network, order.getId(), txHash, txLink, token, amount, userIdOrEmail);
+        bot.onSwapsDeposit(network, order.getId(), txHash, txLink, symbol, amount, userIdOrEmail);
     }
 
     @EventListener
@@ -119,13 +119,13 @@ public class BotIntegration {
         String txHash = event.getTransaction().getHash();
         String txLink = explorerProvider.getOrStub(event.getNetworkType())
                 .buildToTransaction(txHash);
-        String token = event.getToken();
+        String symbol = getSymbol(order, event.getToken());
         String email = event.getUser().getEmail();
         String id = order.getUser().toString();
         String userIdOrEmail = email != null && !email.isEmpty() ? email : id;
         String amount = event.getAmount().toString();
 
-        bot.onSwapsRefund(network, order.getId(), txHash, txLink, token, amount, userIdOrEmail);
+        bot.onSwapsRefund(network, order.getId(), txHash, txLink, symbol, amount, userIdOrEmail);
     }
 
     @EventListener
@@ -266,5 +266,21 @@ public class BotIntegration {
                 this.localZone
         )
                 .format(dateFormatter);
+    }
+
+    private String getSymbol(Swaps2Order order, String token) {
+        String[] symbols = order.getName().split("<>");
+
+        if (symbols.length == 2) {
+            if (token.equalsIgnoreCase(order.getBaseAddress())) {
+                return symbols[0];
+            }
+
+            if (token.equalsIgnoreCase(order.getQuoteAddress())) {
+                return symbols[1];
+            }
+        }
+
+        return token;
     }
 }

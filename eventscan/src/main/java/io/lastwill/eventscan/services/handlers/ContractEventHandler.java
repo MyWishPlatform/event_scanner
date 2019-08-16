@@ -19,7 +19,6 @@ import io.lastwill.eventscan.messages.swaps.DepositSwapNotify;
 import io.lastwill.eventscan.messages.swaps.RefundSwapNotify;
 import io.lastwill.eventscan.model.*;
 import io.lastwill.eventscan.repositories.ProductRepository;
-import io.lastwill.eventscan.repositories.UserRepository;
 import io.lastwill.eventscan.services.BalanceProvider;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.services.handlers.events.TransferOwnershipHandler;

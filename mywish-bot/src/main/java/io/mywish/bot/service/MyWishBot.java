@@ -135,7 +135,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                                String token, String amount, String userIdOrEmail) {
         final String message = new StringBuilder()
                 .append(network)
-                .append(": new SWAPS2 Deposit (")
+                .append(": SWAPS2 Deposit (")
                 .append(productId)
                 .append(") was done by user ")
                 .append(userIdOrEmail)
@@ -143,21 +143,22 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(token)
                 .append(" token and ")
                 .append(amount)
-                .append(" amount. See on [")
-                .append(transactionHash)
-                .append("](")
+                .append(" amount. See on ")
+                .append("<a href=\"")
                 .append(txLink)
-                .append(").")
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
                 .toString();
 
-        sendToAllWithMarkdown(message);
+        sendToAllWithHtml(message);
     }
 
     public void onSwapsRefund(String network, Integer productId, String transactionHash, String txLink,
                                String token, String amount, String userIdOrEmail) {
         final String message = new StringBuilder()
                 .append(network)
-                .append(": new SWAPS2 Refund (")
+                .append(": SWAPS2 Refund (")
                 .append(productId)
                 .append(") was done by user ")
                 .append(userIdOrEmail)
@@ -165,14 +166,15 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(token)
                 .append(" token and ")
                 .append(amount)
-                .append(" amount. See on [")
-                .append(transactionHash)
-                .append("](")
+                .append(" amount. See on ")
+                .append("<a href=\"")
                 .append(txLink)
-                .append(").")
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
                 .toString();
 
-        sendToAllWithMarkdown(message);
+        sendToAllWithHtml(message);
     }
 
     public void onSwapsOrderFromDataBase(Integer productId, String name, String userIdOrEmail) {

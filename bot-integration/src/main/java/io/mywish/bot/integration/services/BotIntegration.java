@@ -123,7 +123,7 @@ public class BotIntegration {
         String email = event.getUser().getEmail();
         String id = order.getUser().toString();
         String userIdOrEmail = email != null && !email.isEmpty() ? email : id;
-        String amount = toCurrency(event.getCurrency(),event.getAmount());
+        String amount = event.getAmount().toString();
 
         bot.onSwapsRefund(network, order.getId(), txHash, txLink, token, amount, userIdOrEmail);
     }

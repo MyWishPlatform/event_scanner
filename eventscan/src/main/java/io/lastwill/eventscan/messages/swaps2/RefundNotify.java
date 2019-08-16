@@ -1,7 +1,12 @@
 package io.lastwill.eventscan.messages.swaps2;
 
+import lombok.Getter;
+import lombok.ToString;
+
 import java.math.BigInteger;
 
+@Getter
+@ToString(callSuper = true)
 public class RefundNotify extends Swaps2Notify {
     private final String token;
     private final String user;

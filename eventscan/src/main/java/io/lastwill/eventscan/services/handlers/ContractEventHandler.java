@@ -279,6 +279,7 @@ public class ContractEventHandler {
                 externalNotifier.send(
                         event.getNetworkType(),
                         new DepositSwapNotify(
+                                event.getContract().getId(),
                                 PaymentStatus.COMMITTED,
                                 event.getTransaction().getHash(),
                                 (DepositSwapEvent) contractEvent
@@ -289,6 +290,7 @@ public class ContractEventHandler {
                 externalNotifier.send(
                         event.getNetworkType(),
                         new RefundSwapNotify(
+                                event.getContract().getId(),
                                 PaymentStatus.COMMITTED,
                                 event.getTransaction().getHash(),
                                 (RefundSwapEvent) contractEvent

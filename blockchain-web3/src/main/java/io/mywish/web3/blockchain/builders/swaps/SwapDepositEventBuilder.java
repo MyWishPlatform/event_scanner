@@ -21,8 +21,8 @@ public class SwapDepositEventBuilder extends Web3ContractEventBuilder<DepositSwa
     private final Web3ContractEventDefinition definition = new Web3ContractEventDefinition(
             "Deposit",
             Arrays.asList(
-                    WrapperType.create(Address.class, false),
-                    WrapperType.create(Address.class, false),
+                    WrapperType.create(Address.class, true),
+                    WrapperType.create(Address.class, true),
                     WrapperType.create(Uint.class, false),
                     WrapperType.create(Uint.class, false)
             )

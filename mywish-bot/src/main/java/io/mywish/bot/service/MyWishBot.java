@@ -176,8 +176,8 @@ public class MyWishBot extends TelegramLongPollingBot {
                               String userAddress) {
         final String message = new StringBuilder()
                 .append(network)
-                .append(": SWAPS2 refund, ")
-                .append("was made by user ")
+                .append(": SWAPS refund, ")
+                .append("was send to address ")
                 .append(userAddress)
                 .append(". See on ")
                 .append("<a href=\"")
@@ -194,8 +194,8 @@ public class MyWishBot extends TelegramLongPollingBot {
                                String userAddress) {
         final String message = new StringBuilder()
                 .append(network)
-                .append(": SWAPS2 deposit ")
-                .append("was made by user ")
+                .append(": SWAPS deposit ")
+                .append("was send from address ")
                 .append(userAddress)
                 .append(". See on ")
                 .append("<a href=\"")

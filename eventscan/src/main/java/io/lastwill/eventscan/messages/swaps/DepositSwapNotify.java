@@ -24,6 +24,6 @@ public class DepositSwapNotify extends BaseNotify {
 
     @Override
     public String getType() {
-        return null;
+        return "depositSwaps";
     }
 }

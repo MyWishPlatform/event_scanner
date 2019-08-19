@@ -22,6 +22,6 @@ public class RefundSwapNotify extends BaseNotify {
 
     @Override
     public String getType() {
-        return null;
+        return "refundSwaps";
     }
 }

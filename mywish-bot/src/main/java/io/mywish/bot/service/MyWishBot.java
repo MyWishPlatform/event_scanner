@@ -176,7 +176,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                               String userAddress) {
         final String message = new StringBuilder()
                 .append(network)
-                .append(": SWAPS refund, ")
+                .append(": SWAPS refund ")
                 .append("was send to address ")
                 .append(userAddress)
                 .append(". See on ")

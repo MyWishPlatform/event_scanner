@@ -3,6 +3,8 @@ package io.lastwill.eventscan.services.monitors;
 import io.lastwill.eventscan.events.model.ContractEventsEvent;
 import io.lastwill.eventscan.events.model.ContractTransactionFailedEvent;
 import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
+import io.lastwill.eventscan.events.model.contract.eos.CreateTokenEvent;
+import io.lastwill.eventscan.events.model.contract.eos.SetCodeEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.ContractRepository;
@@ -172,7 +174,12 @@ public class ContractsMonitor {
         if (events.isEmpty()) {
             return;
         } else if (networkType == NetworkType.EOS_MAINNET || networkType == NetworkType.EOS_TESTNET) {
-            events = events.stream().filter(e -> !(e instanceof CreateAccountEvent)).collect(Collectors.toList());
+            events = events
+                    .stream()
+                    .filter(e -> !(e instanceof CreateAccountEvent))
+                    .filter(e -> !(e instanceof CreateTokenEvent))
+                    .filter(e -> !(e instanceof SetCodeEvent))
+                    .collect(Collectors.toList());
         }
         eventPublisher.publish(
                 new ContractEventsEvent(

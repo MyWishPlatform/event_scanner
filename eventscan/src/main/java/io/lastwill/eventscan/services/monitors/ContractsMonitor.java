@@ -2,6 +2,7 @@ package io.lastwill.eventscan.services.monitors;
 
 import io.lastwill.eventscan.events.model.ContractEventsEvent;
 import io.lastwill.eventscan.events.model.ContractTransactionFailedEvent;
+import io.lastwill.eventscan.events.model.contract.CreateAccountEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.ContractRepository;
@@ -39,33 +40,33 @@ public class ContractsMonitor {
     private String proxyAddressEthereum;
     @Value("${io.lastwill.eventscan.contract.proxy-address.ropsten}")
     private String proxyAddressRopsten;
-//    @Value("${io.lastwill.eventscan.contract.skip-addresses}")
-//    private String skipAddressesLine;
-//    private List<String> skipAddresses = Collections.emptyList();
+    @Value("${io.lastwill.eventscan.contract.skip-addresses}")
+    private String skipAddressesLine;
+    private List<String> skipAddresses = Collections.emptyList();
 
     @PostConstruct
     protected void init() {
         proxyByNetwork.put(NetworkType.ETHEREUM_MAINNET, proxyAddressEthereum.toLowerCase());
         proxyByNetwork.put(NetworkType.ETHEREUM_ROPSTEN, proxyAddressRopsten.toLowerCase());
-//        if (skipAddressesLine == null || skipAddressesLine.isEmpty()) {
-//            return;
-//        }
-//        skipAddresses = Stream.of(skipAddressesLine.split(","))
-//                .map(String::trim)
-//                .map(String::toLowerCase)
-//                .filter(s -> !s.isEmpty())
-//                .collect(Collectors.toList());
+        if (skipAddressesLine == null || skipAddressesLine.isEmpty()) {
+            return;
+        }
+        skipAddresses = Stream.of(skipAddressesLine.split(","))
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
     }
 
     @EventListener
     private void onNewBlockEvent(final NewBlockEvent event) {
         // skip eos because address is not unique in our contract model
-        if (event.getNetworkType() == NetworkType.EOS_MAINNET || event.getNetworkType() == NetworkType.EOS_TESTNET) {
-            return;
-        }
+//        if (event.getNetworkType() == NetworkType.EOS_MAINNET || event.getNetworkType() == NetworkType.EOS_TESTNET) {
+//            return;
+//        }
         Set<String> addresses = new HashSet<>(event.getTransactionsByAddress().keySet());
         // remove addresses to ignore
-//        addresses.removeAll(skipAddresses);
+        addresses.removeAll(skipAddresses);
 
         if (addresses.isEmpty()) {
             return;
@@ -170,6 +171,8 @@ public class ContractsMonitor {
         List<ContractEvent> events = transactionReceipt.getLogs();
         if (events.isEmpty()) {
             return;
+        } else if (networkType == NetworkType.EOS_MAINNET || networkType == NetworkType.EOS_TESTNET) {
+            events = events.stream().filter(e -> !(e instanceof CreateAccountEvent)).collect(Collectors.toList());
         }
         eventPublisher.publish(
                 new ContractEventsEvent(

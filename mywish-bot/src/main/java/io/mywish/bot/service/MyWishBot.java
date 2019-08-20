@@ -131,8 +131,8 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllWithMarkdown(message);
     }
 
-    public void onSwapsDeposit(String network, Integer productId, String transactionHash, String txLink,
-                               String symbol, String userIdOrEmail) {
+    public void onSwaps2Deposit(String network, Integer productId, String transactionHash, String txLink,
+                                String symbol, String userIdOrEmail) {
         final String message = new StringBuilder()
                 .append(network)
                 .append(": SWAPS2 (")
@@ -152,7 +152,7 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllWithHtml(message);
     }
 
-    public void onSwapsRefund(String network, Integer productId, String transactionHash, String txLink,
+    public void onSwaps2Refund(String network, Integer productId, String transactionHash, String txLink,
                                String symbol, String userIdOrEmail) {
         final String message = new StringBuilder()
                 .append(network)
@@ -162,6 +162,41 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(symbol)
                 .append(" was made by user ")
                 .append(userIdOrEmail)
+                .append(". See on ")
+                .append("<a href=\"")
+                .append(txLink)
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
+                .toString();
+
+        sendToAllWithHtml(message);
+    }
+    public void onSwapsRefund(String network, String transactionHash, String txLink,
+                              String userAddress) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": SWAPS refund ")
+                .append("was send to ")
+                .append(userAddress)
+                .append(". See on ")
+                .append("<a href=\"")
+                .append(txLink)
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
+                .toString();
+
+        sendToAllWithHtml(message);
+    }
+
+    public void onSwapsDeposit(String network, String transactionHash, String txLink,
+                               String userAddress) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": SWAPS deposit ")
+                .append("was send from ")
+                .append(userAddress)
                 .append(". See on ")
                 .append("<a href=\"")
                 .append(txLink)

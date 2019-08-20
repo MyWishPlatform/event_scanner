@@ -6,12 +6,12 @@ import io.lastwill.eventscan.model.User;
 import lombok.Getter;
 
 @Getter
-public class SwapsNotificationMQEvent extends BaseEvent {
+public class Swaps2NotificationMQEvent extends BaseEvent {
     private final Swaps2Order order;
     private final User user;
 
 
-    public SwapsNotificationMQEvent(Swaps2Order order, User user) {
+    public Swaps2NotificationMQEvent(Swaps2Order order, User user) {
         super(NetworkType.ETHEREUM_MAINNET);
         this.order = order;
         this.user = user;

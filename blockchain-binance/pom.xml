@@ -30,9 +30,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.binance-chain</groupId>
-            <artifactId>java-sdk</artifactId>
-            <version>f765ba34a2ffe2e2f6668cc10cf9cc539f042c19</version>
+            <groupId>com.github.MyWishPlatform</groupId>
+            <artifactId>binance-chain-java-sdk</artifactId>
+            <version>561b05bfe632ebf5f757bf610b8a9f69ce8bdbed</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
         <dependency>

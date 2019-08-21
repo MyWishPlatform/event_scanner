@@ -21,8 +21,8 @@ public class SwapRefundEventBuilder extends Web3ContractEventBuilder<RefundSwapE
     private final Web3ContractEventDefinition definition = new Web3ContractEventDefinition(
             "Refund",
             Arrays.asList(
-                    WrapperType.create(Address.class, false),
-                    WrapperType.create(Address.class, false),
+                    WrapperType.create(Address.class, true),
+                    WrapperType.create(Address.class, true),
                     WrapperType.create(Uint.class, false)
             )
     );

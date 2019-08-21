@@ -1,8 +1,8 @@
 package io.lastwill.eventscan.services.monitors;
 
-import io.lastwill.eventscan.events.model.SwapsOrderCreatedEvent;
-import io.lastwill.eventscan.events.model.SwapsOrderDepositEvent;
-import io.lastwill.eventscan.events.model.SwapsOrderRefundEvent;
+import io.lastwill.eventscan.events.model.Swaps2OrderCreatedEvent;
+import io.lastwill.eventscan.events.model.Swaps2OrderDepositEvent;
+import io.lastwill.eventscan.events.model.Swaps2OrderRefundEvent;
 import io.lastwill.eventscan.events.model.contract.swaps2.*;
 import io.lastwill.eventscan.messages.swaps2.*;
 import io.lastwill.eventscan.model.NetworkType;
@@ -80,14 +80,14 @@ public class Swaps2Monitor {
                                     if (contractEvent instanceof Swaps2BaseEvent) {
                                         Swaps2Order order = orderRepository.findByOrderId(contractEvent.getId());
                                         if (contractEvent instanceof OrderCreatedEvent) {
-                                            eventPublisher.publish(new SwapsOrderCreatedEvent(
+                                            eventPublisher.publish(new Swaps2OrderCreatedEvent(
                                                     event.getNetworkType(),
                                                     order,
                                                     tx
                                             ));
                                         } else if (contractEvent instanceof DepositEvent) {
                                             eventPublisher.publish(
-                                                    new SwapsOrderDepositEvent(
+                                                    new Swaps2OrderDepositEvent(
                                                             event.getNetworkType(),
                                                             order,
                                                             tx,
@@ -96,7 +96,7 @@ public class Swaps2Monitor {
                                             );
                                         } else if (contractEvent instanceof RefundEvent) {
                                             eventPublisher.publish(
-                                                    new SwapsOrderRefundEvent(
+                                                    new Swaps2OrderRefundEvent(
                                                             event.getNetworkType(),
                                                             order,
                                                             tx,

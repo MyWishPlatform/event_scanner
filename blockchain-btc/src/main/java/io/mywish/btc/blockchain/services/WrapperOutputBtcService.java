@@ -7,9 +7,12 @@ import org.bitcoinj.core.ScriptException;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.script.Script;
+import org.bitcoinj.script.ScriptChunk;
+import org.bitcoinj.script.ScriptOpCodes;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -21,6 +24,10 @@ public class WrapperOutputBtcService {
         }
         catch (ScriptException ex) {
             log.warn("Skip output with script error: ", output, ex);
+            return null;
+        }
+        if(checkChunkUnreadData(output)) {
+            log.error("In transaction {} pushdata is unread", transaction.getHash());
             return null;
         }
         if (!script.isSentToAddress() && !script.isPayToScriptHash() && !script.isSentToRawPubKey()) {
@@ -46,5 +53,13 @@ public class WrapperOutputBtcService {
                 BigInteger.valueOf(output.getValue().getValue()),
                 output.getScriptBytes()
         );
+    }
+
+    private boolean checkChunkUnreadData(TransactionOutput output) {
+        List<ScriptChunk> chuncks = output.getScriptPubKey().getChunks();
+        if (chuncks.size() != 5) {
+            return false;
+        }
+        return chuncks.get(2).equalsOpCode(ScriptOpCodes.getOpCode("GREATERTHAN")) && chuncks.get(2).data == null;
     }
 }

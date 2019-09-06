@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -29,6 +30,7 @@ public class WrapperTransactionReceiptWavesService {
                 .map(wrapperOutput -> ((WrapperOutputWaves) wrapperOutput))
                 .map(WrapperOutputWaves::getTransaction)
                 .map(logBuilder::build)
+                .filter(Objects::nonNull)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 

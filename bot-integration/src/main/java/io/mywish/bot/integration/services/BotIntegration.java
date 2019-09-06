@@ -86,14 +86,76 @@ public class BotIntegration {
     }
 
     @EventListener
-    private void onSwapsOrderCreated(final SwapsOrderCreatedEvent event) {
-        ProductSwaps2 product = event.getProduct();
-        String network = networkName.getOrDefault(product.getNetwork().getType(), defaultNetwork);
+    private void onSwaps2OrderCreated(final Swaps2OrderCreatedEvent event) {
+        Swaps2Order order = event.getOrder();
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         String txHash = event.getTransaction().getHash();
-        String txLink = explorerProvider.getOrStub(product.getNetwork().getType())
+        String txLink = explorerProvider.getOrStub(event.getNetworkType())
                 .buildToTransaction(txHash);
 
-        bot.onSwapsOrder(network, product.getId(), txHash, txLink);
+        bot.onSwapsOrder(network, order.getId(), order.getName(), txHash, txLink);
+    }
+
+    @EventListener
+    private void onSwaps2Deposit(final Swaps2OrderDepositEvent event) {
+        Swaps2Order order = event.getOrder();
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        String txHash = event.getTransaction().getHash();
+        String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToTransaction(txHash);
+        String symbol = getSymbol(order, event.getToken());
+        String userAddress = event.getUserAddress();
+
+        bot.onSwaps2Deposit(network, order.getId(), txHash, txLink, symbol, userAddress);
+    }
+
+    @EventListener
+    private void onSwap2Refund(final Swaps2OrderRefundEvent event) {
+        Swaps2Order order = event.getOrder();
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        String txHash = event.getTransaction().getHash();
+        String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToTransaction(txHash);
+        String symbol = getSymbol(order, event.getToken());
+        String userAddress = event.getUserAddress();
+
+        bot.onSwaps2Refund(network, order.getId(), txHash, txLink, symbol, userAddress);
+    }
+
+    @EventListener
+    private void onSwapsDeposit(final SwapDepositEvent event) {
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        String txHash = event.getTransaction().getHash();
+        String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToTransaction(txHash);
+        String userAddress = event.getUserAddress();
+
+        bot.onSwapsDeposit(network, txHash, txLink, userAddress);
+    }
+
+    @EventListener
+    private void onSwapsRefund(final SwapRefundEvent event) {
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        String txHash = event.getTransaction().getHash();
+        String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToTransaction(txHash);
+        String userAddress = event.getUserAddress();
+
+        bot.onSwapsRefund(network, txHash, txLink, userAddress);
+    }
+
+    @EventListener
+    private void onSwaps2NotificationMQ(final Swaps2NotificationMQEvent event) {
+        Swaps2Order order = event.getOrder();
+        User user = event.getUser();
+        String email = user.getEmail();
+        String id = order.getUser().toString();
+
+        bot.onSwapsOrderFromDataBase(
+                order.getId(),
+                order.getName(),
+                email != null && !email.isEmpty() ? email : id
+        );
     }
 
     @EventListener
@@ -107,7 +169,7 @@ public class BotIntegration {
             final String id = Integer.toString(userSiteBalance.getUser().getId());
             bot.onBalance(
                     network,
-                    email != null ? email : id,
+                    email != null && !email.isEmpty() ? email : id,
                     toCurrency(event.getCurrency(), event.getAmount()),
                     txLink
             );
@@ -220,5 +282,21 @@ public class BotIntegration {
                 this.localZone
         )
                 .format(dateFormatter);
+    }
+
+    private String getSymbol(Swaps2Order order, String token) {
+        String[] symbols = order.getName().split("<>");
+
+        if (symbols.length == 2) {
+            if (token.equalsIgnoreCase(order.getBaseAddress())) {
+                return symbols[0];
+            }
+
+            if (token.equalsIgnoreCase(order.getQuoteAddress())) {
+                return symbols[1];
+            }
+        }
+
+        return token;
     }
 }

@@ -11,7 +11,13 @@ import java.time.Instant;
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("7")
 @Getter
-public class ProductCrowdsaleNeo extends Product implements ProductSingleCheck {
+public class ProductCrowdsaleNeo extends ProductTokenCommon implements ProductSingleCheck, ProductNameable {
+    @Column(name = "token_name")
+    private String name;
+
+    @Column(name = "token_short_name")
+    private String symbol;
+
     @Column(name = "stop_date")
     private int finishTimestamp;
     @ManyToOne

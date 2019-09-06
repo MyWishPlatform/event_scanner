@@ -10,7 +10,10 @@ import java.math.BigInteger;
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("22")
 @Getter
-public class ProductStoWaves extends Product {
+public class ProductStoWaves extends ProductTokenCommon {
+    @Column(name = "token_short_name")
+    private String symbol;
+
     @Override
     public int getContractType() {
         return 22;

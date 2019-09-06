@@ -116,7 +116,7 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllWithMarkdown(message);
     }
 
-    public void onSwapsOrder(String network, Integer productId, String transactionHash, String txLink) {
+    public void onSwapsOrder(String network, Integer productId, String name, String transactionHash, String txLink) {
         final String message = new StringBuilder()
                 .append(network)
                 .append(": new SWAPS2 Order (")
@@ -129,6 +129,96 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .toString();
 
         sendToAllWithMarkdown(message);
+    }
+
+    public void onSwaps2Deposit(String network, Integer productId, String transactionHash, String txLink,
+                                String symbol, String userIdOrEmail) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": SWAPS2 (")
+                .append(productId)
+                .append(") deposit of ")
+                .append(symbol)
+                .append(" was made by user ")
+                .append(userIdOrEmail)
+                .append(". See on ")
+                .append("<a href=\"")
+                .append(txLink)
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
+                .toString();
+
+        sendToAllWithHtml(message);
+    }
+
+    public void onSwaps2Refund(String network, Integer productId, String transactionHash, String txLink,
+                               String symbol, String userIdOrEmail) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": SWAPS2 (")
+                .append(productId)
+                .append(") refund of ")
+                .append(symbol)
+                .append(" was made by user ")
+                .append(userIdOrEmail)
+                .append(". See on ")
+                .append("<a href=\"")
+                .append(txLink)
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
+                .toString();
+
+        sendToAllWithHtml(message);
+    }
+    public void onSwapsRefund(String network, String transactionHash, String txLink,
+                              String userAddress) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": SWAPS refund ")
+                .append("was send to ")
+                .append(userAddress)
+                .append(". See on ")
+                .append("<a href=\"")
+                .append(txLink)
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
+                .toString();
+
+        sendToAllWithHtml(message);
+    }
+
+    public void onSwapsDeposit(String network, String transactionHash, String txLink,
+                               String userAddress) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": SWAPS deposit ")
+                .append("was send from ")
+                .append(userAddress)
+                .append(". See on ")
+                .append("<a href=\"")
+                .append(txLink)
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
+                .toString();
+
+        sendToAllWithHtml(message);
+    }
+
+    public void onSwapsOrderFromDataBase(Integer productId, String name, String userIdOrEmail) {
+        final String message = new StringBuilder()
+                .append("DB: new SWAPS Order (")
+                .append(productId)
+                .append(") (")
+                .append(name)
+                .append(") was created by user ")
+                .append(userIdOrEmail)
+                .toString();
+
+        sendToAll(message);
     }
 
     public void onContractFailed(String network, Integer productId, String productType, Integer id, final String txLink) {

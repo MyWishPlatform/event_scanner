@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -64,11 +65,38 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
 
     List<Product> findAllByUserId(@Param("userId") Integer userId);
 
-    @Query("select c from ProductSwaps2 c " +
-            "where c.network.type = :network " +
-            "and c.orderId = :orderId")
-    ProductSwaps2 findByOrderId(
-            @Param("orderId") String orderId,
-            @Param("network") NetworkType network
-    );
+    @Query("select c from ProductToken c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.ETHEREUM_MAINNET")
+    List<ProductToken> findEthTokensFromDate(@Param("from") LocalDateTime from);
+
+    @Query("select c from ProductCrowdsale c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.ETHEREUM_MAINNET")
+    List<ProductCrowdsale> findEthIcoFromDate(@Param("from") LocalDateTime from);
+
+    @Query("select c from ProductTokenEos c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.EOS_MAINNET")
+    List<ProductTokenEos> findEosTokensFromDate(@Param("from") LocalDateTime from);
+
+    @Query("select c from ProductTokenExtEos c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.EOS_MAINNET")
+    List<ProductTokenExtEos> findEosTokensExtFromDate(@Param("from") LocalDateTime from);
+
+    @Query("select c from ProductCrowdsaleEos c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.EOS_MAINNET")
+    List<ProductCrowdsaleEos> findEosIcoFromDate(@Param("from") LocalDateTime from);
+
+    @Query("select c from ProductTokenTron c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.TRON_MAINNET")
+    List<ProductTokenTron> findTronTokensFromDate(@Param("from") LocalDateTime from);
+
+    @Query("select c from ProductStoWaves c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.WAVES_MAINNET")
+    List<ProductStoWaves> findWavesStoFromDate(@Param("from") LocalDateTime from);
 }

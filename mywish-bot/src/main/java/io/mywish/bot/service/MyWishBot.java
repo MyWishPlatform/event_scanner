@@ -95,7 +95,7 @@ public class MyWishBot extends TelegramLongPollingBot {
         }
     }
 
-    public void onContract(String network, Integer productId, String productType, Integer id, String cost, final String address, String addressLink) {
+    public void onContract(String network, Integer productId, String productType, Integer id, String cost, String user, String address, String addressLink) {
         final String message = new StringBuilder()
                 .append(network)
                 .append(": new ")
@@ -106,6 +106,8 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(id)
                 .append(") was created for ")
                 .append(cost)
+                .append(" by ")
+                .append(user)
                 .append(", see on [")
                 .append(address)
                 .append("](")
@@ -208,14 +210,14 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllWithHtml(message);
     }
 
-    public void onSwapsOrderFromDataBase(Integer productId, String name, String userIdOrEmail) {
+    public void onSwapsOrderFromDataBase(Integer productId, String name, String user) {
         final String message = new StringBuilder()
                 .append("DB: new SWAPS Order (")
                 .append(productId)
                 .append(") (")
                 .append(name)
-                .append(") was created by user ")
-                .append(userIdOrEmail)
+                .append(") was created by ")
+                .append(user)
                 .toString();
 
         sendToAll(message);

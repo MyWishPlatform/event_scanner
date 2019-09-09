@@ -6,6 +6,7 @@ import io.lastwill.eventscan.events.model.contract.eos.CreateTokenEvent;
 import io.lastwill.eventscan.events.model.utility.NetworkStuckEvent;
 import io.lastwill.eventscan.events.model.utility.PendingStuckEvent;
 import io.lastwill.eventscan.model.*;
+import io.lastwill.eventscan.repositories.UserRepository;
 import io.mywish.blockchain.ContractEvent;
 import io.mywish.bot.service.MyWishBot;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,9 @@ import java.util.Map;
 public class BotIntegration {
     @Autowired
     private MyWishBot bot;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Value("${io.lastwill.eventscan.contract.crowdsale-address}")
     private String crowdsaleAddress;
@@ -59,11 +63,18 @@ public class BotIntegration {
 
     private final String defaultNetwork = "unknown";
 
+    private String getUser(int userId) {
+        User user = userRepository.findOne(userId);
+        String email = user.getEmail();
+        return email != null && !email.isEmpty() ? email : "user " + userId;
+    }
+
     @EventListener
     private void onContractCreated(final ContractCreatedEvent contractCreatedEvent) {
         final Contract contract = contractCreatedEvent.getContract();
         final Product product = contract.getProduct();
         final String type = ProductStatistics.PRODUCT_TYPES.get(product.getContractType());
+        final String user = getUser(product.getUserId());
         final String network = networkName.getOrDefault(product.getNetwork().getType(), defaultNetwork);
         final String txLink = explorerProvider.getOrStub(product.getNetwork().getType())
                 .buildToTransaction(contractCreatedEvent.getTransaction().getHash());
@@ -77,6 +88,7 @@ public class BotIntegration {
                     type,
                     contract.getId(),
                     toCurrency(CryptoCurrency.USD, product.getCost()),
+                    user,
                     contractCreatedEvent.getAddress(),
                     addressLink
             );
@@ -147,14 +159,12 @@ public class BotIntegration {
     @EventListener
     private void onSwaps2NotificationMQ(final Swaps2NotificationMQEvent event) {
         Swaps2Order order = event.getOrder();
-        User user = event.getUser();
-        String email = user.getEmail();
-        String id = order.getUser().toString();
+        Integer userId = order.getUser();
 
         bot.onSwapsOrderFromDataBase(
                 order.getId(),
                 order.getName(),
-                email != null && !email.isEmpty() ? email : id
+                getUser(userId)
         );
     }
 

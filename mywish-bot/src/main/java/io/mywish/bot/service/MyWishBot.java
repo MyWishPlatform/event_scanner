@@ -108,14 +108,14 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(cost)
                 .append(" by ")
                 .append(user)
-                .append(", see on [")
-                .append(address)
-                .append("](")
+                .append(", see on <a href=\"")
                 .append(addressLink)
-                .append(").")
+                .append("\">")
+                .append(address)
+                .append("</a>.")
                 .toString();
 
-        sendToAllWithMarkdown(message);
+        sendToAllWithHtml(message);
     }
 
     public void onSwapsOrder(String network, Integer productId, String name, String transactionHash, String txLink) {

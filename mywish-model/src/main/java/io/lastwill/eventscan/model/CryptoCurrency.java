@@ -13,6 +13,7 @@ public enum CryptoCurrency {
     EOS(4),
     EOSISH(4),
     BNB(18),
+    SWAP(18),
     TRX(6),
     TRONISH(6),
     BBNB(8),

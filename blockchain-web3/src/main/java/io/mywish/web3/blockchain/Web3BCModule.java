@@ -26,10 +26,12 @@ public class Web3BCModule {
     @Bean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
     public Web3Network ethNetMain(
             @Value("${io.lastwill.eventscan.web3-url.ethereum}") String web3Url,
+            @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
         return new Web3Network(
                 NetworkType.ETHEREUM_MAINNET,
                 new WebSocketService(web3Url, false),
+                pollingInterval,
                 pendingThreshold);
     }
 
@@ -37,10 +39,12 @@ public class Web3BCModule {
     @Bean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
     public Web3Network ethNetRopsten(
             @Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url,
+            @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
         return new Web3Network(
                 NetworkType.ETHEREUM_ROPSTEN,
                 new WebSocketService(web3Url, false),
+                pollingInterval,
                 pendingThreshold);
     }
 

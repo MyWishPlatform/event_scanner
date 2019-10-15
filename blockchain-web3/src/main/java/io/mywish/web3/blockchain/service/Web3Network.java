@@ -9,10 +9,13 @@ import io.reactivex.disposables.Disposable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.Web3jService;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
+import org.web3j.protocol.core.Request;
+import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
+import org.web3j.protocol.http.HttpService;
 import org.web3j.protocol.websocket.WebSocketService;
+import org.web3j.utils.Async;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -42,11 +45,16 @@ public class Web3Network extends WrapperNetwork {
     private final BlockingQueue<Transaction> pendingTransactions = new LinkedBlockingQueue<>();
     private Disposable subscription;
 
-    public Web3Network(NetworkType type, Web3jService web3jService, int pendingThreshold) throws ConnectException {
+    public Web3Network(NetworkType type, WebSocketService web3jService, long pollingInterval, int pendingThreshold)
+            throws ConnectException {
         super(type);
-        if (web3jService instanceof WebSocketService) {
-            ((WebSocketService) web3jService).connect();
-        }
+        web3jService.connect();
+        this.web3j = Web3j.build(web3jService, pollingInterval, Async.defaultExecutorService());
+        this.pendingThreshold = pendingThreshold;
+    }
+
+    public Web3Network(NetworkType type, HttpService web3jService, int pendingThreshold) {
+        super(type);
         this.web3j = Web3j.build(web3jService);
         this.pendingThreshold = pendingThreshold;
     }
@@ -84,7 +92,9 @@ public class Web3Network extends WrapperNetwork {
 
     @Override
     public WrapperBlock getBlock(Long number) throws Exception {
-        return blockBuilder.build(web3j.ethGetBlockByNumber(new DefaultBlockParameterNumber(number), true).send().getBlock());
+        Request<?, EthBlock> ethBlockRequest = web3j.ethGetBlockByNumber(
+                new DefaultBlockParameterNumber(number), true);
+        return blockBuilder.build(ethBlockRequest.send().getBlock());
     }
 
     @Override

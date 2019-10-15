@@ -21,19 +21,13 @@ public class Web3ContractEventDefinition extends ContractEventDefinition {
                 name,
                 types
                         .stream()
-                        .filter(WrapperType::isIndexed)
-                        .map(WrapperType::getTypeReference)
-                        .collect(Collectors.toList()),
-                types
-                        .stream()
-                        .filter(type -> !type.isIndexed())
                         .map(WrapperType::getTypeReference)
                         .collect(Collectors.toList())
         );
         this.signature = EventEncoder.encode(event);
     }
 
-    public java.util.List<WrapperType<?>> getTypes() {
+    public List<WrapperType<?>> getTypes() {
         return this.types;
     }
 

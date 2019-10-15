@@ -5,10 +5,8 @@ import io.lastwill.eventscan.repositories.LastBlockRepository;
 import io.mywish.scanner.services.LastBlockDbPersister;
 import io.mywish.scanner.services.LastBlockFilePersister;
 import io.mywish.scanner.services.LastBlockPersister;
-import io.mywish.web3.blockchain.parity.Web3jEx;
 import io.mywish.web3.blockchain.service.Web3Network;
 import io.mywish.web3.blockchain.service.Web3Scanner;
-import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -16,9 +14,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.protocol.websocket.WebSocketService;
+
+import java.net.ConnectException;
 
 @Configuration
 @ComponentScan
@@ -26,42 +25,40 @@ public class Web3BCModule {
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ethereum")
     @Bean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
     public Web3Network ethNetMain(
-            OkHttpClient client,
             @Value("${io.lastwill.eventscan.web3-url.ethereum}") String web3Url,
-            @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) {
+            @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
         return new Web3Network(
                 NetworkType.ETHEREUM_MAINNET,
-                Web3jEx.build(new HttpService(web3Url, client, false)),
+                new WebSocketService(web3Url, false),
                 pendingThreshold);
     }
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ropsten")
     @Bean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
     public Web3Network ethNetRopsten(
-            OkHttpClient client,
             @Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url,
-            @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) {
+            @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
         return new Web3Network(
                 NetworkType.ETHEREUM_ROPSTEN,
-                Web3jEx.build(new HttpService(web3Url, client, false)),
+                new WebSocketService(web3Url, false),
                 pendingThreshold);
     }
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-mainnet")
     @Bean(name = NetworkType.RSK_MAINNET_VALUE)
-    public Web3Network rskNetMain(@Value("${io.lastwill.eventscan.web3-url.rsk-mainnet}") String web3Url) {
+    public Web3Network rskNetMain(@Value("${io.lastwill.eventscan.web3-url.rsk-mainnet}") String web3Url) throws ConnectException {
         return new Web3Network(
                 NetworkType.RSK_MAINNET,
-                Web3j.build(new HttpService(web3Url)),
+                new HttpService(web3Url),
                 0);
     }
 
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-testnet")
     @Bean(name = NetworkType.RSK_TESTNET_VALUE)
-    public Web3Network rskNetTest(@Value("${io.lastwill.eventscan.web3-url.rsk-testnet}") String web3Url) {
+    public Web3Network rskNetTest(@Value("${io.lastwill.eventscan.web3-url.rsk-testnet}") String web3Url) throws ConnectException {
         return new Web3Network(
                 NetworkType.RSK_TESTNET,
-                Web3j.build(new HttpService(web3Url)),
+                new HttpService(web3Url),
                 0);
     }
 

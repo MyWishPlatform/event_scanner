@@ -5,23 +5,24 @@ import io.mywish.blockchain.WrapperBlock;
 import io.mywish.blockchain.WrapperNetwork;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.blockchain.WrapperTransactionReceipt;
-import io.mywish.web3.blockchain.parity.Web3jEx;
+import io.reactivex.disposables.Disposable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.Web3jService;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.methods.response.Transaction;
-import rx.Subscription;
+import org.web3j.protocol.websocket.WebSocketService;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.math.BigInteger;
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class Web3Network extends WrapperNetwork {
@@ -39,19 +40,22 @@ public class Web3Network extends WrapperNetwork {
     private final int pendingThreshold;
 
     private final BlockingQueue<Transaction> pendingTransactions = new LinkedBlockingQueue<>();
-    private Subscription subscription;
+    private Disposable subscription;
 
-    public Web3Network(NetworkType type, Web3j web3j, int pendingThreshold) {
+    public Web3Network(NetworkType type, Web3jService web3jService, int pendingThreshold) throws ConnectException {
         super(type);
-        this.web3j = web3j;
+        if (web3jService instanceof WebSocketService) {
+            ((WebSocketService) web3jService).connect();
+        }
+        this.web3j = Web3j.build(web3jService);
         this.pendingThreshold = pendingThreshold;
     }
 
     @PostConstruct
     private void init() {
-        if (pendingThreshold > 0 && !(web3j instanceof Web3jEx)) {
+        if (pendingThreshold > 0) {
             log.info("Subscribe to pending transactions.");
-            subscription = web3j.pendingTransactionObservable().subscribe(pendingTransactions::add);
+            subscription = web3j.pendingTransactionFlowable().subscribe(pendingTransactions::add);
         }
     }
 
@@ -60,11 +64,12 @@ public class Web3Network extends WrapperNetwork {
         if (subscription == null) {
             return;
         }
-        if (subscription.isUnsubscribed()) {
+        if (subscription.isDisposed()) {
             return;
         }
-        subscription.unsubscribe();
+        subscription.dispose();
         subscription = null;
+        web3j.shutdown();
     }
 
     @Override
@@ -107,19 +112,6 @@ public class Web3Network extends WrapperNetwork {
 
     @Override
     public List<WrapperTransaction> fetchPendingTransactions() throws Exception {
-        if (web3j instanceof Web3jEx) {
-            List<Transaction> result = ((Web3jEx) web3j).parityGetPendingTransactions().send()
-                    .getResult();
-
-            if (result == null) {
-                return Collections.emptyList();
-            }
-
-            return result
-                    .stream()
-                    .map(transactionBuilder::build)
-                    .collect(Collectors.toList());
-        }
         if (pendingTransactions.isEmpty()) {
             return Collections.emptyList();
         }

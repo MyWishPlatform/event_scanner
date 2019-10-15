@@ -11,6 +11,10 @@
 
     <artifactId>joule</artifactId>
 
+    <properties>
+        <web3j.version>3.4.0</web3j.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

@@ -14,9 +14,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.web3j.protocol.websocket.WebSocketService;
+import org.web3j.protocol.websocket.WebSocketClient;
 
 import java.net.ConnectException;
+import java.net.URI;
 
 @Configuration
 @ComponentScan
@@ -24,12 +25,12 @@ public class Web3BCModule {
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ethereum")
     @Bean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
     public Web3Network ethNetMain(
-            @Value("${io.lastwill.eventscan.web3-url.ethereum}") String web3Url,
+            @Value("${io.lastwill.eventscan.web3-url.ethereum}") URI web3Url,
             @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
         return new Web3Network(
                 NetworkType.ETHEREUM_MAINNET,
-                new WebSocketService(web3Url, false),
+                new WebSocketClient(web3Url),
                 pollingInterval,
                 pendingThreshold);
     }
@@ -37,12 +38,12 @@ public class Web3BCModule {
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.ropsten")
     @Bean(name = NetworkType.ETHEREUM_ROPSTEN_VALUE)
     public Web3Network ethNetRopsten(
-            @Value("${io.lastwill.eventscan.web3-url.ropsten}") String web3Url,
+            @Value("${io.lastwill.eventscan.web3-url.ropsten}") URI web3Url,
             @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
             @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
         return new Web3Network(
                 NetworkType.ETHEREUM_ROPSTEN,
-                new WebSocketService(web3Url, false),
+                new WebSocketClient(web3Url),
                 pollingInterval,
                 pendingThreshold);
     }

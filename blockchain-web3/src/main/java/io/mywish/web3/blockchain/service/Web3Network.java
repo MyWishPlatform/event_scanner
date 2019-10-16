@@ -14,6 +14,7 @@ import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.Request;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
+import org.web3j.protocol.websocket.WebSocketClient;
 import org.web3j.protocol.websocket.WebSocketService;
 import org.web3j.utils.Async;
 
@@ -29,7 +30,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 @Slf4j
 public class Web3Network extends WrapperNetwork {
-    private final WebSocketService webSocketService;
+    private final WebSocketClient webSocketClient;
     private final Web3j web3j;
 
     @Autowired
@@ -46,10 +47,11 @@ public class Web3Network extends WrapperNetwork {
     private final BlockingQueue<Transaction> pendingTransactions = new LinkedBlockingQueue<>();
     private Disposable subscription;
 
-    public Web3Network(NetworkType type, WebSocketService webSocketService, long pollingInterval, int pendingThreshold)
+    public Web3Network(NetworkType type, WebSocketClient webSocketClient, long pollingInterval, int pendingThreshold)
             throws ConnectException {
         super(type);
-        this.webSocketService = webSocketService;
+        this.webSocketClient = webSocketClient;
+        WebSocketService webSocketService = new WebSocketService(webSocketClient, false);
         webSocketService.connect();
         this.web3j = Web3j.build(webSocketService, pollingInterval, Async.defaultExecutorService());
         this.pendingThreshold = pendingThreshold;
@@ -81,7 +83,7 @@ public class Web3Network extends WrapperNetwork {
         try {
             return web3j.ethBlockNumber().send().getBlockNumber().longValue();
         } catch (WebsocketNotConnectedException e) {
-            webSocketService.connect();
+            webSocketClient.reconnectBlocking();
             return getLastBlock();
         }
     }
@@ -91,7 +93,7 @@ public class Web3Network extends WrapperNetwork {
         try {
             return blockBuilder.build(web3j.ethGetBlockByHash(hash, false).send().getBlock());
         } catch (WebsocketNotConnectedException e) {
-            webSocketService.connect();
+            webSocketClient.reconnectBlocking();
             return getBlock(hash);
         }
     }
@@ -103,7 +105,7 @@ public class Web3Network extends WrapperNetwork {
                     new DefaultBlockParameterNumber(number), true);
             return blockBuilder.build(ethBlockRequest.send().getBlock());
         } catch (WebsocketNotConnectedException e) {
-            webSocketService.connect();
+            webSocketClient.reconnectBlocking();
             return getBlock(number);
         }
     }
@@ -116,7 +118,7 @@ public class Web3Network extends WrapperNetwork {
                     .send()
                     .getBalance();
         } catch (WebsocketNotConnectedException e) {
-            webSocketService.connect();
+            webSocketClient.reconnectBlocking();
             return getBalance(address, blockNo);
         }
     }
@@ -131,7 +133,7 @@ public class Web3Network extends WrapperNetwork {
                             .getResult()
             );
         } catch (WebsocketNotConnectedException e) {
-            webSocketService.connect();
+            webSocketClient.reconnectBlocking();
             return getTxReceipt(transaction);
         }
     }

@@ -14,7 +14,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.web3j.protocol.http.HttpService;
 import org.web3j.protocol.websocket.WebSocketService;
 
 import java.net.ConnectException;
@@ -47,7 +46,7 @@ public class Web3BCModule {
                 pollingInterval,
                 pendingThreshold);
     }
-
+/*
     @ConditionalOnProperty(name = "io.lastwill.eventscan.web3-url.rsk-mainnet")
     @Bean(name = NetworkType.RSK_MAINNET_VALUE)
     public Web3Network rskNetMain(@Value("${io.lastwill.eventscan.web3-url.rsk-mainnet}") String web3Url) throws ConnectException {
@@ -65,7 +64,7 @@ public class Web3BCModule {
                 new HttpService(web3Url),
                 0);
     }
-
+*/
     @Configuration
     @ConditionalOnProperty("etherscanner.ethereum.db-persister")
     public class EthDbPersisterConfiguration {
@@ -101,7 +100,7 @@ public class Web3BCModule {
             return new LastBlockFilePersister(NetworkType.ETHEREUM_ROPSTEN, dir, null);
         }
     }
-
+/*
     @Configuration
     @ConditionalOnProperty("etherscanner.rsk.db-persister")
     public class RskDbPersisterConfiguration {
@@ -137,7 +136,7 @@ public class Web3BCModule {
             return new LastBlockFilePersister(NetworkType.RSK_TESTNET, dir, null);
         }
     }
-
+*/
     @ConditionalOnBean(name = NetworkType.ETHEREUM_MAINNET_VALUE)
     @Bean
     public Web3Scanner ethScannerMain(
@@ -169,7 +168,7 @@ public class Web3BCModule {
                 commitmentChainLength
         );
     }
-
+/*
     @ConditionalOnBean(name = NetworkType.RSK_MAINNET_VALUE)
     @Bean
     public Web3Scanner rskScannerMain(
@@ -201,4 +200,5 @@ public class Web3BCModule {
                 commitmentChainLength
         );
     }
+ */
 }

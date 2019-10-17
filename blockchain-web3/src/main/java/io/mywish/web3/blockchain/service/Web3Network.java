@@ -5,26 +5,32 @@ import io.mywish.blockchain.WrapperBlock;
 import io.mywish.blockchain.WrapperNetwork;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.blockchain.WrapperTransactionReceipt;
-import io.mywish.web3.blockchain.parity.Web3jEx;
+import io.reactivex.disposables.Disposable;
 import lombok.extern.slf4j.Slf4j;
+import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
+import org.web3j.protocol.core.Request;
+import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
-import rx.Subscription;
+import org.web3j.protocol.websocket.WebSocketClient;
+import org.web3j.protocol.websocket.WebSocketService;
+import org.web3j.utils.Async;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.math.BigInteger;
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class Web3Network extends WrapperNetwork {
+    private final WebSocketClient webSocketClient;
     private final Web3j web3j;
 
     @Autowired
@@ -39,19 +45,23 @@ public class Web3Network extends WrapperNetwork {
     private final int pendingThreshold;
 
     private final BlockingQueue<Transaction> pendingTransactions = new LinkedBlockingQueue<>();
-    private Subscription subscription;
+    private Disposable subscription;
 
-    public Web3Network(NetworkType type, Web3j web3j, int pendingThreshold) {
+    public Web3Network(NetworkType type, WebSocketClient webSocketClient, long pollingInterval, int pendingThreshold)
+            throws ConnectException {
         super(type);
-        this.web3j = web3j;
+        this.webSocketClient = webSocketClient;
+        WebSocketService webSocketService = new WebSocketService(webSocketClient, false);
+        webSocketService.connect();
+        this.web3j = Web3j.build(webSocketService, pollingInterval, Async.defaultExecutorService());
         this.pendingThreshold = pendingThreshold;
     }
 
     @PostConstruct
     private void init() {
-        if (pendingThreshold > 0 && !(web3j instanceof Web3jEx)) {
+        if (pendingThreshold > 0) {
             log.info("Subscribe to pending transactions.");
-            subscription = web3j.pendingTransactionObservable().subscribe(pendingTransactions::add);
+            subscription = web3j.pendingTransactionFlowable().subscribe(pendingTransactions::add);
         }
     }
 
@@ -60,44 +70,72 @@ public class Web3Network extends WrapperNetwork {
         if (subscription == null) {
             return;
         }
-        if (subscription.isUnsubscribed()) {
+        if (subscription.isDisposed()) {
             return;
         }
-        subscription.unsubscribe();
+        subscription.dispose();
         subscription = null;
+        web3j.shutdown();
     }
 
     @Override
     public Long getLastBlock() throws Exception {
-        return web3j.ethBlockNumber().send().getBlockNumber().longValue();
+        try {
+            return web3j.ethBlockNumber().send().getBlockNumber().longValue();
+        } catch (WebsocketNotConnectedException e) {
+            webSocketClient.reconnectBlocking();
+            return getLastBlock();
+        }
     }
 
     @Override
     public WrapperBlock getBlock(String hash) throws Exception {
-        return blockBuilder.build(web3j.ethGetBlockByHash(hash, false).send().getBlock());
+        try {
+            return blockBuilder.build(web3j.ethGetBlockByHash(hash, false).send().getBlock());
+        } catch (WebsocketNotConnectedException e) {
+            webSocketClient.reconnectBlocking();
+            return getBlock(hash);
+        }
     }
 
     @Override
     public WrapperBlock getBlock(Long number) throws Exception {
-        return blockBuilder.build(web3j.ethGetBlockByNumber(new DefaultBlockParameterNumber(number), true).send().getBlock());
+        try {
+            Request<?, EthBlock> ethBlockRequest = web3j.ethGetBlockByNumber(
+                    new DefaultBlockParameterNumber(number), true);
+            return blockBuilder.build(ethBlockRequest.send().getBlock());
+        } catch (WebsocketNotConnectedException e) {
+            webSocketClient.reconnectBlocking();
+            return getBlock(number);
+        }
     }
 
     @Override
     public BigInteger getBalance(String address, Long blockNo) throws Exception {
-        return web3j
-                .ethGetBalance(address, new DefaultBlockParameterNumber(blockNo))
-                .send()
-                .getBalance();
+        try {
+            return web3j
+                    .ethGetBalance(address, new DefaultBlockParameterNumber(blockNo))
+                    .send()
+                    .getBalance();
+        } catch (WebsocketNotConnectedException e) {
+            webSocketClient.reconnectBlocking();
+            return getBalance(address, blockNo);
+        }
     }
 
     @Override
     public WrapperTransactionReceipt getTxReceipt(WrapperTransaction transaction) throws Exception {
-        return transactionReceiptBuilder.build(
-                web3j
-                        .ethGetTransactionReceipt(transaction.getHash())
-                        .send()
-                        .getResult()
-        );
+        try {
+            return transactionReceiptBuilder.build(
+                    web3j
+                            .ethGetTransactionReceipt(transaction.getHash())
+                            .send()
+                            .getResult()
+            );
+        } catch (WebsocketNotConnectedException e) {
+            webSocketClient.reconnectBlocking();
+            return getTxReceipt(transaction);
+        }
     }
 
     @Override
@@ -107,19 +145,6 @@ public class Web3Network extends WrapperNetwork {
 
     @Override
     public List<WrapperTransaction> fetchPendingTransactions() throws Exception {
-        if (web3j instanceof Web3jEx) {
-            List<Transaction> result = ((Web3jEx) web3j).parityGetPendingTransactions().send()
-                    .getResult();
-
-            if (result == null) {
-                return Collections.emptyList();
-            }
-
-            return result
-                    .stream()
-                    .map(transactionBuilder::build)
-                    .collect(Collectors.toList());
-        }
         if (pendingTransactions.isEmpty()) {
             return Collections.emptyList();
         }

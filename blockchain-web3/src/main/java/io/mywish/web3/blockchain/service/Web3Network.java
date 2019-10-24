@@ -6,6 +6,7 @@ import io.mywish.blockchain.WrapperNetwork;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.blockchain.WrapperTransactionReceipt;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +62,18 @@ public class Web3Network extends WrapperNetwork {
     private void init() {
         if (pendingThreshold > 0) {
             log.info("Subscribe to pending transactions.");
-            subscription = web3j.pendingTransactionFlowable().subscribe(pendingTransactions::add);
+            subscribePendingTransactions();
         }
+    }
+
+    private void subscribePendingTransactions() {
+        subscription = web3j
+                .pendingTransactionFlowable()
+                .subscribe(pendingTransactions::add, throwable -> {
+                    log.error("Error in pending tx subscription. Reconnecting", throwable);
+                    webSocketClient.reconnectBlocking();
+                    subscribePendingTransactions();
+                });
     }
 
     @PreDestroy

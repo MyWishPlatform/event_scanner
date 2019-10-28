@@ -69,11 +69,7 @@ public class Web3Network extends WrapperNetwork {
     private void subscribePendingTransactions() {
         subscription = web3j
                 .pendingTransactionFlowable()
-                .subscribe(pendingTransactions::add, throwable -> {
-                    log.error("Error in pending tx subscription. Reconnecting", throwable);
-                    webSocketClient.reconnectBlocking();
-                    subscribePendingTransactions();
-                });
+                .subscribe(pendingTransactions::add);
     }
 
     @PreDestroy
@@ -94,7 +90,9 @@ public class Web3Network extends WrapperNetwork {
         try {
             return web3j.ethBlockNumber().send().getBlockNumber().longValue();
         } catch (WebsocketNotConnectedException e) {
+            log.error("Error in pending tx subscription. Reconnecting");
             webSocketClient.reconnectBlocking();
+            subscribePendingTransactions();
             return getLastBlock();
         }
     }
@@ -104,7 +102,9 @@ public class Web3Network extends WrapperNetwork {
         try {
             return blockBuilder.build(web3j.ethGetBlockByHash(hash, false).send().getBlock());
         } catch (WebsocketNotConnectedException e) {
+            log.error("Error in pending tx subscription. Reconnecting");
             webSocketClient.reconnectBlocking();
+            subscribePendingTransactions();
             return getBlock(hash);
         }
     }
@@ -116,7 +116,9 @@ public class Web3Network extends WrapperNetwork {
                     new DefaultBlockParameterNumber(number), true);
             return blockBuilder.build(ethBlockRequest.send().getBlock());
         } catch (WebsocketNotConnectedException e) {
+            log.error("Error in pending tx subscription. Reconnecting");
             webSocketClient.reconnectBlocking();
+            subscribePendingTransactions();
             return getBlock(number);
         }
     }
@@ -129,7 +131,9 @@ public class Web3Network extends WrapperNetwork {
                     .send()
                     .getBalance();
         } catch (WebsocketNotConnectedException e) {
+            log.error("Error in pending tx subscription. Reconnecting");
             webSocketClient.reconnectBlocking();
+            subscribePendingTransactions();
             return getBalance(address, blockNo);
         }
     }
@@ -144,7 +148,9 @@ public class Web3Network extends WrapperNetwork {
                             .getResult()
             );
         } catch (WebsocketNotConnectedException e) {
+            log.error("Error in pending tx subscription. Reconnecting");
             webSocketClient.reconnectBlocking();
+            subscribePendingTransactions();
             return getTxReceipt(transaction);
         }
     }

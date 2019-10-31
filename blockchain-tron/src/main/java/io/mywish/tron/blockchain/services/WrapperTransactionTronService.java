@@ -6,7 +6,6 @@ import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.blockchain.service.WrapperTransactionService;
 import io.mywish.tron.blockchain.model.WrapperTransactionTron;
 import io.mywish.troncli4j.model.Transaction;
-import io.mywish.troncli4j.model.contracttype.ContractType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +14,8 @@ import java.util.List;
 
 @Component
 public class WrapperTransactionTronService implements WrapperTransactionService<Transaction> {
+    private static final String CREATE_TYPE = "CreateSmartContract";
+
     @Autowired
     private WrapperOutputTronService outputBuilder;
 
@@ -29,7 +30,7 @@ public class WrapperTransactionTronService implements WrapperTransactionService<
 
         List<WrapperOutput> outputs = Collections.singletonList(outputBuilder.build(transaction));
 
-        boolean contractCreation = contractWrapper.getType().equals(ContractType.Type.CreateSmartContract);
+        boolean contractCreation = contractWrapper.getType().equals(CREATE_TYPE);
 
         List<String> contracts = transaction.getContractAddress() == null
                 ? Collections.emptyList()

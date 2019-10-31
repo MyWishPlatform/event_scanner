@@ -9,38 +9,4 @@ public abstract class ContractType {
     @Setter
     @JsonProperty("owner_address")
     private String ownerAddress;
-
-    public enum Type {
-        AccountCreateContract,
-        TransferContract,
-        TransferAssetContract,
-        VoteAssetContract,
-        VoteWitnessContract,
-        WitnessCreateContract,
-        AssetIssueContract,
-        WitnessUpdateContract,
-        ParticipateAssetIssueContract,
-        AccountUpdateContract,
-        FreezeBalanceContract,
-        UnfreezeBalanceContract,
-        WithdrawBalanceContract,
-        UnfreezeAssetContract,
-        UpdateAssetContract,
-        ProposalCreateContract,
-        ProposalApproveContract,
-        ProposalDeleteContract,
-        SetAccountIdContract,
-        CustomContract,
-        CreateSmartContract,
-        TriggerSmartContract,
-        GetContract,
-        UpdateSettingContract,
-        ExchangeCreateContract,
-        ExchangeInjectContract,
-        ExchangeWithdrawContract,
-        ExchangeTransactionContract,
-        UpdateEnergyLimitContract,
-        AccountPermissionUpdateContract,
-        ClearABIContract
-    }
 }

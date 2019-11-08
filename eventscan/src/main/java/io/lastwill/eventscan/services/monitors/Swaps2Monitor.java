@@ -1,8 +1,6 @@
 package io.lastwill.eventscan.services.monitors;
 
-import io.lastwill.eventscan.events.model.Swaps2OrderCreatedEvent;
-import io.lastwill.eventscan.events.model.Swaps2OrderDepositEvent;
-import io.lastwill.eventscan.events.model.Swaps2OrderRefundEvent;
+import io.lastwill.eventscan.events.model.*;
 import io.lastwill.eventscan.events.model.contract.swaps2.*;
 import io.lastwill.eventscan.messages.swaps2.*;
 import io.lastwill.eventscan.model.NetworkType;
@@ -101,6 +99,22 @@ public class Swaps2Monitor {
                                                             order,
                                                             tx,
                                                             (RefundEvent) contractEvent
+                                                    )
+                                            );
+                                        } else if (contractEvent instanceof SwapEvent) {
+                                            eventPublisher.publish(
+                                                    new Swaps2CompletedEvent(
+                                                            event.getNetworkType(),
+                                                            order,
+                                                            tx
+                                                    )
+                                            );
+                                        } else if (contractEvent instanceof CancelEvent) {
+                                            eventPublisher.publish(
+                                                    new Swaps2CancelEvent(
+                                                            event.getNetworkType(),
+                                                            order,
+                                                            tx
                                                     )
                                             );
                                         }

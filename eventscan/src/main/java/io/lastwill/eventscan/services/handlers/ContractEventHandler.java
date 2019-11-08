@@ -1,8 +1,6 @@
 package io.lastwill.eventscan.services.handlers;
 
-import io.lastwill.eventscan.events.model.ContractEventsEvent;
-import io.lastwill.eventscan.events.model.SwapDepositEvent;
-import io.lastwill.eventscan.events.model.SwapRefundEvent;
+import io.lastwill.eventscan.events.model.*;
 import io.lastwill.eventscan.events.model.contract.*;
 import io.lastwill.eventscan.events.model.contract.crowdsale.FinalizedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.TimesChangedEvent;
@@ -257,6 +255,8 @@ public class ContractEventHandler {
                         )
                 );
             } else if (contractEvent instanceof SwapEvent && product instanceof ProductSwaps) {
+                eventPublisher.publish(new SwapCompletedEvent(event.getNetworkType(), event.getTransaction(),
+                        event.getContract().getId(), product.getId()));
                 externalNotifier.send(
                         event.getNetworkType(),
                         new FinalizedNotify(
@@ -266,6 +266,8 @@ public class ContractEventHandler {
                         )
                 );
             } else if (contractEvent instanceof CancelEvent && product instanceof ProductSwaps) {
+                eventPublisher.publish(new SwapCancelEvent(event.getNetworkType(), event.getTransaction(),
+                        event.getContract().getId(), product.getId()));
                 externalNotifier.send(
                         event.getNetworkType(),
                         new CancelledNotify(

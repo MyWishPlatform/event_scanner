@@ -135,6 +135,27 @@ public class BotIntegration {
     }
 
     @EventListener
+    private void onSwap2Completed(final Swaps2CompletedEvent event) {
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        String txHash = event.getTransaction().getHash();
+        String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToTransaction(txHash);
+        Swaps2Order order = event.getOrder();
+
+        bot.onSwaps2Completed(network, txHash, txLink, order.getId());
+    }
+
+    @EventListener
+    private void onSwaps2Canceled(final Swaps2CancelEvent event) {
+        Swaps2Order order = event.getOrder();
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        String txHash = event.getTransaction().getHash();
+        String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToTransaction(txHash);
+        bot.onSwaps2Canceled(network, txHash, txLink, order.getId());
+    }
+
+    @EventListener
     private void onSwapsDeposit(final SwapDepositEvent event) {
         String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         String txHash = event.getTransaction().getHash();
@@ -143,6 +164,28 @@ public class BotIntegration {
         String userAddress = event.getUserAddress();
 
         bot.onSwapsDeposit(network, txHash, txLink, userAddress);
+    }
+
+    @EventListener
+    private void onSwapCompleted(final SwapCompletedEvent event) {
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        String txHash = event.getTransaction().getHash();
+        String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToTransaction(txHash);
+        Integer id = event.getId();
+        Integer productId = event.getProductId();
+        bot.onSwapCompleted(network, txHash, txLink, id, productId);
+    }
+
+    @EventListener
+    private void onSwapCanceled(final SwapCancelEvent event) {
+        String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
+        String txHash = event.getTransaction().getHash();
+        String txLink = explorerProvider.getOrStub(event.getNetworkType())
+                .buildToTransaction(txHash);
+        Integer id = event.getId();
+        Integer productId = event.getProductId();
+        bot.onSwapCanceled(network, txHash, txLink, id, productId);
     }
 
     @EventListener

@@ -154,6 +154,40 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllWithHtml(message);
     }
 
+    public void onSwaps2Completed(String network, String transactionHash, String txLink, Integer productId) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": SWAPS2 (")
+                .append(productId)
+                .append(") was completed")
+                .append(". See on ")
+                .append("<a href=\"")
+                .append(txLink)
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
+                .toString();
+
+        sendToAllWithHtml(message);
+    }
+
+    public void onSwaps2Canceled(String network, String transactionHash, String txLink, Integer productId) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": SWAPS2 (")
+                .append(productId)
+                .append(") was canceled")
+                .append(". See on ")
+                .append("<a href=\"")
+                .append(txLink)
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
+                .toString();
+
+        sendToAllWithHtml(message);
+    }
+
     public void onSwaps2Refund(String network, Integer productId, String transactionHash, String txLink,
                                String symbol, String userIdOrEmail) {
         final String message = new StringBuilder()
@@ -174,6 +208,47 @@ public class MyWishBot extends TelegramLongPollingBot {
 
         sendToAllWithHtml(message);
     }
+
+    public void onSwapCompleted(String network, String transactionHash, String txLink,
+                                Integer id, Integer productId) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": SWAPS (")
+                .append(productId)
+                .append(", ")
+                .append(id)
+                .append(") was completed")
+                .append(". See on ")
+                .append("<a href=\"")
+                .append(txLink)
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
+                .toString();
+
+        sendToAllWithHtml(message);
+    }
+
+    public void onSwapCanceled(String network, String transactionHash, String txLink,
+                               Integer id, Integer productId) {
+        final String message = new StringBuilder()
+                .append(network)
+                .append(": SWAPS (")
+                .append(productId)
+                .append(", ")
+                .append(id)
+                .append(") was canceled")
+                .append(". See on ")
+                .append("<a href=\"")
+                .append(txLink)
+                .append("\">")
+                .append(transactionHash)
+                .append("</a>.")
+                .toString();
+
+        sendToAllWithHtml(message);
+    }
+
     public void onSwapsRefund(String network, String transactionHash, String txLink,
                               String userAddress) {
         final String message = new StringBuilder()

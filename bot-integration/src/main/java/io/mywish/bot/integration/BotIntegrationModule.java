@@ -2,8 +2,10 @@ package io.mywish.bot.integration;
 
 import io.mywish.bot.BotModule;
 import io.mywish.bot.integration.services.BotIntegration;
+import io.mywish.bot.integration.services.BotIntegrationLight;
 import io.mywish.bot.integration.services.impl.*;
 import io.mywish.bot.service.MyWishBot;
+import io.mywish.bot.service.MyWishBotLight;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.*;
 
@@ -91,5 +93,11 @@ public class BotIntegrationModule {
     @ConditionalOnBean(MyWishBot.class)
     public BotIntegration botIntegration() {
         return new BotIntegration();
+    }
+
+    @Bean
+    @ConditionalOnBean(MyWishBotLight.class)
+    public BotIntegrationLight botIntegrationLight() {
+        return new BotIntegrationLight();
     }
 }

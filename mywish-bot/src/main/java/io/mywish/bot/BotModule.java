@@ -1,9 +1,6 @@
 package io.mywish.bot;
 
-import io.mywish.bot.service.ChatDbPersister;
-import io.mywish.bot.service.ChatFilePersister;
-import io.mywish.bot.service.ChatPersister;
-import io.mywish.bot.service.MyWishBot;
+import io.mywish.bot.service.*;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +43,23 @@ public class BotModule {
         }
         return new MyWishBot(botOptions);
     }
+    /**************/
+    @ConditionalOnProperty(name = "io.mywish.is-ros-com-nadzor", havingValue = "false", matchIfMissing = true)
+    @Bean
+    public MyWishBotLight myWishBotLight() {
+        DefaultBotOptions botOptions = ApiContext.getInstance(DefaultBotOptions.class);
+        if (proxy != null) {
+            botOptions.setRequestConfig(
+                    RequestConfig
+                            .custom()
+                            .setProxy(HttpHost.create(proxy))
+                            .setAuthenticationEnabled(false)
+                            .build()
+            );
+        }
+        return new MyWishBotLight(botOptions);
+    }
+    /**********************/
 
     @ConditionalOnProperty(name = "io.mywish.bot.db-persister", havingValue = "true")
     @Bean

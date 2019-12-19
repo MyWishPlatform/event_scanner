@@ -298,6 +298,15 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAll(message);
     }
 
+    public void onSwapsOrderFromDataBaseToPublicChat(String name) {
+        final String message = new StringBuilder()
+                .append("new SWAPS Order (")
+                .append(name)
+                .append(") was created.")
+                .toString();
+        sendToSpecifiedChat(message);
+    }
+
     public void onContractFailed(String network, Integer productId, String productType, Integer id, final String txLink) {
         final String message = new StringBuilder()
                 .append(network)
@@ -407,6 +416,9 @@ public class MyWishBot extends TelegramLongPollingBot {
     private void sendToAllChats(SendMessage sendMessage) {
         for (long chatId: chatPersister.getChats()) {
             try {
+                if(chatId < 0) {
+                    continue;
+                }
                 // it's ok to specify chat id, because sendMessage will be serialized to JSON during the call
                 execute(sendMessage.setChatId(chatId));
             }
@@ -415,6 +427,27 @@ public class MyWishBot extends TelegramLongPollingBot {
                 chatPersister.remove(chatId);
             }
         }
+    }
+
+    private void sendToSpecifiedChat(String message) {
+        SendMessage sendMessage = new SendMessage()
+                .setText(message)
+                .disableWebPagePreview();
+
+        for (long chatId : chatPersister.getChats()) {
+            try {
+                // it's ok to specify chat id, because sendMessage will be serialized to JSON during the call
+                if (chatId > 0) {
+                    continue;
+                }
+                execute(sendMessage.setChatId(chatId));
+            } catch (TelegramApiException e) {
+                log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
+                chatPersister.remove(chatId);
+            }
+        }
+
+
     }
 
     private void directMessage(long chatId, String userName) {

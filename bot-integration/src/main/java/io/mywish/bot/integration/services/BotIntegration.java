@@ -82,6 +82,7 @@ public class BotIntegration {
                 .buildToAddress(contractCreatedEvent.getAddress());
 
         if (contractCreatedEvent.isSuccess()) {
+
             bot.onContract(
                     network,
                     product.getId(),
@@ -94,6 +95,7 @@ public class BotIntegration {
             );
         } else {
             bot.onContractFailed(network, product.getId(), type, contract.getId(), txLink);
+
         }
     }
 
@@ -208,6 +210,9 @@ public class BotIntegration {
                 order.getId(),
                 order.getName(),
                 getUser(userId)
+        );
+        bot.onSwapsOrderFromDataBaseToPublicChat(
+                order.getName()
         );
     }
 

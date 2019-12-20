@@ -30,6 +30,7 @@ public class ProductStatistics {
         put(19, "LostKey Tokens");
         put(20, "SWAPS");
         put(22, "STO");
+        put(23, "Token Protector");
     }};
 
     private final Integer contractType;

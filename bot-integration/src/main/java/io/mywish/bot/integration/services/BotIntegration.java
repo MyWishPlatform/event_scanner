@@ -9,6 +9,7 @@ import io.lastwill.eventscan.model.*;
 import io.lastwill.eventscan.repositories.UserRepository;
 import io.mywish.blockchain.ContractEvent;
 import io.mywish.bot.service.MyWishBot;
+import io.mywish.bot.service.MyWishBotLight;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,9 @@ import java.util.Map;
 public class BotIntegration {
     @Autowired
     private MyWishBot bot;
+
+    @Autowired
+    private MyWishBotLight botLight;
 
     @Autowired
     private UserRepository userRepository;
@@ -211,8 +215,10 @@ public class BotIntegration {
                 order.getName(),
                 getUser(userId)
         );
-        bot.onSwapsOrderFromDataBaseToPublicChat(
-                order.getName()
+        botLight.onSwapsOrderFromDataBase(
+                order.getId(),
+                order.getName(),
+                getUser(userId)
         );
     }
 

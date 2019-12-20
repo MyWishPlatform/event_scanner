@@ -22,9 +22,18 @@ public class BotModule {
     @Value("${io.mywish.bot.http-proxy:#{null}}")
     private String proxy;
 
+    @Value("${io.mywish.botLight.http-proxy:#{null}}")
+    private String proxyLight;
+
     @ConditionalOnProperty(name = "io.mywish.is-ros-com-nadzor", havingValue = "false", matchIfMissing = true)
     @Bean
     public TelegramBotsApi telegramBotsApi() {
+        return new TelegramBotsApi();
+    }
+
+    @ConditionalOnProperty(name = "io.mywish.is-ros-com-nadzor", havingValue = "false", matchIfMissing = true)
+    @Bean
+    public TelegramBotsApi telegramBotsApiLight() {
         return new TelegramBotsApi();
     }
 
@@ -42,6 +51,22 @@ public class BotModule {
             );
         }
         return new MyWishBot(botOptions);
+    }
+
+    @ConditionalOnProperty(name = "io.mywish.is-ros-com-nadzor", havingValue = "false", matchIfMissing = true)
+    @Bean
+    public MyWishBotLight myWishBotLight() {
+        DefaultBotOptions botOptions = ApiContext.getInstance(DefaultBotOptions.class);
+        if (proxy != null) {
+            botOptions.setRequestConfig(
+                    RequestConfig
+                            .custom()
+                            .setProxy(HttpHost.create(proxyLight))
+                            .setAuthenticationEnabled(false)
+                            .build()
+            );
+        }
+        return new MyWishBotLight(botOptions);
     }
 
     @ConditionalOnProperty(name = "io.mywish.bot.db-persister", havingValue = "true")

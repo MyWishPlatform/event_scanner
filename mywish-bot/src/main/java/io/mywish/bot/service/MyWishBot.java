@@ -297,7 +297,7 @@ public class MyWishBot extends TelegramLongPollingBot {
 
         sendToAll(message);
     }
-
+/*
     public void onSwapsOrderFromDataBaseToPublicChat(String name) {
         final String message = new StringBuilder()
                 .append("new SWAPS Order (")
@@ -306,7 +306,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .toString();
         sendToSpecifiedChat(message);
     }
-
+*/
     public void onContractFailed(String network, Integer productId, String productType, Integer id, final String txLink) {
         final String message = new StringBuilder()
                 .append(network)

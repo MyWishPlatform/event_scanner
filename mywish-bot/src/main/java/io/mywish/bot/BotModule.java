@@ -28,7 +28,6 @@ public class BotModule {
         return new TelegramBotsApi();
     }
 
-
     @ConditionalOnProperty(name = "io.mywish.is-ros-com-nadzor", havingValue = "false", matchIfMissing = true)
     @Bean
     public MyWishBot myWishBot() {

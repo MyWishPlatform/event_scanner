@@ -50,7 +50,7 @@ public class ChatDbPersister implements ChatPersister {
     }
 
     @Override
-    public void remove(long chatId, String botName) {
+    public void remove(long chatId) {
         chatRepository.deleteByChatId(chatId);
     }
 }

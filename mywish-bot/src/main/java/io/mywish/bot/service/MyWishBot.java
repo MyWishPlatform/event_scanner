@@ -56,6 +56,7 @@ public class MyWishBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         Long chatId;
+
         if (update.hasChannelPost()) {
             chatId = update.getChannelPost().getChatId();
         }
@@ -422,32 +423,14 @@ public class MyWishBot extends TelegramLongPollingBot {
                         execute(sendMessage.setChatId(chatId));
                     } catch (TelegramApiException e) {
                         log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
-                        chatPersister.remove(chatId, botUsername);
+                        chatPersister.remove(chatId);
                     }
                 }
-            }
-        }
-    }
-
-    private void sendToSpecifiedChat(String message) {
-        SendMessage sendMessage = new SendMessage()
-                .setText(message)
-                .disableWebPagePreview();
-
-        for (long chatId : chatPersister.getChats()) {
-            try {
-                // it's ok to specify chat id, because sendMessage will be serialized to JSON during the call
-                if (chatId > 0) {
+                else {
                     continue;
                 }
-                execute(sendMessage.setChatId(chatId));
-            } catch (TelegramApiException e) {
-                log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
-                chatPersister.remove(chatId, botUsername);
             }
         }
-
-
     }
 
     private void directMessage(long chatId, String userName) {

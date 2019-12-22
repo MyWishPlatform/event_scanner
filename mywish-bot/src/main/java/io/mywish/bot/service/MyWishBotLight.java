@@ -89,8 +89,11 @@ public class MyWishBotLight extends TelegramLongPollingBot {
                         execute(sendMessage.setChatId(chatId));
                     } catch (TelegramApiException e) {
                         log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
-                        chatPersister.remove(chatId, botUsername);
+                        chatPersister.remove(chatId);
                     }
+               }
+                else {
+                    continue;
                 }
             }
         }

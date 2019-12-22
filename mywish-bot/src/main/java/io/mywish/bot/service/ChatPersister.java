@@ -9,5 +9,5 @@ public interface ChatPersister {
 
     int getCount();
 
-    void remove(long chatId, String botName);
+    void remove(long chatId);
 }

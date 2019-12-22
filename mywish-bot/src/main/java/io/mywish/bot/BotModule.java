@@ -22,8 +22,6 @@ public class BotModule {
     @Value("${io.mywish.bot.http-proxy:#{null}}")
     private String proxy;
 
-    @Value("${io.mywish.bot.light.http-proxy:#{null}}")
-    private String proxyLight;
 
     @ConditionalOnProperty(name = "io.mywish.is-ros-com-nadzor", havingValue = "false", matchIfMissing = true)
     @Bean
@@ -61,7 +59,7 @@ public class BotModule {
             botOptions.setRequestConfig(
                     RequestConfig
                             .custom()
-                            .setProxy(HttpHost.create(proxyLight))
+                            .setProxy(HttpHost.create(proxy))
                             .setAuthenticationEnabled(false)
                             .build()
             );

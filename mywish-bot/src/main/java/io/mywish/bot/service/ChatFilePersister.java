@@ -108,9 +108,8 @@ public  class ChatFilePersister implements ChatPersister {
     }
 
     @Override
-    public void remove(long chatId, String botName) {
+    public void remove(long chatId) {
         chats.remove(chatId);
-        botNameForChats.remove(botName);
         notifySaver();
     }
 

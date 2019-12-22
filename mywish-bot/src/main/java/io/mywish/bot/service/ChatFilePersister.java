@@ -13,12 +13,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-public class ChatFilePersister implements ChatPersister {
+public  class ChatFilePersister implements ChatPersister {
     @Value("${io.mywish.bot.file:#{null}}")
     private String chatsFilePath;
 
     private FileOutputStream lastOutputStream;
     private final Set<Long> chats = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<String> botNameForChats = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private final Object saveLock = new Object();
     private final Runnable saver = () -> {
         log.info("Saver thread was started.");
@@ -82,9 +83,10 @@ public class ChatFilePersister implements ChatPersister {
     }
 
     @Override
-    public boolean tryAdd(long chatId) {
+    public boolean tryAdd(long chatId,String botName) {
         boolean result = chats.add(chatId);
-        if (result) {
+        boolean result1 = botNameForChats.add(botName);
+        if (result && result1) {
             notifySaver();
         }
         return result;
@@ -96,13 +98,19 @@ public class ChatFilePersister implements ChatPersister {
     }
 
     @Override
+    public Iterable<String> getBotNameForChats() {
+        return botNameForChats;
+    }
+
+    @Override
     public int getCount() {
         return chats.size();
     }
 
     @Override
-    public void remove(long chatId) {
+    public void remove(long chatId, String botName) {
         chats.remove(chatId);
+        botNameForChats.remove(botName);
         notifySaver();
     }
 

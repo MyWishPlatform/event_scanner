@@ -22,7 +22,7 @@ public class BotModule {
     @Value("${io.mywish.bot.http-proxy:#{null}}")
     private String proxy;
 
-    @Value("${io.mywish.botLight.http-proxy:#{null}}")
+    @Value("${io.mywish.bot.light.http-proxy:#{null}}")
     private String proxyLight;
 
     @ConditionalOnProperty(name = "io.mywish.is-ros-com-nadzor", havingValue = "false", matchIfMissing = true)

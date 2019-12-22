@@ -90,8 +90,8 @@ public class MyWishBot extends TelegramLongPollingBot {
         else {
             return;
         }
-        if (chatPersister.tryAdd(chatId)) {
-            log.info("Bot was added to the chat {}. Now he is in {} chats.", chatId, chatPersister.getCount());
+        if (chatPersister.tryAdd(chatId, botUsername)) {
+            log.info("Bot 'MyWish' was added to the chat {}. Now he is in {} chats.", chatId, chatPersister.getCount());
         }
     }
 
@@ -414,17 +414,17 @@ public class MyWishBot extends TelegramLongPollingBot {
     }
 
     private void sendToAllChats(SendMessage sendMessage) {
-        for (long chatId: chatPersister.getChats()) {
-            try {
-                if(chatId < 0) {
-                    continue;
+        for (long chatId : chatPersister.getChats()) {
+            for (String botName : chatPersister.getBotNameForChats()) {
+                if (botName == botUsername) {
+                    try {
+                        // it's ok to specify chat id, because sendMessage will be serialized to JSON during the call
+                        execute(sendMessage.setChatId(chatId));
+                    } catch (TelegramApiException e) {
+                        log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
+                        chatPersister.remove(chatId, botUsername);
+                    }
                 }
-                // it's ok to specify chat id, because sendMessage will be serialized to JSON during the call
-                execute(sendMessage.setChatId(chatId));
-            }
-            catch (TelegramApiException e) {
-                log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
-                chatPersister.remove(chatId);
             }
         }
     }
@@ -443,7 +443,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                 execute(sendMessage.setChatId(chatId));
             } catch (TelegramApiException e) {
                 log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
-                chatPersister.remove(chatId);
+                chatPersister.remove(chatId, botUsername);
             }
         }
 

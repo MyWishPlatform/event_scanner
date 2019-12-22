@@ -19,12 +19,12 @@ public class ChatDbPersister implements ChatPersister {
     }
 
     @Override
-    public synchronized boolean tryAdd(long chatId) {
+    public synchronized boolean tryAdd(long chatId, String botName) {
         if (chatRepository.existsByChatId(chatId)) {
             return false;
         }
 
-        chatRepository.save(new SubscribedChat(chatId));
+        chatRepository.save(new SubscribedChat(chatId, botName));
         return true;
     }
 
@@ -37,12 +37,20 @@ public class ChatDbPersister implements ChatPersister {
     }
 
     @Override
+    public Iterable<String> getBotNameForChats() {
+        return chatRepository.findAll()
+                .stream()
+                .map(SubscribedChat::getBotName)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
     public int getCount() {
         return (int) chatRepository.count();
     }
 
     @Override
-    public void remove(long chatId) {
+    public void remove(long chatId, String botName) {
         chatRepository.deleteByChatId(chatId);
     }
 }

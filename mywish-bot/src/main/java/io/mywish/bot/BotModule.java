@@ -70,7 +70,15 @@ public class BotModule {
 
     @ConditionalOnProperty(name = "io.mywish.bot.db-persister", havingValue = "false", matchIfMissing = true)
     @Bean
-    public ChatPersister chatFilePersister() {
-        return new ChatFilePersister();
+    public ChatPersister chatFilePersister(@Value("${io.mywish.bot.file:#{null}}") String fileName) {
+        ChatFilePersister chatFilePersister = new ChatFilePersister(fileName);
+        return chatFilePersister;
+    }
+
+    @ConditionalOnProperty(name = "io.mywish.bot.db-persister", havingValue = "false", matchIfMissing = true)
+    @Bean
+    public ChatPersister chatFileLightPersister(@Value("${io.mywish.bot.light.file:#{null}}") String fileName) {
+        ChatFilePersister chatFileLightPersister = new ChatFilePersister(fileName);
+        return chatFileLightPersister;
     }
 }

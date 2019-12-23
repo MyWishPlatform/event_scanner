@@ -23,7 +23,7 @@ public class MyWishBot extends TelegramLongPollingBot {
     private TelegramBotsApi telegramBotsApi;
 
     @Autowired
-    private ChatPersister chatPersister;
+    private ChatPersister chatFilePersister;
 
     @Autowired(required = false)
     private InformationProvider informationProvider;
@@ -91,8 +91,8 @@ public class MyWishBot extends TelegramLongPollingBot {
         else {
             return;
         }
-        if (chatPersister.tryAdd(chatId, botUsername)) {
-            log.info("Bot '{}' was added to the chat {}. Now he is in {} chats.", botUsername, chatId, chatPersister.getCount());
+        if (chatFilePersister.tryAdd(chatId, botUsername)) {
+            log.info("Bot '{}' was added to the chat {}. Now he is in {} chats.", botUsername, chatId, chatFilePersister.getCount());
         }
     }
 
@@ -406,13 +406,13 @@ public class MyWishBot extends TelegramLongPollingBot {
     }
 
     private void sendToAllChats(SendMessage sendMessage) {
-        for (long chatId : chatPersister.getChatsByBotName(botUsername)) {
+        for (long chatId : chatFilePersister.getChatsByBotName(botUsername)) {
             try {
                 // it's ok to specify chat id, because sendMessage will be serialized to JSON during the call
                 execute(sendMessage.setChatId(chatId));
             } catch (TelegramApiException e) {
                 log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
-                chatPersister.remove(chatId);
+                chatFilePersister.remove(chatId);
             }
         }
 

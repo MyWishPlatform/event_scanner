@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.context.annotation.Bean;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
@@ -15,10 +14,6 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @ConditionalOnBean(TelegramBotsApi.class)
@@ -28,7 +23,7 @@ public class MyWishBotLight extends TelegramLongPollingBot {
     private TelegramBotsApi telegramBotsApiLight;
 
     @Autowired
-    private ChatPersister chatPersister;
+    private ChatPersister chatFileLightPersister;
 
     @Autowired(required = false)
     private InformationProvider informationProvider;
@@ -74,19 +69,19 @@ public class MyWishBotLight extends TelegramLongPollingBot {
         else {
             return;
         }
-        if (chatPersister.tryAdd(chatId,botUsername)) {
-            log.info("Bot '{}' was added to the chat {}. Now he is in {} chats.", botUsername, chatId, chatPersister.getCount());
+        if (chatFileLightPersister.tryAdd(chatId,botUsername)) {
+            log.info("Bot '{}' was added to the chat {}. Now he is in {} chats.", botUsername, chatId, chatFileLightPersister.getCount());
         }
     }
 
     private void sendToAllChats(SendMessage sendMessage) {
-        for (long chatId : chatPersister.getChatsByBotName(botUsername)) {
+        for (long chatId : chatFileLightPersister.getChatsByBotName(botUsername)) {
             try {
                 // it's ok to specify chat id, because sendMessage will be serialized to JSON during the call
                 execute(sendMessage.setChatId(chatId));
             } catch (TelegramApiException e) {
                 log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
-                chatPersister.remove(chatId);
+                chatFileLightPersister.remove(chatId);
             }
         }
     }

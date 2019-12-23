@@ -89,14 +89,9 @@ public class BotIntegrationModule {
     }
 
     @Bean
-    @ConditionalOnBean(MyWishBot.class)
+    @ConditionalOnBean({MyWishBot.class, MyWishBotLight.class})
     public BotIntegration botIntegration() {
         return new BotIntegration();
     }
 
-    @Bean
-    @ConditionalOnBean(MyWishBotLight.class)
-    public BotIntegration botIntegrationLight() {
-        return new BotIntegration();
-    }
 }

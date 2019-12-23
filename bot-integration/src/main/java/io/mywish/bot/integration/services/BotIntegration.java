@@ -217,7 +217,6 @@ public class BotIntegration {
         );
         botLight.onSwapsOrderFromDataBase(
                 order.getName()
-
         );
     }
 

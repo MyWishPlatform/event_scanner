@@ -102,7 +102,7 @@ public class MyWishBotLight extends TelegramLongPollingBot {
         final String message = new StringBuilder()
                 .append("New SWAPS Order (")
                 .append(name)
-                .append(") was created by ")
+                .append(") was created")
                 .toString();
 
         sendToAll(message);

@@ -92,7 +92,7 @@ public class MyWishBot extends TelegramLongPollingBot {
             return;
         }
         if (chatPersister.tryAdd(chatId, botUsername)) {
-            log.info("Bot 'MyWish' was added to the chat {}. Now he is in {} chats.", chatId, chatPersister.getCount());
+            log.info("Bot '{}' was added to the chat {}. Now he is in {} chats.", botUsername, chatId, chatPersister.getCount());
         }
     }
 
@@ -298,16 +298,7 @@ public class MyWishBot extends TelegramLongPollingBot {
 
         sendToAll(message);
     }
-/*
-    public void onSwapsOrderFromDataBaseToPublicChat(String name) {
-        final String message = new StringBuilder()
-                .append("new SWAPS Order (")
-                .append(name)
-                .append(") was created.")
-                .toString();
-        sendToSpecifiedChat(message);
-    }
-*/
+
     public void onContractFailed(String network, Integer productId, String productType, Integer id, final String txLink) {
         final String message = new StringBuilder()
                 .append(network)
@@ -415,22 +406,16 @@ public class MyWishBot extends TelegramLongPollingBot {
     }
 
     private void sendToAllChats(SendMessage sendMessage) {
-        for (long chatId : chatPersister.getChats()) {
-            for (String botName : chatPersister.getBotNameForChats()) {
-                if (botName == botUsername) {
-                    try {
-                        // it's ok to specify chat id, because sendMessage will be serialized to JSON during the call
-                        execute(sendMessage.setChatId(chatId));
-                    } catch (TelegramApiException e) {
-                        log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
-                        chatPersister.remove(chatId);
-                    }
-                }
-                else {
-                    continue;
-                }
+        for (long chatId : chatPersister.getChatsByBotName(botUsername)) {
+            try {
+                // it's ok to specify chat id, because sendMessage will be serialized to JSON during the call
+                execute(sendMessage.setChatId(chatId));
+            } catch (TelegramApiException e) {
+                log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
+                chatPersister.remove(chatId);
             }
         }
+
     }
 
     private void directMessage(long chatId, String userName) {

@@ -5,7 +5,7 @@ public interface ChatPersister {
 
     Iterable<Long> getChats();
 
-    Iterable<String> getBotNameForChats();
+    Iterable<Long> getChatsByBotName(String botName);
 
     int getCount();
 

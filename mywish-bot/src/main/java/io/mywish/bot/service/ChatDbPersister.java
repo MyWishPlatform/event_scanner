@@ -20,7 +20,7 @@ public class ChatDbPersister implements ChatPersister {
 
     @Override
     public synchronized boolean tryAdd(long chatId, String botName) {
-        if (chatRepository.existsByChatId(chatId)) {
+        if (chatRepository.existsByChatIdAndBotName(chatId, botName)) {
             return false;
         }
 
@@ -29,18 +29,18 @@ public class ChatDbPersister implements ChatPersister {
     }
 
     @Override
-    public Iterable<Long> getChats() {
-        return chatRepository.findAll()
+    public Iterable<Long> getChatsByBotName(String botName) {
+        return chatRepository.findAllByBotName(botName)
                 .stream()
                 .map(SubscribedChat::getChatId)
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public Iterable<String> getBotNameForChats() {
+    public Iterable<Long> getChats() {
         return chatRepository.findAll()
                 .stream()
-                .map(SubscribedChat::getBotName)
+                .map(SubscribedChat::getChatId)
                 .collect(Collectors.toSet());
     }
 

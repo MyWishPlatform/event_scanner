@@ -98,8 +98,9 @@ public  class ChatFilePersister implements ChatPersister {
     }
 
     @Override
-    public Iterable<String> getBotNameForChats() {
-        return botNameForChats;
+    public Iterable<Long> getChatsByBotName(String botName) {
+        //need to override//
+        return chats;
     }
 
     @Override

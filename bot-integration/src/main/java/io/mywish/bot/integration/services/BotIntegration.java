@@ -216,7 +216,6 @@ public class BotIntegration {
                 getUser(userId)
         );
         botLight.onSwapsOrderFromDataBase(
-                order.getId(),
                 order.getName()
 
         );

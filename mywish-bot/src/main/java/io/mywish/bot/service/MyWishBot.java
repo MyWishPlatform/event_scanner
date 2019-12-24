@@ -14,6 +14,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
 import javax.annotation.PostConstruct;
+import java.math.BigInteger;
 import java.util.*;
 
 @Slf4j
@@ -286,12 +287,18 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllWithHtml(message);
     }
 
-    public void onSwapsOrderFromDataBase(Integer productId, String name, String user) {
+    public void onSwapsOrderFromDataBase(Integer productId, BigInteger baseLimit, String baseName, String quoteName, BigInteger quoteLimit, String user) {
         final String message = new StringBuilder()
-                .append("DB: new SWAPS Order (")
+                .append("DB: new SWAP Order (")
                 .append(productId)
                 .append(") (")
-                .append(name)
+                .append(baseLimit)
+                .append(" ")
+                .append(baseName)
+                .append(" <> ")
+                .append(quoteLimit)
+                .append(" ")
+                .append(quoteName)
                 .append(") was created by ")
                 .append(user)
                 .toString();

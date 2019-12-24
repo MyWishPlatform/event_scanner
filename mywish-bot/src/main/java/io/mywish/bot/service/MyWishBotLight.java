@@ -14,6 +14,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
 import javax.annotation.PostConstruct;
+import java.math.BigInteger;
 
 @Slf4j
 @ConditionalOnBean(TelegramBotsApi.class)
@@ -93,11 +94,16 @@ public class MyWishBotLight extends TelegramLongPollingBot {
         sendToAllChats(sendMessage);
     }
 
-    public void onSwapsOrderFromDataBase(String name) {
+    public void onSwapsOrderFromDataBase(BigInteger baseLimit, String baseName, String quoteName, BigInteger quoteLimit) {
         final String message = new StringBuilder()
-                .append("New SWAPS Order (")
-                .append(name)
-                .append(") was created")
+                .append("New SWAP created: ")
+                .append(baseLimit)
+                .append(" ")
+                .append(baseName)
+                .append(" <> ")
+                .append(quoteLimit)
+                .append(" ")
+                .append(quoteName)
                 .toString();
 
         sendToAll(message);

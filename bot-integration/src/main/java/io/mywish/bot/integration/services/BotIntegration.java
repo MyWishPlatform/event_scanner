@@ -210,13 +210,24 @@ public class BotIntegration {
         Swaps2Order order = event.getOrder();
         Integer userId = order.getUser();
 
+        String delimetr = "<>";
+        String[] subStr = order.getName().split(delimetr);
+        String baseName = subStr[0];
+        String quoteName = subStr[1];
+
         bot.onSwapsOrderFromDataBase(
                 order.getId(),
-                order.getName(),
+                order.getBaseLimit(),
+                baseName,
+                quoteName,
+                order.getQuoteLimit(),
                 getUser(userId)
         );
         botLight.onSwapsOrderFromDataBase(
-                order.getName()
+                order.getBaseLimit(),
+                baseName,
+                quoteName,
+                order.getQuoteLimit()
         );
     }
 

@@ -9,6 +9,7 @@ import io.lastwill.eventscan.model.*;
 import io.lastwill.eventscan.repositories.UserRepository;
 import io.mywish.blockchain.ContractEvent;
 import io.mywish.bot.service.MyWishBot;
+import io.mywish.bot.service.MyWishBotLight;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,9 @@ import java.util.Map;
 public class BotIntegration {
     @Autowired
     private MyWishBot bot;
+
+    @Autowired
+    private MyWishBotLight botLight;
 
     @Autowired
     private UserRepository userRepository;
@@ -82,6 +86,7 @@ public class BotIntegration {
                 .buildToAddress(contractCreatedEvent.getAddress());
 
         if (contractCreatedEvent.isSuccess()) {
+
             bot.onContract(
                     network,
                     product.getId(),
@@ -94,6 +99,7 @@ public class BotIntegration {
             );
         } else {
             bot.onContractFailed(network, product.getId(), type, contract.getId(), txLink);
+
         }
     }
 
@@ -204,10 +210,24 @@ public class BotIntegration {
         Swaps2Order order = event.getOrder();
         Integer userId = order.getUser();
 
+        String delimetr = "<>";
+        String[] subStr = order.getName().split(delimetr);
+        String baseName = subStr[0];
+        String quoteName = subStr[1];
+
         bot.onSwapsOrderFromDataBase(
                 order.getId(),
-                order.getName(),
+                order.getBaseLimit(),
+                baseName,
+                quoteName,
+                order.getQuoteLimit(),
                 getUser(userId)
+        );
+        botLight.onSwapsOrderFromDataBase(
+                order.getBaseLimit(),
+                baseName,
+                quoteName,
+                order.getQuoteLimit()
         );
     }
 

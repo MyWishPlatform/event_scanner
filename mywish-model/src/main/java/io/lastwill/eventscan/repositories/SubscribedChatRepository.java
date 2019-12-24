@@ -11,7 +11,9 @@ public interface SubscribedChatRepository extends CrudRepository<SubscribedChat,
     @Override
     Set<SubscribedChat> findAll();
 
-    boolean existsByChatId(Long chatId);
+    Set <SubscribedChat> findAllByBotName(String botName);
+
+    boolean existsByChatIdAndBotName(Long chatId, String botName);
 
     @Transactional
     @Modifying

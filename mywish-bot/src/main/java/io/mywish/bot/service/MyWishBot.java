@@ -14,6 +14,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
 import javax.annotation.PostConstruct;
+import java.math.BigInteger;
 import java.util.*;
 
 @Slf4j
@@ -23,7 +24,7 @@ public class MyWishBot extends TelegramLongPollingBot {
     private TelegramBotsApi telegramBotsApi;
 
     @Autowired
-    private ChatPersister chatPersister;
+    private ChatPersister chatFilePersister;
 
     @Autowired(required = false)
     private InformationProvider informationProvider;
@@ -56,6 +57,7 @@ public class MyWishBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         Long chatId;
+
         if (update.hasChannelPost()) {
             chatId = update.getChannelPost().getChatId();
         }
@@ -90,8 +92,8 @@ public class MyWishBot extends TelegramLongPollingBot {
         else {
             return;
         }
-        if (chatPersister.tryAdd(chatId)) {
-            log.info("Bot was added to the chat {}. Now he is in {} chats.", chatId, chatPersister.getCount());
+        if (chatFilePersister.tryAdd(chatId, botUsername)) {
+            log.info("Bot '{}' was added to the chat {}. Now he is in {} chats.", botUsername, chatId, chatFilePersister.getCount());
         }
     }
 
@@ -285,12 +287,18 @@ public class MyWishBot extends TelegramLongPollingBot {
         sendToAllWithHtml(message);
     }
 
-    public void onSwapsOrderFromDataBase(Integer productId, String name, String user) {
+    public void onSwapsOrderFromDataBase(Integer productId, BigInteger baseLimit, String baseName, String quoteName, BigInteger quoteLimit, String user) {
         final String message = new StringBuilder()
-                .append("DB: new SWAPS Order (")
+                .append("DB: new SWAP Order (")
                 .append(productId)
                 .append(") (")
-                .append(name)
+                .append(baseLimit)
+                .append(" ")
+                .append(baseName)
+                .append(" <> ")
+                .append(quoteLimit)
+                .append(" ")
+                .append(quoteName)
                 .append(") was created by ")
                 .append(user)
                 .toString();
@@ -405,16 +413,16 @@ public class MyWishBot extends TelegramLongPollingBot {
     }
 
     private void sendToAllChats(SendMessage sendMessage) {
-        for (long chatId: chatPersister.getChats()) {
+        for (long chatId : chatFilePersister.getChatsByBotName(botUsername)) {
             try {
                 // it's ok to specify chat id, because sendMessage will be serialized to JSON during the call
                 execute(sendMessage.setChatId(chatId));
-            }
-            catch (TelegramApiException e) {
+            } catch (TelegramApiException e) {
                 log.error("Sending message '{}' to chat '{}' was failed.", sendMessage.getText(), chatId, e);
-                chatPersister.remove(chatId);
+                chatFilePersister.remove(chatId);
             }
         }
+
     }
 
     private void directMessage(long chatId, String userName) {

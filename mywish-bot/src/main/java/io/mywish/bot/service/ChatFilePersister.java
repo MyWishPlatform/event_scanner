@@ -14,9 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class ChatFilePersister implements ChatPersister {
-    @Value("${io.mywish.bot.file:#{null}}")
     private String chatsFilePath;
-
     private FileOutputStream lastOutputStream;
     private final Set<Long> chats = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private final Object saveLock = new Object();
@@ -34,6 +32,10 @@ public class ChatFilePersister implements ChatPersister {
             log.error("Saver thread was interrupted.", e);
         }
     };
+
+    public ChatFilePersister(String chatsFilePath) {
+        this.chatsFilePath = chatsFilePath;
+    }
 
     @PostConstruct
     protected void init() {
@@ -82,7 +84,7 @@ public class ChatFilePersister implements ChatPersister {
     }
 
     @Override
-    public boolean tryAdd(long chatId) {
+    public boolean tryAdd(long chatId, String botName) {
         boolean result = chats.add(chatId);
         if (result) {
             notifySaver();
@@ -92,6 +94,11 @@ public class ChatFilePersister implements ChatPersister {
 
     @Override
     public Iterable<Long> getChats() {
+        return chats;
+    }
+
+    @Override
+    public Iterable<Long> getChatsByBotName(String botName) {
         return chats;
     }
 

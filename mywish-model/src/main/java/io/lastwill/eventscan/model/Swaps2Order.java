@@ -6,7 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.math.BigInteger;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "swaps_common_orderbookswaps")
@@ -31,8 +31,8 @@ public class Swaps2Order {
     private String quoteAddress;
 
     @Column(name = "quote_limit")
-    private BigInteger quoteLimit;
+    private BigDecimal quoteLimit;
 
     @Column(name = "base_limit")
-    private BigInteger baseLimit;
+    private BigDecimal baseLimit;
 }

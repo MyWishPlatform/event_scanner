@@ -10,10 +10,10 @@ import java.math.BigInteger;
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("23")
 @Getter
-public class TokenProtector extends Product {
+public class ProductTokenProtector extends Product {
     @Getter
     @Column(name = "owner_address")
-    private String ownerAddress;
+    private String owner;
 
     @Getter
     @Column(name = "reserve_address")
@@ -30,6 +30,10 @@ public class TokenProtector extends Product {
     @Getter
     @Column(name = "temp_directory")
     private String tempDirectory;
+
+    @Getter
+    @Column(name = "eth_contract_id")
+    private Integer ethContract;
 
     @Override
     public int getContractType() {

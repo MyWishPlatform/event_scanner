@@ -6,6 +6,7 @@ import io.lastwill.eventscan.events.model.contract.crowdsale.FinalizedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.TimesChangedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressAddedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressRemovedEvent;
+import io.lastwill.eventscan.events.model.contract.erc20.ApprovalEvent;
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.events.model.contract.investmentPool.*;
 import io.lastwill.eventscan.events.model.contract.swaps.CancelEvent;
@@ -71,6 +72,25 @@ public class ContractEventHandler {
                             airdropAddresses
                     )
             );
+            return;
+        }
+        if (product instanceof ProductTokenProtector) {
+            for (ContractEvent contractEvent : event.getEvents()) {
+                if (contractEvent instanceof ApprovalEvent) {
+                    eventPublisher.publish(
+                            new TokenProtectorApproveEvent(event.getNetworkType(), event.getTransaction(),
+                                    (ApprovalEvent) contractEvent, event.getContract().getId()));
+                    externalNotifier.send(
+                            event.getNetworkType(),
+                            new ApproveTokenProtectorNotify(
+                                    event.getContract().getId(),
+                                    PaymentStatus.COMMITTED,
+                                    event.getTransaction().getHash(),
+                                    (ApprovalEvent) contractEvent
+                            )
+                    );
+                }
+            }
             return;
         }
         for (ContractEvent contractEvent : event.getEvents()) {
@@ -287,7 +307,7 @@ public class ContractEventHandler {
                                 (DepositSwapEvent) contractEvent
                         )
                 );
-            } else if(contractEvent instanceof RefundSwapEvent) {
+            } else if (contractEvent instanceof RefundSwapEvent) {
                 eventPublisher.publish(new SwapRefundEvent(event.getNetworkType(), event.getTransaction(), (RefundSwapEvent) contractEvent));
                 externalNotifier.send(
                         event.getNetworkType(),

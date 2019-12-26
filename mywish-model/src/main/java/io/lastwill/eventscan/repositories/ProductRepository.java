@@ -101,6 +101,6 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
             "and c.network.type = io.lastwill.eventscan.model.NetworkType.WAVES_MAINNET")
     List<ProductStoWaves> findWavesStoFromDate(@Param("from") LocalDateTime from);
 
-    @Query("select c from ProductTokenProtector c where c.owner in :owners")
+    @Query("select c from ProductTokenProtector c where lower(c.owner) in :owners")
     List<ProductTokenProtector> findProtectorsByOwner(@Param("owners") Set<String> owners);
 }

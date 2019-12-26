@@ -8,6 +8,7 @@ import java.math.BigInteger;
 @ToString(callSuper = true)
 @Getter
 public class ApproveTokenProtectorNotify extends NotifyContract {
+    private final String tokenAddress;
     private final String owner;
     private final String spender;
     private final BigInteger tokens;
@@ -17,6 +18,7 @@ public class ApproveTokenProtectorNotify extends NotifyContract {
         this.owner = contractEvent.getOwner();
         this.spender = contractEvent.getSpender();
         this.tokens = contractEvent.getTokens();
+        this.tokenAddress = contractEvent.getAddress();
     }
 
     @Override

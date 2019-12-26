@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public interface ProductRepository extends CrudRepository<Product, Integer> {
     @Transactional
@@ -99,4 +100,7 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
             "where c.createdDate >= :from " +
             "and c.network.type = io.lastwill.eventscan.model.NetworkType.WAVES_MAINNET")
     List<ProductStoWaves> findWavesStoFromDate(@Param("from") LocalDateTime from);
+
+    @Query("select c from ProductTokenProtector c where c.owner in :owners")
+    List<ProductTokenProtector> findProtectorsByOwner(@Param("owners") Set<String> owners);
 }

@@ -59,6 +59,9 @@ public class ApproveTokenProtectorMonitor {
             final List<WrapperTransaction> transactions = event
                     .getTransactionsByAddress()
                     .get(product.getKey().getOwner().toLowerCase());
+            if(transactions == null ||transactions.isEmpty()) {
+                continue;
+            }
             for (final WrapperTransaction transaction : transactions) {
                 if (transaction.getOutputs().size() == 0) {
                     continue;

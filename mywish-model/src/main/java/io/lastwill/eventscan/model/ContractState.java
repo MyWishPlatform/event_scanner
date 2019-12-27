@@ -16,4 +16,8 @@ public enum ContractState {
     DONE,
     CANCELLED,
     WAITING_FOR_ACTIVATION,
+    FAIL_IN_CONFIRM,
+    WAITING_FOR_CONFIRM,
+    FAILED,
+    WAITING_FOR_APPROVE,
 }

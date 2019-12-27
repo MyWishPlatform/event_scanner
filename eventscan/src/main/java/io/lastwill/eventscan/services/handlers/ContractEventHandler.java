@@ -6,12 +6,14 @@ import io.lastwill.eventscan.events.model.contract.crowdsale.FinalizedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.TimesChangedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressAddedEvent;
 import io.lastwill.eventscan.events.model.contract.crowdsale.WhitelistedAddressRemovedEvent;
+import io.lastwill.eventscan.events.model.contract.erc20.ApprovalEvent;
 import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.events.model.contract.investmentPool.*;
 import io.lastwill.eventscan.events.model.contract.swaps.CancelEvent;
 import io.lastwill.eventscan.events.model.contract.swaps.DepositSwapEvent;
 import io.lastwill.eventscan.events.model.contract.swaps.RefundSwapEvent;
 import io.lastwill.eventscan.events.model.contract.swaps.SwapEvent;
+import io.lastwill.eventscan.events.model.contract.tokenProtector.TokensToSaveEvent;
 import io.lastwill.eventscan.messages.*;
 import io.lastwill.eventscan.messages.swaps.DepositSwapNotify;
 import io.lastwill.eventscan.messages.swaps.RefundSwapNotify;
@@ -72,6 +74,24 @@ public class ContractEventHandler {
                     )
             );
             return;
+        }
+        if (product instanceof ProductTokenProtector) {
+            for (ContractEvent contractEvent : event.getEvents()) {
+                if (contractEvent instanceof ApprovalEvent) {
+                    eventPublisher.publish(
+                            new TokenProtectorApproveEvent(event.getNetworkType(), event.getTransaction(),
+                                    (ApprovalEvent) contractEvent, event.getContract().getId()));
+                    externalNotifier.send(
+                            event.getNetworkType(),
+                            new ApproveTokenProtectorNotify(
+                                    event.getContract().getId(),
+                                    PaymentStatus.COMMITTED,
+                                    event.getTransaction().getHash(),
+                                    (ApprovalEvent) contractEvent
+                            )
+                    );
+                }
+            }
         }
         for (ContractEvent contractEvent : event.getEvents()) {
             // skip event if event.address != contract.address (it might be when internal transaction occurs)
@@ -287,7 +307,7 @@ public class ContractEventHandler {
                                 (DepositSwapEvent) contractEvent
                         )
                 );
-            } else if(contractEvent instanceof RefundSwapEvent) {
+            } else if (contractEvent instanceof RefundSwapEvent) {
                 eventPublisher.publish(new SwapRefundEvent(event.getNetworkType(), event.getTransaction(), (RefundSwapEvent) contractEvent));
                 externalNotifier.send(
                         event.getNetworkType(),
@@ -296,6 +316,16 @@ public class ContractEventHandler {
                                 PaymentStatus.COMMITTED,
                                 event.getTransaction().getHash(),
                                 (RefundSwapEvent) contractEvent
+                        )
+                );
+            } else if (contractEvent instanceof TokensToSaveEvent) {
+                externalNotifier.send(
+                        event.getNetworkType(),
+                        new TokensToSaveNotify(
+                                event.getContract().getId(),
+                                PaymentStatus.COMMITTED,
+                                event.getTransaction().getHash(),
+                                (TokensToSaveEvent) contractEvent
                         )
                 );
             }

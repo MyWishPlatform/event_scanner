@@ -89,9 +89,9 @@ public class ContractEventHandler {
                                     (ApprovalEvent) contractEvent
                             )
                     );
+                    return;
                 }
             }
-            return;
         }
         for (ContractEvent contractEvent : event.getEvents()) {
             // skip event if event.address != contract.address (it might be when internal transaction occurs)

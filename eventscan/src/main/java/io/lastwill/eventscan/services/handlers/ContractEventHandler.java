@@ -14,6 +14,7 @@ import io.lastwill.eventscan.events.model.contract.swaps.DepositSwapEvent;
 import io.lastwill.eventscan.events.model.contract.swaps.RefundSwapEvent;
 import io.lastwill.eventscan.events.model.contract.swaps.SwapEvent;
 import io.lastwill.eventscan.events.model.contract.tokenProtector.TokensToSaveEvent;
+import io.lastwill.eventscan.events.model.contract.tokenProtector.TransactionInfoEvent;
 import io.lastwill.eventscan.messages.*;
 import io.lastwill.eventscan.messages.swaps.DepositSwapNotify;
 import io.lastwill.eventscan.messages.swaps.RefundSwapNotify;
@@ -326,6 +327,16 @@ public class ContractEventHandler {
                                 PaymentStatus.COMMITTED,
                                 event.getTransaction().getHash(),
                                 (TokensToSaveEvent) contractEvent
+                        )
+                );
+            } else if (contractEvent instanceof TransactionInfoEvent) {
+                externalNotifier.send(
+                        event.getNetworkType(),
+                        new TransactionInfoNotify(
+                                event.getContract().getId(),
+                                PaymentStatus.COMMITTED,
+                                event.getTransaction().getHash(),
+                                (TransactionInfoEvent) contractEvent
                         )
                 );
             }

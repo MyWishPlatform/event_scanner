@@ -13,6 +13,7 @@ import io.lastwill.eventscan.events.model.contract.swaps.CancelEvent;
 import io.lastwill.eventscan.events.model.contract.swaps.DepositSwapEvent;
 import io.lastwill.eventscan.events.model.contract.swaps.RefundSwapEvent;
 import io.lastwill.eventscan.events.model.contract.swaps.SwapEvent;
+import io.lastwill.eventscan.events.model.contract.tokenProtector.SelfdestructionEvent;
 import io.lastwill.eventscan.events.model.contract.tokenProtector.TokensToSaveEvent;
 import io.lastwill.eventscan.events.model.contract.tokenProtector.TransactionInfoEvent;
 import io.lastwill.eventscan.messages.*;
@@ -337,6 +338,16 @@ public class ContractEventHandler {
                                 PaymentStatus.COMMITTED,
                                 event.getTransaction().getHash(),
                                 (TransactionInfoEvent) contractEvent
+                        )
+                );
+            } else if (contractEvent instanceof SelfdestructionEvent) {
+                externalNotifier.send(
+                        event.getNetworkType(),
+                        new SelfdestructionNotify(
+                                event.getContract().getId(),
+                                PaymentStatus.COMMITTED,
+                                event.getTransaction().getHash(),
+                                (SelfdestructionEvent) contractEvent
                         )
                 );
             }

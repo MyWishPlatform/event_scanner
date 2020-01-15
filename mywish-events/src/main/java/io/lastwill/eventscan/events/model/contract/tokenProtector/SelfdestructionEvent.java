@@ -6,10 +6,10 @@ import lombok.Getter;
 
 @Getter
 public class SelfdestructionEvent extends ContractEvent {
-    private final boolean status;
+    private final boolean eventStatus;
 
-    public SelfdestructionEvent(ContractEventDefinition definition, String address, boolean status) {
+    public SelfdestructionEvent(ContractEventDefinition definition, String address, boolean eventStatus) {
         super(definition, address);
-        this.status = status;
+        this.eventStatus = eventStatus;
     }
 }

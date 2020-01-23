@@ -20,4 +20,6 @@ public enum ContractState {
     WAITING_FOR_CONFIRM,
     FAILED,
     WAITING_FOR_APPROVE,
+    WAITING_FOR_EXECUTION,
+    TIME_IS_UP,
 }

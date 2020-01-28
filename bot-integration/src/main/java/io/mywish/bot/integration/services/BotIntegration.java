@@ -224,11 +224,9 @@ public class BotIntegration {
                 getUser(userId)
         );
         botLight.onSwapsOrderFromDataBase(
-                order.getBaseLimit(),
-                baseName,
-                quoteName,
-                order.getQuoteLimit(),
-                order.getUniqueLink()
+                order.getId(),
+                order.getName(),
+                getUser(userId)
 
         );
     }

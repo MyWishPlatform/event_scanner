@@ -36,7 +36,8 @@ public class MyWishBotLight extends TelegramLongPollingBot {
     @Getter
     @Value("${io.mywish.bot.light.name}")
     private String botUsername;
-
+    @Value("${io.mywish.bot.swaplink}")
+    private String swapLink;
 
     public MyWishBotLight(DefaultBotOptions botOptions) {
         super(botOptions);
@@ -95,7 +96,7 @@ public class MyWishBotLight extends TelegramLongPollingBot {
         sendToAllChats(sendMessage);
     }
 
-    public void onSwapsOrderFromDataBase(BigDecimal baseLimit, String baseName, String quoteName, BigDecimal quoteLimit) {
+    public void onSwapsOrderFromDataBase(BigDecimal baseLimit, String baseName, String quoteName, BigDecimal quoteLimit, String uniqueLink) {
         DecimalFormat df = new DecimalFormat("0.##");
         final String message = new StringBuilder()
                 .append("New SWAP created: ")
@@ -106,8 +107,21 @@ public class MyWishBotLight extends TelegramLongPollingBot {
                 .append(df.format(quoteLimit))
                 .append(" ")
                 .append(quoteName)
+                .append(", see on <a href=\"")
+                .append(swapLink)
+                .append(df.format(uniqueLink))
+                .append("\">")
+                .append(" to contribute.")
                 .toString();
 
-        sendToAll(message);
+        sendToAllWithHtml(message);
+    }
+
+    public void sendToAllWithHtml(String message) {
+        SendMessage sendMessage = new SendMessage()
+                .setText(message)
+                .disableWebPagePreview()
+                .enableHtml(true);
+        sendToAllChats(sendMessage);
     }
 }

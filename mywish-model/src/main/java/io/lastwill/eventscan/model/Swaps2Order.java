@@ -35,4 +35,7 @@ public class Swaps2Order {
 
     @Column(name = "base_limit")
     private BigDecimal baseLimit;
+
+    @Column(name = "unique_link")
+    private String uniqueLink;
 }

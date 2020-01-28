@@ -111,6 +111,8 @@ public class MyWishBotLight extends TelegramLongPollingBot {
                 .append(swapLink)
                 .append(uniqueLink)
                 .append("\">")
+                .append("SWAPS.NETWORK")
+                .append("</a>")
                 .append(" to contribute.")
                 .toString();
 

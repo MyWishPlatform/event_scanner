@@ -109,7 +109,7 @@ public class MyWishBotLight extends TelegramLongPollingBot {
                 .append(quoteName)
                 .append(", see on <a href=\"")
                 .append(swapLink)
-                .append(df.format(uniqueLink))
+                .append(uniqueLink)
                 .append("\">")
                 .append(" to contribute.")
                 .toString();

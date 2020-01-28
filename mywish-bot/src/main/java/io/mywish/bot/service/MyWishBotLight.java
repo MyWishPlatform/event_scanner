@@ -116,7 +116,7 @@ public class MyWishBotLight extends TelegramLongPollingBot {
                 .append(" to contribute.")
                 .toString();
 
-        sendToAllWithHtml(message);
+        sendToAllWithMarkdown(message);
     }
 
 /*
@@ -138,6 +138,14 @@ public void onSwapsOrderFromDataBase(Integer productId, String name, String user
                 .setText(message)
                 .disableWebPagePreview()
                 .enableHtml(true);
+        sendToAllChats(sendMessage);
+    }
+
+    public void sendToAllWithMarkdown(String message) {
+        SendMessage sendMessage = new SendMessage()
+                .setText(message)
+                .disableWebPagePreview()
+                .enableMarkdown(true);
         sendToAllChats(sendMessage);
     }
 }

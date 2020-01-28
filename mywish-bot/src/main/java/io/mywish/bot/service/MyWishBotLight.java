@@ -95,7 +95,7 @@ public class MyWishBotLight extends TelegramLongPollingBot {
                 .disableWebPagePreview();
         sendToAllChats(sendMessage);
     }
-/*
+
     public void onSwapsOrderFromDataBase(BigDecimal baseLimit, String baseName, String quoteName, BigDecimal quoteLimit, String uniqueLink) {
         DecimalFormat df = new DecimalFormat("0.##");
         final String message = new StringBuilder()
@@ -118,7 +118,8 @@ public class MyWishBotLight extends TelegramLongPollingBot {
 
         sendToAll(message);
     }
-*/
+
+/*
 public void onSwapsOrderFromDataBase(Integer productId, String name, String user) {
     final String message = new StringBuilder()
             .append("New SWAPS Order (")
@@ -130,7 +131,7 @@ public void onSwapsOrderFromDataBase(Integer productId, String name, String user
             .toString();
 
     sendToAllWithHtml(message);
-}
+}*/
 
     public void sendToAllWithHtml(String message) {
         SendMessage sendMessage = new SendMessage()

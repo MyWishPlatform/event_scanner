@@ -129,7 +129,7 @@ public void onSwapsOrderFromDataBase(Integer productId, String name, String user
             .append(user)
             .toString();
 
-    sendToAll(message);
+    sendToAllWithHtml(message);
 }
 
     public void sendToAllWithHtml(String message) {

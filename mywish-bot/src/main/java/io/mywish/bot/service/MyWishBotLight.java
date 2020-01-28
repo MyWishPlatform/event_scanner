@@ -116,7 +116,7 @@ public class MyWishBotLight extends TelegramLongPollingBot {
                 .append(" to contribute.")
                 .toString();
 
-        sendToAll(message);
+        sendToAllWithHtml(message);
     }
 
 /*

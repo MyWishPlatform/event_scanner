@@ -103,7 +103,7 @@ public class MyWishBotLight extends TelegramLongPollingBot {
                 .append(df.format(baseLimit))
                 .append(" ")
                 .append(baseName)
-                .append(" - ")
+                .append(" &lt&gt ")
                 .append(df.format(quoteLimit))
                 .append(" ")
                 .append(quoteName)
@@ -111,7 +111,7 @@ public class MyWishBotLight extends TelegramLongPollingBot {
                 .append(swapLink)
                 .append(uniqueLink)
                 .append("\">")
-                .append("SWAPSNETWORK")
+                .append("SWAPS.NETWORK")
                 .append("</a>")
                 .append(" to contribute.")
                 .toString();
@@ -119,33 +119,11 @@ public class MyWishBotLight extends TelegramLongPollingBot {
         sendToAllWithHtml(message);
     }
 
-/*
-public void onSwapsOrderFromDataBase(Integer productId, String name, String user) {
-    final String message = new StringBuilder()
-            .append("New SWAPS Order (")
-            .append(productId)
-            .append(") (")
-            .append(name)
-            .append(") was created by ")
-            .append(user)
-            .toString();
-
-    sendToAllWithHtml(message);
-}*/
-
     public void sendToAllWithHtml(String message) {
         SendMessage sendMessage = new SendMessage()
                 .setText(message)
                 .disableWebPagePreview()
                 .enableHtml(true);
-        sendToAllChats(sendMessage);
-    }
-
-    public void sendToAllWithMarkdown(String message) {
-        SendMessage sendMessage = new SendMessage()
-                .setText(message)
-                .disableWebPagePreview()
-                .enableMarkdown(true);
         sendToAllChats(sendMessage);
     }
 }

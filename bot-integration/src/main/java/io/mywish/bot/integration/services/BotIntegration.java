@@ -227,7 +227,9 @@ public class BotIntegration {
                 order.getBaseLimit(),
                 baseName,
                 quoteName,
-                order.getQuoteLimit()
+                order.getQuoteLimit(),
+                order.getUniqueLink()
+
         );
     }
 

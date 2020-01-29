@@ -297,7 +297,7 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(df.format(baseLimit))
                 .append(" ")
                 .append(baseName)
-                .append(" <> ")
+                //.append(" <> ")
                 .append(df.format(quoteLimit))
                 .append(" ")
                 .append(quoteName)

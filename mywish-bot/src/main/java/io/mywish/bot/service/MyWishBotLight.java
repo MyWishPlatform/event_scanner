@@ -103,7 +103,7 @@ public class MyWishBotLight extends TelegramLongPollingBot {
                 .append(df.format(baseLimit))
                 .append(" ")
                 .append(baseName)
-                .append(" <> ")
+                .append(" - ")
                 .append(df.format(quoteLimit))
                 .append(" ")
                 .append(quoteName)
@@ -116,7 +116,7 @@ public class MyWishBotLight extends TelegramLongPollingBot {
                 .append(" to contribute.")
                 .toString();
 
-        sendToAllWithMarkdown(message);
+        sendToAllWithHtml(message);
     }
 
 /*

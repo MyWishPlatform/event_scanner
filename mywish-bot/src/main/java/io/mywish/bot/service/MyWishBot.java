@@ -305,33 +305,10 @@ public class MyWishBot extends TelegramLongPollingBot {
                 .append(user)
                 .toString();
 
-        sendToAll(message);
-    }
-
-    @Value("${io.mywish.bot.swaplink}")
-    private String swapLink;
-    public void onSwapsOrderFromDataBase(BigDecimal baseLimit, String baseName, String quoteName, BigDecimal quoteLimit, String uniqueLink) {
-        DecimalFormat df = new DecimalFormat("0.##");
-        final String message = new StringBuilder()
-                .append("New SWAP created: ")
-                .append(df.format(baseLimit))
-                .append(" ")
-                .append(baseName)
-                .append(" <> ")
-                .append(df.format(quoteLimit))
-                .append(" ")
-                .append(quoteName)
-                .append(", see on <a href=\"")
-                .append(swapLink)
-                //.append(uniqueLink)
-                .append("\">")
-                .append("SWAPSNETWORK")
-                .append("</a>")
-                .append(" to contribute.")
-                .toString();
-
         sendToAllWithHtml(message);
     }
+
+
 
     public void onContractFailed(String network, Integer productId, String productType, Integer id, final String txLink) {
         final String message = new StringBuilder()

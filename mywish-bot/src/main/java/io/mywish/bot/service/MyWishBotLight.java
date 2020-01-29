@@ -100,6 +100,11 @@ public class MyWishBotLight extends TelegramLongPollingBot {
         DecimalFormat df = new DecimalFormat("0.##");
         final String message = new StringBuilder()
                 .append("New SWAP created: ")
+                .append("<a href=\"")
+                .append(swapLink)
+                .append(uniqueLink)
+                .append("\">")
+                .append("<b><u>")
                 .append(df.format(baseLimit))
                 .append(" ")
                 .append(baseName)
@@ -107,13 +112,8 @@ public class MyWishBotLight extends TelegramLongPollingBot {
                 .append(df.format(quoteLimit))
                 .append(" ")
                 .append(quoteName)
-                .append(", see on <a href=\"")
-                .append(swapLink)
-                .append(uniqueLink)
-                .append("\">")
-                .append("SWAPS.NETWORK")
+                .append("</u></b>")
                 .append("</a>")
-                .append(" to contribute.")
                 .toString();
 
         sendToAllWithHtml(message);

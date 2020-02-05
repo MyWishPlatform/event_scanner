@@ -9,4 +9,5 @@ public enum  NetworkProviderType {
     WAVES,
     BINANCE,
     DUCX,
+    DUC,
 }

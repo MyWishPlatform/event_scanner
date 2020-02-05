@@ -25,7 +25,7 @@ public class DucXBCModule {
     @Bean(name = NetworkType.DUCX_MAINNET_VALUE)
     public Web3Network ducXNetMain(
             @Value("${io.lastwill.eventscan.ducatusx.mainnet}") URI web3Url,
-            @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
+            @Value("${etherscanner.ducatusx.polling-interval-ms:30000}") Long pollingInterval,
             @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
         return new Web3Network(
                 NetworkType.DUCX_MAINNET,
@@ -38,7 +38,7 @@ public class DucXBCModule {
     @Bean(name = NetworkType.DUCX_TESTNET_VALUE)
     public Web3Network ducXNetTest(
             @Value("${io.lastwill.eventscan.ducatusx.testnet}") URI web3Url,
-            @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
+            @Value("${etherscanner.ducatusx.polling-interval-ms:30000}") Long pollingInterval,
             @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
         return new Web3Network(
                 NetworkType.DUCX_TESTNET,
@@ -88,7 +88,7 @@ public class DucXBCModule {
     public Web3Scanner ducXScannerMain(
             final @Qualifier(NetworkType.DUCX_MAINNET_VALUE) Web3Network network,
             final @Qualifier("ducXMainnetLastBlockPersister") LastBlockPersister lastBlockPersister,
-            final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
+            final @Value("${etherscanner.ducatusx.polling-interval-ms:30000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
         return new Web3Scanner(
@@ -104,7 +104,7 @@ public class DucXBCModule {
     public Web3Scanner ducXScannerRopsten(
             final @Qualifier(NetworkType.DUCX_TESTNET_VALUE) Web3Network network,
             final @Qualifier("ducXTestnetLastBlockPersister") LastBlockPersister lastBlockPersister,
-            final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
+            final @Value("${etherscanner.ducatusx.polling-interval-ms:30000}") Long pollingInterval,
             final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
     ) {
         return new Web3Scanner(

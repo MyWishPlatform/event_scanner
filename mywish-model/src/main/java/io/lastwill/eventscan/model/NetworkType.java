@@ -16,6 +16,8 @@ public enum NetworkType {
     BTC_TESTNET_3(NetworkProviderType.BTC),
     DUC_MAINNET(NetworkProviderType.BTC),
     DUC_TESTNET(NetworkProviderType.BTC),
+    DUCX_MAINNET(NetworkProviderType.DUCX),
+    DUCX_TESTNET(NetworkProviderType.DUCX),
     NEO_MAINNET(NetworkProviderType.NEO),
     NEO_TESTNET(NetworkProviderType.NEO),
     EOS_MAINNET(NetworkProviderType.EOS),
@@ -35,6 +37,8 @@ public enum NetworkType {
     public final static String BTC_TESTNET_3_VALUE = "BTC_TESTNET_3";
     public final static String DUC_MAINNET_VALUE = "DUC_MAINNET";
     public final static String DUC_TESTNET_VALUE = "DUC_TESTNET";
+    public final static String DUCX_MAINNET_VALUE = "DUCX_MAINNET";
+    public final static String DUCX_TESTNET_VALUE = "DUCX_TESTNET";
     public final static String NEO_MAINNET_VALUE = "NEO_MAINNET";
     public final static String NEO_TESTNET_VALUE = "NEO_TESTNET";
     public final static String EOS_MAINNET_VALUE = "EOS_MAINNET";

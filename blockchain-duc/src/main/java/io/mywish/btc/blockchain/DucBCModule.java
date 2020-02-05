@@ -3,6 +3,7 @@ package io.mywish.btc.blockchain;
 import com.neemre.btcdcli4j.core.client.BtcdClientImpl;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.LastBlockRepository;
+import io.mywish.btc.blockchain.helper.DucatusNetworkParams;
 import io.mywish.btc.blockchain.services.DucNetwork;
 import io.mywish.btc.blockchain.services.DucScanner;
 import io.mywish.scanner.services.LastBlockDbPersister;
@@ -47,7 +48,7 @@ public class DucBCModule {
                         rpc.getPort(),
                         user,
                         password
-                ), new MainNetParams()
+                ), new DucatusNetworkParams()
         );
     }
 

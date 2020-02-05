@@ -16,6 +16,9 @@ public interface UserSiteBalanceRepository extends CrudRepository<UserSiteBalanc
     @Query("select c from UserSiteBalance c where c.btcAddress in :addresses")
     List<UserSiteBalance> findByBtcAddressesList(@Param("addresses") Collection<String> addresses);
 
+    @Query("select c from UserSiteBalance c where c.ducAddress in :addresses")
+    List<UserSiteBalance> findByDucAddressesList(@Param("addresses") Collection<String> addresses);
+
     @Query("select c from UserSiteBalance c where c.tronAddress in :addresses")
     List<UserSiteBalance> findByTronAddressesList(@Param("addresses") Collection<String> addresses);
 

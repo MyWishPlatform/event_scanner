@@ -6,7 +6,9 @@ import lombok.Getter;
 public enum CryptoCurrency {
     ETH(18),
     WISH(18),
+    DUCX(18),
     BTC(8),
+    DUC(8),
     RSK(0),
     NEO(4),
     GAS(8),

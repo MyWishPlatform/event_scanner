@@ -20,6 +20,7 @@ public class UserSiteBalance {
     private String ethAddress;
     private String tronAddress;
     private String btcAddress;
+    private String ducAddress;
     private String memo;
     @ManyToOne
     @JoinColumn(name = "subsite_id", referencedColumnName = "id")

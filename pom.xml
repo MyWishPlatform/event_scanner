@@ -36,6 +36,7 @@
         <module>blockchain-eos</module>
         <module>blockchain-neo</module>
         <module>blockchain-btc</module>
+        <module>blockchain-duc</module>
         <module>blockchain-tron</module>
         <module>blockchain-waves</module>
         <module>blockchain-binance</module>

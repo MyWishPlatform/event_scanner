@@ -8,4 +8,6 @@ public enum  NetworkProviderType {
     TRON,
     WAVES,
     BINANCE,
+    DUCX,
+    DUC,
 }

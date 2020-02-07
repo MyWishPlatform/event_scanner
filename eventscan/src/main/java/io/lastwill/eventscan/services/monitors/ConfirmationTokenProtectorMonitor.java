@@ -13,7 +13,7 @@ import io.mywish.blockchain.ContractEvent;
 import io.mywish.blockchain.WrapperBlock;
 import io.mywish.blockchain.WrapperTransaction;
 import io.mywish.blockchain.WrapperTransactionReceipt;
-import io.mywish.scanner.model.NewBlockEvent;
+import io.mywish.scanner.model.NewLastBlockEvent;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class ApproveTokenProtectorMonitor {
+public class ConfirmationTokenProtectorMonitor {
     @Autowired
     private TransactionProvider transactionProvider;
     @Autowired
@@ -38,10 +38,11 @@ public class ApproveTokenProtectorMonitor {
     private Map<ProductTokenProtector, Contract> protectorByContract = new HashMap<>();
 
     @EventListener
-    private void onNewBlockEvent(final NewBlockEvent event) {
+    private void onNewBlockEvent(final NewLastBlockEvent event) {
         if (event.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {
             return;
         }
+
         Set<String> addresses = new HashSet<>(event.getTransactionsByAddress().keySet());
         if (addresses.isEmpty()) {
             return;
@@ -56,7 +57,7 @@ public class ApproveTokenProtectorMonitor {
         }
 
         for (Map.Entry<ProductTokenProtector, Contract> product : protectorByContract.entrySet()) {
-            if(product.getValue() == null || product.getValue().getAddress() == null) {
+            if (product.getValue() == null || product.getValue().getAddress() == null) {
 //                log.warn("Contract, or contract address is empty by Token Protector Product id {}", product.getKey().getId());
                 continue;
             }
@@ -108,6 +109,7 @@ public class ApproveTokenProtectorMonitor {
         if (events.isEmpty()) {
             return;
         }
+
         eventPublisher.publish(
                 new ContractEventsEvent(
                         networkType,

@@ -15,8 +15,13 @@ import java.util.HashMap;
 
 @Slf4j
 public class Web3Scanner extends ScannerPolling {
+    private Web3ScannerLastBlock web3ScannerLastBlock;
+
     public Web3Scanner(Web3Network network, LastBlockPersister lastBlockPersister, long pollingInterval, int commitmentChainLength) {
         super(network, lastBlockPersister, pollingInterval, commitmentChainLength);
+        if (commitmentChainLength != 0) {
+            web3ScannerLastBlock = new Web3ScannerLastBlock(network, lastBlockPersister, pollingInterval);
+        }
     }
 
     @Override
@@ -61,7 +66,10 @@ public class Web3Scanner extends ScannerPolling {
                     }
 //                    eventPublisher.publish(new NewTransactionEvent(network.getType(), block, transaction));
                 });
+        doPublish(block, addressTransactions);
+    }
 
+    public void doPublish(WrapperBlock block, MultiValueMap<String, WrapperTransaction> addressTransactions) {
         eventPublisher.publish(new NewBlockEvent(network.getType(), block, addressTransactions));
     }
 }

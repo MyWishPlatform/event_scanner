@@ -102,23 +102,27 @@ public class ConfirmationTokenProtectorMonitor {
 
         try  {
             for (EventConfirmation entry : eventConfirmationDbPersister.getAllByNetwork(NetworkType.ETHEREUM_MAINNET)) {
+
+                // Отправить информацию по MQ
+                blocksConfirmed = event.getBlock().getNumber() - entry.getBlockNumber();
+                eventPublisher.publish(
+                        new ContractEventsEventWithConfirmation(
+                                event.getNetworkType(),
+                                entry.getHash(),
+                                blocksConfirmed
+                        )
+                );
                 if (event.getBlock().getNumber() - entry.getBlockNumber() >= confirmationNumber) {
                     //Достигнуто нужное количество подтверждений
                     eventsToConfirm.remove(entry.getHash());
                 }
-                // Отправить информацию по MQ
-                eventPublisher.publish(
-                        new ContractEventsEventWithConfirmation(
-                                event.getNetworkType(), entry.getHash(), blocksConfirmed
-                        )
-                );
-
             }
         } catch ( Exception e){
             log.error("EventConfirmationDbPersister handling cause exception.", e);
         }
 
     }
+
 
     private void handleReceiptAndContract(
             final NetworkType networkType,

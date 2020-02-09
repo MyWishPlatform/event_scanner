@@ -27,9 +27,9 @@ public class ContractEventsEvent extends BaseEvent {
     }
 
 
-    public Long getBlocksConfirmed() {
-        return blocksConfirmed;
-    }
+   // public Long getBlocksConfirmed() {
+       // return blocksConfirmed;
+   // }
 
     public void setBlocksConfirmed(Long blocksConfirmed) {
         this.blocksConfirmed = blocksConfirmed;

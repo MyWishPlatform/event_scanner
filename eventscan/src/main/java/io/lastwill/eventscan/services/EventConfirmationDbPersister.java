@@ -3,11 +3,13 @@ package io.lastwill.eventscan.services;
 import io.lastwill.eventscan.model.EventConfirmation;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.EventConfirmationRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class EventConfirmationDbPersister implements EventConfirmationPersister {
 
     @Autowired
@@ -15,7 +17,7 @@ public class EventConfirmationDbPersister implements EventConfirmationPersister 
 
     @PostConstruct
     protected void init() {
-       // log.info("Loaded {} chats.", getCount());
+        log.info("Loaded {} transactions.", getCount());
     }
 
 
@@ -33,8 +35,6 @@ public class EventConfirmationDbPersister implements EventConfirmationPersister 
     public Iterable<EventConfirmation> getAllByNetwork(NetworkType network) {
         return eventConfirmationRepository.findAllByNetwork(network)
                 .stream()
-                //.map(EventConfirmation::)
-                //map(EventConfirmation::getBlockNumber)
                 .collect(Collectors.toSet());
     }
 
@@ -42,7 +42,6 @@ public class EventConfirmationDbPersister implements EventConfirmationPersister 
     public Iterable<EventConfirmation> getAllPairs() {
         return eventConfirmationRepository.findAll()
                 .stream()
-                //.map(EventConfirmation::"")
                 .collect(Collectors.toSet());
     }
 

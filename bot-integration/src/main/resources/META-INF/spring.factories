@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=io.mywish.bot.integration.BotIntegrationModule
+#org.springframework.boot.autoconfigure.EnableAutoConfiguration=io.mywish.bot.integration.BotIntegrationModule

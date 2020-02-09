@@ -25,6 +25,7 @@ import io.lastwill.eventscan.services.BalanceProvider;
 import io.lastwill.eventscan.services.ExternalNotifier;
 import io.lastwill.eventscan.services.handlers.events.TransferOwnershipHandler;
 import io.mywish.blockchain.ContractEvent;
+import io.mywish.blockchain.ContractEventDefinition;
 import io.mywish.scanner.services.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -348,6 +349,17 @@ public class ContractEventHandler {
                                 PaymentStatus.COMMITTED,
                                 event.getTransaction().getHash(),
                                 (SelfdestructionEvent) contractEvent
+                        )
+                );
+            } else if (contractEvent instanceof TransactionConfirmationEvent) {
+                externalNotifier.send(
+                        event.getNetworkType(),
+                        new BlocksConfirmedNotify(
+                                event.getContract().getId(),
+                                PaymentStatus.COMMITTED,
+                                event.getTransaction().getHash(),
+                                event.getBlocksConfirmed(),
+                                (TransactionConfirmationEvent) contractEvent
                         )
                 );
             }

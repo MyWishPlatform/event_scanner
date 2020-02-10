@@ -101,7 +101,7 @@ public class ConfirmationTokenProtectorMonitor {
         }
 
         try  {
-            for (EventConfirmation entry : eventConfirmationDbPersister.getAllByNetwork(NetworkType.ETHEREUM_MAINNET)) {
+            for (EventConfirmation entry : eventConfirmationDbPersister.getAllByNetwork(event.getNetworkType())) {
 
                 // Отправить информацию по MQ
                 blocksConfirmed = event.getBlock().getNumber() - entry.getBlockNumber();

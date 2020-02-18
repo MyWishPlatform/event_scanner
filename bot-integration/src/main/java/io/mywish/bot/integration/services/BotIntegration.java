@@ -215,7 +215,7 @@ public class BotIntegration {
         String baseName = subStr[0];
         String quoteName = subStr[1];
 
-        if(order.getPublicStatus()) {
+        if(order.isPublicStatus()) {
             bot.onSwapsOrderFromDataBase(
                     order.getId(),
                     order.getBaseLimit(),

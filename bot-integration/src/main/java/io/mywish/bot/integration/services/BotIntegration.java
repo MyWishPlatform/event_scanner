@@ -215,22 +215,24 @@ public class BotIntegration {
         String baseName = subStr[0];
         String quoteName = subStr[1];
 
-        bot.onSwapsOrderFromDataBase(
-                order.getId(),
-                order.getBaseLimit(),
-                baseName,
-                quoteName,
-                order.getQuoteLimit(),
-                getUser(userId)
-        );
-        botLight.onSwapsOrderFromDataBase(
-                order.getBaseLimit(),
-                baseName,
-                quoteName,
-                order.getQuoteLimit(),
-                order.getUniqueLink()
+        if(order.getPublicStatus()) {
+            bot.onSwapsOrderFromDataBase(
+                    order.getId(),
+                    order.getBaseLimit(),
+                    baseName,
+                    quoteName,
+                    order.getQuoteLimit(),
+                    getUser(userId)
+            );
+            botLight.onSwapsOrderFromDataBase(
+                    order.getBaseLimit(),
+                    baseName,
+                    quoteName,
+                    order.getQuoteLimit(),
+                    order.getUniqueLink()
 
-        );
+            );
+        }
     }
 
     @EventListener

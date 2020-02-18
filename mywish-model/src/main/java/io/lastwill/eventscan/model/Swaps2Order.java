@@ -24,6 +24,9 @@ public class Swaps2Order {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "public")
+    private Boolean publicStatus;
+
     @Column(name = "base_address")
     private String baseAddress;
 

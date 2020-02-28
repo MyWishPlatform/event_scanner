@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.github.mishan74.bitcoinj</groupId>
             <artifactId>bitcoinj-core</artifactId>
-            <version>${bitcoinj.version}</version>
+            <version>${ducatus.version}</version>
         </dependency>
 
     </dependencies>

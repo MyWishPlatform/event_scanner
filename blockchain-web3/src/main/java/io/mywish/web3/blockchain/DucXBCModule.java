@@ -26,7 +26,7 @@ public class DucXBCModule {
     public Web3Network ducXNetMain(
             @Value("${io.lastwill.eventscan.ducatusx.mainnet}") URI web3Url,
             @Value("${etherscanner.ducatusx.polling-interval-ms:30000}") Long pollingInterval,
-            @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
+            @Value("${etherscanner.ducatusx.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
         return new Web3Network(
                 NetworkType.DUCX_MAINNET,
                 new WebSocketClient(web3Url),
@@ -39,7 +39,7 @@ public class DucXBCModule {
     public Web3Network ducXNetTest(
             @Value("${io.lastwill.eventscan.ducatusx.testnet}") URI web3Url,
             @Value("${etherscanner.ducatusx.polling-interval-ms:30000}") Long pollingInterval,
-            @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
+            @Value("${etherscanner.ducatusx.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
         return new Web3Network(
                 NetworkType.DUCX_TESTNET,
                 new WebSocketClient(web3Url),

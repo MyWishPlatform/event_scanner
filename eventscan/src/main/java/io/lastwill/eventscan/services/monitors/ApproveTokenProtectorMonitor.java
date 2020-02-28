@@ -39,7 +39,8 @@ public class ApproveTokenProtectorMonitor {
 
     @EventListener
     private void onNewBlockEvent(final NewBlockEvent event) {
-        if (event.getNetworkType() != NetworkType.ETHEREUM_MAINNET) {
+        if (event.getNetworkType() != NetworkType.ETHEREUM_MAINNET &&
+            event.getNetworkType() != NetworkType.ETHEREUM_ROPSTEN) {
             return;
         }
         Set<String> addresses = new HashSet<>(event.getTransactionsByAddress().keySet());

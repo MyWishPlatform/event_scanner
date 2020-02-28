@@ -10,5 +10,6 @@ public class DucatusNetworkParams extends MainNetParams {
         packetMagic = 0xf9beb4d9;
         addressHeader = 49;
         p2shHeader = 51;
+        this.acceptableAddressCodes = new int[]{this.addressHeader, this.p2shHeader};
     }
 }

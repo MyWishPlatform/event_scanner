@@ -58,14 +58,12 @@ public class ApproveTokenProtectorMonitor {
 
         for (Map.Entry<ProductTokenProtector, Contract> product : protectorByContract.entrySet()) {
             if(product.getValue() == null || product.getValue().getAddress() == null) {
-                log.warn("Contract, or contract address is empty by Token Protector Product id {}", product.getKey().getId());
                 continue;
             }
             final List<WrapperTransaction> transactions = event
                     .getTransactionsByAddress()
                     .get(product.getKey().getOwner().toLowerCase());
             if (transactions == null || transactions.isEmpty()) {
-                log.warn("Transactions is empty by by Token Protector Product id = {}, blockHash = {}", product.getKey().getId(), event.getBlock().getHash());
                 continue;
             }
             for (final WrapperTransaction transaction : transactions) {

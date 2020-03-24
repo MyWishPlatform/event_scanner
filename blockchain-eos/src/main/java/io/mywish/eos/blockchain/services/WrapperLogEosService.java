@@ -89,7 +89,7 @@ public class WrapperLogEosService {
         if (builder != null) {
             return builder;
         }
-        log.warn("Unhandled event {}::{}({}).", output.getAddress(), output.getName(), buildFullKey(output));
+//        log.warn("Unhandled event {}::{}({}).", output.getAddress(), output.getName(), buildFullKey(output));
         return null;
     }
 

@@ -15,6 +15,10 @@ import java.util.HashMap;
 
 @Slf4j
 public class Web3Scanner extends ScannerPolling {
+    public Web3Scanner(Web3Network network, LastBlockPersister lastBlockPersister, long pollingInterval, int commitmentChainLength, int accelerator) {
+        super(network, lastBlockPersister, pollingInterval, commitmentChainLength, 0L, accelerator);
+    }
+
     public Web3Scanner(Web3Network network, LastBlockPersister lastBlockPersister, long pollingInterval, int commitmentChainLength) {
         super(network, lastBlockPersister, pollingInterval, commitmentChainLength);
     }

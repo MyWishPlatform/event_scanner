@@ -27,7 +27,7 @@ public class Web3BCModule {
     public Web3Network ethNetMain(
             @Value("${io.lastwill.eventscan.web3-url.ethereum}") URI web3Url,
             @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
-            @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
+            @Value("${etherscanner.eth.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
         return new Web3Network(
                 NetworkType.ETHEREUM_MAINNET,
                 new WebSocketClient(web3Url),
@@ -40,7 +40,7 @@ public class Web3BCModule {
     public Web3Network ethNetRopsten(
             @Value("${io.lastwill.eventscan.web3-url.ropsten}") URI web3Url,
             @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
-            @Value("${etherscanner.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
+            @Value("${etherscanner.eth.pending-transactions-threshold}") int pendingThreshold) throws ConnectException {
         return new Web3Network(
                 NetworkType.ETHEREUM_ROPSTEN,
                 new WebSocketClient(web3Url),
@@ -144,13 +144,15 @@ public class Web3BCModule {
             final @Qualifier(NetworkType.ETHEREUM_MAINNET_VALUE) Web3Network network,
             final @Qualifier("ethMainnetLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
-            final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
+            final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength,
+            final @Value("${etherscanner.eth.accelerator}") Integer accelerator
     ) {
         return new Web3Scanner(
                 network,
                 lastBlockPersister,
                 pollingInterval,
-                commitmentChainLength
+                commitmentChainLength,
+                accelerator
         );
     }
 
@@ -160,13 +162,15 @@ public class Web3BCModule {
             final @Qualifier(NetworkType.ETHEREUM_ROPSTEN_VALUE) Web3Network network,
             final @Qualifier("ethRopstenLastBlockPersister") LastBlockPersister lastBlockPersister,
             final @Value("${etherscanner.polling-interval-ms:5000}") Long pollingInterval,
-            final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength
+            final @Value("${etherscanner.commit-chain-length:5}") Integer commitmentChainLength,
+            final @Value("${etherscanner.eth.accelerator}") Integer accelerator
     ) {
         return new Web3Scanner(
                 network,
                 lastBlockPersister,
                 pollingInterval,
-                commitmentChainLength
+                commitmentChainLength,
+                accelerator
         );
     }
 /*

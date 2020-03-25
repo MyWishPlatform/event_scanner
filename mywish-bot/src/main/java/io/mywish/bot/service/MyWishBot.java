@@ -3,6 +3,7 @@ package io.mywish.bot.service;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.telegram.telegrambots.TelegramBotsApi;
@@ -22,6 +23,7 @@ import java.util.*;
 @ConditionalOnBean(TelegramBotsApi.class)
 public class MyWishBot extends TelegramLongPollingBot {
     @Autowired
+    @Qualifier("telegramBotsApi")
     private TelegramBotsApi telegramBotsApi;
 
     @Autowired

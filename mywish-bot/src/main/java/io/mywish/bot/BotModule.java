@@ -25,8 +25,15 @@ public class BotModule {
 
     @ConditionalOnProperty(name = "io.mywish.is-ros-com-nadzor", havingValue = "false", matchIfMissing = true)
     @Bean
-    @Scope("prototype")
+    @Scope("singleton")
     public TelegramBotsApi telegramBotsApi() {
+        return new TelegramBotsApi();
+    }
+
+    @ConditionalOnProperty(name = "io.mywish.is-ros-com-nadzor", havingValue = "false", matchIfMissing = true)
+    @Bean
+    @Scope("singleton")
+    public TelegramBotsApi telegramBotsApiLight() {
         return new TelegramBotsApi();
     }
 

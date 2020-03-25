@@ -24,6 +24,9 @@ public abstract class ScannerPolling extends Scanner {
     private final long pollingInterval;
     @Getter
     private final long reachInterval;
+    @Getter
+    private final int accelerator;
+    private int acceleratorCounter = 0;
 
     protected final AtomicBoolean isTerminated = new AtomicBoolean(false);
 
@@ -31,8 +34,7 @@ public abstract class ScannerPolling extends Scanner {
         while (!isTerminated.get()) {
             try {
                 polling();
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 log.warn("{}: polling cycle was interrupted.", network.getType(), e);
                 break;
             }
@@ -54,6 +56,14 @@ public abstract class ScannerPolling extends Scanner {
                     Thread.sleep(reachInterval);
                 }
                 log.debug("Process next block {}/{} immediately.", nextBlockNo, lastBlockNo);
+
+                if (accelerator != 0 && (lastBlockNo - nextBlockNo) > (commitmentChainLength + accelerator)) {
+                    while (acceleratorCounter < accelerator) {
+                        this.loadNextBlock();
+                        acceleratorCounter++;
+                    }
+                    acceleratorCounter = 0;
+                }
                 return;
             }
 
@@ -114,6 +124,7 @@ public abstract class ScannerPolling extends Scanner {
         this.commitmentChainLength = commitmentChainLength;
         this.pollingInterval = pollingInterval;
         this.reachInterval = 0L;
+        this.accelerator = 0;
     }
 
     public ScannerPolling(WrapperNetwork network, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength, Long reachInterval) {
@@ -122,6 +133,16 @@ public abstract class ScannerPolling extends Scanner {
         this.commitmentChainLength = commitmentChainLength;
         this.pollingInterval = pollingInterval;
         this.reachInterval = reachInterval;
+        this.accelerator = 0;
+    }
+
+    public ScannerPolling(WrapperNetwork network, LastBlockPersister lastBlockPersister, Long pollingInterval, Integer commitmentChainLength, Long reachInterval, int accelerator) {
+        super(network, lastBlockPersister);
+        this.setWorker(poller);
+        this.commitmentChainLength = commitmentChainLength;
+        this.pollingInterval = pollingInterval;
+        this.reachInterval = reachInterval;
+        this.accelerator = accelerator;
     }
 
     @PostConstruct
@@ -136,8 +157,7 @@ public abstract class ScannerPolling extends Scanner {
                 nextBlockNo = lastBlockNo - commitmentChainLength;
             }
             log.info("{} RPC: latest block is {} but next is {}.", network.getType(), lastBlockNo, nextBlockNo);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("{} sending failed.", network.getType());
             throw e;
         }
@@ -148,8 +168,7 @@ public abstract class ScannerPolling extends Scanner {
     protected void close() {
         try {
             lastBlockPersister.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.warn("Persister for {} closing failed.", network.getType(), e);
         }
         isTerminated.set(true);

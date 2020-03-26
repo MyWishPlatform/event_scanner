@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=io.mywish.btc.blockchain.DucBCModule
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=io.mywish.duc.blockchain.DucBCModule

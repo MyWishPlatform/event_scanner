@@ -1,7 +1,7 @@
-package io.mywish.btc.blockchain.services;
+package io.mywish.duc.blockchain.services;
 
 import com.neemre.btcdcli4j.core.client.BtcdClient;
-import io.mywish.btc.blockchain.helper.DucBlockParser;
+import io.mywish.duc.blockchain.helper.DucBlockParser;
 import io.lastwill.eventscan.model.NetworkType;
 import io.mywish.blockchain.WrapperBlock;
 import io.mywish.blockchain.WrapperNetwork;

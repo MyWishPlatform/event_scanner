@@ -1,4 +1,4 @@
-package io.mywish.btc.blockchain.services;
+package io.mywish.duc.blockchain.services;
 
 import io.mywish.blockchain.WrapperOutput;
 import io.mywish.blockchain.WrapperTransaction;

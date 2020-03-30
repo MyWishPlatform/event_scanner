@@ -1,11 +1,11 @@
-package io.mywish.btc.blockchain;
+package io.mywish.duc.blockchain;
 
 import com.neemre.btcdcli4j.core.client.BtcdClientImpl;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.repositories.LastBlockRepository;
-import io.mywish.btc.blockchain.helper.DucatusNetworkParams;
-import io.mywish.btc.blockchain.services.DucNetwork;
-import io.mywish.btc.blockchain.services.DucScanner;
+import io.mywish.duc.blockchain.helper.DucatusNetworkParams;
+import io.mywish.duc.blockchain.services.DucNetwork;
+import io.mywish.duc.blockchain.services.DucScanner;
 import io.mywish.scanner.services.LastBlockDbPersister;
 import io.mywish.scanner.services.LastBlockFilePersister;
 import io.mywish.scanner.services.LastBlockPersister;

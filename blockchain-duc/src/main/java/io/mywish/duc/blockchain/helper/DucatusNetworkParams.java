@@ -1,4 +1,5 @@
-package io.mywish.btc.blockchain.helper;
+package io.mywish.duc.blockchain.helper;
+
 
 import org.bitcoinj.params.MainNetParams;
 

@@ -33,14 +33,11 @@ public class ApproveTokenProtectorMonitor {
     private EventPublisher eventPublisher;
     @Autowired
     private ProductRepository productRepository;
-    private List<ProductTokenProtector> tokenProtectorProducts;
-
-    private Map<ProductTokenProtector, Contract> protectorByContract = new HashMap<>();
 
     @EventListener
     private void onNewBlockEvent(final NewBlockEvent event) {
         if (event.getNetworkType() != NetworkType.ETHEREUM_MAINNET &&
-            event.getNetworkType() != NetworkType.ETHEREUM_ROPSTEN) {
+                event.getNetworkType() != NetworkType.ETHEREUM_ROPSTEN) {
             return;
         }
         Set<String> addresses = new HashSet<>(event.getTransactionsByAddress().keySet());
@@ -48,16 +45,17 @@ public class ApproveTokenProtectorMonitor {
             return;
         }
 
-        tokenProtectorProducts = productRepository.findProtectorsByOwner(addresses);
+        List<ProductTokenProtector> tokenProtectorProducts = productRepository.findProtectorsByOwner(addresses);
         if (tokenProtectorProducts.isEmpty()) {
             return;
         }
+        Map<ProductTokenProtector, Contract> protectorByContract = new HashMap<>();
         for (ProductTokenProtector tokenProtectorProduct : tokenProtectorProducts) {
             protectorByContract.put(tokenProtectorProduct, contractRepository.findFirstById(tokenProtectorProduct.getEthContract()));
         }
 
         for (Map.Entry<ProductTokenProtector, Contract> product : protectorByContract.entrySet()) {
-            if(product.getValue() == null || product.getValue().getAddress() == null) {
+            if (product.getValue() == null || product.getValue().getAddress() == null) {
                 continue;
             }
             final List<WrapperTransaction> transactions = event

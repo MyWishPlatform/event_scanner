@@ -10,5 +10,4 @@ public enum  NetworkProviderType {
     BINANCE,
     DUCX,
     DUC,
-    BINANCE_SMART,
 }

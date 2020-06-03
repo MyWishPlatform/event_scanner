@@ -28,8 +28,8 @@ public enum NetworkType {
     WAVES_TESTNET(NetworkProviderType.WAVES),
     BINANCE_MAINNET(NetworkProviderType.BINANCE),
     BINANCE_TESTNET(NetworkProviderType.BINANCE),
-    BINANCE_SMART_MAINNET(NetworkProviderType.BINANCE_SMART),
-    BINANCE_SMART_TESTNET(NetworkProviderType.BINANCE_SMART),
+    BINANCE_SMART_MAINNET(NetworkProviderType.WEB3),
+    BINANCE_SMART_TESTNET(NetworkProviderType.WEB3),
     ;
     public final static String ETHEREUM_MAINNET_VALUE = "ETHEREUM_MAINNET";
     public final static String ETHEREUM_ROPSTEN_VALUE = "ETHEREUM_ROPSTEN";

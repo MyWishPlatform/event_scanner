@@ -19,15 +19,26 @@ public class TransferOwnershipHandler {
     public void handle(final NetworkType networkType, final OwnershipTransferredEvent event, final WrapperTransactionReceipt transactionReceipt) {
         String tokenAddress = event.getAddress();
         String transferTo = event.getNewOwner();
-
-        productRepository.findCrowdsaleByAddressAndTokenAddress(transferTo, tokenAddress, networkType)
-                .forEach(productCrowdsale -> externalNotifier.send(
-                        networkType,
-                        new OwnershipTransferredNotify(
-                                productCrowdsale.getTokenContract().getId(),
-                                transactionReceipt.getTransactionHash(),
-                                productCrowdsale.getCrowdsaleContract().getId()
-                        )
-                ));
+        if (networkType.equals(NetworkType.BINANCE_SMART_MAINNET) || networkType.equals(NetworkType.BINANCE_SMART_TESTNET)) {
+            productRepository.findCrowdsaleBinanceByAddressAndTokenAddress(transferTo, tokenAddress, networkType)
+                    .forEach(productCrowdsale -> externalNotifier.send(
+                            networkType,
+                            new OwnershipTransferredNotify(
+                                    productCrowdsale.getTokenContract().getId(),
+                                    transactionReceipt.getTransactionHash(),
+                                    productCrowdsale.getCrowdsaleContract().getId()
+                            )
+                    ));
+        } else {
+            productRepository.findCrowdsaleByAddressAndTokenAddress(transferTo, tokenAddress, networkType)
+                    .forEach(productCrowdsale -> externalNotifier.send(
+                            networkType,
+                            new OwnershipTransferredNotify(
+                                    productCrowdsale.getTokenContract().getId(),
+                                    transactionReceipt.getTransactionHash(),
+                                    productCrowdsale.getCrowdsaleContract().getId()
+                            )
+                    ));
+        }
     }
 }

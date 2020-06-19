@@ -36,6 +36,17 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
             @Param("network") NetworkType networkType
     );
 
+    @Query("select c " +
+            "from ProductCrowdsaleBinance c " +
+            "where c.crowdsaleContract.address = :address " +
+            "   and c.tokenContract.address = :tokenAddress" +
+            "   and c.network.type = :network")
+    List<ProductCrowdsaleBinance> findCrowdsaleBinanceByAddressAndTokenAddress(
+            @Param("address") String contractAddress,
+            @Param("tokenAddress") String tokenAddress,
+            @Param("network") NetworkType networkType
+    );
+
     @Query("select c from ProductLastWill c " +
             "where c.network.type = :network " +
             "and c.btcKey.address in :addresses ")
@@ -75,6 +86,11 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
             "where c.createdDate >= :from " +
             "and c.network.type = io.lastwill.eventscan.model.NetworkType.ETHEREUM_MAINNET")
     List<ProductCrowdsale> findEthIcoFromDate(@Param("from") LocalDateTime from);
+
+    @Query("select c from ProductCrowdsaleBinance c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.ETHEREUM_MAINNET")
+    List<ProductCrowdsaleBinance> findBinanceIcoFromDate(@Param("from") LocalDateTime from);
 
     @Query("select c from ProductTokenEos c " +
             "where c.createdDate >= :from " +

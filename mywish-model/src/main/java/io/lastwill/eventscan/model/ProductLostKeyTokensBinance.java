@@ -12,7 +12,7 @@ import javax.persistence.Table;
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("31")
 @Getter
-public class ProductLostKeyTokensBinance extends ProductLostKeyWallet{
+public class ProductLostKeyTokensBinance extends ProductLostKeyWalletBinance{
     @Override
     public int getContractType() {
         return 31;

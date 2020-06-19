@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 @Entity
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("25")
-@Table(name = "contracts_contractdetailslostkey")
+@Table(name = "contracts_contractdetailsbinancelostkey")
 public class ProductLostKeyWalletBinance extends Product implements ProductCheckable {
     @Column(name = "check_interval")
     private Integer checkInterval;

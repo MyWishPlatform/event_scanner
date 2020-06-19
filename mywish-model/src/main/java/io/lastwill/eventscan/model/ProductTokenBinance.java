@@ -5,7 +5,7 @@ import lombok.Getter;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "contracts_contractdetailstoken")
+@Table(name = "contracts_contractdetailsbinancetoken")
 @PrimaryKeyJoinColumn(name = "contract_id")
 @DiscriminatorValue("28")
 @Getter

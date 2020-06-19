@@ -59,7 +59,7 @@ public class ContractEventHandler {
     private void eventsHandler(final ContractEventsEvent event) {
         // catch airdrop events
         Product product = event.getContract().getProduct();
-        if (product instanceof ProductAirdrop || product instanceof ProductAirdropTron) {
+        if (product instanceof ProductAirdrop || product instanceof ProductAirdropTron || product instanceof ProductAirdropBinance) {
             List<AirdropEntry> airdropAddresses = event.getEvents()
                     .stream()
                     .filter(contractEvent -> contractEvent instanceof TransferEvent)

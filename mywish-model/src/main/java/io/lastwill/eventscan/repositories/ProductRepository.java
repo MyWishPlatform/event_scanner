@@ -90,6 +90,11 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
             "and c.network.type = io.lastwill.eventscan.model.NetworkType.ETHEREUM_MAINNET")
     List<ProductToken> findEthTokensFromDate(@Param("from") LocalDateTime from);
 
+    @Query("select c from ProductTokenBinance c " +
+            "where c.createdDate >= :from " +
+            "and c.network.type = io.lastwill.eventscan.model.NetworkType.BINANCE_SMART_MAINNET")
+    List<ProductTokenBinance> findBinanceTokensFromDate(@Param("from") LocalDateTime from);
+
     @Query("select c from ProductCrowdsale c " +
             "where c.createdDate >= :from " +
             "and c.network.type = io.lastwill.eventscan.model.NetworkType.ETHEREUM_MAINNET")

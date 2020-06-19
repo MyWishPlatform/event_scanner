@@ -63,6 +63,14 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
             @Param("network") NetworkType networkType
     );
 
+    @Query("select c from ProductInvestmentPoolBinance c " +
+            "where c.network.type = :network " +
+            "and c.tokenAddress in :addresses ")
+    List<ProductInvestmentPoolBinance> findBinanceIPoolByTokenAddress(
+            @Param("addresses") Collection<String> addresses,
+            @Param("network") NetworkType networkType
+    );
+
     @Query("select c from ProductAirdropEos c " +
             "where c.network.type = :network " +
             "and c.adminAddress = :adminAddress " +

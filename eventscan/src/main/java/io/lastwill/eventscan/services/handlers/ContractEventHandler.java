@@ -59,7 +59,7 @@ public class ContractEventHandler {
     private void eventsHandler(final ContractEventsEvent event) {
         // catch airdrop events
         Product product = event.getContract().getProduct();
-        if (product instanceof ProductAirdrop || product instanceof ProductAirdropTron) {
+        if (product instanceof ProductAirdrop || product instanceof ProductAirdropTron || product instanceof ProductAirdropBinance) {
             List<AirdropEntry> airdropAddresses = event.getEvents()
                     .stream()
                     .filter(contractEvent -> contractEvent instanceof TransferEvent)
@@ -174,7 +174,36 @@ public class ContractEventHandler {
 
 
             }
+            else if (contractEvent instanceof InvestEvent && event.getContract().getProduct() instanceof ProductInvestmentPoolBinance) {
+                balanceProvider.getBalanceAsync(
+                        event.getNetworkType(),
+                        event.getContract().getAddress(),
+                        event.getBlock().getNumber()
+                )
+                        .thenAccept(balance -> externalNotifier.send(event.getNetworkType(),
+                                new ExFundsAddedNotify(
+                                        event.getContract().getId(),
+                                        event.getTransaction().getHash(),
+                                        ((InvestEvent) contractEvent).getAmount(),
+                                        balance,
+                                        ((InvestEvent) contractEvent).getInvestorAddress()
+                                )
+                        ))
+                        .exceptionally(throwable -> {
+                            log.error("Getting balance for handling InvestEvent failed.", throwable);
+                            return null;
+                        });
+            }
             else if (contractEvent instanceof WithdrawTokensEvent && event.getContract().getProduct() instanceof ProductInvestmentPool) {
+                externalNotifier.send(event.getNetworkType(),
+                        new TokensSentNotify(
+                                event.getContract().getId(),
+                                event.getTransaction().getHash(),
+                                ((WithdrawTokensEvent) contractEvent).getInvestorAddress(),
+                                ((WithdrawTokensEvent) contractEvent).getAmount()
+                        ));
+            }
+            else if (contractEvent instanceof WithdrawTokensEvent && event.getContract().getProduct() instanceof ProductInvestmentPoolBinance) {
                 externalNotifier.send(event.getNetworkType(),
                         new TokensSentNotify(
                                 event.getContract().getId(),
@@ -192,6 +221,15 @@ public class ContractEventHandler {
                                 ((WithdrawRewardEvent) contractEvent).getAmount()
                         ));
             }
+            else if (contractEvent instanceof WithdrawRewardEvent && event.getContract().getProduct() instanceof ProductInvestmentPoolBinance) {
+                externalNotifier.send(event.getNetworkType(),
+                        new TokensSentNotify(
+                                event.getContract().getId(),
+                                event.getTransaction().getHash(),
+                                ((WithdrawRewardEvent) contractEvent).getAdminAddress(),
+                                ((WithdrawRewardEvent) contractEvent).getAmount()
+                        ));
+            }
             else if (contractEvent instanceof SetInvestmentAddressEvent && event.getContract().getProduct() instanceof ProductInvestmentPool) {
                 externalNotifier.send(event.getNetworkType(),
                         new InvestmentPoolSetupNotify(
@@ -201,7 +239,25 @@ public class ContractEventHandler {
                                 null
                         ));
             }
+            else if (contractEvent instanceof SetInvestmentAddressEvent && event.getContract().getProduct() instanceof ProductInvestmentPoolBinance) {
+                externalNotifier.send(event.getNetworkType(),
+                        new InvestmentPoolSetupNotify(
+                                event.getContract().getId(),
+                                event.getTransaction().getHash(),
+                                ((SetInvestmentAddressEvent) contractEvent).getInvestmentAddress(),
+                                null
+                        ));
+            }
             else if (contractEvent instanceof SetTokenAddressEvent && event.getContract().getProduct() instanceof ProductInvestmentPool) {
+                externalNotifier.send(event.getNetworkType(),
+                        new InvestmentPoolSetupNotify(
+                                event.getContract().getId(),
+                                event.getTransaction().getHash(),
+                                null,
+                                ((SetTokenAddressEvent) contractEvent).getTokenAddress()
+                        ));
+            }
+            else if (contractEvent instanceof SetTokenAddressEvent && event.getContract().getProduct() instanceof ProductInvestmentPoolBinance) {
                 externalNotifier.send(event.getNetworkType(),
                         new InvestmentPoolSetupNotify(
                                 event.getContract().getId(),

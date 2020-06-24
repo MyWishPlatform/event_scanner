@@ -3,6 +3,7 @@ package io.mywish.joule.service;
 import io.lastwill.eventscan.events.model.ContractCreatedEvent;
 import io.lastwill.eventscan.model.Contract;
 import io.lastwill.eventscan.model.ProductCrowdsale;
+import io.lastwill.eventscan.model.ProductCrowdsaleBinance;
 import io.mywish.joule.model.JouleRegistration;
 import io.mywish.joule.repositories.JouleRegistrationRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,13 @@ public class ContractCreationMonitor {
 
         if (contract.getProduct() instanceof ProductCrowdsale) {
             ProductCrowdsale productCrowdsale = (ProductCrowdsale) contract.getProduct();
+            jouleRegistrationRepository.save(new JouleRegistration(
+                    contract,
+                    LocalDateTime.ofInstant(productCrowdsale.getCheckDate(), ZoneOffset.UTC)
+            ));
+        }
+        if (contract.getProduct() instanceof ProductCrowdsaleBinance) {
+            ProductCrowdsaleBinance productCrowdsale = (ProductCrowdsaleBinance) contract.getProduct();
             jouleRegistrationRepository.save(new JouleRegistration(
                     contract,
                     LocalDateTime.ofInstant(productCrowdsale.getCheckDate(), ZoneOffset.UTC)

@@ -68,6 +68,10 @@ public class MQExternalNotifier implements ExternalNotifier {
     private String queueNameBinanceMainnet;
     @Value("${io.lastwill.eventscan.backend-mq.queue.binance-testnet}")
     private String queueNameBinanceTestnet;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.binance-smart-mainnet}")
+    private String queueNameBinanceSmartMainnet;
+    @Value("${io.lastwill.eventscan.backend-mq.queue.binance-smart-testnet}")
+    private String queueNameBinanceSmartTestnet;
 
     private Map<NetworkType, String> queueByNetwork = new HashMap<>();
 
@@ -108,6 +112,9 @@ public class MQExternalNotifier implements ExternalNotifier {
 
         queueByNetwork.put(NetworkType.BINANCE_MAINNET, queueNameBinanceMainnet);
         queueByNetwork.put(NetworkType.BINANCE_TESTNET, queueNameBinanceTestnet);
+
+        queueByNetwork.put(NetworkType.BINANCE_SMART_MAINNET, queueNameBinanceSmartMainnet);
+        queueByNetwork.put(NetworkType.BINANCE_SMART_TESTNET, queueNameBinanceSmartTestnet);
 
         connection = factory.newConnection();
         channel = connection.createChannel();

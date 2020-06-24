@@ -31,6 +31,14 @@ public class ProductStatistics {
         put(20, "SWAPS");
         put(22, "STO");
         put(23, "Token Protector");
+        put(24, "Binance Will contract");
+        put(25, "Binance lost key");
+        put(26, "Binance Deferred payment contract");
+        put(27, "Binance ICO");
+        put(28, "Binance Token");
+        put(29, "Binance Airdrop");
+        put(30, "Binance Investment Pool");
+        put(31, "Binance LostKey with tokens");
     }};
 
     private final Integer contractType;

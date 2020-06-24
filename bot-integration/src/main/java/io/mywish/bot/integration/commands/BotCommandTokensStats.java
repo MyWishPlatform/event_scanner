@@ -55,7 +55,9 @@ public class BotCommandTokensStats implements BotCommand {
 
         List<ProductTokenCommon> products = new ArrayList<>();
         products.addAll(productRepository.findEthTokensFromDate(from));
+        products.addAll(productRepository.findBinanceTokensFromDate(from));
         products.addAll(productRepository.findEthIcoFromDate(from));
+        products.addAll(productRepository.findBinanceIcoFromDate(from));
         products.addAll(productRepository.findEosTokensFromDate(from));
         products.addAll(productRepository.findEosTokensExtFromDate(from));
         products.addAll(productRepository.findEosIcoFromDate(from));

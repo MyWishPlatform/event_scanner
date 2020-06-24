@@ -89,6 +89,16 @@ public class BotIntegrationModule {
     }
 
     @Bean
+    public BinanceSmartChainExplorer binanceSmartExplorerTestnet() {
+        return new BinanceSmartChainExplorer(true);
+    }
+
+    @Bean
+    public BinanceSmartChainExplorer binanceSmartExplorer() {
+        return new BinanceSmartChainExplorer(false);
+    }
+
+    @Bean
     @ConditionalOnBean({MyWishBot.class, MyWishBotLight.class})
     public BotIntegration botIntegration() {
         return new BotIntegration();

@@ -43,6 +43,9 @@ public class ERC20PaymentMonitor {
     @Value("${io.lastwill.eventscan.contract.token-address.swap}")
     private String tokenAddressSwap;
 
+    @Value("${io.lastwill.eventscan.contract.token-address.rubic}")
+    private String tokenAddressRubic;
+
     private final Map<String, CryptoCurrency> addressToCurrency = new HashMap<>();
 
     @PostConstruct
@@ -50,6 +53,7 @@ public class ERC20PaymentMonitor {
         addressToCurrency.put(tokenAddressWish.toLowerCase(), CryptoCurrency.WISH);
         addressToCurrency.put(tokenAddressBnb.toLowerCase(), CryptoCurrency.BNB);
         addressToCurrency.put(tokenAddressSwap.toLowerCase(), CryptoCurrency.SWAP);
+        addressToCurrency.put(tokenAddressRubic.toLowerCase(), CryptoCurrency.RUBIC);
 
         addressToCurrency.forEach(
                 (address, cryptoCurrency) -> log.info("Payment waiting {} - {}.", cryptoCurrency, address)

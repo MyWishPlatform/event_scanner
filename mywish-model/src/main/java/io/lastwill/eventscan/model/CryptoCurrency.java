@@ -17,6 +17,7 @@ public enum CryptoCurrency {
     BNB(18),
     BNBSC(18),
     SWAP(18),
+    RUBIC(18),
     TRX(6),
     TRONISH(6),
     BBNB(8),

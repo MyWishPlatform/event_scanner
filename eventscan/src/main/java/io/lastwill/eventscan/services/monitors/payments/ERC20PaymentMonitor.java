@@ -5,7 +5,6 @@ import io.lastwill.eventscan.events.model.contract.erc20.TransferEvent;
 import io.lastwill.eventscan.model.CryptoCurrency;
 import io.lastwill.eventscan.model.NetworkType;
 import io.lastwill.eventscan.model.UserSiteBalance;
-import io.lastwill.eventscan.repositories.UserProfileRepository;
 import io.lastwill.eventscan.repositories.UserSiteBalanceRepository;
 import io.lastwill.eventscan.services.TransactionProvider;
 import io.mywish.blockchain.WrapperTransaction;
@@ -53,7 +52,7 @@ public class ERC20PaymentMonitor {
         addressToCurrency.put(tokenAddressWish.toLowerCase(), CryptoCurrency.WISH);
         addressToCurrency.put(tokenAddressBnb.toLowerCase(), CryptoCurrency.BNB);
         addressToCurrency.put(tokenAddressSwap.toLowerCase(), CryptoCurrency.SWAP);
-        addressToCurrency.put(tokenAddressRubic.toLowerCase(), CryptoCurrency.RUBIC);
+        addressToCurrency.put(tokenAddressRubic.toLowerCase(), CryptoCurrency.RBC);
 
         addressToCurrency.forEach(
                 (address, cryptoCurrency) -> log.info("Payment waiting {} - {}.", cryptoCurrency, address)

@@ -105,7 +105,7 @@ public class BotIntegration {
         }
     }
 
-    //@EventListener
+    @EventListener
     private void onSwaps2OrderCreated(final Swaps2OrderCreatedEvent event) {
         Swaps2Order order = event.getOrder();
         String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
@@ -116,7 +116,7 @@ public class BotIntegration {
         bot.onSwapsOrder(network, order.getId(), order.getName(), txHash, txLink);
     }
 
-    //@EventListener
+    @EventListener
     private void onSwaps2Deposit(final Swaps2OrderDepositEvent event) {
         Swaps2Order order = event.getOrder();
         String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
@@ -129,7 +129,7 @@ public class BotIntegration {
         bot.onSwaps2Deposit(network, order.getId(), txHash, txLink, symbol, userAddress);
     }
 
-    //@EventListener
+    @EventListener
     private void onSwap2Refund(final Swaps2OrderRefundEvent event) {
         Swaps2Order order = event.getOrder();
         String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
@@ -142,7 +142,7 @@ public class BotIntegration {
         bot.onSwaps2Refund(network, order.getId(), txHash, txLink, symbol, userAddress);
     }
 
-    //@EventListener
+    @EventListener
     private void onSwap2Completed(final Swaps2CompletedEvent event) {
         String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         String txHash = event.getTransaction().getHash();
@@ -153,7 +153,7 @@ public class BotIntegration {
         bot.onSwaps2Completed(network, txHash, txLink, order.getId());
     }
 
-    //@EventListener
+    @EventListener
     private void onSwaps2Canceled(final Swaps2CancelEvent event) {
         Swaps2Order order = event.getOrder();
         String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
@@ -163,7 +163,7 @@ public class BotIntegration {
         bot.onSwaps2Canceled(network, txHash, txLink, order.getId());
     }
 
-    //@EventListener
+    @EventListener
     private void onSwapsDeposit(final SwapDepositEvent event) {
         String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         String txHash = event.getTransaction().getHash();
@@ -174,7 +174,7 @@ public class BotIntegration {
         bot.onSwapsDeposit(network, txHash, txLink, userAddress);
     }
 
-    //@EventListener
+    @EventListener
     private void onSwapCompleted(final SwapCompletedEvent event) {
         String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         String txHash = event.getTransaction().getHash();
@@ -185,7 +185,7 @@ public class BotIntegration {
         bot.onSwapCompleted(network, txHash, txLink, id, productId);
     }
 
-    //@EventListener
+    @EventListener
     private void onSwapCanceled(final SwapCancelEvent event) {
         String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         String txHash = event.getTransaction().getHash();
@@ -196,7 +196,7 @@ public class BotIntegration {
         bot.onSwapCanceled(network, txHash, txLink, id, productId);
     }
 
-    //@EventListener
+    @EventListener
     private void onSwapsRefund(final SwapRefundEvent event) {
         String network = networkName.getOrDefault(event.getNetworkType(), defaultNetwork);
         String txHash = event.getTransaction().getHash();
@@ -207,7 +207,7 @@ public class BotIntegration {
         bot.onSwapsRefund(network, txHash, txLink, userAddress);
     }
 
-    //@EventListener
+    @EventListener
     private void onSwaps2NotificationMQ(final Swaps2NotificationMQEvent event) {
         Swaps2Order order = event.getOrder();
         Integer userId = order.getUser();
